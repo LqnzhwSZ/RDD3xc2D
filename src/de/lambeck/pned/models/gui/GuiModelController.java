@@ -636,6 +636,11 @@ public class GuiModelController implements IGuiModelController {
             return null;
         }
 
+        if (currentModel == null) {
+            System.err.println("GuiModelController.getSelectableElementAtLocation(), currentModel == null!");
+            return null;
+        }
+
         List<IGuiElement> elements = currentModel.getElements();
         // TODO Must the list be sorted again?
         IGuiElement foundElement = null;
@@ -769,6 +774,11 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Task: Move only the selected nodes and update the drawing.
          */
+
+        if (currentModel == null) {
+            System.err.println("GuiModelController.mouseDragged(), currentModel == null!");
+            return;
+        }
 
         /*
          * Get all selected elements.

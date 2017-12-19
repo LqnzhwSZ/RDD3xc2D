@@ -170,7 +170,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public List<IGuiElement> getElements() {
-        return elements;
+        return this.elements;
     }
 
     @Override

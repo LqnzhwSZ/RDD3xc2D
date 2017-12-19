@@ -39,7 +39,7 @@ import de.lambeck.pned.i18n.I18NManager;
 public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo_MousePos, IInfo_SelectionRangeSize,
         IInfo_DrawingAreaSize, IInfo_Status {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     protected ApplicationController myAppController = null;
     protected IGuiModelController myGuiController = null;
@@ -74,35 +74,35 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * chance to abort an action by dragging the mouse away before releasing the
      * mouse button.
      */
-    MyMouseEvent lastMouseEvent = MyMouseEvent.NONE;
+    volatile MyMouseEvent lastMouseEvent = MyMouseEvent.NONE;
 
     /**
      * Location of the mousePressed event. (Mouse click or start of dragging)
      */
-    Point mousePressedLocation = null;
+    volatile Point mousePressedLocation = null;
 
     /**
      * Stores if the mouse is actually dragging. (To allow updating the data
      * model after finishing the drag operation.)
      */
-    boolean mouseIsDragging = false;
+    volatile boolean mouseIsDragging = false;
 
     /**
      * Location of the mouse pointer when dragging started. (e.g. for debug
      * info)
      */
-    Point initialDraggedFrom = null;
+    volatile Point initialDraggedFrom = null;
 
     /**
      * Location of the mouse prior to the current (intermediate) step of
      * dragging
      */
-    Point mouseDraggedFrom = null;
+    volatile Point mouseDraggedFrom = null;
 
     /**
      * Location of the mouse after dragging
      */
-    Point mouseDraggedTo = null;
+    volatile Point mouseDraggedTo = null;
 
     /*
      * Variables for KeyBinding
@@ -176,7 +176,53 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         /*
          * Add KeyBindings for keyboard commands. (KeyListener didn't work!)
          */
-        addKeyBindings();
+        // addKeyBindings();
+
+        /*
+         * KeyboardFocusManager replaces KeyBindings because of unexpected mouse
+         * event with KeyBindings. (Releasing CTRL/ALT was not always detected.)
+         * 
+         * https://stackoverflow.com/a/12763850
+         */
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+
+                // if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE &&
+                // e.isControlDown() && e.isAltDown()) {
+                // label.setText("Hit me");
+                // } else {
+                // label.setText("Nothing to see here...");
+                // }
+
+                // if (e.getKeyCode() == KeyEvent.VK_CONTROL &&
+                // e.isControlDown() && !e.isAltDown()) {
+                // label.setText("CTRL");
+                // } else {
+                // label.setText("—");
+                // }
+
+                if (e.getKeyCode() == KeyEvent.VK_CONTROL && e.isControlDown() && !e.isAltDown()) {
+                    System.out.println("Only CTRL");
+                    ctrl_pressed_Action_occurred();
+                    alt_released_Action_occurred();
+                } else if (e.getKeyCode() == KeyEvent.VK_ALT && !e.isControlDown() && e.isAltDown()) {
+                    System.out.println("Only ALT");
+                    alt_pressed_Action_occurred();
+                    ctrl_released_Action_occurred();
+                } else {
+                    /*
+                     * Something else
+                     */
+                    System.out.println("—");
+                    ctrl_released_Action_occurred();
+                    alt_released_Action_occurred();
+                }
+
+                return false;
+            }
+        });
 
         /*
          * ComponentResizeListener for updates of the drawing area in the status
@@ -338,7 +384,10 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         getActionMap().put("ALT_RELEASED", alt_released_Action);
     }
 
-    protected void ctrl_pressed_Action_occurred() {
+    /**
+     * Protected for access by {@link MyMouseAdapter}
+     */
+    protected synchronized void ctrl_pressed_Action_occurred() {
         if (debug) {
             System.out.println("DrawPanel, ctrl_pressed_Action: We allow special selection modes...");
         }
@@ -352,7 +401,10 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
     }
 
-    protected void ctrl_released_Action_occurred() {
+    /**
+     * Protected for access by {@link MyMouseAdapter}
+     */
+    protected synchronized void ctrl_released_Action_occurred() {
         if (debug) {
             System.out.println("DrawPanel, ctrl_released_Action: We quit special selection modes.");
         }
@@ -360,7 +412,10 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         ctrlKey_pressed = false;
     }
 
-    protected void alt_pressed_Action_occurred() {
+    /**
+     * Protected for access by {@link MyMouseAdapter}
+     */
+    protected synchronized void alt_pressed_Action_occurred() {
         if (debug) {
             System.out.println("DrawPanel, alt_pressed_Action: We allow dragging...");
         }
@@ -381,7 +436,10 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     }
 
-    protected void alt_released_Action_occurred() {
+    /**
+     * Protected for access by {@link MyMouseAdapter}
+     */
+    protected synchronized void alt_released_Action_occurred() {
         if (debug) {
             System.out.println("DrawPanel, alt_released_Action: We quit dragging.");
         }
