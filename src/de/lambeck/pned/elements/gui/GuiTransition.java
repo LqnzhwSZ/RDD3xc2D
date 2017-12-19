@@ -106,7 +106,7 @@ public class GuiTransition extends GuiNode {
     private void drawActivated(Graphics2D g2) {
 
         // TODO Test
-        setActivated(true);
+        // setActivated(true);
 
         if (isActivated()) {
             g2.setColor(CustomColor.PALE_GREEN.getColor());

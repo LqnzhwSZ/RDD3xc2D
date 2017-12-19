@@ -154,6 +154,8 @@ public class MyMouseAdapter extends MouseAdapter {
              */
             boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
             boolean altKey_pressed = myDrawPanel.altKey_pressed;
+            // System.out.println("ctrlKey_pressed: " + ctrlKey_pressed);
+            // System.out.println("altKey_pressed: " + altKey_pressed);
 
             /*
              * Pass both locations (mousePressed and current) to the GUI
@@ -178,8 +180,17 @@ public class MyMouseAdapter extends MouseAdapter {
                 }
                 myGuiController.mouseClick_WithCtrl_Occurred(p, e);
 
+            } else if (!ctrlKey_pressed && altKey_pressed) {
+                // Nothing
+                System.err.println("Unexpected mouse event at: " + e.getPoint());
+                System.err.println("ctrlKey_pressed: " + ctrlKey_pressed);
+                System.err.println("altKey_pressed: " + altKey_pressed);
+
             } else {
                 System.err.println("Unexpected mouse event at: " + e.getPoint());
+                System.err.println("ctrlKey_pressed: " + ctrlKey_pressed);
+                System.err.println("altKey_pressed: " + altKey_pressed);
+
             }
 
         } else {
@@ -247,6 +258,15 @@ public class MyMouseAdapter extends MouseAdapter {
      *            The mouse event
      */
     private void handleMousePressed(MouseEvent e) {
+        /*
+         * TODO Always check CTRL and ALT from here too to avoid those
+         * Unexpected mouse event!
+         */
+        if (!e.isControlDown()) 
+            myDrawPanel.ctrl_released_Action_occurred();
+        if (!e.isAltDown()) 
+            myDrawPanel.alt_released_Action_occurred();
+
         /*
          * We "leave" a popup menu with a new mouse event on the DrawPanel?
          */

@@ -60,7 +60,7 @@ public class DataModel implements IDataModel, IModelRename {
         this.displayName = displayName;
 
         if (debug) {
-            System.out.println("PNDataModel created, name: " + getDisplayName() + ", " + getModelName());
+            System.out.println("DataModel created, name: " + getDisplayName() + ", " + getModelName());
         }
     }
 
@@ -136,7 +136,7 @@ public class DataModel implements IDataModel, IModelRename {
             addElement(newPlace);
         } catch (PNDuplicateAddedException e) {
             // e.printStackTrace();
-            System.err.println("PNDataModel, addPlace: " + e.getMessage());
+            System.err.println("DataModel, addPlace: " + e.getMessage());
             return;
         }
 
@@ -168,7 +168,7 @@ public class DataModel implements IDataModel, IModelRename {
             addElement(newTransition);
         } catch (PNDuplicateAddedException e) {
             // e.printStackTrace();
-            System.err.println("PNDataModel, addTransition: " + e.getMessage());
+            System.err.println("DataModel, addTransition: " + e.getMessage());
             return;
         }
 
@@ -219,7 +219,7 @@ public class DataModel implements IDataModel, IModelRename {
              */
             String title = "Arc, id = " + id;
             // String errorMessage = e.getMessage();
-            String errorMessage = "PNDataModel, addArc: " + e.getMessage();
+            String errorMessage = "DataModel, addArc: " + e.getMessage();
             System.err.println(errorMessage);
             JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.WARNING_MESSAGE);
 
@@ -233,7 +233,7 @@ public class DataModel implements IDataModel, IModelRename {
             addElement(newArc);
         } catch (PNDuplicateAddedException e) {
             // e.printStackTrace();
-            System.err.println("PNDataModel, addArc: " + e.getMessage());
+            System.err.println("DataModel, addArc: " + e.getMessage());
             return;
         }
 
@@ -247,7 +247,7 @@ public class DataModel implements IDataModel, IModelRename {
 
     private void addElement(IDataElement newElement) throws PNDuplicateAddedException {
         if (debug) {
-            System.out.println("PNDataModel(" + getModelName() + ").addElement()");
+            System.out.println("DataModel(" + getModelName() + ").addElement()");
         }
 
         for (IDataElement test : elements) {
@@ -272,7 +272,7 @@ public class DataModel implements IDataModel, IModelRename {
     @Override
     public void clear() {
         if (debug) {
-            System.out.println("PNDataModel(" + getModelName() + ").clear()");
+            System.out.println("DataModel(" + getModelName() + ").clear()");
         }
 
         elements.clear();

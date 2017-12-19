@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import de.lambeck.pned.application.ApplicationController;
+import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiArc;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
@@ -134,13 +135,13 @@ public interface IDrawPanel {
 
     /**
      * Tells the draw panel that the current popup menu was cancelled. (e.g.
-     * with ESC)
+     * with ESC or by clicking at somewhere else on the DrawPanel)
      */
     void popupMenuCanceled();
 
     /**
-     * Tells the draw panel that the current popup menu was left. (e.g. by
-     * clicking at one of the Actions in the popup menu)
+     * Tells the draw panel that the current popup menu was left. (e.g.
+     * "normally" by clicking at a button of the popup menu)
      */
     void popupMenuLeft();
 
@@ -159,5 +160,13 @@ public interface IDrawPanel {
      *         {@link IGuiNode} to finish the Arc; otherwise false.
      */
     boolean getStateAddingNewArc();
+
+    /**
+     * Returns the type of node currently set as source for the new
+     * {@link IGuiArc} to be added by the {@link IGuiModelController}.
+     * 
+     * @return The {@link ENodeType} of the node
+     */
+    ENodeType getSourceForNewArcType();
 
 }

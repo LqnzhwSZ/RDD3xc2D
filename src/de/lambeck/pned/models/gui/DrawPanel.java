@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.swing.*;
 
 import de.lambeck.pned.application.*;
+import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.gui.CustomColor;
@@ -184,7 +185,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         addComponentListener(new ComponentResizeListener(appController));
 
         if (debug) {
-            System.out.println("PNDrawPanel created, name: " + getModelName());
+            System.out.println("DrawPanel created, name: " + getModelName());
         }
     }
 
@@ -194,6 +195,10 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * getauscht wurde. Ersetzt durch einwandfrei funktionierende KeyBindings.
      */
     // void handleKeyEvent(KeyEvent e)
+
+    /*
+     * Keyboard events
+     */
 
     /**
      * Adds KeyBindings to this {@link DrawPanel}.
@@ -290,17 +295,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         Action ctrl_pressed_Action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, ctrl_pressed_Action: We allow special selection modes...");
-                }
-
-                /*
-                 * Check if already allowed since CTRL_PRESSED fires again and
-                 * again if the user holds the CTRL button down...
-                 */
-                if (!ctrlKey_pressed) {
-                    ctrlKey_pressed = true;
-                }
+                ctrl_pressed_Action_occurred();
             }
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrl_pressed, "CTRL_PRESSED");
@@ -310,11 +305,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         Action ctrl_released_Action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, ctrl_released_Action: We quit special selection modes.");
-                }
-
-                ctrlKey_pressed = false;
+                ctrl_released_Action_occurred();
             }
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrl_released, "CTRL_RELEASED");
@@ -330,23 +321,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         Action alt_pressed_Action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, alt_pressed_Action: We allow dragging...");
-                }
-
-                /*
-                 * Check if already allowed since ALT_PRESSED fires again and
-                 * again if the user holds the ALT button down...
-                 */
-                if (!altKey_pressed) {
-                    altKey_pressed = true;
-
-                    /*
-                     * Change Cursor to "moveCursor"
-                     */
-                    Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-                    setCursor(moveCursor);
-                }
+                alt_pressed_Action_occurred();
             }
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(alt_pressed, "ALT_PRESSED");
@@ -356,20 +331,67 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         Action alt_released_Action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, alt_released_Action: We quit dragging.");
-                }
-
-                altKey_pressed = false;
-
-                /*
-                 * Reset the Cursor.
-                 */
-                setCursor(null);
+                alt_released_Action_occurred();
             }
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(alt_released, "ALT_RELEASED");
         getActionMap().put("ALT_RELEASED", alt_released_Action);
+    }
+
+    protected void ctrl_pressed_Action_occurred() {
+        if (debug) {
+            System.out.println("DrawPanel, ctrl_pressed_Action: We allow special selection modes...");
+        }
+
+        /*
+         * Check if already allowed since CTRL_PRESSED fires again and again if
+         * the user holds the CTRL button down...
+         */
+        if (!ctrlKey_pressed) {
+            ctrlKey_pressed = true;
+        }
+    }
+
+    protected void ctrl_released_Action_occurred() {
+        if (debug) {
+            System.out.println("DrawPanel, ctrl_released_Action: We quit special selection modes.");
+        }
+
+        ctrlKey_pressed = false;
+    }
+
+    protected void alt_pressed_Action_occurred() {
+        if (debug) {
+            System.out.println("DrawPanel, alt_pressed_Action: We allow dragging...");
+        }
+
+        /*
+         * Check if already allowed since ALT_PRESSED fires again and again if
+         * the user holds the ALT button down...
+         */
+        // if (!altKey_pressed) {
+        altKey_pressed = true;
+
+        /*
+         * Change Cursor to "moveCursor"
+         */
+        Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+        setCursor(moveCursor);
+        // }
+
+    }
+
+    protected void alt_released_Action_occurred() {
+        if (debug) {
+            System.out.println("DrawPanel, alt_released_Action: We quit dragging.");
+        }
+
+        altKey_pressed = false;
+
+        /*
+         * Reset the Cursor.
+         */
+        setCursor(null);
     }
 
     /*
@@ -380,7 +402,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (debug) {
-            System.out.println("PNDrawPanel(" + getModelName() + ").paintComponent()");
+            System.out.println("DrawPanel(" + getModelName() + ").paintComponent()");
         }
 
         Graphics2D g2 = (Graphics2D) g;
@@ -629,6 +651,11 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     @Override
     public boolean getStateAddingNewArc() {
         return myGuiController.getStateAddingNewArc();
+    }
+
+    @Override
+    public ENodeType getSourceForNewArcType() {
+        return myGuiController.getSourceForNewArcType();
     }
 
     /*

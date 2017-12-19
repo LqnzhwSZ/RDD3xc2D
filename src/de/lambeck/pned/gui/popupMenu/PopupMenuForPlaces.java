@@ -7,6 +7,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.models.gui.DrawPanel;
 import de.lambeck.pned.models.gui.IDrawPanel;
@@ -121,12 +122,32 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         toBackgroundAction.setEnabled(currZ != minZ);
 
         /*
-         * Check if we are adding a new arc.
+         * Check if we are adding a new arc (of proper type).
          */
+        boolean enableNewArcFromHereAction = getEnableNewArcFromHere();
+        newArcFromHereAction.setEnabled(enableNewArcFromHereAction);
+
+        boolean enableNewArcToHereAction = getEnableNewArcToHere();
+        newArcToHereAction.setEnabled(enableNewArcToHereAction);
+    }
+
+    private boolean getEnableNewArcFromHere() {
         boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
-        newArcFromHereAction.setEnabled(!addingNewArc);
-        // TODO Check here already if this type is different from source type!
-        newArcToHereAction.setEnabled(addingNewArc);
+
+        if (addingNewArc)
+            return false;
+
+        return true;
+    }
+
+    private boolean getEnableNewArcToHere() {
+        boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
+        ENodeType sourceForNewArc = myDrawPanel.getSourceForNewArcType();
+
+        if (!addingNewArc)
+            return false;
+
+        return (sourceForNewArc == ENodeType.TRANSITION);
     }
 
     /*

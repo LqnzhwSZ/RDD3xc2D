@@ -37,8 +37,8 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
 
     /**
-     * Label offset in x direction (offset from shapeCenter, "0" means start
-     * below the center of the node)
+     * Label offset in x direction (offset from shapeLeftX, "0" means start
+     * below the left border of the node)
      */
     static int labelOffsetX = 0;
     /**
@@ -246,7 +246,8 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     public Point getLabelLocation() {
         // calculateMyBounds();
-        int newX = this.shapeCenter.x + labelOffsetX;
+        // int newX = this.shapeCenter.x + labelOffsetX;
+        int newX = this.shapeLeftX + labelOffsetX;
         int newY = this.shapeCenter.y + (shapeSize / 2) + labelOffsetY;
         Point location = new Point(newX, newY);
         return location;
@@ -350,11 +351,12 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
 
         /*
          * Real calculation is necessary only for totalWidth and totalHeight
-         * because the label starts below the center of the shape.
+         * because the label starts below the shape.
          */
         this.totalLeftX = shapeLeftX;
         this.totalTopY = shapeTopY;
-        this.totalWidth = Math.max(shapeSize / 2 + labelWidth, shapeSize);
+        // this.totalWidth = Math.max(shapeSize / 2 + labelWidth, shapeSize);
+        this.totalWidth = Math.max(labelWidth, shapeSize);
         this.totalHeight = shapeSize + labelOffsetY;
 
         /*

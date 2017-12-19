@@ -9,6 +9,7 @@ import de.lambeck.pned.application.*;
 import de.lambeck.pned.application.actions.EditDeleteAction;
 import de.lambeck.pned.application.actions.EditRenameAction;
 import de.lambeck.pned.application.actions.NewPlaceAction;
+import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.data.EPlaceMarking;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
@@ -247,6 +248,14 @@ public interface IGuiModelController
      *         {@link IGuiNode} to finish the Arc; otherwise false.
      */
     boolean getStateAddingNewArc();
+
+    /**
+     * Returns the type of node currently set as source for the new
+     * {@link IGuiArc} to be added by this {@link IGuiModelController}.
+     * 
+     * @return The {@link ENodeType} of the node
+     */
+    ENodeType getSourceForNewArcType();
 
     /**
      * Sets the {@link IGuiNode} at the popup menu location as target for the

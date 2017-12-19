@@ -11,11 +11,9 @@ import javax.swing.JOptionPane;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
+import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.data.EPlaceMarking;
-import de.lambeck.pned.elements.gui.IGuiArc;
-import de.lambeck.pned.elements.gui.IGuiElement;
-import de.lambeck.pned.elements.gui.IGuiNode;
-import de.lambeck.pned.elements.gui.ISelectable;
+import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNElementException;
 import de.lambeck.pned.i18n.I18NManager;
 
@@ -67,6 +65,11 @@ public class GuiModelController implements IGuiModelController {
      * Note: Attribute {@link addingNewArc} should be true if this is != null.
      */
     private IGuiNode sourceNodeForNewArc = null;
+
+    /**
+     * The type of the source node for the new Arc to be added.
+     */
+    private ENodeType sourceForNewArcType = null;
 
     /**
      * Stores if this GUI model controller is in the state of "adding a new Arc"
@@ -502,6 +505,12 @@ public class GuiModelController implements IGuiModelController {
          */
         sourceNodeForNewArc = node;
 
+        if (node instanceof GuiPlace) {
+            sourceForNewArcType = ENodeType.PLACE;
+        } else if (node instanceof GuiTransition) {
+            sourceForNewArcType = ENodeType.TRANSITION;
+        }
+
         /*
          * Set my state.
          */
@@ -527,10 +536,17 @@ public class GuiModelController implements IGuiModelController {
          * -> This should force the PopupMenuManager to enable the first of the
          * two Actions (NewArcFromHereAction)
          */
-        if (this.sourceNodeForNewArc == null)
+        if (this.sourceNodeForNewArc == null) {
             this.stateAddingNewArc = false;
+            this.sourceForNewArcType = null;
+        }
 
         return this.stateAddingNewArc;
+    }
+
+    @Override
+    public ENodeType getSourceForNewArcType() {
+        return this.sourceForNewArcType;
     }
 
     @Override
@@ -605,6 +621,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void resetStateAddingNewArc() {
         this.sourceNodeForNewArc = null;
+        this.sourceForNewArcType = null;
         this.stateAddingNewArc = false;
     }
 

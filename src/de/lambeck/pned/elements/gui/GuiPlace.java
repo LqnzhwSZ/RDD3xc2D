@@ -123,7 +123,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         g2.setColor(Color.BLACK);
 
         if (this.marking == EPlaceMarking.ZERO) {
-            g2.drawOval(left_x, top_y, size, size);
+            // g2.drawOval(left_x, top_y, size, size);
         } else {
             g2.fillOval(left_x, top_y, size, size);
         }
