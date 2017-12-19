@@ -1,0 +1,15 @@
+
+    /**
+     * Sets the tab color based on the 1st char of the title.
+     * 
+     * @param index
+     *            The index of the tab
+     */
+    private void initTabColor(int index) {
+        char c = tabbedPane.getTitleAt(index).toUpperCase().charAt(0);
+        // A...Z: 65...90
+        float f = (((float) c) - 65) / (91 - 65);
+        // System.out.println("f: " + f);
+        Color color = Color.getHSBColor((float) f, 0.3F, 1F);
+        tabbedPane.setBackgroundAt(index, color);
+    }

@@ -1,0 +1,84 @@
+
+    /**
+     * Draws a rectangular marker around all selected elements.
+     * 
+     * @param g
+     *            The graphics context
+     */
+    private void drawSelectionRange(Graphics2D g2) {
+        if (selectedElements.size() == 0)
+            return;
+
+        if (debug) {
+            System.out.println("Draw selection");
+        }
+        // TODO Arrows einbeziehen! Oder ganze Methode weglassen?
+
+        boolean elementsSelected = false;
+        boolean firstSelectedElement = true;
+
+        int selRangeLeftX = 0;
+        int selRangeTopY = 0;
+        int selRangeRightX = 0;
+        int selRangeBottomY = 0;
+
+        for (IPNGuiElement element : selectedElements) {
+            elementsSelected = true;
+
+            /*
+             * TODO We can ignore arcs because they will always be somewhere
+             * between the nodes?
+             */
+            if (element instanceof IPNGuiNode) {
+                IPNGuiNode nextNode = ((IPNGuiNode) element);
+
+                int nextLeftX = nextNode.getTotalLeftX();
+                int nextTopY = nextNode.getTotalTopY();
+                int nextRightX = nextLeftX + nextNode.getTotalWidth();
+                int nextBottomY = nextTopY + nextNode.getTotalHeight();
+
+                if (firstSelectedElement) {
+                    selRangeLeftX = nextLeftX;
+                } else {
+                    selRangeLeftX = Math.min(selRangeLeftX, nextLeftX);
+                }
+
+                if (firstSelectedElement) {
+                    selRangeTopY = nextTopY;
+                } else {
+                    selRangeTopY = Math.min(selRangeTopY, nextTopY);
+                }
+
+                if (firstSelectedElement) {
+                    selRangeRightX = nextRightX;
+                } else {
+                    selRangeRightX = Math.max(selRangeRightX, nextRightX);
+                }
+
+                if (firstSelectedElement) {
+                    selRangeBottomY = nextBottomY;
+                } else {
+                    selRangeBottomY = Math.max(selRangeBottomY, nextBottomY);
+                }
+
+                firstSelectedElement = false;
+            }
+        }
+
+        if (elementsSelected) {
+            int selRangeWidth = selRangeRightX - selRangeLeftX;
+            int selRangeHeight = selRangeBottomY - selRangeTopY;
+
+            int squareSize = 8;
+
+            g2.setStroke(new BasicStroke(1));
+            g2.setColor(CustomColor.DARK_GREEN.getColor());
+
+            g2.drawRect(selRangeLeftX, selRangeTopY, selRangeWidth, selRangeHeight);
+
+            g2.fillRect(selRangeLeftX, selRangeTopY, squareSize, squareSize);
+            g2.fillRect(selRangeRightX - squareSize, selRangeTopY, squareSize, squareSize);
+            g2.fillRect(selRangeRightX - squareSize, selRangeBottomY - squareSize, squareSize, squareSize);
+            g2.fillRect(selRangeLeftX, selRangeBottomY - squareSize, squareSize, squareSize);
+        }
+    }
