@@ -3,6 +3,7 @@ package de.lambeck.pned.models.data.validation;
 import java.util.ArrayList;
 
 import de.lambeck.pned.elements.data.IDataElement;
+import de.lambeck.pned.models.IModel;
 
 /**
  * Implements a validator for workflow nets.
@@ -19,7 +20,6 @@ public class WorkflowNetValidator1 implements IWorkflowNetValidator {
      * 
      * @param model
      */
-    @SuppressWarnings("hiding")
     public WorkflowNetValidator1(IModel model) {
         super();
         this.model = model;
