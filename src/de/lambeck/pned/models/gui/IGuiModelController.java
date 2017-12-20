@@ -13,6 +13,7 @@ import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.data.EPlaceMarking;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
+import de.lambeck.pned.gui.settings.SizeSlider;
 
 /**
  * Interface for controllers for GUI models representing a Petri net. This means
@@ -404,6 +405,15 @@ public interface IGuiModelController
      * Swaps the layer of this element with the next lower element.
      */
     void moveElementOneLayerDown();
+
+    /**
+     * Callback for the {@link SizeSlider} to change the size of the elements on
+     * the draw panels.
+     * 
+     * @param size
+     *            The new size
+     */
+    void changeShapeSize(int size);
 
     // TODO remove methods for elements
 

@@ -21,6 +21,7 @@ import de.lambeck.pned.elements.gui.IGuiPlace;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.PNMLWriter;
 import de.lambeck.pned.gui.menuBar.MenuBar;
+import de.lambeck.pned.gui.settings.SizeSlider;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.gui.toolBar.PnedToolBar;
 import de.lambeck.pned.i18n.I18NManager;
@@ -133,6 +134,9 @@ public class ApplicationController extends AbstractApplicationController {
          */
         MenuBar menuBar = new MenuBar(frame, this, i18n);
         JToolBar toolBarElements = new PnedToolBar(this, i18n);
+
+        toolBarElements.addSeparator();
+        toolBarElements.add(new SizeSlider("Shape size", this));
 
         mainFrame.setJMenuBar(menuBar);
         mainFrame.add(toolBarElements, BorderLayout.PAGE_START);
@@ -757,6 +761,17 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         // TODO Implement
+    }
+
+    /**
+     * Callback for the {@link SizeSlider} to change the size of the elements on
+     * the draw panels.
+     * 
+     * @param size
+     *            The new size
+     */
+    public void changeShapeSize(int size) {
+        guiModelController.changeShapeSize(size);
     }
 
     /*

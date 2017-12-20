@@ -1,5 +1,6 @@
 package de.lambeck.pned.models.gui;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -1383,6 +1384,28 @@ public class GuiModelController implements IGuiModelController {
         for (Rectangle area : areas) {
             updateDrawing(area);
         }
+    }
+
+    @Override
+    public void changeShapeSize(int size) {
+        if (size < 20) {
+            System.err.println("Shape size too small: " + size);
+            return;
+        }
+
+        /*
+         * Change the static attributes.
+         */
+        GuiNode.changeShapeSize(size);
+        GuiArc.changeShapeSize(size);
+
+        /*
+         * Update the whole drawing. (All other draw panels should be updated
+         * when switching the tab.)
+         */
+        Dimension area = currentDrawPanel.getPreferredSize();
+        Rectangle rect = new Rectangle(area);
+        updateDrawing(rect);
     }
 
     /*

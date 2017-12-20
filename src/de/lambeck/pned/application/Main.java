@@ -55,6 +55,9 @@ public class Main {
             // TODO handle exception
         }
 
+        /* Turn off metal's use of bold fonts */
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
+
         /*
          * Create and set up the window.
          */

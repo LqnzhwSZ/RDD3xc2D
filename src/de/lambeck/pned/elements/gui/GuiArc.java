@@ -95,6 +95,16 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * Method for interface IGuiElement
      */
 
+    /**
+     * Changes the size of all shapes (static attribute). Calculates a smaller
+     * value to make arcs smaller than the nodes!
+     * 
+     * @param size
+     */
+    public static void changeShapeSize(int size) {
+        GuiArc.arrowTipLength = (int) (size * 0.3); // Smaller than the nodes!
+    }
+
     @Override
     public Rectangle getLastDrawingArea() {
         return this.lastDrawingArea;

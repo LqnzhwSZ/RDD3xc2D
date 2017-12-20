@@ -1,12 +1,12 @@
 package de.lambeck.pned.models.gui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 
 import de.lambeck.pned.application.*;
 import de.lambeck.pned.elements.ENodeType;
@@ -139,7 +139,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * @param appController
      *            The application controller
      * @param guiController
-     *            The GUI controller
+     *            The GUI model controller
      * @param guiModel
      *            The GUI model to draw on this draw panel
      * @param popupActions
@@ -174,11 +174,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         addMouseMotionListener(new MyMouseAdapter(this, guiController));
 
         /*
-         * Add KeyBindings for keyboard commands. (KeyListener didn't work!)
-         */
-        // addKeyBindings();
-
-        /*
          * KeyboardFocusManager replaces KeyBindings because of unexpected mouse
          * event with KeyBindings. (Releasing CTRL/ALT was not always detected.)
          * 
@@ -189,19 +184,17 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
 
-                // if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE &&
-                // e.isControlDown() && e.isAltDown()) {
-                // label.setText("Hit me");
-                // } else {
-                // label.setText("Nothing to see here...");
-                // }
+                /*
+                 * F2 - rename
+                 * 
+                 * -> Hidden by the EditRenameAction with keyEvent F2!
+                 */
 
-                // if (e.getKeyCode() == KeyEvent.VK_CONTROL &&
-                // e.isControlDown() && !e.isAltDown()) {
-                // label.setText("CTRL");
-                // } else {
-                // label.setText("—");
-                // }
+                /*
+                 * Delete
+                 * 
+                 * -> Hidden by the EditDeleteAction with keyEvent Delete!
+                 */
 
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && e.isControlDown() && !e.isAltDown()) {
                     System.out.println("Only CTRL");
@@ -211,6 +204,9 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                     System.out.println("Only ALT");
                     alt_pressed_Action_occurred();
                     ctrl_released_Action_occurred();
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    System.out.println("Escape");
+                    keyEvent_Escape_Occurred();
                 } else {
                     /*
                      * Something else
@@ -219,6 +215,10 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                     ctrl_released_Action_occurred();
                     alt_released_Action_occurred();
                 }
+
+                /*
+                 * TODO Use cursor? (KeyEvent.VK_RIGHT etc.)
+                 */
 
                 return false;
             }
@@ -238,151 +238,12 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     /*
      * Aus nicht ersichtlichem Grund funktioniert handleKeyEvent(KeyEvent e)
      * nicht mehr, nachdem die Reihenfolge von TabbedPane und ScrollPane
-     * getauscht wurde. Ersetzt durch einwandfrei funktionierende KeyBindings.
+     * getauscht wurde. Ersetzt durch KeyBindings/KeyboardFocusManager.
      */
-    // void handleKeyEvent(KeyEvent e)
 
     /*
      * Keyboard events
      */
-
-    /**
-     * Adds KeyBindings to this {@link DrawPanel}.
-     * 
-     * -> https://coderanch.com/t/346571/java/JTabbedPane-Keyevents
-     */
-    private void addKeyBindings() {
-        /*
-         * Escape
-         */
-        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        Action escape_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, escape_Action (KeyBinding)");
-                    // System.out.println("DrawPanel.this.getPopupMenuActive():
-                    // " + DrawPanel.this.getPopupMenuActive());
-                    System.out
-                            .println("DrawPanel.this.getPopupMenuLocation(): " + DrawPanel.this.getPopupMenuLocation());
-                }
-
-                /*
-                 * Are we just "leaving" a popup menu with ESCAPE?
-                 */
-                // if (DrawPanel.this.getPopupMenuActive()) {
-                // DrawPanel.this.setPopupMenuActive(false);
-                // return; // Do nothing more!
-                // }
-                if (DrawPanel.this.popupMenuLocation != null) {
-                    DrawPanel.this.popupMenuLocation = null;
-                    return; // Do nothing more!
-                }
-
-                /*
-                 * Let the GUI controller do whatever is necessary.
-                 */
-                myGuiController.keyEvent_Escape_Occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
-        getActionMap().put("ESCAPE", escape_Action);
-
-        /*
-         * Delete
-         */
-        KeyStroke delete = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false);
-        Action delete_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, delete_Action (KeyBinding)");
-                }
-
-                /*
-                 * Let the GUI controller do whatever is necessary.
-                 */
-                myGuiController.keyEvent_Delete_Occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(delete, "DELETE");
-        getActionMap().put("DELETE", delete_Action);
-
-        /*
-         * F2 - rename
-         * 
-         * -> Now hidden by the EditRenameAction with keyEvent F2!
-         */
-        KeyStroke f2 = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0, false);
-        Action f2_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (debug) {
-                    System.out.println("DrawPanel, f2_Action (KeyBinding)");
-                }
-
-                /*
-                 * Let the GUI controller do whatever is necessary.
-                 */
-                myGuiController.keyEvent_F2_Occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(f2, "F2");
-        getActionMap().put("F2", f2_Action);
-
-        /*
-         * TODO Use cursor? (KeyEvent.VK_RIGHT etc.)
-         */
-
-        /*
-         * Detect "CTRL" and "CTRL released" to allow special selection modes.
-         */
-        KeyStroke ctrl_pressed = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL, InputEvent.CTRL_DOWN_MASK, false);
-        Action ctrl_pressed_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ctrl_pressed_Action_occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrl_pressed, "CTRL_PRESSED");
-        getActionMap().put("CTRL_PRESSED", ctrl_pressed_Action);
-
-        KeyStroke ctrl_released = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL, 0, true);
-        Action ctrl_released_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ctrl_released_Action_occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrl_released, "CTRL_RELEASED");
-        getActionMap().put("CTRL_RELEASED", ctrl_released_Action);
-
-        /*
-         * Detect "ALT" and "ALT released" to allow and quit dragging.
-         * 
-         * https://www.java-forums.org/awt-swing/35240-key-binding-vk_alt-
-         * vk_shift-not-working.html
-         */
-        KeyStroke alt_pressed = KeyStroke.getKeyStroke(KeyEvent.VK_ALT, InputEvent.ALT_DOWN_MASK, false);
-        Action alt_pressed_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                alt_pressed_Action_occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(alt_pressed, "ALT_PRESSED");
-        getActionMap().put("ALT_PRESSED", alt_pressed_Action);
-
-        KeyStroke alt_released = KeyStroke.getKeyStroke(KeyEvent.VK_ALT, 0, true);
-        Action alt_released_Action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                alt_released_Action_occurred();
-            }
-        };
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(alt_released, "ALT_RELEASED");
-        getActionMap().put("ALT_RELEASED", alt_released_Action);
-    }
 
     /**
      * Protected for access by {@link MyMouseAdapter}
@@ -450,6 +311,26 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
          * Reset the Cursor.
          */
         setCursor(null);
+    }
+
+    protected synchronized void keyEvent_Escape_Occurred() {
+        if (debug) {
+            System.out.println("DrawPanel.escape_Action_occurred()");
+            System.out.println("DrawPanel.this.getPopupMenuLocation(): " + DrawPanel.this.getPopupMenuLocation());
+        }
+
+        /*
+         * Are we just "leaving" a popup menu with ESCAPE?
+         */
+        if (DrawPanel.this.popupMenuLocation != null) {
+            DrawPanel.this.popupMenuLocation = null;
+            return; // Do nothing more!
+        }
+
+        /*
+         * Let the GUI controller do whatever is necessary.
+         */
+        myGuiController.keyEvent_Escape_Occurred();
     }
 
     /*

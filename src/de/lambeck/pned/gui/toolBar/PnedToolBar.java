@@ -1,5 +1,7 @@
 package de.lambeck.pned.gui.toolBar;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JToolBar;
 
 import de.lambeck.pned.application.ApplicationController;
@@ -37,6 +39,12 @@ public class PnedToolBar extends AbstractPnedToolBar {
          */
         // this.setFloatable(false);
         // this.setVisible(false);
+
+        /*
+         * FlowLayout because otherwise the SizeSlider expands to the whole
+         * width of the main frame.
+         */
+        this.setLayout(new FlowLayout(FlowLayout.LEFT));
     }
 
     @Override

@@ -1,6 +1,9 @@
 package de.lambeck.pned.elements.gui;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 import de.lambeck.pned.gui.CustomColor;
 
@@ -21,9 +24,50 @@ public class GuiTransition extends GuiNode {
      * Constructor etc.
      */
 
+    // /**
+    // * Invokes GuiTransition(id, name, p, zOrder, shapeSize) using the static
+    // * attribute shapeSizeStandard.
+    // *
+    // * @param id
+    // * The id
+    // * @param name
+    // * The name of this transition
+    // * @param p
+    // * The center point
+    // * @param zOrder
+    // * The height level
+    // */
+    // @SuppressWarnings("hiding")
+    // public GuiTransition(String id, String name, Point p, int zOrder) {
+    // // super(id, name, p, zOrder);
+    // this(id, name, p, zOrder, shapeSizeStandard);
+    // }
+
+    // /**
+    // * Constructs a Transition at a given location and in the specified z
+    // order
+    // * (height level) and an additional size value.
+    // *
+    // * @param id
+    // * The id
+    // * @param name
+    // * The name of this transition
+    // * @param p
+    // * The center point
+    // * @param zOrder
+    // * The height level
+    // * @param shapeSize
+    // * The size of the shape
+    // */
+    // @SuppressWarnings("hiding")
+    // public GuiTransition(String id, String name, Point p, int zOrder, int
+    // shapeSize) {
+    // super(id, name, p, zOrder, shapeSize);
+    // }
+
     /**
-     * Invokes GuiTransition(id, name, p, zOrder, shapeSize) using the static
-     * attribute shapeSizeStandard.
+     * Constructs a Transition at a given location and in the specified z order
+     * (height level).
      * 
      * @param id
      *            The id
@@ -36,28 +80,7 @@ public class GuiTransition extends GuiNode {
      */
     @SuppressWarnings("hiding")
     public GuiTransition(String id, String name, Point p, int zOrder) {
-        // super(id, name, p, zOrder);
-        this(id, name, p, zOrder, shapeSizeStandard);
-    }
-
-    /**
-     * Constructs a Transition at a given location and in the specified z order
-     * (height level) and an additional size value.
-     * 
-     * @param id
-     *            The id
-     * @param name
-     *            The name of this transition
-     * @param p
-     *            The center point
-     * @param zOrder
-     *            The height level
-     * @param shapeSize
-     *            The size of the shape
-     */
-    @SuppressWarnings("hiding")
-    public GuiTransition(String id, String name, Point p, int zOrder, int shapeSize) {
-        super(id, name, p, zOrder, shapeSize);
+        super(id, name, p, zOrder);
     }
 
     /*

@@ -26,9 +26,54 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
      * Constructor etc.
      */
 
+    // /**
+    // * Invokes GuiPlace(id, name, p, zOrder, initialMarking, shapeSize) using
+    // * the static attribute shapeSizeStandard.
+    // *
+    // * @param id
+    // * The id
+    // * @param name
+    // * The name of this place
+    // * @param p
+    // * The center point
+    // * @param zOrder
+    // * The height level
+    // * @param initialMarking
+    // * The initial marking of this place
+    // */
+    // @SuppressWarnings("hiding")
+    // public GuiPlace(String id, String name, Point p, int zOrder,
+    // EPlaceMarking initialMarking) {
+    // this(id, name, p, zOrder, initialMarking, shapeSizeStandard);
+    // }
+
+    // /**
+    // * Constructs a Place at a given location and in the specified z order
+    // * (height level) and an additional size value.
+    // *
+    // * @param id
+    // * The id
+    // * @param name
+    // * The name of this place
+    // * @param p
+    // * The center point
+    // * @param zOrder
+    // * The height level
+    // * @param initialMarking
+    // * The initial marking of this place
+    // * @param shapeSize
+    // * The size of the shape
+    // */
+    // @SuppressWarnings("hiding")
+    // public GuiPlace(String id, String name, Point p, int zOrder,
+    // EPlaceMarking initialMarking, int shapeSize) {
+    // super(id, name, p, zOrder, shapeSize);
+    // this.marking = initialMarking;
+    // }
+
     /**
-     * Invokes GuiPlace(id, name, p, zOrder, initialMarking, shapeSize) using
-     * the static attribute shapeSizeStandard.
+     * Constructs a Place at a given location and in the specified z order
+     * (height level).
      * 
      * @param id
      *            The id
@@ -43,29 +88,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
      */
     @SuppressWarnings("hiding")
     public GuiPlace(String id, String name, Point p, int zOrder, EPlaceMarking initialMarking) {
-        this(id, name, p, zOrder, initialMarking, shapeSizeStandard);
-    }
-
-    /**
-     * Constructs a Place at a given location and in the specified z order
-     * (height level) and an additional size value.
-     * 
-     * @param id
-     *            The id
-     * @param name
-     *            The name of this place
-     * @param p
-     *            The center point
-     * @param zOrder
-     *            The height level
-     * @param initialMarking
-     *            The initial marking of this place
-     * @param shapeSize
-     *            The size of the shape
-     */
-    @SuppressWarnings("hiding")
-    public GuiPlace(String id, String name, Point p, int zOrder, EPlaceMarking initialMarking, int shapeSize) {
-        super(id, name, p, zOrder, shapeSize);
+        super(id, name, p, zOrder);
         this.marking = initialMarking;
     }
 
@@ -152,7 +175,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         double y_dist = target.getY() - this.shapeCenter.getY();
 
         double dist = Math.sqrt((x_dist * x_dist) + (y_dist * y_dist));
-        double ratio = (this.shapeSize / 2) / dist;
+        double ratio = (GuiNode.shapeSize / 2) / dist;
         double x_offset = x_dist * ratio;
         double y_offset = y_dist * ratio;
 
