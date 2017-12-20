@@ -192,6 +192,8 @@ public class GuiModel implements IGuiModel, IModelRename {
         if (name == null)
             name = "";
 
+        position = shiftPositionToMinXY(position);
+
         /*
          * Get the next value for zOrder
          */
@@ -227,6 +229,8 @@ public class GuiModel implements IGuiModel, IModelRename {
     public void addTransition(String id, String name, Point position) {
         if (name == null)
             name = "";
+
+        position = shiftPositionToMinXY(position);
 
         /*
          * Get the next value for zOrder
@@ -368,6 +372,30 @@ public class GuiModel implements IGuiModel, IModelRename {
     /*
      * Helper methods
      */
+
+    /**
+     * Increases x and y if the specified position is too far to the left or to
+     * the top. (Takes the size of {@link GuiNode} into consideration.)
+     * 
+     * @param position
+     *            The specified position
+     * @return The new position
+     */
+    private Point shiftPositionToMinXY(Point position) {
+        /*
+         * Increase x and y if we are too far to the left or to the top.
+         */
+        int pos_x = position.x;
+        int pos_y = position.y;
+        int min_x = GuiNode.getShapeSize() / 2;
+        int min_y = GuiNode.getShapeSize() / 2;
+
+        pos_x = Math.max(pos_x, min_x);
+        pos_y = Math.max(pos_y, min_y);
+
+        position = new Point(pos_x, pos_y);
+        return position;
+    }
 
     /**
      * Updates the attribute minZValue with the current minimum value for all

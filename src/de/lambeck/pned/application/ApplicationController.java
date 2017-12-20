@@ -136,7 +136,8 @@ public class ApplicationController extends AbstractApplicationController {
         JToolBar toolBarElements = new PnedToolBar(this, i18n);
 
         toolBarElements.addSeparator();
-        toolBarElements.add(new SizeSlider("Shape size", this));
+        String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
+        toolBarElements.add(new SizeSlider(sizeSliderName, this));
 
         mainFrame.setJMenuBar(menuBar);
         mainFrame.add(toolBarElements, BorderLayout.PAGE_START);

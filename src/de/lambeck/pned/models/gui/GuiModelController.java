@@ -406,6 +406,7 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Check if we have a location.
          */
+        // TODO Nach dem Schießen einer Datei ist currentDrawPanel == null!?
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
             System.err.println(
@@ -1403,9 +1404,11 @@ public class GuiModelController implements IGuiModelController {
          * Update the whole drawing. (All other draw panels should be updated
          * when switching the tab.)
          */
-        Dimension area = currentDrawPanel.getPreferredSize();
-        Rectangle rect = new Rectangle(area);
-        updateDrawing(rect);
+        if (currentDrawPanel != null) {
+            Dimension area = currentDrawPanel.getPreferredSize();
+            Rectangle rect = new Rectangle(area);
+            updateDrawing(rect);
+        }
     }
 
     /*

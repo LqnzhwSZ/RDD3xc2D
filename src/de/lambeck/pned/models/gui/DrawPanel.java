@@ -197,23 +197,35 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                  */
 
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && e.isControlDown() && !e.isAltDown()) {
-                    System.out.println("Only CTRL");
+                    if (debug) {
+                        System.out.println("Only CTRL");
+                    }
                     ctrl_pressed_Action_occurred();
-                    alt_released_Action_occurred();
+                    alt_released_Action_occurred(); // Or only in else branch?
+
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && !e.isControlDown() && e.isAltDown()) {
-                    System.out.println("Only ALT");
+                    if (debug) {
+                        System.out.println("Only ALT");
+                    }
                     alt_pressed_Action_occurred();
-                    ctrl_released_Action_occurred();
+                    ctrl_released_Action_occurred(); // Or only in else branch?
+
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    System.out.println("Escape");
+                    if (debug) {
+                        System.out.println("Escape");
+                    }
                     keyEvent_Escape_Occurred();
+
                 } else {
                     /*
                      * Something else
                      */
-                    System.out.println("—");
+                    if (debug) {
+                        System.out.println("—");
+                    }
                     ctrl_released_Action_occurred();
                     alt_released_Action_occurred();
+
                 }
 
                 /*

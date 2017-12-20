@@ -203,6 +203,18 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     }
 
     /**
+     * Returns the size of all shapes (static attribute).
+     * 
+     * Note: Used for placing new nodes inside of the visible area (left and top
+     * border > 0).
+     * 
+     * @return The current shape size
+     */
+    public static int getShapeSize() {
+        return GuiPlace.shapeSize;
+    }
+
+    /**
      * Changes the size of all shapes (static attribute).
      * 
      * @param size
