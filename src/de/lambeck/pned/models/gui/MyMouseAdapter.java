@@ -34,7 +34,7 @@ import java.awt.event.MouseEvent;
  */
 public class MyMouseAdapter extends MouseAdapter {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     private DrawPanel myDrawPanel = null;
     private IGuiModelController myGuiController = null;
@@ -75,6 +75,10 @@ public class MyMouseAdapter extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (debug) {
+            System.out.println("MyMouseAdapter.mousePressed()");
+        }
+
         /*
          * Ignore other than button 1 of the mouse. (e.g. popup menus with the
          * right mouse button)
@@ -130,7 +134,7 @@ public class MyMouseAdapter extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent e) {
         if (debug) {
-            System.out.println("mouseReleased");
+            System.out.println("MyMouseAdapter.mouseReleased()");
         }
 
         /*

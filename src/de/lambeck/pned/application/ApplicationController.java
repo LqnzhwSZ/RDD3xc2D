@@ -1137,7 +1137,9 @@ public class ApplicationController extends AbstractApplicationController {
             return false;
 
         boolean dataModelModified = dataModelController.isModifiedDataModel(modelName);
-        // TODO Check only the data model? (Should hold all persistent info!)
+        /*
+         * Check only the data model. It should hold all persistent info.
+         */
         // boolean guiModelModified =
         // guiModelController.isModifiedGuiModel(modelName);
 

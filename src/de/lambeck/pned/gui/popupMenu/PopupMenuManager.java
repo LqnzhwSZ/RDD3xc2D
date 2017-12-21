@@ -31,6 +31,8 @@ import de.lambeck.pned.models.gui.IGuiModelController;
  */
 public class PopupMenuManager extends MouseAdapter {
 
+    private static boolean debug = false;
+
     private IDrawPanel myDrawPanel;
     private IGuiModelController myGuiController = null;
 
@@ -65,6 +67,10 @@ public class PopupMenuManager extends MouseAdapter {
      */
     @Override
     public void mousePressed(MouseEvent e) {
+        if (debug) {
+            System.out.println("PopupMenuManager.mousePressed()");
+        }
+
         showIfPopupTrigger(e);
     }
 
@@ -75,6 +81,10 @@ public class PopupMenuManager extends MouseAdapter {
      */
     @Override
     public void mouseReleased(MouseEvent e) {
+        if (debug) {
+            System.out.println("PopupMenuManager.mouseReleased()");
+        }
+
         showIfPopupTrigger(e);
     }
 
@@ -114,9 +124,25 @@ public class PopupMenuManager extends MouseAdapter {
      * @return The popup menu
      */
     private JPopupMenu getPopupMenu(Point mouseLocation) {
+        if (debug) {
+            System.out.println("PopupMenuManager.getPopupMenu()");
+        }
+
         IGuiElement element = getElement(mouseLocation);
+        if (debug) {
+            if (element == null)
+                System.out.println("PopupMenuManager.getPopupMenu(), element == null");
+        }
+
         IGuiNode node = getNode(element);
         IGuiArc arc = getArc(element);
+        if (debug) {
+            if (node == null)
+                System.out.println("PopupMenuManager.getPopupMenu(), node == null");
+            if (arc == null)
+                System.out.println("PopupMenuManager.getPopupMenu(), arc == null");
+        }
+
         /*
          * All of them: element, node and arc, might be null!
          */

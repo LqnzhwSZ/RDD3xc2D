@@ -49,6 +49,28 @@ public interface IDataModelController extends IInfo_Status {
     int addDataModel(File pnmlFile);
 
     /**
+     * Checks if the specified data model has been modified.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @return True if the model has been modified; otherwise false
+     */
+    boolean isModifiedDataModel(String modelName);
+
+    /**
+     * Resets the "modified" state of the specified model.
+     * 
+     * Note: Use this method after loading a pnml file because the model has not
+     * been changed by the user after adding elements from the pnml file only.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    void resetModifiedDataModel(String modelName);
+
+    /**
      * Removes the specified data model.
      * 
      * @param modelName
@@ -70,28 +92,6 @@ public interface IDataModelController extends IInfo_Status {
      *            The title of the tab (= the file name)
      */
     void renameDataModel(IDataModel model, String newModelName, String newDisplayName);
-
-    /**
-     * Checks if the specified data model has been modified.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @return True if the model has been modified; otherwise false
-     */
-    boolean isModifiedDataModel(String modelName);
-
-    /**
-     * Resets the "modified" state of the specified model.
-     * 
-     * Note: Use this method after loading a pnml file because the model has not
-     * been changed by the user after adding elements from the pnml file only.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    void resetModifiedDataModel(String modelName);
 
     /**
      * Returns the specified {@link IDataModel}.
@@ -129,6 +129,8 @@ public interface IDataModelController extends IInfo_Status {
      */
     IValidationMessagesPanel getValidationMessagePanel(String modelName);
 
+    // IValidationMessagesPanel getCurrentValidationMessagePanel();
+
     /**
      * Sets the specified {@link IValidationMessagesPanel} as current (active)
      * validation messages panel of the {@link DataModelController}.
@@ -151,6 +153,10 @@ public interface IDataModelController extends IInfo_Status {
     /*
      * Methods for adding, modify and removal of elements (and callbacks for
      * updates between data and GUI model controller)
+     */
+
+    /*
+     * Add elements
      */
 
     /**
@@ -235,6 +241,34 @@ public interface IDataModelController extends IInfo_Status {
      */
     void addArcToCurrentDataModel(String id, String sourceId, String targetId);
 
+    /*
+     * Modify methods for elements
+     */
+
+    /**
+     * Handles the application controllers request to rename a node in the data
+     * model. (After the node in the GUI was renamed.)
+     *
+     * @param nodeId
+     *            The id of the node
+     * @param newName
+     *            The new name
+     */
+    void renameNode(String nodeId, String newName);
+
+    /*
+     * Remove methods for elements
+     */
+
+    /**
+     * Handles the application controllers info to remove an element from the
+     * data model.
+     * 
+     * @param elementId
+     *            The id of the element
+     */
+    void removeDataElement(String elementId);
+
     /**
      * Removes the specified element from the current data model.
      *
@@ -251,44 +285,8 @@ public interface IDataModelController extends IInfo_Status {
     void clearCurrentDataModel();
 
     /*
-     * Modify methods for elements
+     * Mouse events in the GUI
      */
-
-    // /**
-    // * Handles the application controllers info to update the marking of a
-    // place
-    // * in the data model.
-    // *
-    // * @param placeId
-    // * The id of the place
-    // * @param newMarking
-    // * The new marking
-    // */
-    // void toggleMarking(String placeId, EPlaceMarking newMarking);
-
-    /*
-     * Remove methods for elements
-     */
-
-    /**
-     * Handles the application controllers info to remove an element from the
-     * data model.
-     * 
-     * @param elementId
-     *            The id of the element
-     */
-    void removeDataElement(String elementId);
-
-    /**
-     * Handles the application controllers request to rename a node in the data
-     * model. (After the node in the GUI was renamed.)
-     *
-     * @param nodeId
-     *            The id of the node
-     * @param newName
-     *            The new name
-     */
-    void renameNode(String nodeId, String newName);
 
     /**
      * Handles the application controllers request to update the position of a

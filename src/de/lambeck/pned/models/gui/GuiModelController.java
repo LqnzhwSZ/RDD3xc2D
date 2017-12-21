@@ -125,6 +125,7 @@ public class GuiModelController implements IGuiModelController {
     /*
      * Methods for open files
      */
+
     @Override
     public void addGuiModel(String modelName, String displayName) {
         if (debug) {
@@ -144,14 +145,70 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
+    /**
+     * Called by addGuiModel to add an associated {@link IDrawPanel}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param displayName
+     *            The title of the tab (= the file name)
+     */
+    private void addDrawPanel(String modelName, String displayName) {
+        if (debug) {
+            System.out.println("GuiModelController.addDrawPanel(" + modelName + ", " + displayName + ")");
+        }
+
+        this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, currentModel, popupActions,
+                i18n);
+        this.drawPanels.put(modelName, currentDrawPanel);
+
+        if (debug) {
+            System.out.println("Draw panels count: " + drawPanels.size());
+        }
+    }
+
+    @Override
+    public boolean isModifiedGuiModel(String modelName) {
+        boolean modified = false;
+        for (Entry<String, IGuiModel> entry : guiModels.entrySet()) {
+            // String key = entry.getKey();
+            IGuiModel guiModel = entry.getValue();
+
+            if (guiModel.getModelName().equalsIgnoreCase(modelName))
+                modified = guiModel.isModified();
+        }
+
+        return modified;
+
+    }
+
+    @Override
+    public void resetModifiedGuiModel(String modelName) {
+        currentModel.setModified(false);
+    }
+
     @Override
     public void removeGuiModel(String modelName) {
         if (debug) {
-            System.out.println("GuiModelController.removeDataModel(" + modelName + ")");
+            System.out.println("GuiModelController.removeGuiModel(" + modelName + ")");
         }
 
+        /*
+         * Reset the "current model" attribute if we remove the current model.
+         */
+        try {
+            if (this.currentModel.getModelName().equalsIgnoreCase(modelName)) {
+                this.currentModel = null;
+            }
+        } catch (NullPointerException ignore) {
+            // Nothing to do
+        }
+
+        /*
+         * Remove the model.
+         */
         this.guiModels.remove(modelName);
-        this.currentModel = null;
 
         /*
          * Remove the associated draw panel as well.
@@ -160,6 +217,40 @@ public class GuiModelController implements IGuiModelController {
 
         if (debug) {
             System.out.println("GUI models count: " + guiModels.size());
+        }
+    }
+
+    /**
+     * Called by removeGuiModel to remove the associated {@link IDrawPanel}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    private void removeDrawPanel(String modelName) {
+        if (debug) {
+            System.out.println("GuiModelController.removeDrawPanel(" + modelName + ")");
+        }
+
+        /*
+         * Reset the "current draw panel" attribute if we remove the current
+         * draw panel.
+         */
+        try {
+            if (this.currentDrawPanel.getModelName().equalsIgnoreCase(modelName)) {
+                this.currentDrawPanel = null;
+            }
+        } catch (NullPointerException ignore) {
+            // Nothing to do
+        }
+
+        /*
+         * Remove the draw panel.
+         */
+        this.drawPanels.remove(modelName);
+
+        if (debug) {
+            System.out.println("Draw panels count: " + drawPanels.size());
         }
     }
 
@@ -260,45 +351,6 @@ public class GuiModelController implements IGuiModelController {
         return null;
     }
 
-    /**
-     * Called by addGuiModel to add an associated {@link IDrawPanel}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @param displayName
-     *            The title of the tab (= the file name)
-     */
-    private void addDrawPanel(String modelName, String displayName) {
-        if (debug) {
-            System.out.println("GuiModelController.addDrawPanel(" + modelName + ", " + displayName + ")");
-        }
-
-        this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, currentModel, popupActions,
-                i18n);
-        this.drawPanels.put(modelName, currentDrawPanel);
-    }
-
-    /**
-     * Called by removeGuiModel to remove the associated {@link IDrawPanel}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    private void removeDrawPanel(String modelName) {
-        if (debug) {
-            System.out.println("GuiModelController.removeDrawPanel(" + modelName + ")");
-        }
-
-        this.drawPanels.remove(modelName);
-        this.currentDrawPanel = null;
-
-        if (debug) {
-            System.out.println("Draw panels count: " + drawPanels.size());
-        }
-    }
-
     @Override
     public IDrawPanel getCurrentDrawPanel() {
         return this.currentDrawPanel;
@@ -320,26 +372,6 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public boolean isModifiedGuiModel(String modelName) {
-        boolean modified = false;
-        for (Entry<String, IGuiModel> entry : guiModels.entrySet()) {
-            // String key = entry.getKey();
-            IGuiModel guiModel = entry.getValue();
-
-            if (guiModel.getModelName().equalsIgnoreCase(modelName))
-                modified = guiModel.isModified();
-        }
-
-        return modified;
-
-    }
-
-    @Override
-    public void resetModifiedGuiModel(String modelName) {
-        currentModel.setModified(false);
-    }
-
-    @Override
     public List<String> getModifiedGuiModels() {
         List<String> modifiedModels = new ArrayList<String>();
 
@@ -357,6 +389,10 @@ public class GuiModelController implements IGuiModelController {
     /*
      * Methods for adding, modify and removal of elements (and callbacks for
      * updates between data and GUI model controller)
+     */
+
+    /*
+     * Add elements
      */
 
     @Override
@@ -673,6 +709,150 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
+    public void renameSelectedGuiElement() {
+        if (debug) {
+            System.out.println("GuiModelController.renameSelectedGuiElements()");
+        }
+
+        IGuiNode selectedNode;
+        try {
+            selectedNode = getSingleSelectedNode();
+        } catch (PNElementException e) {
+            String warning = i18n.getMessage("warningUnableToRename");
+            String explanation = e.getMessage();
+            String message = warning + " (" + explanation + ")";
+
+            System.out.println(message);
+            setInfo_Status(message, EStatusMessageLevel.INFO);
+            return;
+        }
+
+        /*
+         * OK, we have exactly 1 node and can ask for a new name.
+         */
+        // IGuiNode selectedNode = (IGuiNode) selectedElement;
+        String newName = askUserForNewName();
+
+        if (newName == null)
+            return; // User cancelled the operation
+
+        /*
+         * We have a new name.
+         */
+        selectedNode.setName(newName);
+        currentModel.setModified(true);
+
+        /*
+         * Update the data model!
+         */
+        String nodeId = selectedNode.getId();
+        appController.guiNodeRenamed(nodeId, newName);
+
+        /*
+         * Update the drawing!
+         */
+        Rectangle area = selectedNode.getLastDrawingArea();
+        updateDrawing(area);
+        // area = selectedNode.getLastDrawingArea();
+        // updateDrawing(area);
+    }
+
+    @Override
+    public void updateDrawing(Rectangle area) {
+        currentDrawPanel.updateDrawing(area);
+    }
+
+    /*
+     * Remove methods for elements
+     */
+
+    @Override
+    public void removeSelectedGuiElements() {
+        if (debug) {
+            System.out.println("GuiModelController.removeSelectedGuiElements()");
+        }
+
+        /*
+         * Task: Remove all selected elements *and* all adjacent arcs!
+         */
+
+        /*
+         * Get all selected elements.
+         */
+        List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
+
+        /*
+         * Sort out the nodes (which can have adjacent arcs).
+         */
+        List<IGuiNode> nodes = new LinkedList<IGuiNode>();
+        for (IGuiElement element : toBeRemoved) {
+            if (element instanceof IGuiNode) {
+                IGuiNode node = (IGuiNode) element;
+                nodes.add(node);
+            }
+        }
+
+        /*
+         * Get all adjacent arcs for these nodes.
+         */
+        List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
+
+        /*
+         * Add the adjacent arcs to the list
+         */
+        toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
+
+        /*
+         * Store the drawing area for repainting
+         */
+        List<Rectangle> drawingAreas = getDrawingAreas(toBeRemoved);
+
+        /*
+         * Add to a separate list first to avoid ConcurrentModificationException
+         * when removeElement() removes the element from the list!
+         */
+        List<String> toBeRemoved_IDs = new ArrayList<String>();
+        for (IGuiElement element : toBeRemoved) {
+            toBeRemoved_IDs.add(element.getId());
+        }
+
+        /*
+         * Remove all elements
+         */
+        for (String id : toBeRemoved_IDs) {
+            if (debug) {
+                System.out.println("Remove id: " + id);
+            }
+            currentModel.removeElement(id);
+            currentModel.setModified(true);
+
+            /*
+             * Inform the application controller to remove this element from the
+             * data model!
+             */
+            appController.guiElementRemoved(id);
+        }
+
+        /*
+         * Repaint the areas.
+         */
+        // for (Rectangle rect : drawingAreas) {
+        // updateDrawing(rect);
+        // }
+        updateDrawing(drawingAreas);
+    }
+
+    @Override
+    public void removeGuiArc(String arcId) {
+        currentModel.removeElement(arcId);
+        currentModel.setModified(true);
+    }
+
+    /*
+     * Mouse events
+     */
+
+    @Override
     public void mouseClick_Occurred(Point mousePressedLocation, MouseEvent e) {
         if (mousePressedLocation == null) {
             System.err.println("GuiModelController.mouseClick_Occurred(): mousePressedLocation == null");
@@ -910,11 +1090,18 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
+    /*
+     * Keyboard events
+     */
+
     @Override
     public void keyEvent_Escape_Occurred() {
         resetSelection();
     }
 
+    /**
+     * used by keyEvent_Escape_Occurred()
+     */
     private void resetSelection() {
         List<IGuiElement> selected = currentModel.getSelectedElements();
         if (selected.size() == 0)
@@ -947,17 +1134,12 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void keyEvent_F2_Occurred() {
-        renameSelectedGuiElements();
+        renameSelectedGuiElement();
 
         if (debug) {
             System.out.println("GuiModelController: KeyEvent F2 occurred:");
             System.out.println("Selected element renamed.");
         }
-    }
-
-    @Override
-    public void updateDrawing(Rectangle area) {
-        currentDrawPanel.updateDrawing(area);
     }
 
     @Override
@@ -1004,6 +1186,12 @@ public class GuiModelController implements IGuiModelController {
         moveToForeground(selectedElement);
     }
 
+    /**
+     * Used by moveElementToForeground().
+     * 
+     * @param popupMenuLocation
+     *            The popup menu location on the current draw panel
+     */
     private void moveElementAtPopupMenuToForeground(Point popupMenuLocation) {
         IGuiElement element = getElementAtLocation(popupMenuLocation);
         if (element == null)
@@ -1117,6 +1305,12 @@ public class GuiModelController implements IGuiModelController {
         moveToBackground(selectedElement);
     }
 
+    /**
+     * Used by moveElementToBackground().
+     * 
+     * @param popupMenuLocation
+     *            The popup menu location on the current draw panel
+     */
     private void moveElementAtPopupMenuToBackground(Point popupMenuLocation) {
         IGuiElement element = getElementAtLocation(popupMenuLocation);
         if (element == null)
@@ -1200,6 +1394,12 @@ public class GuiModelController implements IGuiModelController {
         moveOneLayerUp(selectedElement);
     }
 
+    /**
+     * used by moveElementOneLayerUp().
+     * 
+     * @param popupMenuLocation
+     *            The popup menu location on the current draw panel
+     */
     private void moveElementAtPopupMenuOneLayerUp(Point popupMenuLocation) {
         IGuiElement element = getElementAtLocation(popupMenuLocation);
         if (element == null)
@@ -1304,6 +1504,12 @@ public class GuiModelController implements IGuiModelController {
         moveOneLayerDown(selectedElement);
     }
 
+    /**
+     * used by moveElementOneLayerDown().
+     * 
+     * @param popupMenuLocation
+     *            The popup menu location on the current draw panel
+     */
     private void moveElementAtPopupMenuOneLayerDown(Point popupMenuLocation) {
         IGuiElement element = getElementAtLocation(popupMenuLocation);
         if (element == null)
@@ -1375,18 +1581,6 @@ public class GuiModelController implements IGuiModelController {
         updateDrawing(areas);
     }
 
-    /**
-     * Invokes updateDrawing(Rectangle area) for all specified areas.
-     * 
-     * @param areas
-     *            A {@link List} of {@link Rectangle}
-     */
-    private void updateDrawing(List<Rectangle> areas) {
-        for (Rectangle area : areas) {
-            updateDrawing(area);
-        }
-    }
-
     @Override
     public void changeShapeSize(int size) {
         if (size < 20) {
@@ -1412,143 +1606,20 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /*
-     * Remove methods for elements
-     */
-
-    @Override
-    public void removeSelectedGuiElements() {
-        if (debug) {
-            System.out.println("GuiModelController.removeSelectedGuiElements()");
-        }
-
-        /*
-         * Task: Remove all selected elements *and* all adjacent arcs!
-         */
-
-        /*
-         * Get all selected elements.
-         */
-        List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
-
-        /*
-         * Sort out the nodes (which can have adjacent arcs).
-         */
-        List<IGuiNode> nodes = new LinkedList<IGuiNode>();
-        for (IGuiElement element : toBeRemoved) {
-            if (element instanceof IGuiNode) {
-                IGuiNode node = (IGuiNode) element;
-                nodes.add(node);
-            }
-        }
-
-        /*
-         * Get all adjacent arcs for these nodes.
-         */
-        List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
-
-        /*
-         * Add the adjacent arcs to the list
-         */
-        toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
-
-        /*
-         * Store the drawing area for repainting
-         */
-        List<Rectangle> drawingAreas = getDrawingAreas(toBeRemoved);
-
-        /*
-         * Add to a separate list first to avoid ConcurrentModificationException
-         * when removeElement() removes the element from the list!
-         */
-        List<String> toBeRemoved_IDs = new ArrayList<String>();
-        for (IGuiElement element : toBeRemoved) {
-            toBeRemoved_IDs.add(element.getId());
-        }
-
-        /*
-         * Remove all elements
-         */
-        for (String id : toBeRemoved_IDs) {
-            if (debug) {
-                System.out.println("Remove id: " + id);
-            }
-            currentModel.removeElement(id);
-            currentModel.setModified(true);
-
-            /*
-             * Inform the application controller to remove this element from the
-             * data model!
-             */
-            appController.guiElementRemoved(id);
-        }
-
-        /*
-         * Repaint the areas.
-         */
-        // for (Rectangle rect : drawingAreas) {
-        // updateDrawing(rect);
-        // }
-        updateDrawing(drawingAreas);
-    }
-
-    @Override
-    public void renameSelectedGuiElements() {
-        if (debug) {
-            System.out.println("GuiModelController.renameSelectedGuiElements()");
-        }
-
-        IGuiNode selectedNode;
-        try {
-            selectedNode = getSingleSelectedNode();
-        } catch (PNElementException e) {
-            String warning = i18n.getMessage("warningUnableToRename");
-            String explanation = e.getMessage();
-            String message = warning + " (" + explanation + ")";
-
-            System.out.println(message);
-            setInfo_Status(message, EStatusMessageLevel.INFO);
-            return;
-        }
-
-        /*
-         * OK, we have exactly 1 node and can ask for a new name.
-         */
-        // IGuiNode selectedNode = (IGuiNode) selectedElement;
-        String newName = askUserForNewName();
-
-        if (newName == null)
-            return; // User cancelled the operation
-
-        /*
-         * We have a new name.
-         */
-        selectedNode.setName(newName);
-        currentModel.setModified(true);
-
-        /*
-         * Update the data model!
-         */
-        String nodeId = selectedNode.getId();
-        appController.guiNodeRenamed(nodeId, newName);
-
-        /*
-         * Update the drawing!
-         */
-        Rectangle area = selectedNode.getLastDrawingArea();
-        updateDrawing(area);
-        // area = selectedNode.getLastDrawingArea();
-        // updateDrawing(area);
-    }
-
-    @Override
-    public void removeGuiArc(String arcId) {
-        currentModel.removeElement(arcId);
-        currentModel.setModified(true);
-    }
-
-    /*
      * Private helper methods
      */
+
+    /**
+     * Invokes updateDrawing(Rectangle area) for all specified areas.
+     * 
+     * @param areas
+     *            A {@link List} of {@link Rectangle}
+     */
+    private void updateDrawing(List<Rectangle> areas) {
+        for (Rectangle area : areas) {
+            updateDrawing(area);
+        }
+    }
 
     private IGuiElement getElementAtLocation(Point p) {
         java.util.List<IGuiElement> elements = currentModel.getElements();
@@ -1578,6 +1649,7 @@ public class GuiModelController implements IGuiModelController {
             return null;
 
         IGuiNode foundNode = null;
+        // TODO Sort according to z value and return the topmost element!
         if (foundElement instanceof IGuiNode) {
             foundNode = (IGuiNode) foundElement;
         }
@@ -1659,77 +1731,6 @@ public class GuiModelController implements IGuiModelController {
 
         return selectedNode;
     }
-
-    // private IGuiNode getNodeAtLocation(Point p) {
-    // java.util.List<IGuiElement> elements = currentModel.getElements();
-    // IGuiNode foundNode = null;
-    //
-    // // TODO Sort according to z value and return the topmost element!
-    // for (IGuiElement element : elements) {
-    // if (element.contains(p)) {
-    // if (isNode(element)) {
-    // foundNode = (IGuiNode) element;
-    // break;
-    // }
-    // }
-    // }
-    //
-    // if (debug) {
-    // if (foundNode == null)
-    // System.out.println("No node at this Point!");
-    // }
-    //
-    // return foundNode;
-    // }
-
-    // /**
-    // * Checks if an {@link IGuiElement} is a {@link IGuiNode} (place or
-    // * transition).
-    // *
-    // * @param element
-    // * The element to check
-    // * @return True if the element is a node; otherwise false
-    // */
-    // private boolean isNode(IGuiElement element) {
-    // if (element instanceof IGuiNode)
-    // return true;
-    // return false;
-    // }
-
-    // private IGuiPlace getPlaceAtLocation(Point p) {
-    // java.util.List<IGuiElement> elements = currentModel.getElements();
-    // IGuiPlace foundPlace = null;
-    //
-    // // TODO Sort according to z value and return the topmost element!
-    // for (IGuiElement element : elements) {
-    // if (element.contains(p)) {
-    // if (isPlace(element)) {
-    // foundPlace = (IGuiPlace) element;
-    // break;
-    // }
-    // }
-    // }
-    //
-    // if (debug) {
-    // if (foundPlace == null)
-    // System.out.println("No place at this Point!");
-    // }
-    //
-    // return foundPlace;
-    // }
-
-    // /**
-    // * Checks if an {@link IGuiElement} is a {@link IGuiPlace}.
-    // *
-    // * @param element
-    // * The element to check
-    // * @return True if the element is a place; otherwise false
-    // */
-    // private boolean isPlace(IGuiElement element) {
-    // if (element instanceof IGuiPlace)
-    // return true;
-    // return false;
-    // }
 
     /**
      * Returns a {@link List} with the drawing areas of the specified GUI

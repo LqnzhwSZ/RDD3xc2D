@@ -18,7 +18,6 @@ import de.lambeck.pned.filesystem.pnml.PNMLParser;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
 import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
-import de.lambeck.pned.models.gui.IDrawPanel;
 
 /**
  * Implements a controller for the data models of Petri nets. This means the
@@ -153,89 +152,28 @@ public class DataModelController implements IDataModelController {
         return ExitCode.OPERATION_SUCCESSFUL;
     }
 
-    @Override
-    public void removeDataModel(String modelName) {
-        if (debug) {
-            System.out.println("DataModelController.removeDataModel(" + modelName + ")");
-        }
-
-        this.dataModels.remove(modelName);
-        this.currentModel = null;
-
-        /*
-         * Remove the associated validation messages panel as well.
-         */
-        removeValidationMessagePanel(modelName);
-
-        if (debug) {
-            System.out.println("Data models count: " + dataModels.size());
-        }
-    }
-
-    @Override
-    public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
-        /*
-         * The key for the Map of models.
-         */
-        String oldKey = model.getModelName();
-
-        /*
-         * Get the associated validation message panel;
-         */
-        IValidationMessagesPanel validationMessagePanel = getValidationMessagePanel(oldKey);
-
-        /*
-         * Rename the model and the associated validation message panel.
-         */
-        IModelRename renameCandidate;
-
-        renameCandidate = (IModelRename) model;
-        setModelNames(renameCandidate, newModelName, newDisplayName);
-
-        setValidationMessagePanelNames(validationMessagePanel, newModelName, newDisplayName);
-
-        /*
-         * Update both Maps!
-         */
-        IDataModel value1 = dataModels.remove(oldKey);
-        dataModels.put(newModelName, value1);
-
-        IValidationMessagesPanel value2 = validationMessagePanels.remove(oldKey);
-        validationMessagePanels.put(newModelName, value2);
-    }
-
     /**
-     * Uses interface {@link IModelRename} to rename the model.
+     * Called by addDataModel to add an associated
+     * {@link IValidationMessagesPanel}.
      * 
-     * @param model
-     *            The model as {@link IModelRename}
-     * @param newModelName
+     * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the pnml file represented by this model.)
-     * @param newDisplayName
+     * @param displayName
      *            The title of the tab (= the file name)
      */
-    private void setModelNames(IModelRename model, String newModelName, String newDisplayName) {
-        model.setModelName(newModelName);
-        model.setDisplayName(newDisplayName);
-    }
+    private void addValidationMessagePanel(String modelName, String displayName) {
+        if (debug) {
+            System.out
+                    .println("DataModelController.addValidationMessagesPanel(" + modelName + ", " + displayName + ")");
+        }
 
-    /**
-     * Uses interface {@link IValidationMessagesPanel} to rename the validation
-     * message panel.
-     * 
-     * @param validationMessagePanel
-     *            The validation message panel to rename
-     * @param newModelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @param newDisplayName
-     *            The title of the tab (= the file name)
-     */
-    private void setValidationMessagePanelNames(IValidationMessagesPanel validationMessagePanel, String newModelName,
-            String newDisplayName) {
-        validationMessagePanel.setModelName(newModelName);
-        validationMessagePanel.setDisplayName(newDisplayName);
+        this.currentValidationMessagePanel = new ValidationMessagesPanel(modelName, displayName);
+        this.validationMessagePanels.put(modelName, currentValidationMessagePanel);
+
+        if (debug) {
+            System.out.println("Validation message panels count: " + validationMessagePanels.size());
+        }
     }
 
     /**
@@ -355,6 +293,139 @@ public class DataModelController implements IDataModelController {
     }
 
     @Override
+    public void removeDataModel(String modelName) {
+        if (debug) {
+            System.out.println("DataModelController.removeDataModel(" + modelName + ")");
+        }
+
+        /*
+         * Reset the "current model" attribute if we remove the current model.
+         */
+        try {
+            if (this.currentModel.getModelName().equalsIgnoreCase(modelName)) {
+                this.currentModel = null;
+            }
+        } catch (NullPointerException ignore) {
+            // Nothing to do
+        }
+
+        /*
+         * Remove the model.
+         */
+        this.dataModels.remove(modelName);
+
+        /*
+         * Remove the associated validation messages panel as well.
+         */
+        removeValidationMessagePanel(modelName);
+
+        if (debug) {
+            System.out.println("Data models count: " + dataModels.size());
+        }
+    }
+
+    /**
+     * Called by removeDataModel to remove the associated
+     * {@link IValidationMessagesPanel}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    private void removeValidationMessagePanel(String modelName) {
+        if (debug) {
+            System.out.println("DataModelController.removeValidationMessagePanel(" + modelName + ")");
+        }
+
+        /*
+         * Reset the "current validation message panel" attribute if we remove
+         * the current validation message panel.
+         */
+        try {
+            if (this.currentValidationMessagePanel.getModelName().equalsIgnoreCase(modelName)) {
+                this.currentValidationMessagePanel = null;
+            }
+        } catch (NullPointerException ignore) {
+            // Nothing to do
+        }
+
+        /*
+         * Remove the validation message panel.
+         */
+        this.validationMessagePanels.remove(modelName);
+
+        if (debug) {
+            System.out.println("Validation message panels count: " + validationMessagePanels.size());
+        }
+    }
+
+    @Override
+    public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
+        /*
+         * The key for the Map of models.
+         */
+        String oldKey = model.getModelName();
+
+        /*
+         * Get the associated validation message panel;
+         */
+        IValidationMessagesPanel validationMessagePanel = getValidationMessagePanel(oldKey);
+
+        /*
+         * Rename the model and the associated validation message panel.
+         */
+        IModelRename renameCandidate;
+
+        renameCandidate = (IModelRename) model;
+        setModelNames(renameCandidate, newModelName, newDisplayName);
+
+        setValidationMessagePanelNames(validationMessagePanel, newModelName, newDisplayName);
+
+        /*
+         * Update both Maps!
+         */
+        IDataModel value1 = dataModels.remove(oldKey);
+        dataModels.put(newModelName, value1);
+
+        IValidationMessagesPanel value2 = validationMessagePanels.remove(oldKey);
+        validationMessagePanels.put(newModelName, value2);
+    }
+
+    /**
+     * Uses interface {@link IModelRename} to rename the model.
+     * 
+     * @param model
+     *            The model as {@link IModelRename}
+     * @param newModelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param newDisplayName
+     *            The title of the tab (= the file name)
+     */
+    private void setModelNames(IModelRename model, String newModelName, String newDisplayName) {
+        model.setModelName(newModelName);
+        model.setDisplayName(newDisplayName);
+    }
+
+    /**
+     * Uses interface {@link IValidationMessagesPanel} to rename the validation
+     * message panel.
+     * 
+     * @param validationMessagePanel
+     *            The validation message panel to rename
+     * @param newModelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param newDisplayName
+     *            The title of the tab (= the file name)
+     */
+    private void setValidationMessagePanelNames(IValidationMessagesPanel validationMessagePanel, String newModelName,
+            String newDisplayName) {
+        validationMessagePanel.setModelName(newModelName);
+        validationMessagePanel.setDisplayName(newDisplayName);
+    }
+
+    @Override
     public IDataModel getDataModel(String modelName) {
         return dataModels.get(modelName);
     }
@@ -402,46 +473,6 @@ public class DataModelController implements IDataModelController {
         this.currentValidationMessagePanel.reset();
     }
 
-    /**
-     * Called by addDataModel to add an associated
-     * {@link IValidationMessagesPanel}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @param displayName
-     *            The title of the tab (= the file name)
-     */
-    private void addValidationMessagePanel(String modelName, String displayName) {
-        if (debug) {
-            System.out
-                    .println("DataModelController.addValidationMessagesPanel(" + modelName + ", " + displayName + ")");
-        }
-
-        this.currentValidationMessagePanel = new ValidationMessagesPanel(modelName, displayName);
-        this.validationMessagePanels.put(modelName, currentValidationMessagePanel);
-    }
-
-    /**
-     * Called by removeDataModel to remove the associated {@link IDrawPanel}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    private void removeValidationMessagePanel(String modelName) {
-        if (debug) {
-            System.out.println("DataModelController.removeValidationMessagePanel(" + modelName + ")");
-        }
-
-        this.validationMessagePanels.remove(modelName);
-        this.currentValidationMessagePanel = null;
-
-        if (debug) {
-            System.out.println("Validation message panels count: " + validationMessagePanels.size());
-        }
-    }
-
     @Override
     public List<String> getModifiedDataModels() {
         List<String> modifiedModels = new ArrayList<String>();
@@ -456,6 +487,11 @@ public class DataModelController implements IDataModelController {
 
         return modifiedModels;
     }
+
+    /*
+     * Methods for adding, modify and removal of elements (and callbacks for
+     * updates between data and GUI model controller)
+     */
 
     @Override
     public void addPlaceToCurrentDataModel(String id, EPlaceMarking initialMarking, Point position) {
@@ -512,45 +548,41 @@ public class DataModelController implements IDataModelController {
         appController.arcAddedToCurrentDataModel(id, sourceId, targetId);
     }
 
-    @Override
-    public void removeElementFromCurrentDataModel(String id) throws NoSuchElementException {
-        currentModel.removeElement(id);
-    }
+    /*
+     * Modify methods for elements
+     */
 
     @Override
-    public void clearCurrentDataModel() {
-        currentModel.clear();
+    public void renameNode(String nodeId, String newName) {
+        IDataElement element = currentModel.getElementById(nodeId);
+        if (element == null) {
+            System.err.println("Not found: data node id=" + nodeId);
+            return;
+        }
+
+        if (!(element instanceof IDataNode)) {
+            String warning = i18n.getMessage("warningUnableToRename");
+            String explanation = i18n.getMessage("warningOnlyNodesAllowed");
+            String message = warning + " (" + explanation + ")";
+
+            System.out.println(message);
+            setInfo_Status(message, EStatusMessageLevel.WARNING);
+            return;
+        }
+
+        IDataNode node = (IDataNode) element;
+        node.setName(newName);
+        currentModel.setModified(true);
+
+        /*
+         * No further action required since this method should only be called
+         * after renaming a node in the GUI.
+         */
     }
 
     /*
-     * Mouse events in the GUI
+     * Remove methods for elements
      */
-
-    // @Override
-    // public void toggleMarking(String placeId, EPlaceMarking newMarking) {
-    // IDataElement element = null;
-    // try {
-    // element = currentModel.getElementById(placeId);
-    // } catch (NoSuchElementException e) {
-    // // TODO: handle exception?
-    // // setInfo_Status(e.getMessage(), EStatusMessageLevel.ERROR);
-    // String errorMessage = i18n.getMessage("errMissingIdInModel");
-    // errorMessage = errorMessage.replace("%id%", placeId);
-    // errorMessage = errorMessage.replace("%modelName%",
-    // currentModel.getModelName());
-    // setInfo_Status(errorMessage, EStatusMessageLevel.ERROR);
-    // return;
-    // }
-    //
-    // if (!(element instanceof DataPlace)) {
-    // System.err.println("No place with id " + placeId + " to update!");
-    // return;
-    // }
-    //
-    // DataPlace place = (DataPlace) element;
-    // place.setMarking(newMarking);
-    // currentModel.setModified(true);
-    // }
 
     @Override
     public void removeDataElement(String elementId) {
@@ -611,32 +643,18 @@ public class DataModelController implements IDataModelController {
     }
 
     @Override
-    public void renameNode(String nodeId, String newName) {
-        IDataElement element = currentModel.getElementById(nodeId);
-        if (element == null) {
-            System.err.println("Not found: data node id=" + nodeId);
-            return;
-        }
-
-        if (!(element instanceof IDataNode)) {
-            String warning = i18n.getMessage("warningUnableToRename");
-            String explanation = i18n.getMessage("warningOnlyNodesAllowed");
-            String message = warning + " (" + explanation + ")";
-
-            System.out.println(message);
-            setInfo_Status(message, EStatusMessageLevel.WARNING);
-            return;
-        }
-
-        IDataNode node = (IDataNode) element;
-        node.setName(newName);
-        currentModel.setModified(true);
-
-        /*
-         * No further action required since this method should only be called
-         * after renaming a node in the GUI.
-         */
+    public void removeElementFromCurrentDataModel(String id) throws NoSuchElementException {
+        currentModel.removeElement(id);
     }
+
+    @Override
+    public void clearCurrentDataModel() {
+        currentModel.clear();
+    }
+
+    /*
+     * Mouse events in the GUI
+     */
 
     @Override
     public void moveNode(String nodeId, Point newPosition) {

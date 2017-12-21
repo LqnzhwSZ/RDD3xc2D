@@ -187,32 +187,32 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                 /*
                  * F2 - rename
                  * 
-                 * -> Hidden by the EditRenameAction with keyEvent F2!
+                 * -> EditRenameAction with keyEvent F2 in the menu bar!
                  */
 
                 /*
                  * Delete
                  * 
-                 * -> Hidden by the EditDeleteAction with keyEvent Delete!
+                 * -> EditDeleteAction with keyEvent Delete in the menu bar!
                  */
 
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && e.isControlDown() && !e.isAltDown()) {
                     if (debug) {
-                        System.out.println("Only CTRL");
+                        System.out.println("DrawPanel.KeyboardFocusManager: Only CTRL");
                     }
                     ctrl_pressed_Action_occurred();
                     alt_released_Action_occurred(); // Or only in else branch?
 
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && !e.isControlDown() && e.isAltDown()) {
                     if (debug) {
-                        System.out.println("Only ALT");
+                        System.out.println("DrawPanel.KeyboardFocusManager: Only ALT");
                     }
                     alt_pressed_Action_occurred();
                     ctrl_released_Action_occurred(); // Or only in else branch?
 
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     if (debug) {
-                        System.out.println("Escape");
+                        System.out.println("DrawPanel.KeyboardFocusManager: Escape");
                     }
                     keyEvent_Escape_Occurred();
 
@@ -221,7 +221,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                      * Something else
                      */
                     if (debug) {
-                        System.out.println("—");
+                        // System.out.println("DrawPanel.KeyboardFocusManager: —");
                     }
                     ctrl_released_Action_occurred();
                     alt_released_Action_occurred();

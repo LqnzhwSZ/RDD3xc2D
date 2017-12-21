@@ -40,6 +40,28 @@ public interface IGuiModelController
     void addGuiModel(String modelName, String displayName);
 
     /**
+     * Checks if the specified GUI model has been modified.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @return True if the model has been modified; otherwise false
+     */
+    boolean isModifiedGuiModel(String modelName);
+
+    /**
+     * Resets the "modified" state of the specified model.
+     * 
+     * Note: Use this method after loading a pnml file because the model has not
+     * been changed by the user after adding elements from the pnml file only.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    void resetModifiedGuiModel(String modelName);
+
+    /**
      * Removes the specified GUI model.
      * 
      * @param modelName
@@ -115,57 +137,12 @@ public interface IGuiModelController
     void setCurrentDrawPanel(IDrawPanel drawPanel);
 
     /**
-     * Checks if the specified GUI model has been modified.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @return True if the model has been modified; otherwise false
-     */
-    boolean isModifiedGuiModel(String modelName);
-
-    /**
-     * Resets the "modified" state of the specified model.
-     * 
-     * Note: Use this method after loading a pnml file because the model has not
-     * been changed by the user after adding elements from the pnml file only.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    void resetModifiedGuiModel(String modelName);
-
-    /**
      * Returns a list of GUI models which have been modified and need to be
      * saved.
      * 
      * @return List of modified GUI models
      */
     List<String> getModifiedGuiModels();
-
-    /**
-     * Returns the selectable element at the specified Point. Returns the one
-     * with the highest z-value if there is more than 1 at this location.
-     * 
-     * Note: This means any element, not only nodes!
-     * 
-     * Note: Not private to grant access to class PopupMenuManager
-     * 
-     * @param p
-     *            The specified Point
-     * @return A GUI element
-     */
-    IGuiElement getSelectableElementAtLocation(Point p);
-
-    /**
-     * Checks if an element can be selected. (squares, circles and arrows)
-     * 
-     * @param element
-     *            The element to check
-     * @return True if the element can be selected; otherwise false
-     */
-    boolean isSelectableElement(IGuiElement element);
 
     /*
      * Methods for adding, modify and removal of elements (and callbacks for
@@ -270,7 +247,76 @@ public interface IGuiModelController
      */
     void resetStateAddingNewArc();
 
-    // TODO modify methods for elements
+    /*
+     * Modify elements
+     */
+
+    /**
+     * Returns the selectable element at the specified Point. Returns the one
+     * with the highest z-value if there is more than 1 at this location.
+     * 
+     * Note: This means any element, not only nodes!
+     * 
+     * Note: Not private to grant access to class PopupMenuManager
+     * 
+     * @param p
+     *            The specified Point
+     * @return A GUI element
+     */
+    IGuiElement getSelectableElementAtLocation(Point p);
+
+    /**
+     * Checks if an element can be selected. (squares, circles and arrows)
+     * 
+     * @param element
+     *            The element to check
+     * @return True if the element can be selected; otherwise false
+     */
+    boolean isSelectableElement(IGuiElement element);
+
+    /**
+     * Callback for the {@link EditRenameAction} in the
+     * {@link ApplicationController}.
+     * 
+     * Renames the selected element in the current GUI model.
+     */
+    void renameSelectedGuiElement();
+
+    /**
+     * Tells the GUI model controller that an area has changed and needs
+     * repainting.
+     * 
+     * @param area
+     *            The area to update; set to null for complete repaint
+     */
+    void updateDrawing(Rectangle area);
+
+    /*
+     * Remove elements
+     */
+
+    /**
+     * Callback for the {@link EditDeleteAction} in the
+     * {@link ApplicationController}.
+     * 
+     * Removes all selected elements from the current GUI model.
+     */
+    void removeSelectedGuiElements();
+
+    /**
+     * Handles the application controllers info to remove an arc from the GUI
+     * model.
+     *
+     * @param arcId
+     *            The id of the arc
+     */
+    void removeGuiArc(String arcId);
+
+    // void clearCurrentGuiModel();
+
+    /*
+     * Mouse events
+     */
 
     /**
      * Callback for the {@link DrawPanel}.
@@ -298,29 +344,6 @@ public interface IGuiModelController
      */
     void mouseClick_WithCtrl_Occurred(Point mousePressedLocation, MouseEvent e);
 
-    // /**
-    // * Callback for the {@link DrawPanel}.
-    // *
-    // * @param e
-    // * The MouseEvent
-    // */
-    // void mouseClick_WithAlt_Occurred(MouseEvent e);
-
-    // /**
-    // * Callback for the {@link DrawPanel}.
-    // *
-    // * @param initialDragStartLocation
-    // * The initial start location of the dragging (Use this to check,
-    // * if the dragging started at a (draggable) node.)
-    // * @param mouseDraggedFrom
-    // * Location of the mouse prior to the current (intermediate) step
-    // * of dragging
-    // * @param mouseDraggedTo
-    // * Location of the mouse after dragging
-    // */
-    // void mouseDragged(Point initialDragStartLocation, Point mouseDraggedFrom,
-    // Point mouseDraggedTo);
-
     /**
      * Callback for the {@link DrawPanel}.
      * 
@@ -345,6 +368,10 @@ public interface IGuiModelController
      */
     void updateDataNodePositions();
 
+    /*
+     * Keyboard events
+     */
+
     /**
      * Callback for the {@link DrawPanel}.
      */
@@ -364,15 +391,6 @@ public interface IGuiModelController
      * Note: Invokes renameSelectedGuiElements()
      */
     void keyEvent_F2_Occurred();
-
-    /**
-     * Tells the GUI model controller that an area has changed and needs
-     * repainting.
-     * 
-     * @param area
-     *            The area to update; set to null for complete repaint
-     */
-    void updateDrawing(Rectangle area);
 
     /**
      * Callback for the popup menus of the {@link IDrawPanel}. Selects the
@@ -414,32 +432,5 @@ public interface IGuiModelController
      *            The new size
      */
     void changeShapeSize(int size);
-
-    // TODO remove methods for elements
-
-    /**
-     * Callback for the {@link EditDeleteAction} in the
-     * {@link ApplicationController}.
-     * 
-     * Removes all selected elements from the current GUI model.
-     */
-    void removeSelectedGuiElements();
-
-    /**
-     * Callback for the {@link EditRenameAction} in the
-     * {@link ApplicationController}.
-     * 
-     * Renames the selected element in the current GUI model.
-     */
-    void renameSelectedGuiElements();
-
-    /**
-     * Handles the application controllers info to remove an arc from the GUI
-     * model.
-     *
-     * @param arcId
-     *            The id of the arc
-     */
-    void removeGuiArc(String arcId);
 
 }
