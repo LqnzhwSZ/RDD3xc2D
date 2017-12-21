@@ -25,9 +25,7 @@ import de.lambeck.pned.i18n.I18NManager;
 public abstract class AbstractApplicationController extends WindowAdapter
         implements IInfo_MousePos, IInfo_SelectionRangeSize, IInfo_DrawingAreaSize, IInfo_Status {
 
-    /**
-     * Reference to the application window
-     */
+    /** Reference to the main application window */
     protected JFrame mainFrame = null;
 
     /**
@@ -35,21 +33,23 @@ public abstract class AbstractApplicationController extends WindowAdapter
      */
     protected boolean allowedToClose = true;
 
-    /**
-     * Manager for I18N strings
-     */
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n = null;
 
-    /**
-     * References to status and menu bar
-     */
+    /** Reference to the applications status bar */
     protected StatusBar statusBar = null;
+
+    /** Reference to the applications menu bar */
     protected MenuBar menuBar = null;
 
     /**
-     * Lists of Action objects for menu bar, tool bar and popup menus
+     * Lists of Action objects for menu bar and tool bar
      */
     protected Map<String, AbstractAction> allActions = new HashMap<>();
+
+    /**
+     * Lists of Action objects for popup menus
+     */
     protected Map<String, AbstractAction> popupActions = new HashMap<>();
 
     /**

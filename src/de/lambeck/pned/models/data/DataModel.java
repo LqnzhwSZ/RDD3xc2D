@@ -19,7 +19,7 @@ import de.lambeck.pned.exceptions.PNElementException;
  */
 public class DataModel implements IDataModel, IModelRename {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -68,6 +68,10 @@ public class DataModel implements IDataModel, IModelRename {
      * Getter and Setter
      */
 
+    /*
+     * Interface IModel (+ IModelRename)
+     */
+
     @Override
     public String getModelName() {
         return this.modelName;
@@ -98,23 +102,12 @@ public class DataModel implements IDataModel, IModelRename {
         this.modelModified = b;
     }
 
-    @Override
-    public List<IDataElement> getElements() {
-        return elements;
-    }
-
-    @Override
-    public IDataElement getElementById(String id) throws NoSuchElementException {
-        for (IDataElement element : elements) {
-            if (element.getId() == id)
-                return element;
-        }
-
-        throw new NoSuchElementException();
-    }
-
     /*
      * Methods for adding, modify and removal of elements
+     */
+
+    /*
+     * Add elements
      */
 
     @Override
@@ -182,6 +175,10 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public void addArc(String id, String sourceId, String targetId) {
+        if (debug) {
+            System.out.println("DataModel.addArc(" + id + ", " + sourceId + ", " + targetId + ")");
+        }
+
         IDataNode source = null;
         IDataNode target = null;
         IDataArc newArc = null;
@@ -191,14 +188,26 @@ public class DataModel implements IDataModel, IModelRename {
          */
         List<IDataElement> currentElements = getElements();
         for (IDataElement element : currentElements) {
-            if (element.getId().equals(sourceId)) {
+            String elementId = element.getId();
+
+            if (elementId.equals(sourceId)) {
+                if (debug) {
+                    System.out.println("elementId.equals(sourceId): " + sourceId);
+                }
+
                 if (element instanceof IDataNode)
                     source = (IDataNode) element;
             }
-            if (element.getId().equals(targetId)) {
+
+            if (elementId.equals(targetId)) {
+                if (debug) {
+                    System.out.println("elementId.equals(targetId): " + targetId);
+                }
+
                 if (element instanceof IDataNode)
                     target = (IDataNode) element;
             }
+
             if (source != null && target != null)
                 break;
         }
@@ -245,29 +254,267 @@ public class DataModel implements IDataModel, IModelRename {
         }
     }
 
+    /**
+     * Adds the specified {@link IDataElement} to this {@link DataModel}.
+     * 
+     * @param newElement
+     *            The new element
+     */
     private void addElement(IDataElement newElement) throws PNDuplicateAddedException {
         if (debug) {
-            System.out.println("DataModel(" + getModelName() + ").addElement()");
+            System.out.println("DataModel(" + getModelName() + ").addElement(" + "id=" + newElement.getId() + ")");
         }
 
+        /*
+         * Prevent duplicate IDs.
+         */
         for (IDataElement test : elements) {
-            if (test == newElement) { throw new PNDuplicateAddedException("Duplicate of: " + test.toString()); }
-        }
-        elements.add(newElement);
-        this.modelModified = true;
-    }
-
-    @Override
-    public void removeElement(String id) throws NoSuchElementException {
-        for (IDataElement test : elements) {
-            if (test.getId() == id) {
-                this.modelModified = elements.remove(test);
-                return;
+            if (test == newElement) {
+                String errMessage = "Duplicate of: " + test.toString();
+                if (debug) {
+                    System.err.println(errMessage);
+                }
+                throw new PNDuplicateAddedException(errMessage);
             }
         }
 
-        throw new NoSuchElementException("Id " + id + " not found in data model " + this.getModelName());
+        /*
+         * Add the element
+         */
+        this.elements.add(newElement);
+        this.modelModified = true;
+
+        /*
+         * If the added element was an arc: update the predecessor and successor
+         * list of the affected nodes!
+         */
+        if (newElement instanceof DataArc) {
+            DataArc arc = (DataArc) newElement;
+            addArcToAffectedNodes(arc);
+        }
     }
+
+    /**
+     * Adds the specified {@link DataArc} to the predecessor and successor list
+     * of the affected nodes!
+     * 
+     * Note: A DataArc is specified by the own ID and the IDs of predecessor and
+     * successor.
+     * 
+     * @param arc
+     *            The specified arc
+     */
+    private void addArcToAffectedNodes(DataArc arc) {
+        if (debug) {
+            System.out.println("DataModel(" + getModelName() + ").addArcToAffectedNodes(" + "id=" + arc.getId() + ")");
+        }
+
+        /*
+         * Get the IDs of the necessary predecessor and successor.
+         */
+        String sourceId = arc.getSourceId();
+        String targetId = arc.getTargetId();
+
+        /*
+         * Get source and target node.
+         */
+        IDataElement sourceElement = getElementById(sourceId);
+        if (!(sourceElement instanceof IDataNode)) {
+            String errMessage = "Source is not a node!: " + sourceId;
+            System.err.println(errMessage);
+            return;
+        }
+        IDataNode pred = (IDataNode) sourceElement;
+
+        IDataElement targetElement = getElementById(targetId);
+        if (!(targetElement instanceof IDataNode)) {
+            String errMessage = "Target is not a node!: " + targetId;
+            System.err.println(errMessage);
+            return;
+        }
+        IDataNode succ = (IDataNode) targetElement;
+
+        /*
+         * Add the specified arc to the predecessors successor list.
+         */
+        try {
+            pred.addSucc(arc);
+        } catch (PNDuplicateAddedException e) {
+            // e.printStackTrace();
+            System.err.println(pred.getId() + ".addSucc(." + arc.getId() + "):");
+            System.err.println(e.getMessage());
+        }
+
+        /*
+         * ...and to the successors predecessor list.
+         */
+        try {
+            succ.addPred(arc);
+        } catch (PNDuplicateAddedException e) {
+            // e.printStackTrace();
+            System.err.println(succ.getId() + ".addPred(." + arc.getId() + "):");
+            System.err.println(e.getMessage());
+        }
+    }
+
+    /*
+     * Remove methods for elements
+     */
+
+    @Override
+    public void removeElement(String id) throws NoSuchElementException {
+        if (debug) {
+            System.out.println("DataModel(" + getModelName() + ").removeElement(" + id + ")");
+        }
+
+        /*
+         * Find the element.
+         */
+        IDataElement removeElement = null;
+        for (IDataElement test : elements) {
+            if (test.getId() == id) {
+                removeElement = test;
+            }
+        }
+
+        if (removeElement == null) {
+            String errorMessage = "Id " + id + " not found in data model " + this.getModelName();
+            if (debug) {
+                System.err.println(errorMessage);
+            }
+            throw new NoSuchElementException(errorMessage);
+        }
+
+        /*
+         * Remove the element
+         */
+        this.modelModified = elements.remove(removeElement);
+
+        /*
+         * If the removed element was an arc: update the predecessor and
+         * successor list of the affected nodes!
+         */
+        if (removeElement instanceof DataArc) {
+            DataArc arc = (DataArc) removeElement;
+            removeArcFromAllNodes(arc);
+        }
+    }
+
+    /**
+     * Removes the specified {@link DataArc} from the predecessor and successor
+     * list of all nodes!
+     * 
+     * Note: A DataArc is specified by the own ID and the IDs of predecessor and
+     * successor.
+     * 
+     * @param arc
+     *            The specified arc
+     */
+    private void removeArcFromAllNodes(DataArc arc) {
+        if (debug) {
+            System.out.println(
+                    "DataModel(" + getModelName() + ").removeArcFromAffectedNodes(" + "id=" + arc.getId() + ")");
+        }
+
+        /*
+         * Remove the specified arc from all predecessors and successors.
+         */
+        for (IDataElement element : elements) {
+            if (element instanceof IDataNode) {
+                IDataNode node = (IDataNode) element;
+
+                try {
+                    node.removeSucc(arc);
+                } catch (NoSuchElementException ignore) {
+                    // Do nothing
+                }
+
+                try {
+                    node.removePred(arc);
+                } catch (NoSuchElementException ignore) {
+                    // Do nothing
+                }
+            }
+        }
+    }
+
+    // /**
+    // * Returns a List of all {@link DataNode} in this {@link DataModel} which
+    // * have the specified {@link DataArc} in their List of successors.
+    // *
+    // * @param arc
+    // * The specified DataArc
+    // * @return A List of DataNodes
+    // */
+    // private List<IDataNode> getPredNodes(IDataArc arc) {
+    // if (debug) {
+    // System.out.println("DataModel(" + getModelName() + ").getPredNodes(" +
+    // "id=" + arc.getId() + ")");
+    // }
+    //
+    // List<IDataNode> nodes = new LinkedList<IDataNode>();
+    // List<IDataNode> predNodes = new LinkedList<IDataNode>();
+    //
+    // /*
+    // * Get all nodes.
+    // */
+    // for (IDataElement element : this.elements) {
+    // if (element instanceof IDataNode) {
+    // IDataNode node = (IDataNode) element;
+    // nodes.add(node);
+    // }
+    // }
+    //
+    // /*
+    // * Get all predecessors.
+    // */
+    // for (IDataNode node : nodes) {
+    // if (node.succListContains(arc)) {
+    // predNodes.add(node);
+    // }
+    // }
+    //
+    // return predNodes;
+    // }
+
+    // /**
+    // * Returns a List of all {@link DataNode} in this {@link DataModel} which
+    // * have the specified {@link DataArc} in their List of predecessors.
+    // *
+    // * @param arc
+    // * The specified DataArc
+    // * @return A List of DataNodes
+    // */
+    // private List<IDataNode> getSuccNodes(IDataArc arc) {
+    // if (debug) {
+    // System.out.println("DataModel(" + getModelName() + ").getSuccNodes(" +
+    // "id=" + arc.getId() + ")");
+    // }
+    //
+    // List<IDataNode> nodes = new LinkedList<IDataNode>();
+    // List<IDataNode> succNodes = new LinkedList<IDataNode>();
+    //
+    // /*
+    // * Get all nodes.
+    // */
+    // for (IDataElement element : this.elements) {
+    // if (element instanceof IDataNode) {
+    // IDataNode node = (IDataNode) element;
+    // nodes.add(node);
+    // }
+    // }
+    //
+    // /*
+    // * Get all successors.
+    // */
+    // for (IDataNode node : nodes) {
+    // if (node.predListContains(arc)) {
+    // succNodes.add(node);
+    // }
+    // }
+    //
+    // return succNodes;
+    // }
 
     @Override
     public void clear() {
@@ -277,6 +524,25 @@ public class DataModel implements IDataModel, IModelRename {
 
         elements.clear();
         this.modelModified = true;
+    }
+
+    /*
+     * Interface IDataModel
+     */
+
+    @Override
+    public List<IDataElement> getElements() {
+        return elements;
+    }
+
+    @Override
+    public IDataElement getElementById(String id) throws NoSuchElementException {
+        for (IDataElement element : elements) {
+            if (element.getId() == id)
+                return element;
+        }
+
+        throw new NoSuchElementException();
     }
 
 }

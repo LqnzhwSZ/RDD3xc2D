@@ -8,6 +8,8 @@ import java.util.NoSuchElementException;
 import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.elements.data.EPlaceMarking;
 import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
+import de.lambeck.pned.models.data.validation.IWorkflowNetValidator;
+import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
 
 /**
  * Interface for controllers for data models representing a Petri net. This
@@ -131,6 +133,8 @@ public interface IDataModelController extends IInfo_Status {
 
     // IValidationMessagesPanel getCurrentValidationMessagePanel();
 
+    // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the validator should work with it.)
+
     /**
      * Sets the specified {@link IValidationMessagesPanel} as current (active)
      * validation messages panel of the {@link DataModelController}.
@@ -138,6 +142,16 @@ public interface IDataModelController extends IInfo_Status {
      * @param validationMessagesPanel
      */
     void setCurrentValidationMessagesPanel(IValidationMessagesPanel validationMessagesPanel);
+
+    /**
+     * Returns the specified {@link IWorkflowNetValidator}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @return The specified workflow net validator
+     */
+    public IWorkflowNetValidator getWorkflowNetValidator(String modelName);
 
     /**
      * Returns a list of data models which have been modified and need to be
@@ -255,6 +269,27 @@ public interface IDataModelController extends IInfo_Status {
      *            The new name
      */
     void renameNode(String nodeId, String newName);
+
+    /**
+     * Starts the validation of the specified file.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    void startValidation(String modelName);
+
+    /**
+     * Restarts the validation of the specified file. Resets former outputs on
+     * the corresponding {@link ValidationMessagesPanel}.
+     * 
+     * Note: Use this method after structural changes in the Petri net.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    void restartValidation(String modelName);
 
     /*
      * Remove methods for elements

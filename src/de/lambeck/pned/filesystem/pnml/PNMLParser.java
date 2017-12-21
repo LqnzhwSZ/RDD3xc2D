@@ -49,7 +49,8 @@ public class PNMLParser {
         } else {
             // System.out.println("Bitte eine Datei als Parameter angeben!");
             String[] example = { "G:\\Aufgabenstellung\\Beispiele\\Beispiel-03.pnml" };
-            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test - falsche Werte.pnml" };
+            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test -
+            // falsche Werte.pnml" };
             // String[] example = { "G:\\Testdateien\\Test1.pnml" };
             main(example);
         }
@@ -622,7 +623,10 @@ public class PNMLParser {
      * @return True if all necessary values are there; otherwise false
      */
     private boolean isCompleteTransition() {
-        if (nextId != null && nextName != null && nextPosition != null)
+        /*
+         * <Name> == null is OK!
+         */
+        if (nextId != null && nextPosition != null)
             return true;
         return false;
     }

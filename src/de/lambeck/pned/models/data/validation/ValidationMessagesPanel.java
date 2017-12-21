@@ -27,11 +27,6 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
     private String modelName = "";
 
     /**
-     * This should be the name of the tab. (file name only)
-     */
-    private String displayName = "";
-
-    /**
      * The text area
      */
     JTextArea textArea;
@@ -62,13 +57,10 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the pnml file represented by this model.)
-     * @param displayName
-     *            The name of the tab (the file name only)
      */
     @SuppressWarnings("hiding")
-    public ValidationMessagesPanel(String modelName, String displayName) {
+    public ValidationMessagesPanel(String modelName) {
         this.modelName = modelName;
-        this.displayName = displayName;
 
         textArea = new JTextArea(ROWS, COLUMNS);
         textArea.setBackground(ValidationColor.EMPTY.getColor());
@@ -103,16 +95,6 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
     @Override
     public void setModelName(String s) {
         this.modelName = s;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return this.displayName;
-    }
-
-    @Override
-    public void setDisplayName(String s) {
-        this.displayName = s;
     }
 
     // protected void addStylesToDocument(StyledDocument doc) {

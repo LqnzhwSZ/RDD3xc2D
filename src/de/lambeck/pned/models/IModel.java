@@ -70,6 +70,10 @@ public interface IModel {
      * Methods for adding, modify and removal of elements
      */
 
+    /*
+     * Add elements
+     */
+
     /**
      * Adds a place to this model.
      * 
@@ -150,6 +154,10 @@ public interface IModel {
      *            The id of the target (Place or Transition)
      */
     void addArc(String id, String sourceId, String targetId);
+
+    /*
+     * Remove methods for elements
+     */
 
     /**
      * Removes the specified element from this model.

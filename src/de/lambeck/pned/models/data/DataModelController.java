@@ -17,7 +17,9 @@ import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
+import de.lambeck.pned.models.data.validation.IWorkflowNetValidator;
 import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
+import de.lambeck.pned.models.data.validation.WorkflowNetValidator;
 
 /**
  * Implements a controller for the data models of Petri nets. This means the
@@ -28,7 +30,7 @@ import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
  */
 public class DataModelController implements IDataModelController {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     protected ApplicationController appController = null;
     protected I18NManager i18n = null;
@@ -50,11 +52,18 @@ public class DataModelController implements IDataModelController {
      */
     private Map<String, IValidationMessagesPanel> validationMessagePanels = new HashMap<String, IValidationMessagesPanel>();
 
+    // TODO Wird currentValidationMessagePanel wirklich benötigt? (Nur der
+    // validator sollte darauf arbeiten.)
     /**
      * Current validation messages panel is the message panel that corresponds
      * to the active tab of the tabbed pane.
      */
     private IValidationMessagesPanel currentValidationMessagePanel = null;
+
+    /**
+     * List of validators identified by their name (full name of the file)
+     */
+    private Map<String, IWorkflowNetValidator> validators = new HashMap<String, IWorkflowNetValidator>();
 
     /**
      * Counter for the number of added elements during import ("File open").
@@ -91,13 +100,28 @@ public class DataModelController implements IDataModelController {
             System.out.println("DataModelController.addDataModel(" + modelName + ", " + displayName + ")");
         }
 
-        this.currentModel = new DataModel(modelName, displayName);
-        this.dataModels.put(modelName, currentModel);
+        /*
+         * Add a data model.
+         */
+        IDataModel newDataModel = new DataModel(modelName, displayName);
+        this.dataModels.put(modelName, newDataModel);
 
         /*
-         * Add an associated validation messages panel as well!
+         * Set as current data model.
          */
-        addValidationMessagePanel(modelName, displayName);
+        this.currentModel = newDataModel;
+
+        /*
+         * Add an associated validation messages panel.
+         */
+        IValidationMessagesPanel validationMessagesPanel = addValidationMessagePanel(modelName);
+        if (validationMessagesPanel == null)
+            return;
+
+        /*
+         * Add an associated validator.
+         */
+        addValidator(modelName, newDataModel, validationMessagesPanel);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -111,7 +135,7 @@ public class DataModelController implements IDataModelController {
         }
 
         /*
-         * New data model
+         * New data model.
          */
         String canonicalPath = FSInfo.getCanonicalPath(pnmlFile);
         if (canonicalPath == null) {
@@ -123,11 +147,22 @@ public class DataModelController implements IDataModelController {
         }
         String displayName = pnmlFile.getName();
 
-        this.currentModel = new DataModel(canonicalPath, displayName);
-        this.dataModels.put(canonicalPath, currentModel);
+        /*
+         * Add the data model.
+         */
+        IDataModel newDataModel = new DataModel(canonicalPath, displayName);
+        this.dataModels.put(canonicalPath, newDataModel);
 
         /*
-         * Parse the file
+         * Set as current data model.
+         * 
+         * Note: This data model must be set as current model here because the
+         * PNMLParser pushes all found elements into the current data model!
+         */
+        this.currentModel = newDataModel;
+
+        /*
+         * Parse the file.
          */
         PNMLParser pnmlParser = new PNMLParser(pnmlFile, this);
         pnmlParser.initParser();
@@ -138,13 +173,29 @@ public class DataModelController implements IDataModelController {
          * Check errors during import. (Accept or discard this model?)
          */
         boolean accepted = acceptModel(canonicalPath, returnValue);
-        if (!accepted)
+        if (!accepted) {
+            /*
+             * Do nothing more here. The ApplicationController will remove all
+             * models in his disposeFile() method.
+             */
             return ExitCode.OPERATION_CANCELLED;
+        }
 
         /*
-         * Add an associated validation messages panel as well!
+         * File was successfully imported.
          */
-        addValidationMessagePanel(canonicalPath, displayName);
+
+        /*
+         * Add an associated validation messages panel.
+         */
+        IValidationMessagesPanel validationMessagesPanel = addValidationMessagePanel(canonicalPath);
+        if (validationMessagesPanel == null)
+            return ExitCode.OPERATION_FAILED;
+
+        /*
+         * Add an associated validator.
+         */
+        addValidator(canonicalPath, newDataModel, validationMessagesPanel);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -159,20 +210,63 @@ public class DataModelController implements IDataModelController {
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the pnml file represented by this model.)
-     * @param displayName
-     *            The title of the tab (= the file name)
+     * @return The {@link IValidationMessagesPanel}
      */
-    private void addValidationMessagePanel(String modelName, String displayName) {
+    private IValidationMessagesPanel addValidationMessagePanel(String modelName) {
         if (debug) {
-            System.out
-                    .println("DataModelController.addValidationMessagesPanel(" + modelName + ", " + displayName + ")");
+            System.out.println("DataModelController.addValidationMessagesPanel(" + modelName + ")");
         }
 
-        this.currentValidationMessagePanel = new ValidationMessagesPanel(modelName, displayName);
-        this.validationMessagePanels.put(modelName, currentValidationMessagePanel);
+        /*
+         * Add the validation messages panel.
+         */
+        IValidationMessagesPanel newValidationMessagesPanel = new ValidationMessagesPanel(modelName);
+        this.validationMessagePanels.put(modelName, newValidationMessagesPanel);
+
+        /*
+         * Set as current validation messages panel.
+         */
+        this.currentValidationMessagePanel = newValidationMessagesPanel;
 
         if (debug) {
             System.out.println("Validation message panels count: " + validationMessagePanels.size());
+        }
+
+        return newValidationMessagesPanel;
+    }
+
+    /**
+     * Called by addDataModel to add an associated
+     * {@link IWorkflowNetValidator}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param dataModel
+     *            The data model
+     * @param validationMessagesPanel
+     *            The validation messages panel for this data model
+     */
+    private void addValidator(String modelName, IDataModel dataModel,
+            IValidationMessagesPanel validationMessagesPanel) {
+        if (debug) {
+            System.out.println("DataModelController.addValidator(" + modelName + ")");
+        }
+
+        /*
+         * Add a validator.
+         */
+        IWorkflowNetValidator newValidator = new WorkflowNetValidator(modelName, this, dataModel,
+                validationMessagesPanel, i18n);
+        this.validators.put(modelName, newValidator);
+
+        // /*
+        // * Set as current validator.
+        // */
+        // this.currentValidator = newValidator;
+
+        if (debug) {
+            System.out.println("Validators count: " + validators.size());
         }
     }
 
@@ -315,9 +409,14 @@ public class DataModelController implements IDataModelController {
         this.dataModels.remove(modelName);
 
         /*
-         * Remove the associated validation messages panel as well.
+         * Remove the associated validation messages panel.
          */
         removeValidationMessagePanel(modelName);
+
+        /*
+         * Remove the associated validator.
+         */
+        removeWorkflowNetValidator(modelName);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -325,7 +424,7 @@ public class DataModelController implements IDataModelController {
     }
 
     /**
-     * Called by removeDataModel to remove the associated
+     * Called by removeDataModel() to remove the associated
      * {@link IValidationMessagesPanel}.
      * 
      * @param modelName
@@ -359,6 +458,42 @@ public class DataModelController implements IDataModelController {
         }
     }
 
+    /**
+     * Called by removeDataModel() to remove the associated
+     * {@link IWorkflowNetValidator}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    private void removeWorkflowNetValidator(String modelName) {
+        if (debug) {
+            System.out.println("DataModelController.removeWorkflowNetValidator(" + modelName + ")");
+        }
+
+        // /*
+        // * Reset the "current validation message panel" attribute if we remove
+        // * the current validation message panel.
+        // */
+        // try {
+        // if (this.currentValidator.getModelName().equalsIgnoreCase(modelName))
+        // {
+        // this.currentValidator = null;
+        // }
+        // } catch (NullPointerException ignore) {
+        // // Nothing to do
+        // }
+
+        /*
+         * Remove the validator.
+         */
+        this.validators.remove(modelName);
+
+        if (debug) {
+            System.out.println("Validators count: " + validators.size());
+        }
+    }
+
     @Override
     public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
         /*
@@ -379,7 +514,7 @@ public class DataModelController implements IDataModelController {
         renameCandidate = (IModelRename) model;
         setModelNames(renameCandidate, newModelName, newDisplayName);
 
-        setValidationMessagePanelNames(validationMessagePanel, newModelName, newDisplayName);
+        setValidationMessagePanelNames(validationMessagePanel, newModelName);
 
         /*
          * Update both Maps!
@@ -416,18 +551,14 @@ public class DataModelController implements IDataModelController {
      * @param newModelName
      *            The name of the model (This is intended to be the full path
      *            name of the pnml file represented by this model.)
-     * @param newDisplayName
-     *            The title of the tab (= the file name)
      */
-    private void setValidationMessagePanelNames(IValidationMessagesPanel validationMessagePanel, String newModelName,
-            String newDisplayName) {
+    private void setValidationMessagePanelNames(IValidationMessagesPanel validationMessagePanel, String newModelName) {
         validationMessagePanel.setModelName(newModelName);
-        validationMessagePanel.setDisplayName(newDisplayName);
     }
 
     @Override
     public IDataModel getDataModel(String modelName) {
-        return dataModels.get(modelName);
+        return this.dataModels.get(modelName);
     }
 
     @Override
@@ -457,6 +588,9 @@ public class DataModelController implements IDataModelController {
         return null;
     }
 
+    // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the
+    // validator should work with it.)
+
     @Override
     public void setCurrentValidationMessagesPanel(IValidationMessagesPanel validationMessagesPanel) {
         if (debug) {
@@ -471,6 +605,11 @@ public class DataModelController implements IDataModelController {
          * for setCurrentDrawPanel in the GUI controller)
          */
         this.currentValidationMessagePanel.reset();
+    }
+
+    @Override
+    public IWorkflowNetValidator getWorkflowNetValidator(String modelName) {
+        return this.validators.get(modelName);
     }
 
     @Override
@@ -580,6 +719,42 @@ public class DataModelController implements IDataModelController {
          */
     }
 
+    @Override
+    public void startValidation(String modelName) {
+        IDataModel model = getDataModel(modelName);
+        if (model == null) {
+            System.err.println("DataModelController.startValidation(modelName): specified model == null: " + modelName);
+            return;
+        }
+
+        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
+        if (validator == null) {
+            System.err.println(
+                    "DataModelController.startValidation(modelName): specified validator == null: " + modelName);
+            return;
+        }
+
+        validator.startValidation();
+    }
+
+    @Override
+    public void restartValidation(String modelName) {
+        IDataModel model = getDataModel(modelName);
+        if (model == null) {
+            System.err.println("DataModelController.startValidation(modelName): specified model == null: " + modelName);
+            return;
+        }
+
+        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
+        if (validator == null) {
+            System.err.println(
+                    "DataModelController.startValidation(modelName): specified validator == null: " + modelName);
+            return;
+        }
+
+        validator.restartValidation();
+    }
+
     /*
      * Remove methods for elements
      */
@@ -687,5 +862,9 @@ public class DataModelController implements IDataModelController {
          * after renaming a node in the GUI.
          */
     }
+
+    /*
+     * Private helpers
+     */
 
 }

@@ -26,7 +26,7 @@ import de.lambeck.pned.i18n.I18NManager;
  */
 public class GuiModelController implements IGuiModelController {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     protected ApplicationController appController = null;
     protected I18NManager i18n;

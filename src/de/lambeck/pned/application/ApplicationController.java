@@ -51,14 +51,16 @@ public class ApplicationController extends AbstractApplicationController {
      */
     private double useScreenPercentage = 66.7;
 
+    /** The content pane for the main application window */
     private JPanel contentPane;
+
+    /** The {@link JTabbedPane} with a tab for each file */
     private JTabbedPane tabbedPane;
 
-    /**
-     * These variables store references to the controller for data models and
-     * the GUI controller.
-     */
+    /** Reference to the {@link IDataModelController} */
     private IDataModelController dataModelController;
+
+    /** Reference to the {@link IGuiModelController}. */
     private IGuiModelController guiModelController;
 
     /**
@@ -69,7 +71,7 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Counter for new models (e.g. "Untitled1", "Untitled2"... or "New1",
-     * "New2"...); counts continuously up.
+     * "New2"...); counts continuously upwards.
      */
     private int currNewFileIndex = -1;
 
@@ -908,6 +910,12 @@ public class ApplicationController extends AbstractApplicationController {
         IValidationMessagesPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(canonicalPath);
 
         addTabForDrawPanel(drawPanel, validationMessagesPanel, canonicalPath, displayName);
+
+        /*
+         * Let the data model controller start the validation since we already
+         * have a Petri net to check.
+         */
+        dataModelController.startValidation(canonicalPath);
     }
 
     /**
@@ -1163,9 +1171,20 @@ public class ApplicationController extends AbstractApplicationController {
          * Remove the specified tab.
          */
         int index = getTabIndexForFile(modelName);
-        if (index == -1)
-            return;
-        tabbedPane.removeTabAt(index);
+        // if (index == -1)
+        // return;
+
+        /*
+         * Do not leave this method here if there is no tab to close!
+         * 
+         * -> There is no tab if we have opened a new file with errors. (In this
+         * case: The data model controller has rejected the file during import,
+         * but the models were created before reading the PNML file!
+         * 
+         * -> So we still have to remove the models!
+         */
+        if (index != -1)
+            tabbedPane.removeTabAt(index);
 
         /*
          * Note: Removing the tab invokes tabstateChanged() of the TabListener
