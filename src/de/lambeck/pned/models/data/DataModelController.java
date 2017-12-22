@@ -30,7 +30,7 @@ import de.lambeck.pned.models.data.validation.WorkflowNetValidator;
  */
 public class DataModelController implements IDataModelController {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     protected ApplicationController appController = null;
     protected I18NManager i18n = null;
@@ -761,6 +761,10 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void removeDataElement(String elementId) {
+        if (debug) {
+            System.out.println("DataModelController.removeDataElement(" + elementId + ")");
+        }
+
         IDataElement element = currentModel.getElementById(elementId);
         if (element == null) {
             System.err.println("Not found: data element id=" + elementId);
@@ -790,6 +794,8 @@ public class DataModelController implements IDataModelController {
         currentModel.setModified(true);
 
         /*
+         * TODO Nur noch im data model controller!
+         * 
          * Remove all adjacent arcs. (Just to make sure; this should have been
          * handled by the GUI controller already.)
          */
@@ -805,7 +811,7 @@ public class DataModelController implements IDataModelController {
             }
         }
         if (succElements.size() > 0) {
-            for (IDataArc arc : predElements) {
+            for (IDataArc arc : succElements) {
                 String arcId = arc.getId();
                 removeDataElement(arcId);
 

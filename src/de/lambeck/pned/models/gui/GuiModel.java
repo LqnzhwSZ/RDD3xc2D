@@ -335,6 +335,10 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public void removeElement(String id) throws NoSuchElementException {
+        if (debug) {
+            System.out.println("GuiModel.removeElement(" + id + ")");
+        }
+
         for (IGuiElement test : elements) {
             if (test.getId() == id) {
                 /*

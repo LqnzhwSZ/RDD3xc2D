@@ -274,11 +274,13 @@ public class WorkflowNetValidator implements IWorkflowNetValidator {
             if (node instanceof DataPlace) {
                 DataPlace place = (DataPlace) node;
 
-                if (debug) {
-                    System.out.println(place.toString() + ":");
-                    System.out.println("node.getAllPredCount(): " + node.getAllPredCount());
-                    System.out.println("node.getAllSuccCount(): " + node.getAllSuccCount());
-                }
+                // if (debug) {
+                // System.out.println(place.toString() + ":");
+                // System.out.println("node.getAllPredCount(): " +
+                // node.getAllPredCount());
+                // System.out.println("node.getAllSuccCount(): " +
+                // node.getAllSuccCount());
+                // }
 
                 int placePredCount = place.getAllPredCount();
                 if (placePredCount == 0) {
@@ -324,11 +326,13 @@ public class WorkflowNetValidator implements IWorkflowNetValidator {
             if (node instanceof DataPlace) {
                 DataPlace place = (DataPlace) node;
 
-                if (debug) {
-                    System.out.println(place.toString() + ":");
-                    System.out.println("node.getAllPredCount(): " + node.getAllPredCount());
-                    System.out.println("node.getAllSuccCount(): " + node.getAllSuccCount());
-                }
+                // if (debug) {
+                // System.out.println(place.toString() + ":");
+                // System.out.println("node.getAllPredCount(): " +
+                // node.getAllPredCount());
+                // System.out.println("node.getAllSuccCount(): " +
+                // node.getAllSuccCount());
+                // }
 
                 int placeSuccCount = place.getAllSuccCount();
                 if (placeSuccCount == 0) {

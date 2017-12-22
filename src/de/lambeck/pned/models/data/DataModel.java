@@ -19,7 +19,7 @@ import de.lambeck.pned.exceptions.PNElementException;
  */
 public class DataModel implements IDataModel, IModelRename {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -374,6 +374,7 @@ public class DataModel implements IDataModel, IModelRename {
         for (IDataElement test : elements) {
             if (test.getId() == id) {
                 removeElement = test;
+                break;
             }
         }
 
@@ -394,8 +395,8 @@ public class DataModel implements IDataModel, IModelRename {
          * If the removed element was an arc: update the predecessor and
          * successor list of the affected nodes!
          */
-        if (removeElement instanceof DataArc) {
-            DataArc arc = (DataArc) removeElement;
+        if (removeElement instanceof IDataArc) {
+            IDataArc arc = (IDataArc) removeElement;
             removeArcFromAllNodes(arc);
         }
     }
@@ -410,7 +411,7 @@ public class DataModel implements IDataModel, IModelRename {
      * @param arc
      *            The specified arc
      */
-    private void removeArcFromAllNodes(DataArc arc) {
+    private void removeArcFromAllNodes(IDataArc arc) {
         if (debug) {
             System.out.println(
                     "DataModel(" + getModelName() + ").removeArcFromAffectedNodes(" + "id=" + arc.getId() + ")");

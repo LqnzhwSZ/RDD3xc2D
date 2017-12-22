@@ -26,7 +26,7 @@ import de.lambeck.pned.i18n.I18NManager;
  */
 public class GuiModelController implements IGuiModelController {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     protected ApplicationController appController = null;
     protected I18NManager i18n;
@@ -781,26 +781,26 @@ public class GuiModelController implements IGuiModelController {
          */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
 
-        /*
-         * Sort out the nodes (which can have adjacent arcs).
-         */
-        List<IGuiNode> nodes = new LinkedList<IGuiNode>();
-        for (IGuiElement element : toBeRemoved) {
-            if (element instanceof IGuiNode) {
-                IGuiNode node = (IGuiNode) element;
-                nodes.add(node);
-            }
-        }
+//        /*
+//         * Sort out the nodes (which can have adjacent arcs).
+//         */
+//        List<IGuiNode> nodes = new LinkedList<IGuiNode>();
+//        for (IGuiElement element : toBeRemoved) {
+//            if (element instanceof IGuiNode) {
+//                IGuiNode node = (IGuiNode) element;
+//                nodes.add(node);
+//            }
+//        }
 
-        /*
-         * Get all adjacent arcs for these nodes.
-         */
-        List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
+//        /*
+//         * Get all adjacent arcs for these nodes.
+//         */
+//        List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
 
-        /*
-         * Add the adjacent arcs to the list
-         */
-        toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
+//        /*
+//         * Add the adjacent arcs to the list
+//         */
+//        toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
 
         /*
          * Store the drawing area for repainting
@@ -836,16 +836,30 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Repaint the areas.
          */
-        // for (Rectangle rect : drawingAreas) {
-        // updateDrawing(rect);
-        // }
         updateDrawing(drawingAreas);
     }
 
     @Override
     public void removeGuiArc(String arcId) {
+        if (debug) {
+            System.out.println("GuiModelController.removeGuiArc(" + arcId + ")");
+        }
+
+        /*
+         * Store the drawing area for repainting
+         */
+        IGuiElement element = currentModel.getElementById(arcId);
+        if (element == null)
+            return;
+        Rectangle rect = element.getLastDrawingArea();
+
         currentModel.removeElement(arcId);
         currentModel.setModified(true);
+
+        /*
+         * Update the drawing
+         */
+        updateDrawing(rect);
     }
 
     /*
@@ -1051,21 +1065,6 @@ public class GuiModelController implements IGuiModelController {
         updateDrawing(newDrawingAreas);
         updateDrawing(arcAreas);
     }
-
-    // @Override
-    // public void mouseDragging_Finished() {
-    // String nodeId;
-    // Point newPosition;
-    //
-    // if (movedNodes.size() == 0)
-    // return;
-    //
-    // for (IGuiNode node : movedNodes) {
-    // nodeId = node.getId();
-    // newPosition = node.getPosition();
-    // appController.guiNodeDragged(nodeId, newPosition);
-    // }
-    // }
 
     @Override
     public void updateDataNodePositions() {
@@ -1868,34 +1867,34 @@ public class GuiModelController implements IGuiModelController {
         return false;
     }
 
-    /**
-     * Combines the two lists without duplicate entries.
-     * 
-     * @param elements
-     *            A {@link List} of type {@link IGuiElement}
-     * @param arcs
-     *            A {@link List} of type {@link IGuiArc}
-     * @return The combined {@link List} of type {@link IGuiElement} without
-     *         duplicates
-     */
-    private List<IGuiElement> combineElementsAndArcs(List<IGuiElement> elements, List<IGuiArc> arcs) {
-        for (IGuiElement element : arcs) {
-            if (!elements.contains(element)) {
-                elements.add(element);
-            }
-        }
-
-        /*
-         * Better methods in Java 8?:
-         */
-        // List<?> newList = Stream.of(elements,
-        // arcs).flatMap(List::stream).collect(Collectors.toList());
-
-        // List<IGuiElement> newList = Stream.of(elements,
-        // arcs).collect(ArrayList::new, List::addAll, List::addAll);
-
-        return elements;
-    }
+//    /**
+//     * Combines the two lists without duplicate entries.
+//     * 
+//     * @param elements
+//     *            A {@link List} of type {@link IGuiElement}
+//     * @param arcs
+//     *            A {@link List} of type {@link IGuiArc}
+//     * @return The combined {@link List} of type {@link IGuiElement} without
+//     *         duplicates
+//     */
+//    private List<IGuiElement> combineElementsAndArcs(List<IGuiElement> elements, List<IGuiArc> arcs) {
+//        for (IGuiElement element : arcs) {
+//            if (!elements.contains(element)) {
+//                elements.add(element);
+//            }
+//        }
+//
+//        /*
+//         * Better methods in Java 8?:
+//         */
+//        // List<?> newList = Stream.of(elements,
+//        // arcs).flatMap(List::stream).collect(Collectors.toList());
+//
+//        // List<IGuiElement> newList = Stream.of(elements,
+//        // arcs).collect(ArrayList::new, List::addAll, List::addAll);
+//
+//        return elements;
+//    }
 
     /**
      * Asks the user for a new name.
