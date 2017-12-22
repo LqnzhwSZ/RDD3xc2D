@@ -41,6 +41,17 @@ public class DataModel implements IDataModel, IModelRename {
      * that the user is asked for "file save" when closing the file.
      */
     private boolean modelModified = false;
+    
+    /**
+     * Will be set to false any time the model will be changed/modified
+     * Will be set to true after the model has been validated to true or false
+     */
+    private boolean modelChecked = false;
+    
+    /**
+     * Will be set to true if the model is valid other wise to false
+     */
+    private boolean modelValid = false;
 
     /**
      * Constructs the date model with a specified name.
@@ -95,7 +106,31 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public void setModified(boolean b) {
+    	if (b == false) {
+    		this.modelChecked = false;
+    		this.modelValid = false;
+    	}
         this.modelModified = b;
+    }
+
+    @Override
+    public boolean isModelChecked() {
+        return this.modelChecked;
+    }
+
+    @Override
+    public void setModelChecked(boolean b) {
+        this.modelChecked = b;
+    }
+
+    @Override
+    public boolean isModelValid() {
+        return this.modelValid;
+    }
+
+    @Override
+    public void setModelValidity(boolean b) {
+        this.modelValid = b;
     }
 
     @Override

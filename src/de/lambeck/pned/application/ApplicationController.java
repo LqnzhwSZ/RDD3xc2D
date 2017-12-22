@@ -29,6 +29,8 @@ import de.lambeck.pned.models.data.DataModelController;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
+import de.lambeck.pned.models.data.validation.RecursionValidator;
+import de.lambeck.pned.models.data.validation.ValidationController;
 import de.lambeck.pned.models.gui.*;
 
 /**
@@ -87,6 +89,7 @@ public class ApplicationController extends AbstractApplicationController {
      */
     private List<String> modifiedDataModels = new ArrayList<String>();
 
+    private ValidationController validationController;
     /**
      * Constructs the application controller for the specified main frame
      * (application window).
@@ -116,7 +119,8 @@ public class ApplicationController extends AbstractApplicationController {
          */
         this.dataModelController = new DataModelController(this, i18n);
         this.guiModelController = new GuiModelController(this, i18n, popupActions);
-
+        this.validationController = new ValidationController(this.dataModelController);
+        this.validationController.addValidator(new RecursionValidator());
         /*
          * Create and set up the content pane (BEFORE adding menu, tool and
          * status bars!) add the content to it.
@@ -162,6 +166,8 @@ public class ApplicationController extends AbstractApplicationController {
         // language and pass only needed (already localized) Strings to
         // methods/other classes? (So that static methods as in FSInfo.java can
         // use localized messages.)
+        
+        this.validationController.start();
     }
 
     /*
@@ -347,6 +353,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Closes the application (without questions!)
      */
     private void closeApplication() {
+    	this.validationController.interrupt();
         mainFrame.dispose();
         System.exit(0);
     }
