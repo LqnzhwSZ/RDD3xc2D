@@ -37,6 +37,44 @@ public interface IDataModel extends IModel {
      */
     IDataElement getElementById(String id) throws NoSuchElementException;
 
+    /**
+     * The check state indicates, whether the model needs checking or not.
+     * This function indicates the current state
+     * 
+     * @return false = model needs checking, true = model already checked
+     * 
+     */
+    public boolean isModelChecked();
+
+    /**
+     * The check state indicates, whether the model needs checking or not.
+     * This method will set this state.
+     * Any changes to the model will set this state to false.
+     * 
+     * @param b
+     *            new model check state
+     */
+    public void setModelChecked(boolean b);
+
+    /**
+     * The validity state indicates, whether the model is valid or not.
+     * This function indicates the current state.
+     * Any changes to the model will set this state to false.
+     * 
+     * @return false = model is invalid / has errors, true = model is valid
+     * 
+     */
+    public boolean isModelValid();
+
+    /**
+     * The validity state indicates, whether the model is valid or not.
+     * This method will set this state.
+     * 
+     * @param b
+     *            new model check state
+     */
+    public void setModelValidity(boolean b);
+
     /*
      * Methods for adding, modify and removal of elements
      */

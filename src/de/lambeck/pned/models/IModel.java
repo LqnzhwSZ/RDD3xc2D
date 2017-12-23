@@ -65,14 +65,9 @@ public interface IModel {
 	 */
 	void setModified(boolean b);
 
-	/**
-	 * The check state indicates, whether the model needs checking or not.
-	 * This function indicates the current state
-	 * 
-	 * @return false = model needs checking, true = model already checked
-	 * 
-	 */
-	public boolean isModelChecked();
+    /*
+     * Methods for adding, modify and removal of elements
+     */
 
     /*
      * Add elements
@@ -92,7 +87,6 @@ public interface IModel {
      *            The position (center) of the place
      */
     void addPlace(String id, EPlaceToken initialTokens, Point position);
-
 
     /**
      * Adds a place to this model.
@@ -114,53 +108,51 @@ public interface IModel {
      */
     void addPlace(String id, String name, EPlaceToken initialTokens, Point position);
 
-	/**
-	 * The check state indicates, whether the model needs checking or not.
-	 * This method will set this state.
-	 * Any changes to the model will set this state to false.
-	 * 
-	 * @param b
-	 *            new model check state
-	 */
-	public void setModelChecked(boolean b);
+    /**
+     * Adds a transition to this model.
+     * 
+     * Intended use: adding a transition after a GUI event when the new transition
+     * is without a name after creation.
+     * 
+     * @param id
+     *            The ID of the transition
+     * @param position
+     *            The position (center) of the transition
+     */
+    void addTransition(String id, Point position);
 
-	/**
-	 * The validity state indicates, whether the model is valid or not.
-	 * This function indicates the current state.
-	 * Any changes to the model will set this state to false.
-	 * 
-	 * @return false = model is invalid / has errors, true = model is valid
-	 * 
-	 */
-	public boolean isModelValid();
+    /**
+     * Adds a transition to this model.
+     * 
+     * Note: Adds an additional parameter name to the other method
+     * addTransition(String id, Point position)
+     * 
+     * Intended use: adding a transition after reading from a pnml file because
+     * these transitions may have a name.
+     * 
+     * @param id
+     *            The ID of the transition
+     * @param name
+     *            The name of the transition
+     * @param position
+     *            The position (center) of the transition
+     */
+    void addTransition(String id, String name, Point position);
 
-	/**
-	 * The validity state indicates, whether the model is valid or not.
-	 * This method will set this state.
-	 * 
-	 * @param b
-	 *            new model check state
-	 */
-	public void setModelValidity(boolean b);
-
-	/*
-	 * Methods for adding, modify and removal of elements
-	 */
-
-	/**
-	 * Adds a place to this model.
-	 * 
-	 * Intended use: adding a place after a GUI event when the new place is without
-	 * a name after creation.
-	 * 
-	 * @param id
-	 *            The ID of the place
-	 * @param initialMarking
-	 *            The initial marking
-	 * @param position
-	 *            The position (center) of the place
-	 */
-	void addPlace(String id, EPlaceMarking initialMarking, Point position);
+    /**
+     * Adds an arc to this model.
+     * 
+     * Note: This method should be the same for GUI events and reading from a pnml
+     * file because arcs will have all 3 attributes in either cases.
+     * 
+     * @param id
+     *            The id of the arc
+     * @param sourceId
+     *            The id of the source (Place or Transition)
+     * @param targetId
+     *            The id of the target (Place or Transition)
+     */
+    void addArc(String id, String sourceId, String targetId);
 
     /*
      * Remove methods for elements
@@ -175,62 +167,6 @@ public interface IModel {
      *             if element does not exist
      */
     void removeElement(String id) throws NoSuchElementException;
-
-	/**
-	 * Adds a transition to this model.
-	 * 
-	 * Intended use: adding a transition after a GUI event when the new transition
-	 * is without a name after creation.
-	 * 
-	 * @param id
-	 *            The ID of the transition
-	 * @param position
-	 *            The position (center) of the transition
-	 */
-	void addTransition(String id, Point position);
-
-	/**
-	 * Adds a transition to this model.
-	 * 
-	 * Note: Adds an additional parameter name to the other method
-	 * addTransition(String id, Point position)
-	 * 
-	 * Intended use: adding a transition after reading from a pnml file because
-	 * these transitions may have a name.
-	 * 
-	 * @param id
-	 *            The ID of the transition
-	 * @param name
-	 *            The name of the transition
-	 * @param position
-	 *            The position (center) of the transition
-	 */
-	void addTransition(String id, String name, Point position);
-
-	/**
-	 * Adds an arc to this model.
-	 * 
-	 * Note: This method should be the same for GUI events and reading from a pnml
-	 * file because arcs will have all 3 attributes in either cases.
-	 * 
-	 * @param id
-	 *            The id of the arc
-	 * @param sourceId
-	 *            The id of the source (Place or Transition)
-	 * @param targetId
-	 *            The id of the target (Place or Transition)
-	 */
-	void addArc(String id, String sourceId, String targetId);
-
-	/**
-	 * Removes the specified element from this model.
-	 *
-	 * @param id
-	 *            The id of the element
-	 * @throws NoSuchElementException
-	 *             if element does not exist
-	 */
-	void removeElement(String id) throws NoSuchElementException;
 
 	/**
 	 * Removes all elements from this model.
