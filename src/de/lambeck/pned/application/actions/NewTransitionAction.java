@@ -26,8 +26,10 @@ public class NewTransitionAction extends AbstractPNAction {
         super(controller, i18nController);
 
         internalName = "NewTransition";
-        iconPath = "icons/gnome/";
-        iconName = "Gnome-document-new.svg.png";
+        // iconPath = "icons/gnome/";
+        // iconName = "Gnome-document-new.svg.png";
+        iconPath = "icons/";
+        iconName = "New-Transition.png";
         // No shortcut at all
         keyEvent = 0;
         actionEvent = 0;

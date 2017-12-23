@@ -15,11 +15,16 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
     private static boolean debug = false;
 
-    static int arrowLineThickness = 1;
-    static int arrowTipLength = 15;
-
     private IGuiNode pred;
     private IGuiNode succ;
+
+    /*
+     * Attributes for optical appearance
+     */
+
+    static int arrowLineThickness = 1;
+    /** Size of the arrow */
+    static int arrowTipLength = 10;
 
     /**
      * The drawing area used during last invocation of paintElement.
@@ -102,7 +107,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * @param size
      */
     public static void changeShapeSize(int size) {
-        GuiArc.arrowTipLength = (int) (size * 0.3); // Smaller than the nodes!
+        GuiArc.arrowTipLength = (int) (size * 0.2); // Smaller than the nodes!
     }
 
     @Override
@@ -380,7 +385,9 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
             int width = max_x - min_x;
             int height = max_y - min_y;
-            System.out.println("g2.drawRect(" + min_x + ", " + min_y + ", " + width + ", " + height + ")");
+            if (debug) {
+                System.out.println("g2.drawRect(" + min_x + ", " + min_y + ", " + width + ", " + height + ")");
+            }
 
             g2.setStroke(new BasicStroke(1));
             g2.setColor(Color.BLUE);

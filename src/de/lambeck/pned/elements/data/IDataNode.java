@@ -66,4 +66,23 @@ public interface IDataNode extends IDataElement, INode {
      */
     List<IDataArc> getSuccElems();
 
+    /**
+     * Returns true if this nodes list of predecessors contains the specified
+     * arc.
+     * 
+     * @param arc
+     *            The specified arc
+     * @return True if arc is in the predecessor list; otherwise false
+     */
+    boolean predListContains(IDataArc arc);
+
+    /**
+     * Returns true if this nodes list of successors contains the specified arc.
+     * 
+     * @param arc
+     *            The specified arc
+     * @return True if arc is in the successor list; otherwise false
+     */
+    boolean succListContains(IDataArc arc);
+
 }

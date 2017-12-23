@@ -14,7 +14,7 @@ interface IModelRename {
      * case the user has saved the model under a new file name.)
      * 
      * Note: This is in a non-public interface because the model controller has
-     * to keep his list of model up to date!
+     * to keep his list of models up to date!
      *
      * @param s
      *            The new full name

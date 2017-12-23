@@ -53,14 +53,16 @@ public class ApplicationController extends AbstractApplicationController {
      */
     private double useScreenPercentage = 66.7;
 
+    /** The content pane for the main application window */
     private JPanel contentPane;
+
+    /** The {@link JTabbedPane} with a tab for each file */
     private JTabbedPane tabbedPane;
 
-    /**
-     * These variables store references to the controller for data models and
-     * the GUI controller.
-     */
+    /** Reference to the {@link IDataModelController} */
     private IDataModelController dataModelController;
+
+    /** Reference to the {@link IGuiModelController}. */
     private IGuiModelController guiModelController;
 
     /**
@@ -71,7 +73,7 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Counter for new models (e.g. "Untitled1", "Untitled2"... or "New1",
-     * "New2"...); counts continuously up.
+     * "New2"...); counts continuously upwards.
      */
     private int currNewFileIndex = -1;
 
@@ -915,6 +917,12 @@ public class ApplicationController extends AbstractApplicationController {
         IValidationMessagesPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(canonicalPath);
 
         addTabForDrawPanel(drawPanel, validationMessagesPanel, canonicalPath, displayName);
+
+        /*
+         * Let the data model controller start the validation since we already
+         * have a Petri net to check.
+         */
+        dataModelController.startValidation(canonicalPath);
     }
 
     /**
@@ -1002,11 +1010,11 @@ public class ApplicationController extends AbstractApplicationController {
      * @return The result of {@link closeFile}
      */
     private int closeActiveFile() {
-        if (this.activeFile == null) {
+        if (this.activeFile == null || this.activeFile == "") {
             if (debug) {
                 System.out.println("No active file to close.");
-                return 0;
             }
+            return 0;
         }
 
         String modelName = this.activeFile;
@@ -1170,9 +1178,20 @@ public class ApplicationController extends AbstractApplicationController {
          * Remove the specified tab.
          */
         int index = getTabIndexForFile(modelName);
-        if (index == -1)
-            return;
-        tabbedPane.removeTabAt(index);
+        // if (index == -1)
+        // return;
+
+        /*
+         * Do not leave this method here if there is no tab to close!
+         * 
+         * -> There is no tab if we have opened a new file with errors. (In this
+         * case: The data model controller has rejected the file during import,
+         * but the models were created before reading the PNML file!
+         * 
+         * -> So we still have to remove the models!
+         */
+        if (index != -1)
+            tabbedPane.removeTabAt(index);
 
         /*
          * Note: Removing the tab invokes tabstateChanged() of the TabListener
@@ -1427,9 +1446,9 @@ public class ApplicationController extends AbstractApplicationController {
                 String label = ((DataPlace) element).getName();
                 String xPosition = Integer.toString(((DataPlace) element).getPosition().x);
                 String yPosition = Integer.toString(((DataPlace) element).getPosition().y);
-                String initialMarking = ((DataPlace) element).getMarking().toPnmlString();
+                String initialTokens = ((DataPlace) element).getTokensCount().toPnmlString();
 
-                returnValue = writer.addPlace(id, label, xPosition, yPosition, initialMarking);
+                returnValue = writer.addPlace(id, label, xPosition, yPosition, initialTokens);
                 if (returnValue > 0)
                     return ExitCode.OPERATION_FAILED;
             }
@@ -1776,14 +1795,14 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param id
      * @param name
-     * @param initialMarking
+     * @param initialTokens
      * @param position
      */
-    public void placeAddedToCurrentDataModel(String id, String name, EPlaceMarking initialMarking, Point position) {
+    public void placeAddedToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (!importingFromPnml)
             return;
 
-        guiModelController.addPlaceToCurrentGuiModel(id, name, initialMarking, position);
+        guiModelController.addPlaceToCurrentGuiModel(id, name, initialTokens, position);
     }
 
     /**
@@ -1792,14 +1811,14 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param id
      * @param name
-     * @param initialMarking
+     * @param initialTokens
      * @param position
      */
-    public void placeAddedToCurrentGuiModel(String id, String name, EPlaceMarking initialMarking, Point position) {
+    public void placeAddedToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (importingFromPnml)
             return;
 
-        dataModelController.addPlaceToCurrentDataModel(id, name, initialMarking, position);
+        dataModelController.addPlaceToCurrentDataModel(id, name, initialTokens, position);
     }
 
     /**
@@ -1866,20 +1885,6 @@ public class ApplicationController extends AbstractApplicationController {
      * Modify methods for elements
      */
 
-    // /**
-    // * Handles the GUI controllers info to update the marking of a place in
-    // the
-    // * data model.
-    // *
-    // * @param placeId
-    // * The id of the place
-    // * @param newMarking
-    // * The new marking
-    // */
-    // public void guiMarkingToggled(String placeId, EPlaceMarking newMarking) {
-    // dataModelController.toggleMarking(placeId, newMarking);
-    // }
-
     /*
      * Remove methods for elements
      */
@@ -1941,6 +1946,50 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void guiNodeDragged(String nodeId, Point newPosition) {
         dataModelController.moveNode(nodeId, newPosition);
+    }
+
+    /*
+     * Validation events
+     */
+
+    /**
+     * Handles the {@link IDataModelController} request to update the start
+     * place on the draw panel.
+     * 
+     * Note: Parameter modelName to be independent from the "current model"
+     * (active file) so that the validator should be allowed to work as
+     * background thread for any model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as start place; otherwise false
+     */
+    public void setStartPlace(String modelName, String placeId, boolean b) {
+        guiModelController.setStartPlace(modelName, placeId, b);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to update the end place
+     * on the draw panel.
+     * 
+     * Note: Parameter modelName to be independent from the "current model"
+     * (active file) so that the validator should be allowed to work as
+     * background thread for any model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as end place; otherwise false
+     */
+    public void setEndPlace(String modelName, String placeId, boolean b) {
+        guiModelController.setEndPlace(modelName, placeId, b);
     }
 
 }

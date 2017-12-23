@@ -26,8 +26,8 @@ public class ElementToTheForegroundAction extends AbstractPNAction {
         super(controller, i18nController);
 
         internalName = "ElementToTheForeground";
-        iconPath = "icons/gnome/";
-        iconName = "Gnome-go-top.svg.png";
+        iconPath = "icons/";
+        iconName = "Bring-to-front.png";
         // No shortcut at all
         keyEvent = 0;
         actionEvent = 0;

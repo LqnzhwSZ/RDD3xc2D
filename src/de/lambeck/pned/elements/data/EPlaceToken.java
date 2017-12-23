@@ -1,24 +1,24 @@
 package de.lambeck.pned.elements.data;
 
 /**
- * Possible markings for places. (0 or 1 for a Workflow net)
+ * Possible tokens for places. (0 or 1 for a Workflow net)
  * 
  * @author Thomas Lambeck, 4128320
- * 
+ *
  */
-public enum EPlaceMarking {
+public enum EPlaceToken {
     /**
-     * Place has no mark.
+     * Place has no token.
      */
     ZERO(0),
     /**
-     * Place has 1 mark. (Maximum for a Workflow net)
+     * Place has 1 token. (Maximum for a Workflow net)
      */
     ONE(1);
 
     private int value;
 
-    private EPlaceMarking(final int initValue) {
+    private EPlaceToken(final int initValue) {
         this.value = initValue;
     }
 

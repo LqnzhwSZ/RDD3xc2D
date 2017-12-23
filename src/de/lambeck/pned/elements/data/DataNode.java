@@ -2,6 +2,7 @@ package de.lambeck.pned.elements.data;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
@@ -19,8 +20,8 @@ public abstract class DataNode extends DataElement implements IDataNode {
      */
     protected String name = "";
 
-    protected ArrayList<IDataArc> predElems = new ArrayList<IDataArc>();
-    protected ArrayList<IDataArc> succElems = new ArrayList<IDataArc>();
+    protected List<IDataArc> predElems = new ArrayList<IDataArc>();
+    protected List<IDataArc> succElems = new ArrayList<IDataArc>();
     protected Point position = null; // The center of the node
 
     /**
@@ -113,13 +114,23 @@ public abstract class DataNode extends DataElement implements IDataNode {
     }
 
     @Override
-    public ArrayList<IDataArc> getPredElems() {
+    public List<IDataArc> getPredElems() {
         return this.predElems;
     }
 
     @Override
-    public ArrayList<IDataArc> getSuccElems() {
+    public List<IDataArc> getSuccElems() {
         return this.succElems;
+    }
+
+    @Override
+    public boolean predListContains(IDataArc arc) {
+        return this.predElems.contains(arc);
+    }
+
+    @Override
+    public boolean succListContains(IDataArc arc) {
+        return this.succElems.contains(arc);
     }
 
 }

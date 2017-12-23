@@ -10,7 +10,8 @@ import de.lambeck.pned.application.actions.EditDeleteAction;
 import de.lambeck.pned.application.actions.EditRenameAction;
 import de.lambeck.pned.application.actions.NewPlaceAction;
 import de.lambeck.pned.elements.ENodeType;
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;
@@ -163,12 +164,12 @@ public interface IGuiModelController
      *            The ID of the place
      * @param name
      *            The name of the place
-     * @param initialMarking
-     *            The initial marking
+     * @param initialTokens
+     *            The initial tokens count of the place
      * @param position
      *            The position (center) of the place
      */
-    void addPlaceToCurrentGuiModel(String id, String name, EPlaceMarking initialMarking, Point position);
+    void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position);
 
     /**
      * Adds a transition to the current GUI model.
@@ -432,5 +433,45 @@ public interface IGuiModelController
      *            The new size
      */
     void changeShapeSize(int size);
+
+    /*
+     * Validation events
+     */
+
+    /**
+     * Handles the {@link ApplicationController} request to update the start
+     * place on the draw panel.
+     * 
+     * Note: Parameter modelName to be independent from the "current model"
+     * (active file) so that the validator should be allowed to work as
+     * background thread for any model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as start place; otherwise false
+     */
+    void setStartPlace(String modelName, String placeId, boolean b);
+
+    /**
+     * Handles the {@link ApplicationController} request to update the end place
+     * on the draw panel.
+     * 
+     * Note: Parameter modelName to be independent from the "current model"
+     * (active file) so that the validator should be allowed to work as
+     * background thread for any model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as end place; otherwise false
+     */
+    void setEndPlace(String modelName, String placeId, boolean b);
 
 }

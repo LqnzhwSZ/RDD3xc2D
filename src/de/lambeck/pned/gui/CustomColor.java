@@ -27,6 +27,14 @@ public enum CustomColor {
      */
     INDIAN_RED1(255, 106, 106),
     /**
+     * Fire brick
+     */
+    FIREBRICK(178, 34, 34),
+    /**
+     * Dark red
+     */
+    DARK_RED(139, 0, 0),
+    /**
      * Silver
      */
     SILVER(192, 192, 192),

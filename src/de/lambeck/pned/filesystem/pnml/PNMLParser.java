@@ -17,8 +17,9 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.models.data.IDataModelController;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Diese Klasse implementiert die Grundlage für einen einfachen PNML Parser.
@@ -49,7 +50,8 @@ public class PNMLParser {
         } else {
             // System.out.println("Bitte eine Datei als Parameter angeben!");
             String[] example = { "G:\\Aufgabenstellung\\Beispiele\\Beispiel-03.pnml" };
-            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test - falsche Werte.pnml" };
+            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test -
+            // falsche Werte.pnml" };
             // String[] example = { "G:\\Testdateien\\Test1.pnml" };
             main(example);
         }
@@ -103,7 +105,7 @@ public class PNMLParser {
     private EPNMLElement nextElementType = null;
     private String nextId = null;
     private String nextName = null;
-    private EPlaceMarking nextMarking = null;
+    private EPlaceToken nextMarking = null;
     private Point nextPosition = null;
     private String nextSourceId = null;
     private String nextTargetId = null;
@@ -475,10 +477,10 @@ public class PNMLParser {
          */
         switch (marking) {
         case "0":
-            this.nextMarking = EPlaceMarking.ZERO;
+            this.nextMarking = EPlaceToken.ZERO;
             break;
         case "1":
-            this.nextMarking = EPlaceMarking.ONE;
+            this.nextMarking = EPlaceToken.ONE;
             break;
         default:
             System.err.println("Invalid marking for element " + id + "! Ignoring this element...");
@@ -622,7 +624,10 @@ public class PNMLParser {
      * @return True if all necessary values are there; otherwise false
      */
     private boolean isCompleteTransition() {
-        if (nextId != null && nextName != null && nextPosition != null)
+        /*
+         * <Name> == null is OK!
+         */
+        if (nextId != null && nextPosition != null)
             return true;
         return false;
     }
@@ -643,7 +648,7 @@ public class PNMLParser {
      */
     private void resetNextValues() {
         if (debug) {
-            System.out.println("resetNextValues()");
+            ConsoleLogger.consoleLogMethodCall("resetNextValues");
         }
         this.nextElementType = null;
         this.nextId = null;

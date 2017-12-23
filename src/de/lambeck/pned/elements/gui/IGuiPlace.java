@@ -1,12 +1,9 @@
 package de.lambeck.pned.elements.gui;
 
-import java.awt.Point;
-
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 
 /**
- * Interface for places with a "marking" circle that can be de-/activated with
- * mouse clicks.
+ * Interface for places with a "token" circle
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -14,31 +11,34 @@ import de.lambeck.pned.elements.data.EPlaceMarking;
 public interface IGuiPlace extends IGuiNode {
 
     /**
-     * Getter for the marking of this place.
+     * Getter for the tokens of this place.
      * 
-     * @return The marking
+     * @return The tokens count of this place
      */
-    EPlaceMarking getMarking();
+    EPlaceToken getTokensCount();
 
     /**
-     * Setter for the marking of this place.
+     * Setter for the tokens of this place.
      * 
-     * @param newMarking
-     *            specifies if the place gets a marking
+     * @param newTokens
+     *            Specifies the new tokens count of this place.
      */
-    void setMarking(EPlaceMarking newMarking);
+    void setTokens(EPlaceToken newTokens);
 
     /**
-     * Checks if the point is within the "marking" circle of this
-     * {@link GuiPlace}.
+     * Sets this places status as start place.
      * 
-     * Note: Use the result in the GuiManager to (re)set the attribute "marking"
-     * of this place.
-     * 
-     * @param p
-     *            the Point to check
-     * @return true if the Point is within the marking circle; otherwise false
+     * @param b
+     *            Set to true if this is the start place; otherwise false.
      */
-    boolean markingCircleContains(Point p);
+    void setStartPlace(boolean b);
+
+    /**
+     * Sets this places status as end place.
+     * 
+     * @param b
+     *            Set to true if this is the end place; otherwise false.
+     */
+    void setEndPlace(boolean b);
 
 }

@@ -31,27 +31,6 @@ public interface IValidationMessagesPanel {
      */
     void setModelName(String s);
 
-    /**
-     * Returns the display name of this {@link ValidationMessagesPanel}.
-     * 
-     * Intended use: name of the tab
-     * 
-     * @return The display name
-     */
-    String getDisplayName();
-
-    /**
-     * Sets the display name of this {@link ValidationMessagesPanel}. (Use this
-     * method to rename this ValidationMessagesArea in case the user has saved
-     * the model under a new file name.)
-     * 
-     * Intended use: name of the tab
-     * 
-     * @param s
-     *            The new display name
-     */
-    void setDisplayName(String s);
-
     /*
      * Methods for the content
      */

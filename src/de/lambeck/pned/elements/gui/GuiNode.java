@@ -58,8 +58,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
 
     /** Size of the node */
-    // static int shapeSizeStandard = 50;
-    // protected int shapeSize = 50;
     static int shapeSize = 50;
 
     /** The font size for the label */
@@ -99,50 +97,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /*
      * Constructor etc.
      */
-
-    // /**
-    // * Invokes GuiNode(id, name, p, zValue, shapeSize) using the static
-    // * attribute shapeSizeStandard.
-    // *
-    // * @param id
-    // * The id
-    // * @param name
-    // * The name of this node
-    // * @param p
-    // * The center point
-    // * @param zValue
-    // * The height level
-    // */
-    // @SuppressWarnings("hiding")
-    // public GuiNode(String id, String name, Point p, int zValue) {
-    // this(id, name, p, zValue, shapeSizeStandard);
-    // }
-
-    // /**
-    // * Constructs a node at a given location and in the specified z level
-    // * (height level) and an additional size value.
-    // *
-    // * @param id
-    // * The id
-    // * @param name
-    // * The name of this node
-    // * @param p
-    // * The center point
-    // * @param zValue
-    // * The height level
-    // * @param shapeSize
-    // * The size of the shape
-    // */
-    // @SuppressWarnings("hiding")
-    // public GuiNode(String id, String name, Point p, int zValue, int
-    // shapeSize) {
-    // super(id, zValue);
-    //
-    // this.shapeCenter = p;
-    // this.shapeSize = shapeSize;
-    // this.name = name;
-    // calculateMyBounds(); // Depend on the other values.
-    // }
 
     /**
      * Constructs a node at a given location and in the specified z level
@@ -220,8 +174,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * @param size
      */
     public static void changeShapeSize(int size) {
-        // this.shapeSize = size;
-        // GuiPlace.shapeSizeStandard = size;
         GuiPlace.shapeSize = size;
     }
 

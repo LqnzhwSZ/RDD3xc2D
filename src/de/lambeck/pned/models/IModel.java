@@ -3,7 +3,7 @@ package de.lambeck.pned.models;
 import java.awt.Point;
 import java.util.NoSuchElementException;
 
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 
 /**
  * Interface for models representing a Petri net.
@@ -74,6 +74,46 @@ public interface IModel {
 	 */
 	public boolean isModelChecked();
 
+    /*
+     * Add elements
+     */
+
+    /**
+     * Adds a place to this model.
+     * 
+     * Intended use: adding a place after a GUI event when the new place is
+     * without a name after creation.
+     * 
+     * @param id
+     *            The ID of the place
+     * @param initialTokens
+     *            The initial tokens count of the place
+     * @param position
+     *            The position (center) of the place
+     */
+    void addPlace(String id, EPlaceToken initialTokens, Point position);
+
+
+    /**
+     * Adds a place to this model.
+     * 
+     * Note: Adds an additional parameter name to the other method
+     * addPlace(String id, EPlaceTokens initialTokens, Point position)
+     * 
+     * Intended use: adding a place after reading from a pnml file because these
+     * places may have a name.
+     * 
+     * @param id
+     *            The ID of the place
+     * @param name
+     *            The name of the place
+     * @param initialTokens
+     *            The initial tokens count of the place
+     * @param position
+     *            The position (center) of the place
+     */
+    void addPlace(String id, String name, EPlaceToken initialTokens, Point position);
+
 	/**
 	 * The check state indicates, whether the model needs checking or not.
 	 * This method will set this state.
@@ -122,25 +162,19 @@ public interface IModel {
 	 */
 	void addPlace(String id, EPlaceMarking initialMarking, Point position);
 
-	/**
-	 * Adds a place to this model.
-	 * 
-	 * Note: Adds an additional parameter name to the other method addPlace(String
-	 * id, EPlaceMarking initialMarking, Point position)
-	 * 
-	 * Intended use: adding a place after reading from a pnml file because these
-	 * places may have a name.
-	 * 
-	 * @param id
-	 *            The ID of the place
-	 * @param name
-	 *            The name of the place
-	 * @param initialMarking
-	 *            The initial marking
-	 * @param position
-	 *            The position (center) of the place
-	 */
-	void addPlace(String id, String name, EPlaceMarking initialMarking, Point position);
+    /*
+     * Remove methods for elements
+     */
+
+    /**
+     * Removes the specified element from this model.
+     *
+     * @param id
+     *            The id of the element
+     * @throws NoSuchElementException
+     *             if element does not exist
+     */
+    void removeElement(String id) throws NoSuchElementException;
 
 	/**
 	 * Adds a transition to this model.

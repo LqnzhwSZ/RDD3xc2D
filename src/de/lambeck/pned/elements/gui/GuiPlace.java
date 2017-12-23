@@ -1,12 +1,10 @@
 package de.lambeck.pned.elements.gui;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.gui.CustomColor;
 
 /**
  * Implements the places for the GUI model of the Petri net.
@@ -19,57 +17,21 @@ import de.lambeck.pned.elements.data.EPlaceMarking;
  */
 public class GuiPlace extends GuiNode implements IGuiPlace {
 
-    private EPlaceMarking marking;
-    private static int markingSizePercentage = 33;
+    /** The size of the token circle relative to the shape size */
+    private final static int tokensSizePercentage = 33;
+
+    /** The tokens of this place */
+    private EPlaceToken tokens;
+
+    /** Stores if this place is the start place in his workflow net */
+    private boolean isStartPlace = false;
+
+    /** Stores if this place is the end place in his workflow net */
+    private boolean isEndPlace = false;
 
     /*
      * Constructor etc.
      */
-
-    // /**
-    // * Invokes GuiPlace(id, name, p, zOrder, initialMarking, shapeSize) using
-    // * the static attribute shapeSizeStandard.
-    // *
-    // * @param id
-    // * The id
-    // * @param name
-    // * The name of this place
-    // * @param p
-    // * The center point
-    // * @param zOrder
-    // * The height level
-    // * @param initialMarking
-    // * The initial marking of this place
-    // */
-    // @SuppressWarnings("hiding")
-    // public GuiPlace(String id, String name, Point p, int zOrder,
-    // EPlaceMarking initialMarking) {
-    // this(id, name, p, zOrder, initialMarking, shapeSizeStandard);
-    // }
-
-    // /**
-    // * Constructs a Place at a given location and in the specified z order
-    // * (height level) and an additional size value.
-    // *
-    // * @param id
-    // * The id
-    // * @param name
-    // * The name of this place
-    // * @param p
-    // * The center point
-    // * @param zOrder
-    // * The height level
-    // * @param initialMarking
-    // * The initial marking of this place
-    // * @param shapeSize
-    // * The size of the shape
-    // */
-    // @SuppressWarnings("hiding")
-    // public GuiPlace(String id, String name, Point p, int zOrder,
-    // EPlaceMarking initialMarking, int shapeSize) {
-    // super(id, name, p, zOrder, shapeSize);
-    // this.marking = initialMarking;
-    // }
 
     /**
      * Constructs a Place at a given location and in the specified z order
@@ -83,27 +45,41 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
      *            The center point
      * @param zOrder
      *            The height level
-     * @param initialMarking
-     *            The initial marking of this place
+     * @param initialTokens
+     *            Specifies the initial tokens count of this place.
      */
     @SuppressWarnings("hiding")
-    public GuiPlace(String id, String name, Point p, int zOrder, EPlaceMarking initialMarking) {
+    public GuiPlace(String id, String name, Point p, int zOrder, EPlaceToken initialTokens) {
         super(id, name, p, zOrder);
-        this.marking = initialMarking;
+        this.tokens = initialTokens;
     }
 
     /*
      * Getter and Setter
      */
 
+    /*
+     * Methods for interface IGuiPlace
+     */
+
     @Override
-    public EPlaceMarking getMarking() {
-        return this.marking;
+    public EPlaceToken getTokensCount() {
+        return this.tokens;
     }
 
     @Override
-    public void setMarking(EPlaceMarking newMarking) {
-        this.marking = newMarking;
+    public void setTokens(EPlaceToken newTokens) {
+        this.tokens = newTokens;
+    }
+
+    @Override
+    public void setStartPlace(boolean b) {
+        this.isStartPlace = b;
+    }
+
+    @Override
+    public void setEndPlace(boolean b) {
+        this.isEndPlace = b;
     }
 
     /*
@@ -115,8 +91,20 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         super.paintElement(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        drawMarking(g2);
+        /*
+         * Draw the token in the center of the place.
+         */
+        drawTokens(g2);
 
+        /*
+         * Highlight this place if it is start or end place of the workflow net.
+         */
+        if (this.isStartPlace) {
+            drawStartPlaceCircle(g2);
+        }
+        if (this.isEndPlace) {
+            drawEndPlaceCircle(g2);
+        }
     }
 
     @Override
@@ -130,26 +118,78 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     }
 
     /**
-     * Draws the "marking" circle in the center of the shape. Uses the private
-     * attribute markingSizePercentage to determine the marking circle size.
+     * Draws the "tokens" circle in the center of the shape. Uses the private
+     * attribute tokensSizePercentage to determine the tokens circle size.
      * 
      * @param g2
      *            The Graphics2D object
      */
-    private void drawMarking(Graphics2D g2) {
-        int size = shapeSize * markingSizePercentage / 100; // shapeSize =
-                                                            // shape diameter
+    private void drawTokens(Graphics2D g2) {
+        int size = shapeSize * (tokensSizePercentage / 100); // shapeSize =
+                                                             // shape diameter
         int offset = size / 2;
         int left_x = this.shapeCenter.x - offset;
         int top_y = this.shapeCenter.y - offset;
 
         g2.setColor(Color.BLACK);
 
-        if (this.marking == EPlaceMarking.ZERO) {
+        if (this.tokens == EPlaceToken.ZERO) {
             // g2.drawOval(left_x, top_y, size, size);
         } else {
             g2.fillOval(left_x, top_y, size, size);
         }
+    }
+
+    /**
+     * Highlights the start place with a (thicker) green circle.
+     * 
+     * @param g2
+     *            The Graphics2D object
+     */
+    private void drawStartPlaceCircle(Graphics2D g2) {
+        /*
+         * Different line width and color.
+         */
+        int borderWidth = 5;
+        g2.setStroke(new BasicStroke(borderWidth));
+        g2.setColor(CustomColor.DARK_GREEN.getColor());
+
+        /*
+         * Draw the circle at the inside of the normal shape.
+         */
+        g2.drawOval(shapeLeftX + 3, shapeTopY + 3, shapeSize - 6, shapeSize - 6);
+
+        /*
+         * Reset line width and color.
+         */
+        g2.setColor(stdLineColor);
+        g2.setStroke(new BasicStroke(stdLineWidth));
+    }
+
+    /**
+     * Highlights the end place with a (thicker) red circle.
+     * 
+     * @param g2
+     *            The Graphics2D object
+     */
+    private void drawEndPlaceCircle(Graphics2D g2) {
+        /*
+         * Different line width and color.
+         */
+        int borderWidth = 5;
+        g2.setStroke(new BasicStroke(borderWidth));
+        g2.setColor(CustomColor.FIREBRICK.getColor());
+
+        /*
+         * Draw the circle at the inside of the normal shape.
+         */
+        g2.drawOval(shapeLeftX + 3, shapeTopY + 3, shapeSize - 6, shapeSize - 6);
+
+        /*
+         * Reset line width and color.
+         */
+        g2.setColor(stdLineColor);
+        g2.setStroke(new BasicStroke(stdLineWidth));
     }
 
     @Override
@@ -190,29 +230,9 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         return anchor;
     }
 
-    /*
-     * Method for interface IMarkingCircle
-     */
-
-    @Override
-    public boolean markingCircleContains(Point p) {
-        double max_distance = (double) (shapeSize * markingSizePercentage / 200);
-
-        double x_dist = Math.abs(shapeCenter.getX() - p.getX());
-        double y_dist = Math.abs(shapeCenter.getY() - p.getY());
-        double distance = Math.sqrt(x_dist * x_dist + y_dist * y_dist);
-
-        if (distance <= max_distance)
-            return true;
-        return false;
-    }
-
     @Override
     public String toString() {
-        // String returnString = super.toString() + ", GuiPlace [id=" + id + ",
-        // name=" + name + ", marking=" + marking + ", position=" +
-        // shapeCenter.getX() + "," + shapeCenter.getY() + "]";
-        String returnString = "GuiPlace [" + super.toString() + ", marking=" + marking + "]";
+        String returnString = "GuiPlace [" + super.toString() + ", tokens=" + tokens + "]";
         return returnString;
     }
 

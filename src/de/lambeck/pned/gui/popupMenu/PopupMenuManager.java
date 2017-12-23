@@ -14,6 +14,7 @@ import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.models.gui.IDrawPanel;
 import de.lambeck.pned.models.gui.IGuiModelController;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /*
  * Thomas Lambeck: On Windows 7, the PopupTrigger fires at mouseReleased(). On
@@ -68,7 +69,7 @@ public class PopupMenuManager extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent e) {
         if (debug) {
-            System.out.println("PopupMenuManager.mousePressed()");
+            ConsoleLogger.consoleLogMethodCall("PopupMenuManager.mousePressed");
         }
 
         showIfPopupTrigger(e);
@@ -82,7 +83,7 @@ public class PopupMenuManager extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent e) {
         if (debug) {
-            System.out.println("PopupMenuManager.mouseReleased()");
+            ConsoleLogger.consoleLogMethodCall("PopupMenuManager.mouseReleased");
         }
 
         showIfPopupTrigger(e);
@@ -125,7 +126,7 @@ public class PopupMenuManager extends MouseAdapter {
      */
     private JPopupMenu getPopupMenu(Point mouseLocation) {
         if (debug) {
-            System.out.println("PopupMenuManager.getPopupMenu()");
+            ConsoleLogger.consoleLogMethodCall("PopupMenuManager.getPopupMenu");
         }
 
         IGuiElement element = getElement(mouseLocation);

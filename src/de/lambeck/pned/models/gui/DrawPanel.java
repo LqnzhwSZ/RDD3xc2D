@@ -15,6 +15,7 @@ import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.gui.CustomColor;
 import de.lambeck.pned.gui.popupMenu.PopupMenuManager;
 import de.lambeck.pned.i18n.I18NManager;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * The draw panel for one Petri net. Holds a reference to the 
@@ -327,7 +328,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     protected synchronized void keyEvent_Escape_Occurred() {
         if (debug) {
-            System.out.println("DrawPanel.escape_Action_occurred()");
+            ConsoleLogger.consoleLogMethodCall("DrawPanel.keyEvent_Escape_Occurred");
             System.out.println("DrawPanel.this.getPopupMenuLocation(): " + DrawPanel.this.getPopupMenuLocation());
         }
 
@@ -353,7 +354,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (debug) {
-            System.out.println("DrawPanel(" + getModelName() + ").paintComponent()");
+            ConsoleLogger.consoleLogMethodCall("DrawPanel(" + getModelName() + ").paintComponent");
         }
 
         Graphics2D g2 = (Graphics2D) g;
@@ -368,7 +369,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         boolean areaChanged = false;
 
         for (IGuiElement element : myGuiModel.getElements()) {
-            // System.out.println("Painting " + element.getId() + "...");
             element.paintElement(g);
 
             if (element instanceof IGuiNode) {
@@ -512,12 +512,13 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     public void updateDrawing(Rectangle area) {
         if (area != null) {
             if (debug) {
-                System.out.println("DrawPanel.updateDrawing(" + area + ")");
+                ConsoleLogger.consoleLogMethodCall("DrawPanel.updateDrawing", area);
             }
             this.repaint(area); // The specified area only
         } else {
             if (debug) {
-                System.out.println("DrawPanel.updateDrawing(everything)");
+                ConsoleLogger.consoleLogMethodCall("DrawPanel.updateDrawing");
+                System.out.println("-> Repaint everything");
             }
             this.repaint(); // Everything
         }
@@ -589,7 +590,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     @Override
     public void popupMenuLeft() {
         if (debug) {
-            System.out.println("DrawPanel.popupMenuLeft()");
+            ConsoleLogger.consoleLogMethodCall("DrawPanel.popupMenuLeft");
         }
         this.popupMenuLocation = null;
     }
