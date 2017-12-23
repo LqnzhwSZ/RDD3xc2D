@@ -26,8 +26,8 @@ public class ElementOneLayerUpAction extends AbstractPNAction {
         super(controller, i18nController);
 
         internalName = "ElementOneLayerUp";
-        iconPath = "icons/gnome/";
-        iconName = "Gnome-go-up.svg.png";
+        iconPath = "icons/";
+        iconName = "Move-forward.png";
         // No shortcut at all
         keyEvent = 0;
         actionEvent = 0;

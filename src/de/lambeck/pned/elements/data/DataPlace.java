@@ -10,7 +10,8 @@ import java.awt.Point;
  */
 public class DataPlace extends DataNode {
 
-    private EPlaceMarking marking = EPlaceMarking.ZERO;
+    /** The tokens of this place */
+    private EPlaceToken tokens = EPlaceToken.ZERO;
 
     /**
      * Constructor with parameters
@@ -20,16 +21,16 @@ public class DataPlace extends DataNode {
      * @param name
      *            The name of this place
      * @param initialPosition
-     *            (center) of the place
-     * @param initialMarking
-     *            specifies if the place gets a mark
+     *            (center) of this place
+     * @param initialTokens
+     *            Specifies the initial tokens count of this place.
      */
     @SuppressWarnings("hiding")
-    public DataPlace(String id, String name, Point initialPosition, EPlaceMarking initialMarking) {
+    public DataPlace(String id, String name, Point initialPosition, EPlaceToken initialTokens) {
         super(id, name);
 
         this.position = initialPosition;
-        this.marking = initialMarking;
+        this.tokens = initialTokens;
     }
 
     /*
@@ -37,23 +38,23 @@ public class DataPlace extends DataNode {
      */
 
     /**
-     * @return True if this place has a mark.
+     * @return The tokens count of this place
      */
-    public EPlaceMarking getMarking() {
-        return this.marking;
+    public EPlaceToken getTokensCount() {
+        return this.tokens;
     }
 
     /**
-     * @param newMarking
-     *            specifies if the place gets a mark
+     * @param newTokens
+     *            Specifies the new tokens count of this place.
      */
-    public void setMarking(EPlaceMarking newMarking) {
-        this.marking = newMarking;
+    public void setTokens(EPlaceToken newTokens) {
+        this.tokens = newTokens;
     }
 
     @Override
     public String toString() {
-        return "DataPlace [id=" + id + ", name=" + name + ", marking=" + marking + ", position=" + position.getX() + ","
+        return "DataPlace [id=" + id + ", name=" + name + ", tokens=" + tokens + ", position=" + position.getX() + ","
                 + position.getY() + "]";
     }
 

@@ -24,47 +24,6 @@ public class GuiTransition extends GuiNode {
      * Constructor etc.
      */
 
-    // /**
-    // * Invokes GuiTransition(id, name, p, zOrder, shapeSize) using the static
-    // * attribute shapeSizeStandard.
-    // *
-    // * @param id
-    // * The id
-    // * @param name
-    // * The name of this transition
-    // * @param p
-    // * The center point
-    // * @param zOrder
-    // * The height level
-    // */
-    // @SuppressWarnings("hiding")
-    // public GuiTransition(String id, String name, Point p, int zOrder) {
-    // // super(id, name, p, zOrder);
-    // this(id, name, p, zOrder, shapeSizeStandard);
-    // }
-
-    // /**
-    // * Constructs a Transition at a given location and in the specified z
-    // order
-    // * (height level) and an additional size value.
-    // *
-    // * @param id
-    // * The id
-    // * @param name
-    // * The name of this transition
-    // * @param p
-    // * The center point
-    // * @param zOrder
-    // * The height level
-    // * @param shapeSize
-    // * The size of the shape
-    // */
-    // @SuppressWarnings("hiding")
-    // public GuiTransition(String id, String name, Point p, int zOrder, int
-    // shapeSize) {
-    // super(id, name, p, zOrder, shapeSize);
-    // }
-
     /**
      * Constructs a Transition at a given location and in the specified z order
      * (height level).

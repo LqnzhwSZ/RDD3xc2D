@@ -26,8 +26,8 @@ public class ElementToTheBackgroundAction extends AbstractPNAction {
         super(controller, i18nController);
 
         internalName = "ElementToTheBackground";
-        iconPath = "icons/gnome/";
-        iconName = "Gnome-go-bottom.svg.png";
+        iconPath = "icons/";
+        iconName = "Send-to-back.png";
         // No shortcut at all
         keyEvent = 0;
         actionEvent = 0;

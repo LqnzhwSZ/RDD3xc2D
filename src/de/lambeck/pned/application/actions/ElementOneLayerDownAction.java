@@ -26,8 +26,8 @@ public class ElementOneLayerDownAction extends AbstractPNAction {
         super(controller, i18nController);
 
         internalName = "ElementOneLayerDown";
-        iconPath = "icons/gnome/";
-        iconName = "Gnome-go-down.svg.png";
+        iconPath = "icons/";
+        iconName = "Move-backward.png";
         // No shortcut at all
         keyEvent = 0;
         actionEvent = 0;

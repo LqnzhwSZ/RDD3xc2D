@@ -8,10 +8,11 @@ import java.util.NoSuchElementException;
 
 import javax.swing.JOptionPane;
 
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Implements the GUI model of a Petri net.
@@ -183,12 +184,12 @@ public class GuiModel implements IGuiModel, IModelRename {
      */
 
     @Override
-    public void addPlace(String id, EPlaceMarking initialMarking, Point position) {
-        addPlace(id, "", initialMarking, position);
+    public void addPlace(String id, EPlaceToken initialTokens, Point position) {
+        addPlace(id, "", initialTokens, position);
     }
 
     @Override
-    public void addPlace(String id, String name, EPlaceMarking initialMarking, Point position) {
+    public void addPlace(String id, String name, EPlaceToken initialTokens, Point position) {
         if (name == null)
             name = "";
 
@@ -199,7 +200,7 @@ public class GuiModel implements IGuiModel, IModelRename {
          */
         int zOrder = getIncrMaxZ();
 
-        GuiPlace newPlace = new GuiPlace(id, name, position, zOrder, initialMarking);
+        GuiPlace newPlace = new GuiPlace(id, name, position, zOrder, initialTokens);
 
         /*
          * Add the place to the model
@@ -323,7 +324,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     private void addElement(IGuiElement newElement) throws PNDuplicateAddedException {
         if (debug) {
-            System.out.println("PNGuiModel(" + getModelName() + ").addElement()");
+            ConsoleLogger.consoleLogMethodCall("PNGuiModel" + getModelName() + ").addElement", newElement);
         }
 
         for (IGuiElement test : elements) {
@@ -336,7 +337,7 @@ public class GuiModel implements IGuiModel, IModelRename {
     @Override
     public void removeElement(String id) throws NoSuchElementException {
         if (debug) {
-            System.out.println("GuiModel.removeElement(" + id + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModel.removeElement", id);
         }
 
         for (IGuiElement test : elements) {
@@ -360,7 +361,7 @@ public class GuiModel implements IGuiModel, IModelRename {
     @Override
     public void clear() {
         if (debug) {
-            System.out.println("PNGuiModel(" + getModelName() + ").clear()");
+            ConsoleLogger.consoleLogMethodCall("PNGuiModel(" + getModelName() + ").clear");
         }
 
         elements.clear();
@@ -467,12 +468,39 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
     }
 
-    // @Override
-    // public void toggleMarking(IGuiPlace place) {
-    // // TODO obsolete?
-    // if (place == null)
-    // return;
-    // }
+    /*
+     * Validation events
+     */
+
+    @Override
+    public void setStartPlace(String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setStartPlace", placeId, b);
+        }
+
+        IGuiPlace place = getPlaceById(placeId);
+        if (place == null) {
+            System.err.println("Place " + placeId + " not found!");
+            return;
+        }
+
+        place.setStartPlace(b);
+    }
+
+    @Override
+    public void setEndPlace(String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setEndPlace", placeId, b);
+        }
+
+        IGuiPlace place = getPlaceById(placeId);
+        if (place == null) {
+            System.err.println("Place " + placeId + " not found!");
+            return;
+        }
+
+        place.setEndPlace(b);
+    }
 
     /*
      * Private helper methods
@@ -557,6 +585,28 @@ public class GuiModel implements IGuiModel, IModelRename {
 
             System.out.println(outputString);
         }
+    }
+
+    /**
+     * Returns the {@link IGuiPlace} with the specified ID.
+     * 
+     * @param placeID
+     *            The specified ID
+     * @return The {@link IGuiPlace}; or null if place does not exist
+     */
+    private IGuiPlace getPlaceById(String placeId) {
+        IGuiElement element = getElementById(placeId);
+        if (element == null) {
+            System.err.println("Element " + placeId + " not found!");
+            return null;
+        }
+
+        if (element instanceof IGuiPlace) {
+            IGuiPlace place = (IGuiPlace) element;
+            return place;
+        }
+
+        return null;
     }
 
 }

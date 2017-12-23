@@ -13,10 +13,11 @@ import javax.swing.JOptionPane;
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.elements.ENodeType;
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNElementException;
 import de.lambeck.pned.i18n.I18NManager;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Observes the state of the GUI.
@@ -26,7 +27,10 @@ import de.lambeck.pned.i18n.I18NManager;
  */
 public class GuiModelController implements IGuiModelController {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
+
+    /** Minimum shape size for setter */
+    private final static int MIN_SHAPE_SIZE = 20;
 
     protected ApplicationController appController = null;
     protected I18NManager i18n;
@@ -129,7 +133,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void addGuiModel(String modelName, String displayName) {
         if (debug) {
-            System.out.println("GuiModelController.addGuiModel(" + modelName + ", " + displayName + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.addGuiModel", modelName, displayName);
         }
 
         this.currentModel = new GuiModel(modelName, displayName, this);
@@ -156,7 +160,7 @@ public class GuiModelController implements IGuiModelController {
      */
     private void addDrawPanel(String modelName, String displayName) {
         if (debug) {
-            System.out.println("GuiModelController.addDrawPanel(" + modelName + ", " + displayName + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.addDrawPanel", modelName, displayName);
         }
 
         this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, currentModel, popupActions,
@@ -191,7 +195,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void removeGuiModel(String modelName) {
         if (debug) {
-            System.out.println("GuiModelController.removeGuiModel(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiModel", modelName);
         }
 
         /*
@@ -229,7 +233,7 @@ public class GuiModelController implements IGuiModelController {
      */
     private void removeDrawPanel(String modelName) {
         if (debug) {
-            System.out.println("GuiModelController.removeDrawPanel(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.removeDrawPanel", modelName);
         }
 
         /*
@@ -332,7 +336,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void setCurrentModel(IGuiModel model) {
         if (debug) {
-            System.out.println("GuiModelController.setCurrentModel(" + model.getModelName() + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setCurrentModel", model.getModelName());
         }
 
         this.currentModel = model;
@@ -359,7 +363,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void setCurrentDrawPanel(IDrawPanel drawPanel) {
         if (debug) {
-            System.out.println("GuiModelController.setCurrentDrawPanel(" + drawPanel.getModelName() + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setCurrentDrawPanel", drawPanel.getModelName());
         }
 
         this.currentDrawPanel = drawPanel;
@@ -396,8 +400,8 @@ public class GuiModelController implements IGuiModelController {
      */
 
     @Override
-    public void addPlaceToCurrentGuiModel(String id, String name, EPlaceMarking initialMarking, Point position) {
-        currentModel.addPlace(id, name, initialMarking, position);
+    public void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
+        currentModel.addPlace(id, name, initialTokens, position);
         // if (debug) {
         // System.out.println("Place added to GUI model " +
         // currentModel.getModelName());
@@ -406,7 +410,7 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Update the data model
          */
-        appController.placeAddedToCurrentGuiModel(id, name, initialMarking, position);
+        appController.placeAddedToCurrentGuiModel(id, name, initialTokens, position);
     }
 
     @Override
@@ -459,8 +463,8 @@ public class GuiModelController implements IGuiModelController {
          * ...and a Place with this ID.
          */
         String name = "";
-        EPlaceMarking initialMarking = EPlaceMarking.ZERO;
-        addPlaceToCurrentGuiModel(uuid, name, initialMarking, popupMenuLocation);
+        EPlaceToken initialTokens = EPlaceToken.ZERO;
+        addPlaceToCurrentGuiModel(uuid, name, initialTokens, popupMenuLocation);
 
         /*
          * Update the drawing
@@ -711,7 +715,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void renameSelectedGuiElement() {
         if (debug) {
-            System.out.println("GuiModelController.renameSelectedGuiElements()");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.renameSelectedGuiElements");
         }
 
         IGuiNode selectedNode;
@@ -769,7 +773,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void removeSelectedGuiElements() {
         if (debug) {
-            System.out.println("GuiModelController.removeSelectedGuiElements()");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.removeSelectedGuiElements");
         }
 
         /*
@@ -781,26 +785,26 @@ public class GuiModelController implements IGuiModelController {
          */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
 
-//        /*
-//         * Sort out the nodes (which can have adjacent arcs).
-//         */
-//        List<IGuiNode> nodes = new LinkedList<IGuiNode>();
-//        for (IGuiElement element : toBeRemoved) {
-//            if (element instanceof IGuiNode) {
-//                IGuiNode node = (IGuiNode) element;
-//                nodes.add(node);
-//            }
-//        }
+        // /*
+        // * Sort out the nodes (which can have adjacent arcs).
+        // */
+        // List<IGuiNode> nodes = new LinkedList<IGuiNode>();
+        // for (IGuiElement element : toBeRemoved) {
+        // if (element instanceof IGuiNode) {
+        // IGuiNode node = (IGuiNode) element;
+        // nodes.add(node);
+        // }
+        // }
 
-//        /*
-//         * Get all adjacent arcs for these nodes.
-//         */
-//        List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
+        // /*
+        // * Get all adjacent arcs for these nodes.
+        // */
+        // List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
 
-//        /*
-//         * Add the adjacent arcs to the list
-//         */
-//        toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
+        // /*
+        // * Add the adjacent arcs to the list
+        // */
+        // toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
 
         /*
          * Store the drawing area for repainting
@@ -842,7 +846,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void removeGuiArc(String arcId) {
         if (debug) {
-            System.out.println("GuiModelController.removeGuiArc(" + arcId + ")");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiArc", arcId);
         }
 
         /*
@@ -1211,7 +1215,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            System.out.println("moveToForeground(" + element.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("moveToForeground", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1330,7 +1334,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            System.out.println("moveToBackground(" + element.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("moveToBackground", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1418,7 +1422,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            System.out.println("moveOneLayerUp(" + element.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("moveOneLayerUp", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1528,7 +1532,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            System.out.println("moveOneLayerDown(" + element.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("moveOneLayerDown", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1582,7 +1586,7 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void changeShapeSize(int size) {
-        if (size < 20) {
+        if (size < GuiModelController.MIN_SHAPE_SIZE) {
             System.err.println("Shape size too small: " + size);
             return;
         }
@@ -1813,20 +1817,6 @@ public class GuiModelController implements IGuiModelController {
      */
     private boolean isAdjacentArc(IGuiArc arc, List<IGuiNode> nodes) {
         for (IGuiNode node : nodes) {
-            // try {
-            // if (arc.getPredElem() == node) { return true; }
-            // } catch (PNElementException e) {
-            // System.err.println("Arc without predecessor! Arc id: " +
-            // arc.getId());
-            // e.printStackTrace();
-            // }
-            // try {
-            // if (arc.getSuccElem() == node) { return true; }
-            // } catch (PNElementException e) {
-            // System.err.println("Arc without succecessor! Arc id: " +
-            // arc.getId());
-            // e.printStackTrace();
-            // }
             boolean isAdjacent = isAdjacentArc(arc, node);
             if (isAdjacent)
                 return true;
@@ -1867,34 +1857,35 @@ public class GuiModelController implements IGuiModelController {
         return false;
     }
 
-//    /**
-//     * Combines the two lists without duplicate entries.
-//     * 
-//     * @param elements
-//     *            A {@link List} of type {@link IGuiElement}
-//     * @param arcs
-//     *            A {@link List} of type {@link IGuiArc}
-//     * @return The combined {@link List} of type {@link IGuiElement} without
-//     *         duplicates
-//     */
-//    private List<IGuiElement> combineElementsAndArcs(List<IGuiElement> elements, List<IGuiArc> arcs) {
-//        for (IGuiElement element : arcs) {
-//            if (!elements.contains(element)) {
-//                elements.add(element);
-//            }
-//        }
-//
-//        /*
-//         * Better methods in Java 8?:
-//         */
-//        // List<?> newList = Stream.of(elements,
-//        // arcs).flatMap(List::stream).collect(Collectors.toList());
-//
-//        // List<IGuiElement> newList = Stream.of(elements,
-//        // arcs).collect(ArrayList::new, List::addAll, List::addAll);
-//
-//        return elements;
-//    }
+    // /**
+    // * Combines the two lists without duplicate entries.
+    // *
+    // * @param elements
+    // * A {@link List} of type {@link IGuiElement}
+    // * @param arcs
+    // * A {@link List} of type {@link IGuiArc}
+    // * @return The combined {@link List} of type {@link IGuiElement} without
+    // * duplicates
+    // */
+    // private List<IGuiElement> combineElementsAndArcs(List<IGuiElement>
+    // elements, List<IGuiArc> arcs) {
+    // for (IGuiElement element : arcs) {
+    // if (!elements.contains(element)) {
+    // elements.add(element);
+    // }
+    // }
+    //
+    // /*
+    // * Better methods in Java 8?:
+    // */
+    // // List<?> newList = Stream.of(elements,
+    // // arcs).flatMap(List::stream).collect(Collectors.toList());
+    //
+    // // List<IGuiElement> newList = Stream.of(elements,
+    // // arcs).collect(ArrayList::new, List::addAll, List::addAll);
+    //
+    // return elements;
+    // }
 
     /**
      * Asks the user for a new name.
@@ -1906,6 +1897,42 @@ public class GuiModelController implements IGuiModelController {
         String inputValue = JOptionPane.showInputDialog(question);
         System.out.println("inputValue: " + inputValue);
         return inputValue;
+    }
+
+    /*
+     * Validation events
+     */
+
+    @Override
+    public void setStartPlace(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setStartPlace", modelName, placeId, b);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            System.err.println(message);
+            return;
+        }
+
+        guiModel.setStartPlace(placeId, b);
+    }
+
+    @Override
+    public void setEndPlace(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setEndPlace", modelName, placeId, b);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            System.err.println(message);
+            return;
+        }
+
+        guiModel.setEndPlace(placeId, b);
     }
 
 }

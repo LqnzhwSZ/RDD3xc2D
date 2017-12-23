@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import de.lambeck.pned.application.IInfo_Status;
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
 import de.lambeck.pned.models.data.validation.IWorkflowNetValidator;
 import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
@@ -133,7 +134,8 @@ public interface IDataModelController extends IInfo_Status {
 
     // IValidationMessagesPanel getCurrentValidationMessagePanel();
 
-    // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the validator should work with it.)
+    // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the
+    // validator should work with it.)
 
     /**
      * Sets the specified {@link IValidationMessagesPanel} as current (active)
@@ -181,18 +183,18 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * @param id
      *            The ID of the place
-     * @param initialMarking
-     *            The initial marking
+     * @param initialTokens
+     *            The initial tokens count of this place
      * @param position
      *            The position (center) of the place
      */
-    void addPlaceToCurrentDataModel(String id, EPlaceMarking initialMarking, Point position);
+    void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position);
 
     /**
      * Adds a place to the current data model.
      * 
      * Note: Adds an additional parameter name to the other method
-     * addPlaceToCurrentModel(String id, EPlaceMarking initialMarking, Point
+     * addPlaceToCurrentModel(String id, EPlaceToken initialTokens, Point
      * position)
      * 
      * Intended use: adding a place after reading from a pnml file because these
@@ -202,12 +204,12 @@ public interface IDataModelController extends IInfo_Status {
      *            The ID of the place
      * @param name
      *            The name of the place
-     * @param initialMarking
-     *            The initial marking
+     * @param initialTokens
+     *            The initial tokens count of this place
      * @param position
      *            The position (center) of the place
      */
-    void addPlaceToCurrentDataModel(String id, String name, EPlaceMarking initialMarking, Point position);
+    void addPlaceToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position);
 
     /**
      * Adds a transition to the current data model.
@@ -270,27 +272,6 @@ public interface IDataModelController extends IInfo_Status {
      */
     void renameNode(String nodeId, String newName);
 
-    /**
-     * Starts the validation of the specified file.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    void startValidation(String modelName);
-
-    /**
-     * Restarts the validation of the specified file. Resets former outputs on
-     * the corresponding {@link ValidationMessagesPanel}.
-     * 
-     * Note: Use this method after structural changes in the Petri net.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    void restartValidation(String modelName);
-
     /*
      * Remove methods for elements
      */
@@ -333,5 +314,66 @@ public interface IDataModelController extends IInfo_Status {
      *            The new position
      */
     void moveNode(String nodeId, Point newPosition);
+
+    /*
+     * Validation events
+     */
+
+    /**
+     * Starts the validation of the specified file.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    void startValidation(String modelName);
+
+    /**
+     * Restarts the validation of the specified file. Resets former outputs on
+     * the corresponding {@link ValidationMessagesPanel}.
+     * 
+     * Note: Use this method after structural changes in the Petri net.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     */
+    void restartValidation(String modelName);
+
+    /**
+     * Callback for the {@link IWorkflowNetValidator} to (re)set the specified
+     * {@link DataPlace} as start place.
+     * 
+     * Note: Parameter modelName to be independent from the "current model"
+     * (active file) so that the validator should be allowed to work as
+     * background thread for any model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as start place; otherwise false
+     */
+    void setStartPlace(String modelName, String placeId, boolean b);
+
+    /**
+     * Callback for the {@link IWorkflowNetValidator} to (re)set the specified
+     * {@link DataPlace} as end place.
+     * 
+     * Note: Parameter modelName to be independent from the "current model"
+     * (active file) so that the validator should be allowed to work as
+     * background thread for any model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the pnml file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as end place; otherwise false
+     */
+    void setEndPlace(String modelName, String placeId, boolean b);
 
 }

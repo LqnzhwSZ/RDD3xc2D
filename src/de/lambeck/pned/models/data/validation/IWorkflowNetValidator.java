@@ -1,7 +1,5 @@
 package de.lambeck.pned.models.data.validation;
 
-import java.util.ArrayList;
-
 import de.lambeck.pned.models.data.IDataModel;
 
 /**
@@ -67,8 +65,6 @@ public interface IWorkflowNetValidator {
      */
     String getEndPlaceId();
 
-    // ArrayList<String> getInvalidProperties(IModel model);
-
     /**
      * Returns an ArrayList of Strings with all properties that makes the
      * specified Petri net an invalid workflow net.
@@ -79,6 +75,8 @@ public interface IWorkflowNetValidator {
      *            of a Petri net
      * @return ArrayList of Strings with all invalid properties
      */
-    ArrayList<String> getInvalidProperties();
+    // TODO Das vielleicht weglassen, besser:
+    // TODO Ergebnisse der einzelnen Checks direkt im Message-Panel ausgeben.
+    // List<String> getInvalidProperties();
 
 }

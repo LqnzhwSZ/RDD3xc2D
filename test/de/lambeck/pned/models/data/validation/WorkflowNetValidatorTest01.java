@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import de.lambeck.pned.elements.data.DataArc;
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.DataTransition;
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
 import de.lambeck.pned.models.data.validation.WorkflowNetValidator1;
@@ -18,8 +18,8 @@ public class WorkflowNetValidatorTest01 {
         /*
          * Create Petri net elements
          */
-        DataPlace place01 = new DataPlace(new Point(100, 100), EPlaceMarking.ZERO);
-        DataPlace place02 = new DataPlace(new Point(500, 100), EPlaceMarking.ZERO);
+        DataPlace place01 = new DataPlace(new Point(100, 100), EPlaceToken.ZERO);
+        DataPlace place02 = new DataPlace(new Point(500, 100), EPlaceToken.ZERO);
 
         DataTransition transition01 = new DataTransition(new Point(300, 100));
 

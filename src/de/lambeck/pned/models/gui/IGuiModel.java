@@ -3,6 +3,7 @@ package de.lambeck.pned.models.gui;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.models.IModel;
 
@@ -116,17 +117,35 @@ public interface IGuiModel extends IModel {
      */
     void toggleSelection(IGuiElement element);
 
-    // /**
-    // * Switches the marking of the specified {@link IGuiPlace}.
-    // *
-    // * @param place
-    // * The GuiPlace
-    // */
-    // void toggleMarking(IGuiPlace place);
-
     /**
      * Clears the whole selection.
      */
     void clearSelection();
+
+    /*
+     * Validation events
+     */
+
+    /**
+     * Handles the {@link IGuiModelController} request to update the start place
+     * on the draw panel.
+     * 
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as start place; otherwise false
+     */
+    void setStartPlace(String placeId, boolean b);
+
+    /**
+     * Handles the {@link IGuiModelController} request to update the end place
+     * on the draw panel.
+     * 
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as end place; otherwise false
+     */
+    void setEndPlace(String placeId, boolean b);
 
 }

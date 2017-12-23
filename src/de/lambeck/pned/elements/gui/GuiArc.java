@@ -385,7 +385,9 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
             int width = max_x - min_x;
             int height = max_y - min_y;
-            System.out.println("g2.drawRect(" + min_x + ", " + min_y + ", " + width + ", " + height + ")");
+            if (debug) {
+                System.out.println("g2.drawRect(" + min_x + ", " + min_y + ", " + width + ", " + height + ")");
+            }
 
             g2.setStroke(new BasicStroke(1));
             g2.setColor(Color.BLUE);

@@ -47,13 +47,15 @@ public class DataTransition extends DataNode {
      * Checks if this transition is activated and sets the member variable
      * "activated" accordingly.
      * 
-     * Activated is evaluated to false if there are no previous nodes (places)
-     * or if the first previous node without marking is found.
+     * Activated is evaluated to false if there is no previous {@link DataPlace}
+     * or if the first previous DataPlace without a token is found.
      */
     public void checkActivated() {
         ArrayList<IDataNode> predNodes = getPredNodes();
         if (predNodes == null) {
-            // Condition 1: no previous nodes
+            /*
+             * Condition 1: no previous place
+             */
             this.activated = false;
             return;
         }
@@ -61,15 +63,19 @@ public class DataTransition extends DataNode {
         for (IDataNode currentNode : predNodes) {
             if (currentNode instanceof DataPlace) {
                 DataPlace currentPlace = (DataPlace) currentNode;
-                if (currentPlace.getMarking() == EPlaceMarking.ZERO) {
-                    // Condition 2: first previous node without marking
+                if (currentPlace.getTokensCount() == EPlaceToken.ZERO) {
+                    /*
+                     * Condition 2: first previous place without a token
+                     */
                     this.activated = false;
                     return;
                 }
             }
         }
 
-        // All previous nodes have a marking.
+        /*
+         * All previous places have a token.
+         */
         this.activated = true;
     }
 

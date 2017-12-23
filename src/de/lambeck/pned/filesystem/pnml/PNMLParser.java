@@ -17,8 +17,9 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.models.data.IDataModelController;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Diese Klasse implementiert die Grundlage für einen einfachen PNML Parser.
@@ -104,7 +105,7 @@ public class PNMLParser {
     private EPNMLElement nextElementType = null;
     private String nextId = null;
     private String nextName = null;
-    private EPlaceMarking nextMarking = null;
+    private EPlaceToken nextMarking = null;
     private Point nextPosition = null;
     private String nextSourceId = null;
     private String nextTargetId = null;
@@ -476,10 +477,10 @@ public class PNMLParser {
          */
         switch (marking) {
         case "0":
-            this.nextMarking = EPlaceMarking.ZERO;
+            this.nextMarking = EPlaceToken.ZERO;
             break;
         case "1":
-            this.nextMarking = EPlaceMarking.ONE;
+            this.nextMarking = EPlaceToken.ONE;
             break;
         default:
             System.err.println("Invalid marking for element " + id + "! Ignoring this element...");
@@ -647,7 +648,7 @@ public class PNMLParser {
      */
     private void resetNextValues() {
         if (debug) {
-            System.out.println("resetNextValues()");
+            ConsoleLogger.consoleLogMethodCall("resetNextValues");
         }
         this.nextElementType = null;
         this.nextId = null;

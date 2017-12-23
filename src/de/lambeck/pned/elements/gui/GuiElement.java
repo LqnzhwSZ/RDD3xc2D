@@ -1,5 +1,9 @@
 package de.lambeck.pned.elements.gui;
 
+import java.awt.Color;
+
+import de.lambeck.pned.models.gui.DrawPanel;
+
 /**
  * Superclass GuiElement implements the common members for all nodes.
  * 
@@ -11,17 +15,33 @@ public abstract class GuiElement implements IGuiElement {
     /*
      * Attributes for interface IGuiElement
      */
+
+    /** The id of this element */
     protected String id = "";
 
     /*
      * Attributes for interface IHasZValue
      */
-    protected int zValue; // The "height level" of the shape in the DrawPanel
+
+    /** The z value ("height level") of this shape in the {@link DrawPanel} */
+    protected int zValue;
 
     /*
      * Attributes for interface ISelectable
      */
+
+    /** Stores if this element was selected in the GUI */
     protected boolean selected = false;
+
+    /*
+     * Optical appearance
+     */
+
+    /** The standard line width */
+    protected int stdLineWidth = 1;
+
+    /** The standard line color */
+    protected Color stdLineColor = Color.BLACK;
 
     /**
      * 

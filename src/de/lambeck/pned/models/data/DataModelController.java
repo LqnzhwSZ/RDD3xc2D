@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
-import de.lambeck.pned.elements.data.EPlaceMarking;
+import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.elements.data.IDataArc;
 import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.data.IDataNode;
@@ -20,6 +20,7 @@ import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
 import de.lambeck.pned.models.data.validation.IWorkflowNetValidator;
 import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
 import de.lambeck.pned.models.data.validation.WorkflowNetValidator;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Implements a controller for the data models of Petri nets. This means the
@@ -97,7 +98,7 @@ public class DataModelController implements IDataModelController {
     @Override
     public void addDataModel(String modelName, String displayName) {
         if (debug) {
-            System.out.println("DataModelController.addDataModel(" + modelName + ", " + displayName + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.addDataModel", modelName, displayName);
         }
 
         /*
@@ -131,7 +132,7 @@ public class DataModelController implements IDataModelController {
     @Override
     public int addDataModel(File pnmlFile) {
         if (debug) {
-            System.out.println("DataModelController.addDataModel(" + pnmlFile + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.addDataModel", pnmlFile);
         }
 
         /*
@@ -214,7 +215,7 @@ public class DataModelController implements IDataModelController {
      */
     private IValidationMessagesPanel addValidationMessagePanel(String modelName) {
         if (debug) {
-            System.out.println("DataModelController.addValidationMessagesPanel(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.addValidationMessagesPanel", modelName);
         }
 
         /*
@@ -250,7 +251,7 @@ public class DataModelController implements IDataModelController {
     private void addValidator(String modelName, IDataModel dataModel,
             IValidationMessagesPanel validationMessagesPanel) {
         if (debug) {
-            System.out.println("DataModelController.addValidator(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.addValidator", modelName);
         }
 
         /*
@@ -389,7 +390,7 @@ public class DataModelController implements IDataModelController {
     @Override
     public void removeDataModel(String modelName) {
         if (debug) {
-            System.out.println("DataModelController.removeDataModel(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.removeDataModel", modelName);
         }
 
         /*
@@ -433,7 +434,7 @@ public class DataModelController implements IDataModelController {
      */
     private void removeValidationMessagePanel(String modelName) {
         if (debug) {
-            System.out.println("DataModelController.removeValidationMessagePanel(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.removeValidationMessagePanel", modelName);
         }
 
         /*
@@ -468,7 +469,7 @@ public class DataModelController implements IDataModelController {
      */
     private void removeWorkflowNetValidator(String modelName) {
         if (debug) {
-            System.out.println("DataModelController.removeWorkflowNetValidator(" + modelName + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.removeWorkflowNetValidator", modelName);
         }
 
         // /*
@@ -569,7 +570,7 @@ public class DataModelController implements IDataModelController {
     @Override
     public void setCurrentModel(IDataModel model) {
         if (debug) {
-            System.out.println("DataModelController.setCurrentModel(" + model.getModelName() + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setCurrentModel", model.getModelName());
         }
 
         this.currentModel = model;
@@ -594,8 +595,8 @@ public class DataModelController implements IDataModelController {
     @Override
     public void setCurrentValidationMessagesPanel(IValidationMessagesPanel validationMessagesPanel) {
         if (debug) {
-            System.out.println("DataModelController.setCurrentValidationMessagesPanel("
-                    + validationMessagesPanel.getModelName() + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setCurrentValidationMessagesPanel",
+                    validationMessagesPanel.getModelName());
         }
 
         this.currentValidationMessagePanel = validationMessagesPanel;
@@ -633,13 +634,13 @@ public class DataModelController implements IDataModelController {
      */
 
     @Override
-    public void addPlaceToCurrentDataModel(String id, EPlaceMarking initialMarking, Point position) {
-        currentModel.addPlace(id, "", initialMarking, position);
+    public void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position) {
+        currentModel.addPlace(id, "", initialTokens, position);
     }
 
     @Override
-    public void addPlaceToCurrentDataModel(String id, String name, EPlaceMarking initialMarking, Point position) {
-        currentModel.addPlace(id, name, initialMarking, position);
+    public void addPlaceToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
+        currentModel.addPlace(id, name, initialTokens, position);
         // if (debug) {
         // System.out.println("Place added to data model " +
         // currentModel.getModelName());
@@ -649,7 +650,7 @@ public class DataModelController implements IDataModelController {
         /*
          * Update the GUI
          */
-        appController.placeAddedToCurrentDataModel(id, name, initialMarking, position);
+        appController.placeAddedToCurrentDataModel(id, name, initialTokens, position);
     }
 
     @Override
@@ -719,42 +720,6 @@ public class DataModelController implements IDataModelController {
          */
     }
 
-    @Override
-    public void startValidation(String modelName) {
-        IDataModel model = getDataModel(modelName);
-        if (model == null) {
-            System.err.println("DataModelController.startValidation(modelName): specified model == null: " + modelName);
-            return;
-        }
-
-        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
-        if (validator == null) {
-            System.err.println(
-                    "DataModelController.startValidation(modelName): specified validator == null: " + modelName);
-            return;
-        }
-
-        validator.startValidation();
-    }
-
-    @Override
-    public void restartValidation(String modelName) {
-        IDataModel model = getDataModel(modelName);
-        if (model == null) {
-            System.err.println("DataModelController.startValidation(modelName): specified model == null: " + modelName);
-            return;
-        }
-
-        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
-        if (validator == null) {
-            System.err.println(
-                    "DataModelController.startValidation(modelName): specified validator == null: " + modelName);
-            return;
-        }
-
-        validator.restartValidation();
-    }
-
     /*
      * Remove methods for elements
      */
@@ -762,7 +727,7 @@ public class DataModelController implements IDataModelController {
     @Override
     public void removeDataElement(String elementId) {
         if (debug) {
-            System.out.println("DataModelController.removeDataElement(" + elementId + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.removeDataElement", elementId);
         }
 
         IDataElement element = currentModel.getElementById(elementId);
@@ -840,7 +805,7 @@ public class DataModelController implements IDataModelController {
     @Override
     public void moveNode(String nodeId, Point newPosition) {
         if (debug) {
-            System.out.println("DataModelController.moveNode(" + nodeId + "," + newPosition + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModelController.moveNode", nodeId, newPosition);
         }
 
         IDataElement element = currentModel.getElementById(nodeId);
@@ -867,6 +832,69 @@ public class DataModelController implements IDataModelController {
          * No further action required since this method should only be called
          * after renaming a node in the GUI.
          */
+    }
+
+    /*
+     * Validation events
+     */
+
+    @Override
+    public void startValidation(String modelName) {
+        IDataModel model = getDataModel(modelName);
+        if (model == null) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation", modelName);
+            System.err.println("DataModelController.startValidation(modelName): specified model == null: " + modelName);
+            return;
+        }
+
+        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
+        if (validator == null) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation", modelName);
+            System.err.println(
+                    "DataModelController.startValidation(modelName): specified validator == null: " + modelName);
+            return;
+        }
+
+        validator.startValidation();
+    }
+
+    @Override
+    public void restartValidation(String modelName) {
+        IDataModel model = getDataModel(modelName);
+        if (model == null) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation", modelName);
+            System.err
+                    .println("DataModelController.restartValidation(modelName): specified model == null: " + modelName);
+            return;
+        }
+
+        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
+        if (validator == null) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation", modelName);
+            System.err.println(
+                    "DataModelController.restartValidation(modelName): specified validator == null: " + modelName);
+            return;
+        }
+
+        validator.restartValidation();
+    }
+
+    @Override
+    public void setStartPlace(String modelName, String placeId, boolean b) {
+        /*
+         * Nothing to do here. Only the GUIPlace needs this information for his
+         * paintElement() method.
+         */
+        appController.setStartPlace(modelName, placeId, b);
+    }
+
+    @Override
+    public void setEndPlace(String modelName, String placeId, boolean b) {
+        /*
+         * Nothing to do here. Only the GUIPlace needs this information for his
+         * paintElement() method.
+         */
+        appController.setEndPlace(modelName, placeId, b);
     }
 
     /*

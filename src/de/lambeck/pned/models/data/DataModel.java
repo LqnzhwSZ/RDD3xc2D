@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Implements the data model (for 1 Petri net).
@@ -111,16 +112,16 @@ public class DataModel implements IDataModel, IModelRename {
      */
 
     @Override
-    public void addPlace(String id, EPlaceMarking initialMarking, Point position) {
-        addPlace(id, "", initialMarking, position);
+    public void addPlace(String id, EPlaceToken initialTokens, Point position) {
+        addPlace(id, "", initialTokens, position);
     }
 
     @Override
-    public void addPlace(String id, String name, EPlaceMarking initialMarking, Point position) {
+    public void addPlace(String id, String name, EPlaceToken initialTokens, Point position) {
         if (name == null)
             name = "";
 
-        DataPlace newPlace = new DataPlace(id, name, position, initialMarking);
+        DataPlace newPlace = new DataPlace(id, name, position, initialTokens);
 
         /*
          * Add the place to the model
@@ -176,7 +177,7 @@ public class DataModel implements IDataModel, IModelRename {
     @Override
     public void addArc(String id, String sourceId, String targetId) {
         if (debug) {
-            System.out.println("DataModel.addArc(" + id + ", " + sourceId + ", " + targetId + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModel.addArc", id, sourceId + targetId);
         }
 
         IDataNode source = null;
@@ -262,7 +263,7 @@ public class DataModel implements IDataModel, IModelRename {
      */
     private void addElement(IDataElement newElement) throws PNDuplicateAddedException {
         if (debug) {
-            System.out.println("DataModel(" + getModelName() + ").addElement(" + "id=" + newElement.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").addElement", newElement.getId());
         }
 
         /*
@@ -306,7 +307,7 @@ public class DataModel implements IDataModel, IModelRename {
      */
     private void addArcToAffectedNodes(DataArc arc) {
         if (debug) {
-            System.out.println("DataModel(" + getModelName() + ").addArcToAffectedNodes(" + "id=" + arc.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").addArcToAffectedNodes", arc.getId());
         }
 
         /*
@@ -364,7 +365,7 @@ public class DataModel implements IDataModel, IModelRename {
     @Override
     public void removeElement(String id) throws NoSuchElementException {
         if (debug) {
-            System.out.println("DataModel(" + getModelName() + ").removeElement(" + id + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").removeElement", id);
         }
 
         /*
@@ -413,8 +414,8 @@ public class DataModel implements IDataModel, IModelRename {
      */
     private void removeArcFromAllNodes(IDataArc arc) {
         if (debug) {
-            System.out.println(
-                    "DataModel(" + getModelName() + ").removeArcFromAffectedNodes(" + "id=" + arc.getId() + ")");
+            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").removeArcFromAffectedNodes",
+                    arc.getId());
         }
 
         /*
@@ -520,7 +521,7 @@ public class DataModel implements IDataModel, IModelRename {
     @Override
     public void clear() {
         if (debug) {
-            System.out.println("DataModel(" + getModelName() + ").clear()");
+            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").clear");
         }
 
         elements.clear();
