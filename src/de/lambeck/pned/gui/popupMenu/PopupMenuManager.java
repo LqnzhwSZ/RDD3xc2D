@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import de.lambeck.pned.elements.gui.IGuiArc;
 import de.lambeck.pned.elements.gui.IGuiElement;
@@ -22,17 +23,19 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 
 /**
- * Implements a MouseListener to show popup menus on Petri net elements. Holds a
- * reference to its DrawPanel and uses the DrawPanels methods to decide which
- * popup menu is suitable for the current element. (This depends on the type of
- * element at the location of the popup trigger.)
+ * Implements a MouseListener to show popup menus on the draw panel for Petri
+ * nets.
+ * 
+ * Holds references to its DrawPanel and the GUI model controller to use their
+ * methods to decide which popup menu is suitable for the current element.
+ * (Depends on the type of element at the location of the popup trigger.)
  * 
  * See: PopupMenuDemo
  * (https://docs.oracle.com/javase/tutorial/uiswing/components/menu.html)
  */
 public class PopupMenuManager extends MouseAdapter {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     private IDrawPanel myDrawPanel;
     private IGuiModelController myGuiController = null;
@@ -72,7 +75,10 @@ public class PopupMenuManager extends MouseAdapter {
             ConsoleLogger.consoleLogMethodCall("PopupMenuManager.mousePressed");
         }
 
-        showIfPopupTrigger(e);
+        if (!isRightMouseButtonEvent(e))
+            return;
+
+        showPopupIfPopupTrigger(e);
     }
 
     /*
@@ -86,7 +92,10 @@ public class PopupMenuManager extends MouseAdapter {
             ConsoleLogger.consoleLogMethodCall("PopupMenuManager.mouseReleased");
         }
 
-        showIfPopupTrigger(e);
+        if (!isRightMouseButtonEvent(e))
+            return;
+
+        showPopupIfPopupTrigger(e);
     }
 
     /**
@@ -99,7 +108,7 @@ public class PopupMenuManager extends MouseAdapter {
      * @param e
      *            The MouseEvent
      */
-    private void showIfPopupTrigger(MouseEvent e) {
+    private void showPopupIfPopupTrigger(MouseEvent e) {
         if (e.isPopupTrigger()) {
             JPopupMenu popupMenu = getPopupMenu(e.getPoint());
             if (popupMenu == null)
@@ -113,6 +122,8 @@ public class PopupMenuManager extends MouseAdapter {
             int x = p.x;
             int y = p.y;
             popupMenu.show(invoker, x, y);
+        } else {
+            System.out.println("PopupMenuManager: no popup trigger");
         }
     }
 
@@ -132,16 +143,16 @@ public class PopupMenuManager extends MouseAdapter {
         IGuiElement element = getElement(mouseLocation);
         if (debug) {
             if (element == null)
-                System.out.println("PopupMenuManager.getPopupMenu(), element == null");
+                System.out.println("PopupMenuManager.getPopupMenu(): element == null");
         }
 
         IGuiNode node = getNode(element);
         IGuiArc arc = getArc(element);
         if (debug) {
             if (node == null)
-                System.out.println("PopupMenuManager.getPopupMenu(), node == null");
+                System.out.println("PopupMenuManager.getPopupMenu(): node == null");
             if (arc == null)
-                System.out.println("PopupMenuManager.getPopupMenu(), arc == null");
+                System.out.println("PopupMenuManager.getPopupMenu(): arc == null");
         }
 
         /*
@@ -225,6 +236,29 @@ public class PopupMenuManager extends MouseAdapter {
             return "";
 
         return o.getClass().getSimpleName();
+    }
+
+    /*
+     * Private helpers
+     */
+
+    /**
+     * Checks if the user has used the right mouse button.
+     * 
+     * Note: Left mouse button will be handled by the {@link MyMouseAdapter}.
+     * 
+     * @param e
+     *            The mouse event
+     * @return True if the button of the mouse event was the right button
+     */
+    private boolean isRightMouseButtonEvent(MouseEvent e) {
+        if (SwingUtilities.isRightMouseButton(e))
+            return true;
+
+        if (debug) {
+            System.out.println("Not the right mouse button");
+        }
+        return false; // Do nothing more!
     }
 
 }

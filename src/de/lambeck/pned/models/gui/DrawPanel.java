@@ -25,11 +25,14 @@ import de.lambeck.pned.util.ConsoleLogger;
  * Actions for mouse events: See MyMouseAdapter
  * 
  * Actions for key(board) events:
- * - ESC: clearSelection
  * - F2 :
  *   - With only 1 selected element:
  *     -> Rename
  * - DEL: Delete selected elements
+ * 
+ * Removed:
+ * - ESC: clear selection (in conflict with the popupMenuCanceled 
+ *        methods in the popup menus)
  * 
  * @formatter:on
  * 
@@ -203,6 +206,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                     }
                     ctrl_pressed_Action_occurred();
                     alt_released_Action_occurred(); // Or only in else branch?
+                    // return true; // consume the event
 
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && !e.isControlDown() && e.isAltDown()) {
                     if (debug) {
@@ -210,19 +214,27 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                     }
                     alt_pressed_Action_occurred();
                     ctrl_released_Action_occurred(); // Or only in else branch?
+                    // return true; // consume the event
 
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    if (debug) {
-                        System.out.println("DrawPanel.KeyboardFocusManager: Escape");
-                    }
-                    keyEvent_Escape_Occurred();
+                    /*
+                     * TODO In conflict with the popupMenuCanceled methods in
+                     * the popup menus. The event gets called twice!?
+                     */
+                    // if (debug) {
+                    // System.out.println("DrawPanel.KeyboardFocusManager:
+                    // Escape");
+                    // }
+                    // keyEvent_Escape_Occurred();
+                    // return true; // consume the event
+                    // e.consume();
 
                 } else {
                     /*
                      * Something else
                      */
                     if (debug) {
-                        // System.out.println("DrawPanel.KeyboardFocusManager: —");
+                        System.out.println("DrawPanel.KeyboardFocusManager: —");
                     }
                     ctrl_released_Action_occurred();
                     alt_released_Action_occurred();
@@ -258,10 +270,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * Keyboard events
      */
 
-    /**
-     * Protected for access by {@link MyMouseAdapter}
-     */
-    protected synchronized void ctrl_pressed_Action_occurred() {
+    private void ctrl_pressed_Action_occurred() {
         if (debug) {
             System.out.println("DrawPanel, ctrl_pressed_Action: We allow special selection modes...");
         }
@@ -275,21 +284,17 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
     }
 
-    /**
-     * Protected for access by {@link MyMouseAdapter}
-     */
-    protected synchronized void ctrl_released_Action_occurred() {
-        if (debug) {
-            System.out.println("DrawPanel, ctrl_released_Action: We quit special selection modes.");
+    private void ctrl_released_Action_occurred() {
+        if (ctrlKey_pressed == true) {
+            if (debug) {
+                System.out.println("DrawPanel, ctrl_released_Action: We quit special selection modes.");
+            }
         }
 
         ctrlKey_pressed = false;
     }
 
-    /**
-     * Protected for access by {@link MyMouseAdapter}
-     */
-    protected synchronized void alt_pressed_Action_occurred() {
+    private void alt_pressed_Action_occurred() {
         if (debug) {
             System.out.println("DrawPanel, alt_pressed_Action: We allow dragging...");
         }
@@ -310,15 +315,14 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     }
 
-    /**
-     * Protected for access by {@link MyMouseAdapter}
-     */
-    protected synchronized void alt_released_Action_occurred() {
-        if (debug) {
-            System.out.println("DrawPanel, alt_released_Action: We quit dragging.");
-        }
+    private void alt_released_Action_occurred() {
+        if (altKey_pressed == true) {
+            if (debug) {
+                System.out.println("DrawPanel, alt_released_Action: We quit dragging.");
+            }
 
-        altKey_pressed = false;
+            altKey_pressed = false;
+        }
 
         /*
          * Reset the Cursor.
@@ -326,25 +330,27 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         setCursor(null);
     }
 
-    protected synchronized void keyEvent_Escape_Occurred() {
-        if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DrawPanel.keyEvent_Escape_Occurred");
-            System.out.println("DrawPanel.this.getPopupMenuLocation(): " + DrawPanel.this.getPopupMenuLocation());
-        }
-
-        /*
-         * Are we just "leaving" a popup menu with ESCAPE?
-         */
-        if (DrawPanel.this.popupMenuLocation != null) {
-            DrawPanel.this.popupMenuLocation = null;
-            return; // Do nothing more!
-        }
-
-        /*
-         * Let the GUI controller do whatever is necessary.
-         */
-        myGuiController.keyEvent_Escape_Occurred();
-    }
+    // private void keyEvent_Escape_Occurred() {
+    // if (debug) {
+    // ConsoleLogger.consoleLogMethodCall("DrawPanel.keyEvent_Escape_Occurred");
+    // System.out.println("DrawPanel.this.getPopupMenuLocation(): " +
+    // DrawPanel.this.getPopupMenuLocation());
+    // }
+    //
+    // /*
+    // * Are we just "leaving" a popup menu with ESCAPE?
+    // */
+    // if (DrawPanel.this.popupMenuLocation != null) {
+    // DrawPanel.this.popupMenuLocation = null;
+    // return; // Do nothing more!
+    // }
+    //
+    // /*
+    // * Let the GUI controller do whatever is necessary (to remove the
+    // selection).
+    // */
+    // myGuiController.keyEvent_Escape_Occurred();
+    // }
 
     /*
      * Painting code...
@@ -630,51 +636,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     /*
      * Helper methods
      */
-
-    /**
-     * Returns the node at the specified Point. Returns the one with the highest
-     * z-value if there is more than 1 at this location.
-     * 
-     * Note: This means only nodes, not other elements!
-     * 
-     * @param p
-     *            The specified Point
-     * @return The first node at the mouse position
-     */
-    private IGuiNode getNodeAtLocation(Point p) {
-        // TODO Auch für Pfeile? (zum Anklicken und löschen?)
-        java.util.List<IGuiElement> elements = myGuiModel.getElements();
-        // TODO Must the list be sorted again?
-        IGuiElement foundElement = null;
-
-        for (IGuiElement element : elements) {
-            if (isNode(element)) {
-                if (element.contains(p)) {
-                    foundElement = element;
-                }
-            }
-        }
-
-        if (debug) {
-            if (foundElement == null)
-                System.out.println("No node at this Point!");
-        }
-
-        return (IGuiNode) foundElement;
-    }
-
-    /**
-     * Checks if an element is a node (circle or square).
-     * 
-     * @param element
-     *            The element to check
-     * @return True if the element is a node; otherwise false
-     */
-    private boolean isNode(IGuiElement element) {
-        if (element instanceof IGuiNode)
-            return true;
-        return false;
-    }
 
     /*
      * For interface IInfo_Status

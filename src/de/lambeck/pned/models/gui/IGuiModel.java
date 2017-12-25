@@ -95,6 +95,21 @@ public interface IGuiModel extends IModel {
     int getIncrMaxZ();
 
     /*
+     * Sorting (for proper display on the draw panel)
+     */
+
+    /**
+     * Sorts the List of elements with ascending z values (Height level).
+     */
+    void sortElements();
+
+    /**
+     * Sorts the List of selected elements with ascending z values (Height
+     * level).
+     */
+    void sortSelectedElements();
+
+    /*
      * Methods for adding, modify and removal of elements
      */
 

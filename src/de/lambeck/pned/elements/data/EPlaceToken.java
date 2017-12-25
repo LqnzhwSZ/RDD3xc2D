@@ -32,7 +32,7 @@ public enum EPlaceToken {
     /**
      * @return the value of the enum element as String
      */
-    public String toPnmlString() {
+    public String toPnedString() {
         return Integer.toString(this.value);
     }
 }

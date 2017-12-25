@@ -53,11 +53,11 @@ public interface IModel {
 
 	/**
 	 * Sets the "modified" attribute of this model. It should be used by the model
-	 * controller to reset it after loading a pnml file.
+	 * controller to reset it after loading a PNML file.
 	 * 
 	 * Note: All methods of this model which add, modify or remove elements set the
 	 * "modified" attribute to true. That's why we need a method to reset this
-	 * attribute after importing data from pnml files. Otherwise: The model would be
+	 * attribute after importing data from PNML files. Otherwise: The model would be
 	 * marked as "modified" before the user actually has modified anything.
 	 * 
 	 * @param b
@@ -94,7 +94,7 @@ public interface IModel {
      * Note: Adds an additional parameter name to the other method
      * addPlace(String id, EPlaceTokens initialTokens, Point position)
      * 
-     * Intended use: adding a place after reading from a pnml file because these
+     * Intended use: adding a place after reading from a PNML file because these
      * places may have a name.
      * 
      * @param id
@@ -127,7 +127,7 @@ public interface IModel {
      * Note: Adds an additional parameter name to the other method
      * addTransition(String id, Point position)
      * 
-     * Intended use: adding a transition after reading from a pnml file because
+     * Intended use: adding a transition after reading from a PNML file because
      * these transitions may have a name.
      * 
      * @param id
@@ -142,8 +142,8 @@ public interface IModel {
     /**
      * Adds an arc to this model.
      * 
-     * Note: This method should be the same for GUI events and reading from a pnml
-     * file because arcs will have all 3 attributes in either cases.
+     * Note: This method should be the same for GUI events and reading from a PNML
+     * file because arcs will have all 3 attributes in both cases.
      * 
      * @param id
      *            The id of the arc

@@ -10,6 +10,7 @@ import javax.swing.event.PopupMenuListener;
 import de.lambeck.pned.elements.gui.IGuiArc;
 import de.lambeck.pned.models.gui.DrawPanel;
 import de.lambeck.pned.models.gui.IDrawPanel;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Popup menu for right click at Arcs on the {@link DrawPanel}. Holds a
@@ -23,6 +24,8 @@ import de.lambeck.pned.models.gui.IDrawPanel;
  */
 @SuppressWarnings("serial")
 public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
+
+    private static boolean debug = false;
 
     protected Map<String, AbstractAction> popupActions;
 
@@ -114,6 +117,10 @@ public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
 
     @Override
     public void popupMenuCanceled(PopupMenuEvent e) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("PopupMenuForArcs.popupMenuCanceled", e);
+        }
+
         myDrawPanel.popupMenuCanceled();
     }
 

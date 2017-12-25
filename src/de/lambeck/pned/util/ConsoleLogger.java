@@ -9,6 +9,30 @@ package de.lambeck.pned.util;
 public class ConsoleLogger {
 
     /**
+     * Prints the message to stdout.
+     * 
+     * @param message
+     *            The message
+     */
+    public static void logAlways(String message) {
+        System.out.println(message);
+    }
+
+    /**
+     * Invokes logAlways(String message) if debug == true.
+     * 
+     * @param debug
+     *            If true: the message gets printed; otherwise not
+     * @param message
+     *            The message
+     */
+    public static void logIfDebug(boolean debug, String message) {
+        if (!debug) { return; }
+
+        logAlways(message);
+    }
+
+    /**
      * Prints the specified method call to stdout in a more human readable form.
      * 
      * @param methodname

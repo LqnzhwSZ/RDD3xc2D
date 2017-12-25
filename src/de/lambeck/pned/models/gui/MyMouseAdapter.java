@@ -4,6 +4,11 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
+import de.lambeck.pned.gui.popupMenu.PopupMenuManager;
+import de.lambeck.pned.util.ConsoleLogger;
+
 /**
  * {@link MouseAdapter} for the {@link DrawPanel}.
  * 
@@ -34,10 +39,12 @@ import java.awt.event.MouseEvent;
  */
 public class MyMouseAdapter extends MouseAdapter {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     private DrawPanel myDrawPanel = null;
     private IGuiModelController myGuiController = null;
+
+    private boolean popupMenuLeftWithMousePress;
 
     /*
      * @formatter:off
@@ -76,15 +83,11 @@ public class MyMouseAdapter extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent e) {
         if (debug) {
-            System.out.println("MyMouseAdapter.mousePressed()");
+            ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mousePressed", e);
         }
 
-        /*
-         * Ignore other than button 1 of the mouse. (e.g. popup menus with the
-         * right mouse button)
-         */
-        if (e.getButton() != MouseEvent.BUTTON1)
-            return; // Do nothing more!
+        if (!isLeftMouseButtonEvent(e))
+            return;
 
         handleMousePressed(e);
     }
@@ -92,9 +95,7 @@ public class MyMouseAdapter extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent e) {
         if (debug) {
-            // System.out.println("mouseDragged");
-            // System.out.println("mouseDragged at: " + e.getPoint().x + "," +
-            // e.getPoint().y);
+            ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mouseDragged", e);
         }
 
         /*
@@ -134,23 +135,33 @@ public class MyMouseAdapter extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent e) {
         if (debug) {
-            System.out.println("MyMouseAdapter.mouseReleased()");
+            ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mouseReleased", e);
         }
 
-        /*
-         * Ignore other than button 1 of the mouse. (e.g. popup menus with the
-         * right mouse button)
-         */
-        if (e.getButton() != MouseEvent.BUTTON1)
-            return; // Do nothing more!
+        if (!isLeftMouseButtonEvent(e))
+            return;
 
         /*
          * Handle the event here
          */
 
+        /*
+         * We have left a popup menu with the mousePressed before?
+         */
+        if (this.popupMenuLeftWithMousePress == true) {
+            if (debug) {
+                System.out.println("Reset this.popupMenuLeftWithMousePress = false");
+            }
+            this.popupMenuLeftWithMousePress = false;
+            return;
+        }
+
+        /*
+         * Is the mouse dragging?
+         */
         if (!myDrawPanel.mouseIsDragging) {
             /*
-             * This should be the mouseReleased event prior to mouseClicked.
+             * This is the mouseReleased event prior to mouseClicked.
              */
 
             /*
@@ -158,8 +169,6 @@ public class MyMouseAdapter extends MouseAdapter {
              */
             boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
             boolean altKey_pressed = myDrawPanel.altKey_pressed;
-            // System.out.println("ctrlKey_pressed: " + ctrlKey_pressed);
-            // System.out.println("altKey_pressed: " + altKey_pressed);
 
             /*
              * Pass both locations (mousePressed and current) to the GUI
@@ -176,6 +185,10 @@ public class MyMouseAdapter extends MouseAdapter {
                 }
                 myGuiController.mouseClick_Occurred(p, e);
 
+                if (debug) {
+                    System.out.println("mouseReleased event used.");
+                }
+
             } else if (ctrlKey_pressed && !altKey_pressed) {
                 Point p = myDrawPanel.mousePressedLocation;
                 if (p == null) {
@@ -183,6 +196,10 @@ public class MyMouseAdapter extends MouseAdapter {
                     return;
                 }
                 myGuiController.mouseClick_WithCtrl_Occurred(p, e);
+
+                if (debug) {
+                    System.out.println("mouseReleased event used.");
+                }
 
             } else if (!ctrlKey_pressed && altKey_pressed) {
                 /*
@@ -198,6 +215,10 @@ public class MyMouseAdapter extends MouseAdapter {
                  * altKey_pressed?
                  */
 
+                if (debug) {
+                    System.out.println("mouseReleased event not used.");
+                }
+
             } else {
                 /*
                  * Nothing
@@ -212,25 +233,32 @@ public class MyMouseAdapter extends MouseAdapter {
                  * Thread issue with the values of ctrlKey_pressed,
                  * altKey_pressed?
                  */
+
+                if (debug) {
+                    System.out.println("mouseReleased event not used.");
+                }
+
             }
 
             /*
              * TODO Always reset CTRL and ALT from here too to avoid those
              * Unexpected mouse event! (A thread issue???)
              */
-//            if (!e.isControlDown()) {
-//                System.err.println("MyMouseAdapter.mouseReleased(), calling myDrawPanel.ctrl_released_Action_occurred()");
-//                myDrawPanel.ctrl_released_Action_occurred();
-//            }
-//            if (!e.isAltDown()) {
-//                System.err.println("MyMouseAdapter.mouseReleased(), calling myDrawPanel.alt_released_Action_occurred()");
-//                myDrawPanel.alt_released_Action_occurred();
-//            }
+            // if (!e.isControlDown()) {
+            // System.err.println("MyMouseAdapter.mouseReleased(), calling
+            // myDrawPanel.ctrl_released_Action_occurred()");
+            // myDrawPanel.ctrl_released_Action_occurred();
+            // }
+            // if (!e.isAltDown()) {
+            // System.err.println("MyMouseAdapter.mouseReleased(), calling
+            // myDrawPanel.alt_released_Action_occurred()");
+            // myDrawPanel.alt_released_Action_occurred();
+            // }
 
         } else {
             /*
-             * There was a dragging operation. This should be the mouseReleased
-             * event after mouseDragged.
+             * There was a dragging operation. This is the mouseReleased event
+             * after mouseDragged.
              */
 
             if (debug) {
@@ -252,6 +280,11 @@ public class MyMouseAdapter extends MouseAdapter {
              * One complete update of the drawing to make sure.
              */
             myDrawPanel.updateDrawing(null);
+
+            if (debug) {
+                System.out.println("mouseReleased event used.");
+            }
+
         }
 
         /*
@@ -271,6 +304,10 @@ public class MyMouseAdapter extends MouseAdapter {
         if (debug) {
             System.out.println("mouseClicked");
         }
+
+        /*
+         * Nothing more. We use only mousePressed() and mouseReleased().
+         */
     }
 
     @Override
@@ -292,18 +329,27 @@ public class MyMouseAdapter extends MouseAdapter {
      *            The mouse event
      */
     private void handleMousePressed(MouseEvent e) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.handleMousePressed", e);
+        }
+
+        if (!isLeftMouseButtonEvent(e))
+            return;
+
         /*
          * TODO Always check CTRL and ALT from here too to avoid those
          * Unexpected mouse event! (A thread issue???)
          */
-//        if (!e.isControlDown()) {
-//            System.out.println("MyMouseAdapter.handleMousePressed(), calling myDrawPanel.ctrl_released_Action_occurred()");
-//            myDrawPanel.ctrl_released_Action_occurred();
-//        }
-//        if (!e.isAltDown()) {
-//            System.out.println("MyMouseAdapter.handleMousePressed(), calling myDrawPanel.alt_released_Action_occurred()");
-//            myDrawPanel.alt_released_Action_occurred();
-//        }
+        // if (!e.isControlDown()) {
+        // System.out.println("MyMouseAdapter.handleMousePressed(), calling
+        // myDrawPanel.ctrl_released_Action_occurred()");
+        // myDrawPanel.ctrl_released_Action_occurred();
+        // }
+        // if (!e.isAltDown()) {
+        // System.out.println("MyMouseAdapter.handleMousePressed(), calling
+        // myDrawPanel.alt_released_Action_occurred()");
+        // myDrawPanel.alt_released_Action_occurred();
+        // }
 
         /*
          * We "leave" a popup menu with a new mouse event on the DrawPanel?
@@ -316,18 +362,15 @@ public class MyMouseAdapter extends MouseAdapter {
         if (myDrawPanel.getPopupMenuLocation() != null) {
             myDrawPanel.setPopupMenuLocation(null);
             System.out.println("Popup menu left.");
+            if (debug) {
+                System.out.println("Set this.popupMenuLeftWithMousePress = true");
+            }
+            this.popupMenuLeftWithMousePress = true;
             return; // Do nothing more!
         }
 
         /*
-         * Ignore other than button 1 of the mouse. (e.g. popup menus with the
-         * right mouse button)
-         */
-        if (e.getButton() != MouseEvent.BUTTON1)
-            return; // Do nothing more!
-
-        /*
-         * Store location
+         * Store location of the mousePressedEvent.
          */
         myDrawPanel.mousePressedLocation = e.getPoint();
         if (debug) {
@@ -385,6 +428,30 @@ public class MyMouseAdapter extends MouseAdapter {
 
             return;
         }
+    }
+
+    /*
+     * Private helpers
+     */
+
+    /**
+     * Checks if the user has used the left mouse button.
+     * 
+     * Note: Right mouse button (popup menus) will be handled by the
+     * {@link PopupMenuManager}.
+     * 
+     * @param e
+     *            The mouse event
+     * @return True if the button of the mouse event was the left button
+     */
+    private boolean isLeftMouseButtonEvent(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e))
+            return true;
+
+        if (debug) {
+            System.out.println("Not the left mouse button");
+        }
+        return false; // Do nothing more!
     }
 
 }

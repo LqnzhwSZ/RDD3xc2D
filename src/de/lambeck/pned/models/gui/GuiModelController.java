@@ -692,14 +692,20 @@ public class GuiModelController implements IGuiModelController {
                 boolean contains = element.contains(p);
                 if (contains) {
                     foundElement = element;
-                    break;
+                    /*
+                     * Don't break on the first found element because we have to
+                     * find the element with the highest z value and this will
+                     * be more at the "end" of the list.
+                     */
+                    // break;
                 }
             }
         }
 
         if (debug) {
             if (foundElement == null)
-                System.out.println("No selectable element at this Point!");
+                System.out.println(
+                        "GuiModelController.getSelectableElementAtLocation: No selectable element at this Point!");
         }
 
         return foundElement;
@@ -785,27 +791,6 @@ public class GuiModelController implements IGuiModelController {
          */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
 
-        // /*
-        // * Sort out the nodes (which can have adjacent arcs).
-        // */
-        // List<IGuiNode> nodes = new LinkedList<IGuiNode>();
-        // for (IGuiElement element : toBeRemoved) {
-        // if (element instanceof IGuiNode) {
-        // IGuiNode node = (IGuiNode) element;
-        // nodes.add(node);
-        // }
-        // }
-
-        // /*
-        // * Get all adjacent arcs for these nodes.
-        // */
-        // List<IGuiArc> adjacentArcs = getAdjacentArcs(nodes);
-
-        // /*
-        // * Add the adjacent arcs to the list
-        // */
-        // toBeRemoved = combineElementsAndArcs(toBeRemoved, adjacentArcs);
-
         /*
          * Store the drawing area for repainting
          */
@@ -825,7 +810,7 @@ public class GuiModelController implements IGuiModelController {
          */
         for (String id : toBeRemoved_IDs) {
             if (debug) {
-                System.out.println("Remove id: " + id);
+                System.out.println("GuiModelController.removeSelectedGuiElements: Remove id: " + id);
             }
             currentModel.removeElement(id);
             currentModel.setModified(true);
@@ -872,13 +857,18 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void mouseClick_Occurred(Point mousePressedLocation, MouseEvent e) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.mouseClick_Occurred", mousePressedLocation, e);
+        }
+
         if (mousePressedLocation == null) {
-            System.err.println("GuiModelController.mouseClick_Occurred(): mousePressedLocation == null");
+            System.err.println("mousePressedLocation == null");
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
+
         if (mousePressedElement == null) {
             resetSelection();
             return;
@@ -886,6 +876,7 @@ public class GuiModelController implements IGuiModelController {
 
         IGuiElement mouseReleasedElement;
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
+
         if (mousePressedElement != mouseReleasedElement) {
             /*
              * Reject this mouseClicked event as unintended!
@@ -903,6 +894,10 @@ public class GuiModelController implements IGuiModelController {
      *            The element at which the mouse event has occurred
      */
     private void selectOneElement(IGuiElement mousePressedElement) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.selectOneElement", mousePressedElement);
+        }
+
         IGuiElement element = mousePressedElement;
 
         Rectangle oldArea = element.getLastDrawingArea();
@@ -912,8 +907,7 @@ public class GuiModelController implements IGuiModelController {
         Rectangle newArea = element.getLastDrawingArea();
 
         if (debug) {
-            System.out.println("GuiModelController: MouseClick occurred:");
-            System.out.println("Single element selected: " + element.getId());
+            System.out.println("GuiModelController, Single element selected: " + element.getId());
             System.out.println("updateDrawing(" + oldArea + ")");
             System.out.println("updateDrawing(" + newArea + ")");
         }
@@ -923,17 +917,24 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void mouseClick_WithCtrl_Occurred(Point mousePressedLocation, MouseEvent e) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.mouseClick_WithCtrl_Occurred", mousePressedLocation,
+                    e);
+        }
+
         if (mousePressedLocation == null) {
-            System.err.println("GuiModelController.mouseClick_WithCtrl_Occurred(): mousePressedLocation == null");
+            System.err.println("mousePressedLocation == null");
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
+
         if (mousePressedElement == null) { return; }
 
         IGuiElement mouseReleasedElement;
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
+
         if (mousePressedElement != mouseReleasedElement) {
             /*
              * Reject this mouseClicked event as unintended!
@@ -951,6 +952,10 @@ public class GuiModelController implements IGuiModelController {
      *            The element at which the mouse event has occurred
      */
     private void toggleOneElementsSelection(IGuiElement mousePressedElement) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.toggleOneElementsSelection", mousePressedElement);
+        }
+
         IGuiElement element = mousePressedElement;
 
         Rectangle oldArea = element.getLastDrawingArea();
@@ -960,8 +965,7 @@ public class GuiModelController implements IGuiModelController {
         Rectangle newArea = element.getLastDrawingArea();
 
         if (debug) {
-            System.out.println("GuiModelController: MouseClick with CTRL occurred:");
-            System.out.println("Selection toggled on element: " + element.getId());
+            System.out.println("GuiModelController, Selection toggled on element: " + element.getId());
             System.out.println("updateDrawing(" + oldArea + ")");
             System.out.println("updateDrawing(" + newArea + ")");
         }
@@ -987,7 +991,7 @@ public class GuiModelController implements IGuiModelController {
         if (selectedElements.size() == 0)
             return;
         if (debug) {
-            System.out.println(selectedElements.size() + " element(s) selected.");
+            System.out.println(selectedElements.size() + " selected element(s)");
         }
 
         /*
@@ -1002,7 +1006,7 @@ public class GuiModelController implements IGuiModelController {
             }
         }
         if (debug) {
-            System.out.println(selectedNodes.size() + " nodes(s) selected.");
+            System.out.println(selectedNodes.size() + " selected nodes(s)");
         }
 
         /*
@@ -1119,9 +1123,7 @@ public class GuiModelController implements IGuiModelController {
             System.out.println("Selection cleared.");
             System.out.println("updateDrawing(" + drawingAreas + ")");
         }
-        // for (Rectangle rect : drawingAreas) {
-        // updateDrawing(rect);
-        // }
+
         updateDrawing(drawingAreas);
     }
 
@@ -1215,7 +1217,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("moveToForeground", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToForeground", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1226,38 +1228,10 @@ public class GuiModelController implements IGuiModelController {
         int newZValue = currentModel.getIncrMaxZ();
         element.setZValue(newZValue);
 
-        // TODO Call some kind of sorting algorithm in the GUI model to update
-        // its lists?
-        // /*
-        // * Sort (see: https://stackoverflow.com/a/2784576)
-        // */
-        // java.util.List<IGuiElement> elements = myGuiModel.getElements();
-        //
-        // Collections.sort(elements, new Comparator<IGuiElement>() {
-        // @Override
-        // public int compare(IGuiElement element1, IGuiElement element2) {
-        // if (element2.getZValue() > element1.getZValue()) {
-        // return -1;
-        // } else if (element1.getZValue() == element2.getZValue()) {
-        // return 0;
-        // } else {
-        // return 1;
-        // }
-        // }
-        // });
-
-        // Collections.sort(elements, new Comparator<IGuiElement>() {
-        // @Override
-        // public int compare(IGuiElement element1, IGuiElement element2) {
-        // if (element2.getZValue() > element1.getZValue()) {
-        // return -1;
-        // } else if (element1.getZValue() == element2.getZValue()) {
-        // return 0;
-        // } else {
-        // return 1;
-        // }
-        // }
-        // });
+        /*
+         * Let the model resort the List of elements.
+         */
+        currentModel.sortElements();
 
         /*
          * Repaint this element and (if necessary) adjacent arcs.
@@ -1271,8 +1245,9 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        updateDrawing(areas);
+        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
+        // updateDrawing(areas);
+        updateDrawing();
     }
 
     @Override
@@ -1334,7 +1309,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("moveToBackground", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToBackground", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1345,8 +1320,10 @@ public class GuiModelController implements IGuiModelController {
         int newZValue = currentModel.getDecrMinZ();
         element.setZValue(newZValue);
 
-        // TODO Call some kind of sorting algorithm in the GUI model to update
-        // its lists?
+        /*
+         * Let the model resort the List of elements.
+         */
+        currentModel.sortElements();
 
         /*
          * Repaint this element and (if necessary) adjacent arcs.
@@ -1360,8 +1337,9 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        updateDrawing(areas);
+        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
+        // updateDrawing(areas);
+        updateDrawing();
     }
 
     @Override
@@ -1422,7 +1400,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("moveOneLayerUp", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerUp", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1455,8 +1433,10 @@ public class GuiModelController implements IGuiModelController {
         element.setZValue(swapZValue);
         swap.setZValue(currZValue);
 
-        // TODO Call some kind of sorting algorithm in the GUI model to update
-        // its lists?
+        /*
+         * Let the model resort the List of elements.
+         */
+        currentModel.sortElements();
 
         /*
          * Repaint this element and (if necessary) adjacent arcs.
@@ -1470,8 +1450,9 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        updateDrawing(areas);
+        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
+        // updateDrawing(areas);
+        updateDrawing();
     }
 
     @Override
@@ -1532,7 +1513,7 @@ public class GuiModelController implements IGuiModelController {
             throw new NoSuchElementException();
 
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("moveOneLayerDown", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerDown", element.getId());
         }
 
         int currZValue = element.getZValue();
@@ -1565,8 +1546,10 @@ public class GuiModelController implements IGuiModelController {
         element.setZValue(swapZValue);
         swap.setZValue(currZValue);
 
-        // TODO Call some kind of sorting algorithm in the GUI model to update
-        // its lists?
+        /*
+         * Let the model resort the List of elements.
+         */
+        currentModel.sortElements();
 
         /*
          * Repaint this element and (if necessary) adjacent arcs.
@@ -1580,8 +1563,9 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        updateDrawing(areas);
+        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
+        // updateDrawing(areas);
+        updateDrawing();
     }
 
     @Override
@@ -1624,6 +1608,22 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
+    /**
+     * Invokes updateDrawing(Rectangle area) for no area -> everything.
+     */
+    private void updateDrawing() {
+        Rectangle area = null;
+        updateDrawing(area);
+    }
+
+    /**
+     * Returns the element at the specified Point. (Returns the one with the
+     * highest z-value if there is more than 1 at this location.)
+     * 
+     * @param p
+     *            The specified Point
+     * @return The topmost element at the specified point
+     */
     private IGuiElement getElementAtLocation(Point p) {
         java.util.List<IGuiElement> elements = currentModel.getElements();
         IGuiElement foundElement = null;
@@ -1646,13 +1646,24 @@ public class GuiModelController implements IGuiModelController {
         return foundElement;
     }
 
+    /**
+     * Returns the node (place or transition, not other elements) at the
+     * specified Point.
+     * 
+     * @param p
+     *            The specified Point
+     * @return The node at the specified point
+     */
     private IGuiNode getNodeAtLocation(Point p) {
         IGuiElement foundElement = getElementAtLocation(p);
         if (foundElement == null)
             return null;
 
+        /*
+         * Note: getElementAtLocation() should have returned the topmost
+         * element.
+         */
         IGuiNode foundNode = null;
-        // TODO Sort according to z value and return the topmost element!
         if (foundElement instanceof IGuiNode) {
             foundNode = (IGuiNode) foundElement;
         }

@@ -115,7 +115,7 @@ public class GuiTransition extends GuiNode {
 
     @Override
     public Point getArcAnchor(Point target) {
-        int generalArcDirection = ArcDirection.UNDEFINED;
+        EArcDirection generalArcDirection = EArcDirection.UNDEFINED;
 
         double target_x = target.getX();
         double target_y = target.getY();
@@ -134,35 +134,35 @@ public class GuiTransition extends GuiNode {
         if (Math.abs(x_dist) == Math.abs(y_dist)) {
             // System.out.println("Der Pfeil verläuft genau diagonal...");
             if (target_x < shape_center_x && target_y < shape_center_y) {
-                generalArcDirection = ArcDirection.TOP_LEFT_CORNER;
+                generalArcDirection = EArcDirection.TOP_LEFT_CORNER;
             }
             if (target_x > shape_center_x && target_y < shape_center_y) {
-                generalArcDirection = ArcDirection.TOP_RIGHT_CORNER;
+                generalArcDirection = EArcDirection.TOP_RIGHT_CORNER;
             }
             if (target_x > shape_center_x && target_y > shape_center_y) {
-                generalArcDirection = ArcDirection.BOTTOM_RIGHT_CORNER;
+                generalArcDirection = EArcDirection.BOTTOM_RIGHT_CORNER;
             }
             if (target_x < shape_center_x && target_y > shape_center_y) {
-                generalArcDirection = ArcDirection.BOTTOM_LEFT_CORNER;
+                generalArcDirection = EArcDirection.BOTTOM_LEFT_CORNER;
             }
 
         } else {
             // System.out.println("Der Pfeil kommt von einer der Seiten...");
             if (target_x < shape_center_x && abs_x_dist > abs_y_dist) {
-                generalArcDirection = ArcDirection.LEFT_SIDE;
+                generalArcDirection = EArcDirection.LEFT_SIDE;
             }
             if (target_y < shape_center_y && abs_y_dist > abs_x_dist) {
-                generalArcDirection = ArcDirection.TOP;
+                generalArcDirection = EArcDirection.TOP;
             }
             if (target_x > shape_center_x && abs_x_dist > abs_y_dist) {
-                generalArcDirection = ArcDirection.RIGHT_SIDE;
+                generalArcDirection = EArcDirection.RIGHT_SIDE;
             }
             if (target_y > shape_center_y && abs_y_dist > abs_x_dist) {
-                generalArcDirection = ArcDirection.BOTTOM;
+                generalArcDirection = EArcDirection.BOTTOM;
             }
         }
 
-        if (generalArcDirection == ArcDirection.UNDEFINED) {
+        if (generalArcDirection == EArcDirection.UNDEFINED) {
             System.err.println("Couldn't determine the general arc direction for id: " + this.getId());
             return null;
         }
@@ -173,38 +173,38 @@ public class GuiTransition extends GuiNode {
         double doubleX = 0, doubleY = 0, ratio = 0;
 
         switch (generalArcDirection) {
-        case ArcDirection.TOP_LEFT_CORNER:
+        case TOP_LEFT_CORNER:
             doubleX = shapeLeftX;
             doubleY = shapeTopY;
             break;
-        case ArcDirection.TOP_RIGHT_CORNER:
+        case TOP_RIGHT_CORNER:
             doubleX = shapeLeftX + shapeSize;
             doubleY = shapeTopY;
             break;
-        case ArcDirection.BOTTOM_RIGHT_CORNER:
+        case BOTTOM_RIGHT_CORNER:
             doubleX = shapeLeftX + shapeSize;
             doubleY = shapeTopY + shapeSize;
             break;
-        case ArcDirection.BOTTOM_LEFT_CORNER:
+        case BOTTOM_LEFT_CORNER:
             doubleX = shapeLeftX;
             doubleY = shapeTopY + shapeSize;
             break;
-        case ArcDirection.LEFT_SIDE:
+        case LEFT_SIDE:
             doubleX = shapeLeftX; // The squares left border
             ratio = Math.abs((shapeSize / 2) / (target_x - shape_center_x));
             doubleY = shape_center_y + (target_y - shape_center_y) * ratio;
             break;
-        case ArcDirection.TOP:
+        case TOP:
             doubleY = shapeTopY; // The squares top border
             ratio = Math.abs((shapeSize / 2) / (target_y - shape_center_y));
             doubleX = shape_center_x + (target_x - shape_center_x) * ratio;
             break;
-        case ArcDirection.RIGHT_SIDE:
+        case RIGHT_SIDE:
             doubleX = shapeLeftX + shapeSize; // The squares right border
             ratio = Math.abs((shapeSize / 2) / (target_x - shape_center_x));
             doubleY = shape_center_y + (target_y - shape_center_y) * ratio;
             break;
-        case ArcDirection.BOTTOM:
+        case BOTTOM:
             doubleY = shapeTopY + shapeSize; // The squares bottom border
             ratio = Math.abs((shapeSize / 2) / (target_y - shape_center_y));
             doubleX = shape_center_x + (target_x - shape_center_x) * ratio;

@@ -11,6 +11,7 @@ import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.models.gui.DrawPanel;
 import de.lambeck.pned.models.gui.IDrawPanel;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Popup menu for right click at Places on the {@link DrawPanel}. Holds a
@@ -24,6 +25,8 @@ import de.lambeck.pned.models.gui.IDrawPanel;
  */
 @SuppressWarnings("serial")
 public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener {
+
+    private static boolean debug = true;
 
     protected Map<String, AbstractAction> popupActions;
 
@@ -156,6 +159,10 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
 
     @Override
     public void popupMenuCanceled(PopupMenuEvent e) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("PopupMenuForPlaces.popupMenuCanceled", e);
+        }
+
         myDrawPanel.popupMenuCanceled();
     }
 

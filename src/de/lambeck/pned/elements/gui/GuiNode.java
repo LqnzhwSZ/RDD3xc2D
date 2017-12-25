@@ -3,9 +3,11 @@ package de.lambeck.pned.elements.gui;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import de.lambeck.pned.gui.CustomColor;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Superclass GuiNode implements the common members for all nodes.
@@ -15,7 +17,7 @@ import de.lambeck.pned.gui.CustomColor;
  */
 public abstract class GuiNode extends GuiElement implements IGuiNode {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /*
      * Attributes for interface IGuiNode (Bounds include the label for
@@ -45,13 +47,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * Label offset in y direction ("0" means start directly below the node)
      */
     static int labelOffsetY = 15;
-
-    /*
-     * Info for label size
-     */
-
-    /** Label size (depending on the length of the name) */
-    protected int labelWidth = 0;
 
     /*
      * Attributes for optical appearance
@@ -133,7 +128,8 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     @SuppressWarnings("hiding")
     public void setName(String name) {
         this.name = name;
-        calculateMyBounds(); // Because labelWidth influences the boundaries!
+        calculateMyBounds(); // Because label size and position influences the
+                             // boundaries!
     }
 
     @Override
@@ -209,35 +205,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /*
      * Individual methods
      */
-
-    // /**
-    // * Getter for the size of this shape. (diameter for circles, edge length
-    // for
-    // * squares)
-    // *
-    // * @return The size
-    // */
-    // public int getShapeSize() {
-    // return this.shapeSize;
-    // }
-
-    // /**
-    // * Setter for the size of this shape. (diameter for circles, edge length
-    // for
-    // * squares)
-    // *
-    // * @param size
-    // * The new size
-    // */
-    // public void setShapeSize(int size) {
-    // this.shapeSize = size;
-    //
-    // /*
-    // * Change the bounds of the shape since ovals and squares are drawn
-    // * within these bounds!
-    // */
-    // calculateMyBounds();
-    // }
 
     /**
      * Determines the coordinates of the label depending on the center of this
@@ -343,47 +310,62 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         this.shapeBottomY = this.shapeCenter.y + (shapeSize / 2);
 
         /*
-         * labelWidth influences the boundaries!
+         * label size and position influences the boundaries!
          */
-        // updateLabelWidth(g2);
         String labelText = this.getName();
-        int textWidth = getTextWidth(labelText, this.labelFont);
-        this.labelWidth = textWidth;
+        Rectangle2D labelTextRect = getTextBounds(labelText, this.labelFont);
 
         /*
-         * Real calculation is necessary only for totalWidth and totalHeight
-         * because the label starts below the shape.
+         * Real calculation is necessary for:
+         * 
+         * - LeftX: Because some chars (e.g. "t") stick out to the left.
+         * 
+         * - totalWidth: like LeftX
+         * 
+         * - totalHeight: Because some chars (e.g. "p") stick out to the bottom.
          */
-        this.totalLeftX = shapeLeftX;
+        int labelTextLeftX = (int) labelTextRect.getMinX();
+        this.totalLeftX = Math.min(shapeLeftX, shapeLeftX + labelTextLeftX);
+
         this.totalTopY = shapeTopY;
-        // this.totalWidth = Math.max(shapeSize / 2 + labelWidth, shapeSize);
-        this.totalWidth = Math.max(labelWidth, shapeSize);
-        this.totalHeight = shapeSize + labelOffsetY;
+
+        int labelTextRightX = (int) labelTextRect.getMaxX();
+        this.totalWidth = Math.max(shapeSize, labelTextRightX);
+
+        int labelTextBottomY = (int) labelTextRect.getMaxY();
+        this.totalHeight = Math.max(shapeSize, shapeSize + labelOffsetY + labelTextBottomY);
 
         /*
-         * Store my size for the next repaint.
+         * Store my drawing area for the next repaint.
          */
         int x = getTotalLeftX();
         int y = getTotalTopY();
-        int width = getTotalWidth() + 1; // +1 nötig wegen Rundungsfehlern?
-        int height = getTotalHeight() + 1;
+        int width = getTotalWidth();
+        int height = getTotalHeight();
+
+        /*
+         * Correct the values because some characters (stick out on the left
+         * side of the label).
+         * 
+         * -> e.g. "t": Dragging a node with the label "t..." to the right side
+         * leaves the most left pixel of "t" as an artifact if we repaint only
+         * the theoretical area!
+         * 
+         * (Does this occur on the right side and bottom as well???)
+         * 
+         * (Are these just rounding errors???)
+         */
+        x = x - 1;
+        y = y - 1;
+        width = width + 2;
+        height = height + 2;
+
         Rectangle rect = new Rectangle(x, y, width, height);
         this.lastDrawingArea = rect;
     }
 
-    // /**
-    // * Calculates the width of the label (the name of this node).
-    // */
-    // private void updateLabelWidth(Graphics2D g2) {
-    // String labelText = this.getName();
-    // int textWidth = g2.getFontMetrics().stringWidth(labelText);
-    // this.labelWidth = textWidth;
-    // }
-
     /**
-     * Calculates the length of the specified text.
-     * 
-     * https://stackoverflow.com/a/14832962/5944475
+     * Calculates the bounds of the specified text.
      * 
      * @param text
      *            The text
@@ -391,11 +373,38 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      *            The font of the specified text
      * @return
      */
-    private int getTextWidth(String text, Font font) {
+    private Rectangle2D getTextBounds(String text, Font font) {
         AffineTransform tx = new AffineTransform();
         FontRenderContext frc = new FontRenderContext(tx, true, true);
-        int textwidth = (int) (font.getStringBounds(text, frc).getWidth());
-        return textwidth;
+
+        String message = "text: " + text;
+        ConsoleLogger.logIfDebug(debug, message);
+
+        /*
+         * https://stackoverflow.com/a/14832962/5944475
+         */
+        // int textwidth = (int) (font.getStringBounds(text, frc).getWidth());
+        // System.out.println("getTextBounds, textwidth: " + textwidth);
+        // int textheight = (int)(font.getStringBounds(text, frc).getHeight());
+        // System.out.println("getTextBounds, textheight: " + textheight);
+
+        /*
+         * getWidth() and getHeight() give us only the size. But we need the
+         * position as well to get information about how much the text sticks
+         * out to the left side or the bottom!
+         */
+        Rectangle2D rect2d = font.getStringBounds(text, frc);
+
+        message = "GuiNode, getTextBounds(), rect.getMinX(): " + rect2d.getMinX();
+        ConsoleLogger.logIfDebug(debug, message);
+        message = "GuiNode, getTextBounds(), rect.getMaxX(): " + rect2d.getMaxX();
+        ConsoleLogger.logIfDebug(debug, message);
+        message = "GuiNode, getTextBounds(), rect.getMinY(): " + rect2d.getMinY();
+        ConsoleLogger.logIfDebug(debug, message);
+        message = "GuiNode, getTextBounds(), rect.getMaxY(): " + rect2d.getMaxY();
+        ConsoleLogger.logIfDebug(debug, message);
+
+        return rect2d;
     }
 
 }

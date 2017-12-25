@@ -2,9 +2,7 @@ package de.lambeck.pned.models.gui;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import javax.swing.JOptionPane;
 
@@ -22,7 +20,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiModel implements IGuiModel, IModelRename {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -171,12 +169,64 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public List<IGuiElement> getElements() {
+        // sortElements();
         return this.elements;
     }
 
     @Override
     public List<IGuiElement> getSelectedElements() {
+        // sortSelected();
         return selected;
+    }
+
+    /*
+     * Sorting (for proper display on the draw panel)
+     */
+
+    @Override
+    public void sortElements() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.sortElements");
+        }
+
+        /*
+         * Sort (see: https://stackoverflow.com/a/2784576)
+         */
+        Collections.sort(elements, new Comparator<IGuiElement>() {
+            @Override
+            public int compare(IGuiElement element1, IGuiElement element2) {
+                if (element2.getZValue() > element1.getZValue()) {
+                    return -1;
+                } else if (element1.getZValue() == element2.getZValue()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void sortSelectedElements() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.sortSelectedElements");
+        }
+
+        /*
+         * Sort (see: https://stackoverflow.com/a/2784576)
+         */
+        Collections.sort(selected, new Comparator<IGuiElement>() {
+            @Override
+            public int compare(IGuiElement element1, IGuiElement element2) {
+                if (element2.getZValue() > element1.getZValue()) {
+                    return -1;
+                } else if (element1.getZValue() == element2.getZValue()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
     }
 
     /*
@@ -574,7 +624,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         if (selected.size() == 0) {
             System.out.println("No selection");
         } else {
-            System.out.print("Selected elements: ");
+            System.out.print("GuiModel, Selected elements: ");
 
             String outputString = "";
             for (IGuiElement element : selected) {

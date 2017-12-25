@@ -9,6 +9,7 @@ import javax.swing.event.PopupMenuListener;
 
 import de.lambeck.pned.models.gui.DrawPanel;
 import de.lambeck.pned.models.gui.IDrawPanel;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Popup menu for right click at empty areas on the {@link DrawPanel}. Holds a
@@ -22,6 +23,8 @@ import de.lambeck.pned.models.gui.IDrawPanel;
  */
 @SuppressWarnings("serial")
 public class PopupMenuForEmptyAreas extends JPopupMenu implements PopupMenuListener {
+
+    private static boolean debug = false;
 
     protected Map<String, AbstractAction> popupActions;
 
@@ -80,6 +83,10 @@ public class PopupMenuForEmptyAreas extends JPopupMenu implements PopupMenuListe
 
     @Override
     public void popupMenuCanceled(PopupMenuEvent e) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("PopupMenuForEmptyAreas.popupMenuCanceled", e);
+        }
+
         myDrawPanel.popupMenuCanceled();
     }
 

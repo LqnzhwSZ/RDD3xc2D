@@ -91,7 +91,9 @@ public class ApplicationController extends AbstractApplicationController {
      */
     private List<String> modifiedDataModels = new ArrayList<String>();
 
+    /** Reference to the validation controller */
     private ValidationController validationController;
+
     /**
      * Constructs the application controller for the specified main frame
      * (application window).
@@ -117,12 +119,13 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.addWindowStateListener(this);
 
         /*
-         * Add 2 controllers for data models and GUI models
+         * Add controllers for data models, GUI models and validation
          */
         this.dataModelController = new DataModelController(this, i18n);
         this.guiModelController = new GuiModelController(this, i18n, popupActions);
         this.validationController = new ValidationController(this.dataModelController);
         this.validationController.addValidator(new RecursionValidator());
+
         /*
          * Create and set up the content pane (BEFORE adding menu, tool and
          * status bars!) add the content to it.
@@ -168,7 +171,10 @@ public class ApplicationController extends AbstractApplicationController {
         // language and pass only needed (already localized) Strings to
         // methods/other classes? (So that static methods as in FSInfo.java can
         // use localized messages.)
-        
+
+        /*
+         * Start the validation controller (thread).
+         */
         this.validationController.start();
     }
 
@@ -355,7 +361,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Closes the application (without questions!)
      */
     private void closeApplication() {
-    	this.validationController.interrupt();
+        this.validationController.interrupt();
         mainFrame.dispose();
         System.exit(0);
     }
@@ -1446,7 +1452,7 @@ public class ApplicationController extends AbstractApplicationController {
                 String label = ((DataPlace) element).getName();
                 String xPosition = Integer.toString(((DataPlace) element).getPosition().x);
                 String yPosition = Integer.toString(((DataPlace) element).getPosition().y);
-                String initialTokens = ((DataPlace) element).getTokensCount().toPnmlString();
+                String initialTokens = ((DataPlace) element).getTokensCount().toPnedString();
 
                 returnValue = writer.addPlace(id, label, xPosition, yPosition, initialTokens);
                 if (returnValue > 0)
