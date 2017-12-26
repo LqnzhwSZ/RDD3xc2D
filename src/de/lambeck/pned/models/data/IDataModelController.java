@@ -8,9 +8,9 @@ import java.util.NoSuchElementException;
 import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.EPlaceToken;
-import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
-import de.lambeck.pned.models.data.validation.IWorkflowNetValidator;
-import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
+import de.lambeck.pned.models.data.validation.EndPlacesValidator;
+import de.lambeck.pned.models.data.validation.IValidationMsgPanel;
+import de.lambeck.pned.models.data.validation.StartPlacesValidator;
 
 /**
  * Interface for controllers for data models representing a Petri net. This
@@ -25,10 +25,10 @@ public interface IDataModelController extends IInfo_Status {
      * Adds a data model for a non-existing file.
      * 
      * Note: This is intended to be used to add new models which are not coming
-     * from a pnml file (e.g. "Untitled1", "Untitled2"... or "New1", "New2"...)
+     * from a PNML file (e.g. "Untitled1", "Untitled2"... or "New1", "New2"...)
      * 
      * @param modelName
-     *            The full path name of the pnml file
+     *            The full path name of the PNML file
      * @param displayName
      *            The title of the tab (= the file name)
      */
@@ -56,7 +56,7 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return True if the model has been modified; otherwise false
      */
     boolean isModifiedDataModel(String modelName);
@@ -64,12 +64,12 @@ public interface IDataModelController extends IInfo_Status {
     /**
      * Resets the "modified" state of the specified model.
      * 
-     * Note: Use this method after loading a pnml file because the model has not
-     * been changed by the user after adding elements from the pnml file only.
+     * Note: Use this method after loading a PNML file because the model has not
+     * been changed by the user after adding elements from the PNML file only.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     void resetModifiedDataModel(String modelName);
 
@@ -78,7 +78,7 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     void removeDataModel(String modelName);
 
@@ -90,7 +90,7 @@ public interface IDataModelController extends IInfo_Status {
      *            The {@link IDataModel}
      * @param newModelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param newDisplayName
      *            The title of the tab (= the file name)
      */
@@ -101,7 +101,7 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return The specified data model
      */
     IDataModel getDataModel(String modelName);
@@ -127,33 +127,34 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @return The {@link IValidationMessagesPanel}
+     *            name of the PNML file represented by this model.)
+     * @return The {@link IValidationMsgPanel}
      */
-    IValidationMessagesPanel getValidationMessagePanel(String modelName);
+    IValidationMsgPanel getValidationMessagePanel(String modelName);
 
     // IValidationMessagesPanel getCurrentValidationMessagePanel();
 
     // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the
     // validator should work with it.)
 
-    /**
-     * Sets the specified {@link IValidationMessagesPanel} as current (active)
-     * validation messages panel of the {@link DataModelController}.
-     * 
-     * @param validationMessagesPanel
-     */
-    void setCurrentValidationMessagesPanel(IValidationMessagesPanel validationMessagesPanel);
+    // /**
+    // * Sets the specified {@link IValidationMsgPanel} as current (active)
+    // * validation messages panel of the {@link DataModelController}.
+    // *
+    // * @param validationMessagesPanel
+    // */
+    // void setCurrentValidationMessagesPanel(IValidationMsgPanel
+    // validationMessagesPanel);
 
-    /**
-     * Returns the specified {@link IWorkflowNetValidator}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @return The specified workflow net validator
-     */
-    public IWorkflowNetValidator getWorkflowNetValidator(String modelName);
+    // /**
+    // * Returns the specified {@link IWorkflowNetValidator}.
+    // *
+    // * @param modelName
+    // * The name of the model (This is intended to be the full path
+    // * name of the PNML file represented by this model.)
+    // * @return The specified workflow net validator
+    // */
+    // public IWorkflowNetValidator getWorkflowNetValidator(String modelName);
 
     /**
      * Returns a list of data models which have been modified and need to be
@@ -197,7 +198,7 @@ public interface IDataModelController extends IInfo_Status {
      * addPlaceToCurrentModel(String id, EPlaceToken initialTokens, Point
      * position)
      * 
-     * Intended use: adding a place after reading from a pnml file because these
+     * Intended use: adding a place after reading from a PNML file because these
      * places may have a name.
      * 
      * @param id
@@ -230,7 +231,7 @@ public interface IDataModelController extends IInfo_Status {
      * Note: Adds an additional parameter name to the other method
      * addTransitionToCurrentModel(String id, Point position)
      * 
-     * Intended use: adding a transition after reading from a pnml file because
+     * Intended use: adding a transition after reading from a PNML file because
      * these transitions may have a name.
      * 
      * @param id
@@ -246,7 +247,7 @@ public interface IDataModelController extends IInfo_Status {
      * Adds an arc to the current data model.
      * 
      * Note: This method should be the same for GUI events and reading from a
-     * pnml file because arcs will have all 3 attributes in either cases.
+     * PNML file because arcs will have all 3 attributes in either cases.
      * 
      * @param id
      *            The id of the arc
@@ -319,38 +320,52 @@ public interface IDataModelController extends IInfo_Status {
      * Validation events
      */
 
-    /**
-     * Starts the validation of the specified file.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    void startValidation(String modelName);
+    // /**
+    // * Starts the validation of the specified file.
+    // *
+    // * @param modelName
+    // * The name of the model (This is intended to be the full path
+    // * name of the PNML file represented by this model.)
+    // */
+    // void startValidation(String modelName);
+
+    // /**
+    // * Restarts the validation of the specified file. Resets former outputs on
+    // * the corresponding {@link ValidationMessagesPanel}.
+    // *
+    // * Note: Use this method after structural changes in the Petri net.
+    // *
+    // * @param modelName
+    // * The name of the model (This is intended to be the full path
+    // * name of the PNML file represented by this model.)
+    // */
+    // void restartValidation(String modelName);
 
     /**
-     * Restarts the validation of the specified file. Resets former outputs on
-     * the corresponding {@link ValidationMessagesPanel}.
-     * 
-     * Note: Use this method after structural changes in the Petri net.
+     * Callback for the {@link StartPlacesValidator} to reset all start places.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
-    void restartValidation(String modelName);
+    void resetAllStartPlaces(String modelName);
 
     /**
-     * Callback for the {@link IWorkflowNetValidator} to (re)set the specified
-     * {@link DataPlace} as start place.
-     * 
-     * Note: Parameter modelName to be independent from the "current model"
-     * (active file) so that the validator should be allowed to work as
-     * background thread for any model.
+     * Callback for the {@link EndPlacesValidator} to reset all end places.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
+     */
+    void resetAllEndPlaces(String modelName);
+
+    /**
+     * Callback for the {@link StartPlacesValidator} to set the specified
+     * {@link DataPlace} as (one of the) start places.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b
@@ -359,16 +374,12 @@ public interface IDataModelController extends IInfo_Status {
     void setStartPlace(String modelName, String placeId, boolean b);
 
     /**
-     * Callback for the {@link IWorkflowNetValidator} to (re)set the specified
-     * {@link DataPlace} as end place.
-     * 
-     * Note: Parameter modelName to be independent from the "current model"
-     * (active file) so that the validator should be allowed to work as
-     * background thread for any model.
+     * Callback for the {@link EndPlacesValidator} to set the specified
+     * {@link DataPlace} as (one of the) end places.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b

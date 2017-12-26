@@ -16,7 +16,7 @@ import javax.swing.JTextArea;
  *
  */
 @SuppressWarnings("serial")
-public class ValidationMessagesPanel extends JPanel implements IValidationMessagesPanel {
+public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
 
     private final int ROWS = 0;
     private final int COLUMNS = 20; // Defines the width
@@ -34,7 +34,7 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
     /**
      * The standard background color (after reset)
      */
-    private final Color standardBackground = Color.WHITE;
+    private final Color startBackground = EValidationColor.EMPTY.getColor();
 
     /**
      * The background color for the current validation result
@@ -59,11 +59,11 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
      *            name of the pnml file represented by this model.)
      */
     @SuppressWarnings("hiding")
-    public ValidationMessagesPanel(String modelName) {
+    public ValidationMsgPanel(String modelName) {
         this.modelName = modelName;
 
         textArea = new JTextArea(ROWS, COLUMNS);
-        textArea.setBackground(ValidationColor.EMPTY.getColor());
+        textArea.setBackground(EValidationColor.EMPTY.getColor());
         textArea.setEditable(false);
         textArea.setBorder(BorderFactory.createEtchedBorder());
 
@@ -122,7 +122,7 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
     public void reset() {
         // this.content.clear();
         this.content = "";
-        this.setBackground(standardBackground);
+        this.setBackground(startBackground);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ValidationMessagesPanel extends JPanel implements IValidationMessag
     }
 
     @Override
-    public void setBgColor(ValidationColor c) {
+    public void setBgColor(EValidationColor c) {
         Color color = c.getColor();
         this.textArea.setBackground(color);
         this.currentBackground = color;

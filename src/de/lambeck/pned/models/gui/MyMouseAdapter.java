@@ -39,7 +39,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class MyMouseAdapter extends MouseAdapter {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     private DrawPanel myDrawPanel = null;
     private IGuiModelController myGuiController = null;

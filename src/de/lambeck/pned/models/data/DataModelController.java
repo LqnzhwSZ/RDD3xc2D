@@ -16,10 +16,8 @@ import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
 import de.lambeck.pned.i18n.I18NManager;
-import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
-import de.lambeck.pned.models.data.validation.IWorkflowNetValidator;
-import de.lambeck.pned.models.data.validation.ValidationMessagesPanel;
-import de.lambeck.pned.models.data.validation.WorkflowNetValidator;
+import de.lambeck.pned.models.data.validation.IValidationMsgPanel;
+import de.lambeck.pned.models.data.validation.ValidationMsgPanel;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -51,20 +49,30 @@ public class DataModelController implements IDataModelController {
      * List of validation messages panels identified by their name (full name of
      * the file)
      */
-    private Map<String, IValidationMessagesPanel> validationMessagePanels = new HashMap<String, IValidationMessagesPanel>();
+    private Map<String, IValidationMsgPanel> validationMessagePanels = new HashMap<String, IValidationMsgPanel>();
 
     // TODO Wird currentValidationMessagePanel wirklich benötigt? (Nur der
     // validator sollte darauf arbeiten.)
-    /**
-     * Current validation messages panel is the message panel that corresponds
-     * to the active tab of the tabbed pane.
-     */
-    private IValidationMessagesPanel currentValidationMessagePanel = null;
+    // /**
+    // * Current validation messages panel is the message panel that corresponds
+    // * to the active tab of the tabbed pane.
+    // */
+    // private IValidationMsgPanel currentValidationMessagePanel = null;
 
     /**
-     * List of validators identified by their name (full name of the file)
+     * Indicates whether we are importing data from a PNML file or not. This is
+     * important to avoid infinite loops when adding elements.
+     * 
+     * (If true: changes to a data model need to be passed to the GUI model. If
+     * false: changes to a GUI model need to be passed to the data model.)
      */
-    private Map<String, IWorkflowNetValidator> validators = new HashMap<String, IWorkflowNetValidator>();
+    private boolean importingFromPnml = false;
+
+    // /**
+    // * List of validators identified by their name (full name of the file)
+    // */
+    // private Map<String, IWorkflowNetValidator> validators = new
+    // HashMap<String, IWorkflowNetValidator>();
 
     /**
      * Counter for the number of added elements during import ("File open").
@@ -103,8 +111,13 @@ public class DataModelController implements IDataModelController {
 
         /*
          * Add a data model.
+         * 
+         * -> Set "checked" state to true as soon as possible to prevent the
+         * ValidationController thread from starting the validation before we
+         * even have added a validation messages panel!
          */
         IDataModel newDataModel = new DataModel(modelName, displayName);
+        newDataModel.setModelChecked(true);
         this.dataModels.put(modelName, newDataModel);
 
         /*
@@ -115,14 +128,14 @@ public class DataModelController implements IDataModelController {
         /*
          * Add an associated validation messages panel.
          */
-        IValidationMessagesPanel validationMessagesPanel = addValidationMessagePanel(modelName);
+        IValidationMsgPanel validationMessagesPanel = addValidationMessagePanel(modelName);
         if (validationMessagesPanel == null)
             return;
 
-        /*
-         * Add an associated validator.
-         */
-        addValidator(modelName, newDataModel, validationMessagesPanel);
+        // /*
+        // * Add an associated validator.
+        // */
+        // addValidator(modelName, newDataModel, validationMessagesPanel);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -150,8 +163,13 @@ public class DataModelController implements IDataModelController {
 
         /*
          * Add the data model.
+         * 
+         * -> Set "checked" state to true as soon as possible to prevent the
+         * ValidationController thread from starting the validation before we
+         * even have added a validation messages panel!
          */
         IDataModel newDataModel = new DataModel(canonicalPath, displayName);
+        newDataModel.setModelChecked(true);
         this.dataModels.put(canonicalPath, newDataModel);
 
         /*
@@ -189,14 +207,14 @@ public class DataModelController implements IDataModelController {
         /*
          * Add an associated validation messages panel.
          */
-        IValidationMessagesPanel validationMessagesPanel = addValidationMessagePanel(canonicalPath);
+        IValidationMsgPanel validationMessagesPanel = addValidationMessagePanel(canonicalPath);
         if (validationMessagesPanel == null)
             return ExitCode.OPERATION_FAILED;
 
-        /*
-         * Add an associated validator.
-         */
-        addValidator(canonicalPath, newDataModel, validationMessagesPanel);
+        // /*
+        // * Add an associated validator.
+        // */
+        // addValidator(canonicalPath, newDataModel, validationMessagesPanel);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -205,15 +223,14 @@ public class DataModelController implements IDataModelController {
     }
 
     /**
-     * Called by addDataModel to add an associated
-     * {@link IValidationMessagesPanel}.
+     * Called by addDataModel to add an associated {@link IValidationMsgPanel}.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the pnml file represented by this model.)
-     * @return The {@link IValidationMessagesPanel}
+     * @return The {@link IValidationMsgPanel}
      */
-    private IValidationMessagesPanel addValidationMessagePanel(String modelName) {
+    private IValidationMsgPanel addValidationMessagePanel(String modelName) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.addValidationMessagesPanel", modelName);
         }
@@ -221,13 +238,13 @@ public class DataModelController implements IDataModelController {
         /*
          * Add the validation messages panel.
          */
-        IValidationMessagesPanel newValidationMessagesPanel = new ValidationMessagesPanel(modelName);
+        IValidationMsgPanel newValidationMessagesPanel = new ValidationMsgPanel(modelName);
         this.validationMessagePanels.put(modelName, newValidationMessagesPanel);
 
-        /*
-         * Set as current validation messages panel.
-         */
-        this.currentValidationMessagePanel = newValidationMessagesPanel;
+        // /*
+        // * Set as current validation messages panel.
+        // */
+        // this.currentValidationMessagePanel = newValidationMessagesPanel;
 
         if (debug) {
             System.out.println("Validation message panels count: " + validationMessagePanels.size());
@@ -236,40 +253,42 @@ public class DataModelController implements IDataModelController {
         return newValidationMessagesPanel;
     }
 
-    /**
-     * Called by addDataModel to add an associated
-     * {@link IWorkflowNetValidator}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     * @param dataModel
-     *            The data model
-     * @param validationMessagesPanel
-     *            The validation messages panel for this data model
-     */
-    private void addValidator(String modelName, IDataModel dataModel,
-            IValidationMessagesPanel validationMessagesPanel) {
-        if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.addValidator", modelName);
-        }
-
-        /*
-         * Add a validator.
-         */
-        IWorkflowNetValidator newValidator = new WorkflowNetValidator(modelName, this, dataModel,
-                validationMessagesPanel, i18n);
-        this.validators.put(modelName, newValidator);
-
-        // /*
-        // * Set as current validator.
-        // */
-        // this.currentValidator = newValidator;
-
-        if (debug) {
-            System.out.println("Validators count: " + validators.size());
-        }
-    }
+    // /**
+    // * Called by addDataModel to add an associated
+    // * {@link IWorkflowNetValidator}.
+    // *
+    // * @param modelName
+    // * The name of the model (This is intended to be the full path
+    // * name of the pnml file represented by this model.)
+    // * @param dataModel
+    // * The data model
+    // * @param validationMessagesPanel
+    // * The validation messages panel for this data model
+    // */
+    // private void addValidator(String modelName, IDataModel dataModel,
+    // IValidationMessagesPanel validationMessagesPanel) {
+    // if (debug) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.addValidator",
+    // modelName);
+    // }
+    //
+    // /*
+    // * Add a validator.
+    // */
+    // IWorkflowNetValidator newValidator = new WorkflowNetValidator(modelName,
+    // this, dataModel,
+    // validationMessagesPanel, i18n);
+    // this.validators.put(modelName, newValidator);
+    //
+    // // /*
+    // // * Set as current validator.
+    // // */
+    // // this.currentValidator = newValidator;
+    //
+    // if (debug) {
+    // System.out.println("Validators count: " + validators.size());
+    // }
+    // }
 
     /**
      * Returns the result of acceptModel(returnValue) and shows additional (user
@@ -414,10 +433,10 @@ public class DataModelController implements IDataModelController {
          */
         removeValidationMessagePanel(modelName);
 
-        /*
-         * Remove the associated validator.
-         */
-        removeWorkflowNetValidator(modelName);
+        // /*
+        // * Remove the associated validator.
+        // */
+        // removeWorkflowNetValidator(modelName);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -426,7 +445,7 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Called by removeDataModel() to remove the associated
-     * {@link IValidationMessagesPanel}.
+     * {@link IValidationMsgPanel}.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -437,17 +456,19 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeValidationMessagePanel", modelName);
         }
 
-        /*
-         * Reset the "current validation message panel" attribute if we remove
-         * the current validation message panel.
-         */
-        try {
-            if (this.currentValidationMessagePanel.getModelName().equalsIgnoreCase(modelName)) {
-                this.currentValidationMessagePanel = null;
-            }
-        } catch (NullPointerException ignore) {
-            // Nothing to do
-        }
+        // /*
+        // * Reset the "current validation message panel" attribute if we remove
+        // * the current validation message panel.
+        // */
+        // try {
+        // if
+        // (this.currentValidationMessagePanel.getModelName().equalsIgnoreCase(modelName))
+        // {
+        // this.currentValidationMessagePanel = null;
+        // }
+        // } catch (NullPointerException ignore) {
+        // // Nothing to do
+        // }
 
         /*
          * Remove the validation message panel.
@@ -459,41 +480,29 @@ public class DataModelController implements IDataModelController {
         }
     }
 
-    /**
-     * Called by removeDataModel() to remove the associated
-     * {@link IWorkflowNetValidator}.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
-     */
-    private void removeWorkflowNetValidator(String modelName) {
-        if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.removeWorkflowNetValidator", modelName);
-        }
-
-        // /*
-        // * Reset the "current validation message panel" attribute if we remove
-        // * the current validation message panel.
-        // */
-        // try {
-        // if (this.currentValidator.getModelName().equalsIgnoreCase(modelName))
-        // {
-        // this.currentValidator = null;
-        // }
-        // } catch (NullPointerException ignore) {
-        // // Nothing to do
-        // }
-
-        /*
-         * Remove the validator.
-         */
-        this.validators.remove(modelName);
-
-        if (debug) {
-            System.out.println("Validators count: " + validators.size());
-        }
-    }
+    // /**
+    // * Called by removeDataModel() to remove the associated
+    // * {@link IWorkflowNetValidator}.
+    // *
+    // * @param modelName
+    // * The name of the model (This is intended to be the full path
+    // * name of the pnml file represented by this model.)
+    // */
+    // private void removeWorkflowNetValidator(String modelName) {
+    // if (debug) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.removeWorkflowNetValidator",
+    // modelName);
+    // }
+    //
+    // /*
+    // * Remove the validator.
+    // */
+    // this.validators.remove(modelName);
+    //
+    // if (debug) {
+    // System.out.println("Validators count: " + validators.size());
+    // }
+    // }
 
     @Override
     public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
@@ -505,7 +514,7 @@ public class DataModelController implements IDataModelController {
         /*
          * Get the associated validation message panel;
          */
-        IValidationMessagesPanel validationMessagePanel = getValidationMessagePanel(oldKey);
+        IValidationMsgPanel validationMessagePanel = getValidationMessagePanel(oldKey);
 
         /*
          * Rename the model and the associated validation message panel.
@@ -523,7 +532,7 @@ public class DataModelController implements IDataModelController {
         IDataModel value1 = dataModels.remove(oldKey);
         dataModels.put(newModelName, value1);
 
-        IValidationMessagesPanel value2 = validationMessagePanels.remove(oldKey);
+        IValidationMsgPanel value2 = validationMessagePanels.remove(oldKey);
         validationMessagePanels.put(newModelName, value2);
     }
 
@@ -544,7 +553,7 @@ public class DataModelController implements IDataModelController {
     }
 
     /**
-     * Uses interface {@link IValidationMessagesPanel} to rename the validation
+     * Uses interface {@link IValidationMsgPanel} to rename the validation
      * message panel.
      * 
      * @param validationMessagePanel
@@ -553,7 +562,7 @@ public class DataModelController implements IDataModelController {
      *            The name of the model (This is intended to be the full path
      *            name of the pnml file represented by this model.)
      */
-    private void setValidationMessagePanelNames(IValidationMessagesPanel validationMessagePanel, String newModelName) {
+    private void setValidationMessagePanelNames(IValidationMsgPanel validationMessagePanel, String newModelName) {
         validationMessagePanel.setModelName(newModelName);
     }
 
@@ -577,10 +586,10 @@ public class DataModelController implements IDataModelController {
     }
 
     @Override
-    public IValidationMessagesPanel getValidationMessagePanel(String modelName) {
-        for (Entry<String, IValidationMessagesPanel> entry : validationMessagePanels.entrySet()) {
+    public IValidationMsgPanel getValidationMessagePanel(String modelName) {
+        for (Entry<String, IValidationMsgPanel> entry : validationMessagePanels.entrySet()) {
             // String key = entry.getKey();
-            IValidationMessagesPanel validationMessagePanel = entry.getValue();
+            IValidationMsgPanel validationMessagePanel = entry.getValue();
 
             if (validationMessagePanel.getModelName().equalsIgnoreCase(modelName))
                 return validationMessagePanel;
@@ -592,26 +601,27 @@ public class DataModelController implements IDataModelController {
     // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the
     // validator should work with it.)
 
-    @Override
-    public void setCurrentValidationMessagesPanel(IValidationMessagesPanel validationMessagesPanel) {
-        if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.setCurrentValidationMessagesPanel",
-                    validationMessagesPanel.getModelName());
-        }
+    // @Override
+    // public void setCurrentValidationMessagesPanel(IValidationMsgPanel
+    // validationMessagesPanel) {
+    // if (debug) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.setCurrentValidationMessagesPanel",
+    // validationMessagesPanel.getModelName());
+    // }
+    //
+    // this.currentValidationMessagePanel = validationMessagesPanel;
+    //
+    // /*
+    // * TODO Inform the validation messages panel to reset its state? (like
+    // * for setCurrentDrawPanel in the GUI controller)
+    // */
+    // this.currentValidationMessagePanel.reset();
+    // }
 
-        this.currentValidationMessagePanel = validationMessagesPanel;
-
-        /*
-         * TODO Inform the validation messages panel to reset its state? (like
-         * for setCurrentDrawPanel in the GUI controller)
-         */
-        this.currentValidationMessagePanel.reset();
-    }
-
-    @Override
-    public IWorkflowNetValidator getWorkflowNetValidator(String modelName) {
-        return this.validators.get(modelName);
-    }
+    // @Override
+    // public IWorkflowNetValidator getWorkflowNetValidator(String modelName) {
+    // return this.validators.get(modelName);
+    // }
 
     @Override
     public List<String> getModifiedDataModels() {
@@ -838,45 +848,71 @@ public class DataModelController implements IDataModelController {
      * Validation events
      */
 
+    // @Override
+    // public void startValidation(String modelName) {
+    // IDataModel model = getDataModel(modelName);
+    // if (model == null) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation",
+    // modelName);
+    // System.err.println("DataModelController.startValidation(modelName):
+    // specified model == null: " + modelName);
+    // return;
+    // }
+    //
+    // IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
+    // if (validator == null) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation",
+    // modelName);
+    // System.err.println(
+    // "DataModelController.startValidation(modelName): specified validator ==
+    // null: " + modelName);
+    // return;
+    // }
+    //
+    // validator.startValidation();
+    // }
+
+    // @Override
+    // public void restartValidation(String modelName) {
+    // IDataModel model = getDataModel(modelName);
+    // if (model == null) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation",
+    // modelName);
+    // System.err
+    // .println("DataModelController.restartValidation(modelName): specified
+    // model == null: " + modelName);
+    // return;
+    // }
+    //
+    // IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
+    // if (validator == null) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation",
+    // modelName);
+    // System.err.println(
+    // "DataModelController.restartValidation(modelName): specified validator ==
+    // null: " + modelName);
+    // return;
+    // }
+    //
+    // validator.restartValidation();
+    // }
+
     @Override
-    public void startValidation(String modelName) {
-        IDataModel model = getDataModel(modelName);
-        if (model == null) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation", modelName);
-            System.err.println("DataModelController.startValidation(modelName): specified model == null: " + modelName);
-            return;
-        }
-
-        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
-        if (validator == null) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation", modelName);
-            System.err.println(
-                    "DataModelController.startValidation(modelName): specified validator == null: " + modelName);
-            return;
-        }
-
-        validator.startValidation();
+    public void resetAllStartPlaces(String modelName) {
+        /*
+         * Nothing to do here. Only the GUIPlaces need this information for
+         * their paintElement() method.
+         */
+        appController.resetAllStartPlaces(modelName);
     }
 
     @Override
-    public void restartValidation(String modelName) {
-        IDataModel model = getDataModel(modelName);
-        if (model == null) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation", modelName);
-            System.err
-                    .println("DataModelController.restartValidation(modelName): specified model == null: " + modelName);
-            return;
-        }
-
-        IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
-        if (validator == null) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation", modelName);
-            System.err.println(
-                    "DataModelController.restartValidation(modelName): specified validator == null: " + modelName);
-            return;
-        }
-
-        validator.restartValidation();
+    public void resetAllEndPlaces(String modelName) {
+        /*
+         * Nothing to do here. Only the GUIPlaces need this information for
+         * their paintElement() method.
+         */
+        appController.resetAllEndPlaces(modelName);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class ValidationMessagesPanelTest {
         /*
          * Add the validation info panel
          */
-        IValidationMessagesPanel area = new ValidationMessagesPanel("modelName", "displayName");
+        IValidationMsgPanel area = new ValidationMsgPanel("modelName", "displayName");
         frame.add((Component) area);
 
         /*
@@ -56,7 +56,7 @@ public class ValidationMessagesPanelTest {
         /*
          * Attributes
          */
-        area.setBgColor(ValidationColor.PENDING);
+        area.setBgColor(EValidationColor.PENDING);
 
         // Display the window.
         frame.pack();

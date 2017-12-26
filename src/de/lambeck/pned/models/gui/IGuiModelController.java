@@ -439,16 +439,32 @@ public interface IGuiModelController
      */
 
     /**
-     * Handles the {@link ApplicationController} request to update the start
-     * place on the draw panel.
-     * 
-     * Note: Parameter modelName to be independent from the "current model"
-     * (active file) so that the validator should be allowed to work as
-     * background thread for any model.
+     * Handles the {@link ApplicationController} request to reset all start
+     * places on the draw panel.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
+     */
+    void resetAllStartPlaces(String modelName);
+
+    /**
+     * Handles the {@link ApplicationController} request to reset all end places
+     * on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    void resetAllEndPlaces(String modelName);
+
+    /**
+     * Handles the {@link ApplicationController} request to update the start
+     * place on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b
@@ -460,13 +476,9 @@ public interface IGuiModelController
      * Handles the {@link ApplicationController} request to update the end place
      * on the draw panel.
      * 
-     * Note: Parameter modelName to be independent from the "current model"
-     * (active file) so that the validator should be allowed to work as
-     * background thread for any model.
-     * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b

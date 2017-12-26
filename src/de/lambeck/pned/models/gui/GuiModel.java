@@ -20,7 +20,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiModel implements IGuiModel, IModelRename {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /**
      * This should be the canonical (unique) path name of the file.

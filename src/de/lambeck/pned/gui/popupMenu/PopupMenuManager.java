@@ -35,7 +35,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class PopupMenuManager extends MouseAdapter {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     private IDrawPanel myDrawPanel;
     private IGuiModelController myGuiController = null;

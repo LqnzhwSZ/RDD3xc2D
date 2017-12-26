@@ -20,7 +20,7 @@ public class TextSamplerDemoTest2 extends JPanel {
 
         // Create an info pane.
         JEditorPane infoPane = createInfoPane();
-        infoPane.setBackground(ValidationColor.INVALID.getColor());
+        infoPane.setBackground(EValidationColor.INVALID.getColor());
         JScrollPane infoScrollPane = new JScrollPane(infoPane);
         infoScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         // infoScrollPane.setPreferredSize(new Dimension(250, 145));

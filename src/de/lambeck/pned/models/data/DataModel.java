@@ -42,13 +42,13 @@ public class DataModel implements IDataModel, IModelRename {
      * that the user is asked for "file save" when closing the file.
      */
     private boolean modelModified = false;
-    
+
     /**
-     * Will be set to false any time the model will be changed/modified
-     * Will be set to true after the model has been validated to true or false
+     * Will be set to false any time the model will be changed/modified Will be
+     * set to true after the model has been validated to true or false
      */
     private boolean modelChecked = false;
-    
+
     /**
      * Will be set to true if the model is valid other wise to false
      */
@@ -111,10 +111,10 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public void setModified(boolean b) {
-    	if (b == false) {
-    		this.modelChecked = false;
-    		this.modelValid = false;
-    	}
+        if (b == false) {
+            this.modelChecked = false;
+            this.modelValid = false;
+        }
         this.modelModified = b;
     }
 
@@ -137,7 +137,6 @@ public class DataModel implements IDataModel, IModelRename {
     public void setModelValidity(boolean b) {
         this.modelValid = b;
     }
-
 
     /*
      * Methods for adding, modify and removal of elements

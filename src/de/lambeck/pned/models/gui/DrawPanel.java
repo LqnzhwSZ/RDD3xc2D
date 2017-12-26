@@ -12,7 +12,7 @@ import de.lambeck.pned.application.*;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
-import de.lambeck.pned.gui.CustomColor;
+import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.gui.popupMenu.PopupMenuManager;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
@@ -444,7 +444,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      */
     private void drawGridLines(Graphics2D g2) {
         final int GRID_STEP = 100;
-        Color gridColor = CustomColor.SNOW2.getColor();
+        Color gridColor = ECustomColor.SNOW2.getColor();
 
         /*
          * Nothing painted yet -> graphicsArea is empty!

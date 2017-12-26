@@ -6,7 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
-import de.lambeck.pned.gui.CustomColor;
+import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -17,7 +17,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public abstract class GuiNode extends GuiElement implements IGuiNode {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /*
      * Attributes for interface IGuiNode (Bounds include the label for
@@ -232,7 +232,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          * Draw the interior first because the shape must be above it to be
          * visible.
          */
-        g2.setColor(CustomColor.IVORY.getColor());
+        g2.setColor(ECustomColor.IVORY.getColor());
         drawInterior(g2);
 
         /*

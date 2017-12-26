@@ -3,11 +3,11 @@ package de.lambeck.pned.models.data.validation;
 public class RecursionValidator extends AbstractValidator {
 
 	@Override
-	public IValidationMessage nextMessage() {
-		if (this.dataModel != null) {
+	public IValidationMsg nextMessage() {
+		if (this.myDataModel != null) {
 			
 		}
-		this.dataModel = null;
+		this.myDataModel = null;
 		return null;
 	}
 

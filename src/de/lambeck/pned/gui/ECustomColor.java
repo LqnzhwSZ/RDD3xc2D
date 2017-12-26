@@ -8,7 +8,7 @@ import java.awt.Color;
  * @author Thomas Lambeck, 4128320
  *
  */
-public enum CustomColor {
+public enum ECustomColor {
 
     /**
      * Dark green (e.g. for selection area)
@@ -91,7 +91,7 @@ public enum CustomColor {
     private final int green;
     private final int blue;
 
-    private CustomColor(final int r, final int g, final int b) {
+    private ECustomColor(final int r, final int g, final int b) {
         this.red = r;
         this.green = g;
         this.blue = b;

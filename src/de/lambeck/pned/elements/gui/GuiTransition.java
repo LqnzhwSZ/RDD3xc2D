@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import de.lambeck.pned.gui.CustomColor;
+import de.lambeck.pned.gui.ECustomColor;
 
 /**
  * Implements the transitions for the GUI model of the Petri net.
@@ -91,7 +91,7 @@ public class GuiTransition extends GuiNode {
         // setActivated(true);
 
         if (isActivated()) {
-            g2.setColor(CustomColor.PALE_GREEN.getColor());
+            g2.setColor(ECustomColor.PALE_GREEN.getColor());
             g2.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
         } else {
             // TODO Reset to white or just nothing?

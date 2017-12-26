@@ -1,46 +1,90 @@
 package de.lambeck.pned.models.data.validation;
 
-import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.models.data.IDataModel;
 
-public class ValidationMessage implements IValidationMessage {
-	
-	private String modelId;
-	private String nodeId;
-	private String message;
-	private ValidationResultSeverity severity;
-	
-	public ValidationMessage(IDataModel model, IDataElement node, String message, ValidationResultSeverity severity) {
-		this.modelId = model.getModelName();
-		this.nodeId = node.getId();
-		this.message = message;
-		this.severity = severity;
-	}
+/**
+ * The message class for {@link AbstractValidator}.
+ * 
+ * @author Thomas Lambeck, 4128320
+ *
+ */
+public class ValidationMessage implements IValidationMsg {
 
-	@Override
-	public String toString() {
-		return String.format("Model ID '%s' Node ID '%s': %s", this.modelId, this.nodeId, this.message);
-	}
+    private String modelId;
 
-	@Override
-	public String getMessage() {
-		return this.message;
-	}
+    // private String nodeId;
 
-	@Override
-	public String getModelID() {
-		return this.modelId;
-	}
+    private String message;
 
-	@Override
-	public String getNodeID() {
-		return this.nodeId;
-	}
+    private EValidationResultSeverity severity;
 
-	@Override
-	public ValidationResultSeverity getSeverity() {
-		return this.severity;
-	}
-	
-	
+    // /**
+    // * Constructs a new validation message for an {@link AbstractValidator}.
+    // *
+    // * @param model
+    // * The {@link IDataModel}
+    // * @param node
+    // * @param message
+    // * The message {@link String}
+    // * @param severity
+    // * The severity of the found Problem ({@link EValidationResultSeverity})
+    // */
+    // @SuppressWarnings("hiding")
+    // public ValidationMessage(IDataModel model, IDataElement node, String
+    // message, EValidationResultSeverity severity) {
+    // this.modelId = model.getModelName();
+    // this.nodeId = node.getId();
+    // this.message = message;
+    // this.severity = severity;
+    // }
+
+    /**
+     * Constructs a new validation message for an {@link AbstractValidator}.
+     * 
+     * @param model
+     *            The {@link IDataModel}
+     * @param message
+     *            The message {@link String}
+     * @param severity
+     *            The severity of the found Problem
+     *            ({@link EValidationResultSeverity})
+     */
+    @SuppressWarnings("hiding")
+    public ValidationMessage(IDataModel model, String message, EValidationResultSeverity severity) {
+        this.modelId = model.getModelName();
+        this.message = message;
+        this.severity = severity;
+    }
+
+    // @Override
+    // public String toString() {
+    // return String.format("Model ID '%s' Node ID '%s': %s", this.modelId,
+    // this.nodeId, this.message);
+    // }
+
+    @Override
+    public String toString() {
+        return String.format("Model ID '%s': %s", this.modelId, this.message);
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
+    }
+
+    @Override
+    public String getModelId() {
+        return this.modelId;
+    }
+
+    // @Override
+    // public String getNodeId() {
+    // return this.nodeId;
+    // }
+
+    @Override
+    public EValidationResultSeverity getSeverity() {
+        return this.severity;
+    }
+
 }

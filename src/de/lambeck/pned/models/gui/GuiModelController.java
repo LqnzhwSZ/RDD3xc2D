@@ -27,7 +27,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiModelController implements IGuiModelController {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /** Minimum shape size for setter */
     private final static int MIN_SHAPE_SIZE = 20;
@@ -782,6 +782,9 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeSelectedGuiElements");
         }
 
+        if (currentModel == null)
+            return;
+
         /*
          * Task: Remove all selected elements *and* all adjacent arcs!
          */
@@ -898,6 +901,11 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.selectOneElement", mousePressedElement);
         }
 
+        if (currentModel == null) {
+            System.err.println("GuiModelController.selectOneElement(), currentModel == null!");
+            return;
+        }
+
         IGuiElement element = mousePressedElement;
 
         Rectangle oldArea = element.getLastDrawingArea();
@@ -954,6 +962,11 @@ public class GuiModelController implements IGuiModelController {
     private void toggleOneElementsSelection(IGuiElement mousePressedElement) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.toggleOneElementsSelection", mousePressedElement);
+        }
+
+        if (currentModel == null) {
+            System.err.println("GuiModelController.toggleOneElementsSelection(), currentModel == null!");
+            return;
         }
 
         IGuiElement element = mousePressedElement;
@@ -1076,6 +1089,9 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void updateDataNodePositions() {
+        if (currentModel == null)
+            return;
+
         /*
          * Only selected nodes can be dragged (together with ALT).
          */
@@ -1110,6 +1126,9 @@ public class GuiModelController implements IGuiModelController {
      * used by keyEvent_Escape_Occurred()
      */
     private void resetSelection() {
+        if (currentModel == null)
+            return;
+
         List<IGuiElement> selected = currentModel.getSelectedElements();
         if (selected.size() == 0)
             return;
@@ -1719,6 +1738,11 @@ public class GuiModelController implements IGuiModelController {
      *             if no or too many nodes are selected
      */
     private IGuiNode getSingleSelectedNode() throws PNElementException {
+        if (currentModel == null) {
+            String explanation = i18n.getMessage("warningNoCurrentModel");
+            throw new PNElementException(explanation);
+        }
+
         /*
          * Check if exactly 1 node is selected.
          */
@@ -1913,6 +1937,52 @@ public class GuiModelController implements IGuiModelController {
     /*
      * Validation events
      */
+
+    @Override
+    public void resetAllStartPlaces(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("resetAllStartPlaces", modelName);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            System.err.println(message);
+            return;
+        }
+
+        for (IGuiElement element : guiModel.getElements()) {
+            if (element instanceof IGuiPlace) {
+                IGuiPlace place = (IGuiPlace) element;
+                place.setStartPlace(false);
+            }
+        }
+
+        updateDrawing();
+    }
+
+    @Override
+    public void resetAllEndPlaces(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("resetAllEndPlaces", modelName);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            System.err.println(message);
+            return;
+        }
+
+        for (IGuiElement element : guiModel.getElements()) {
+            if (element instanceof IGuiPlace) {
+                IGuiPlace place = (IGuiPlace) element;
+                place.setEndPlace(false);
+            }
+        }
+
+        updateDrawing();
+    }
 
     @Override
     public void setStartPlace(String modelName, String placeId, boolean b) {

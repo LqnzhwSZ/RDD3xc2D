@@ -2,7 +2,7 @@ package de.lambeck.pned.models.data.validation;
 
 import java.awt.Color;
 
-import de.lambeck.pned.gui.CustomColor;
+import de.lambeck.pned.gui.ECustomColor;
 
 /**
  * Color values for the validation text area
@@ -10,33 +10,33 @@ import de.lambeck.pned.gui.CustomColor;
  * @author Thomas Lambeck, 4128320
  *
  */
-public enum ValidationColor {
+public enum EValidationColor {
 
     /**
      * White smoke (very light grey) for an empty Petri net
      */
-    EMPTY(CustomColor.WHITE_SMOKE.getColor()),
+    EMPTY(ECustomColor.WHITE_SMOKE.getColor()),
     /**
      * Khaki1 for pending validation
      */
-    PENDING(CustomColor.KHAKI1.getColor()),
+    PENDING(ECustomColor.KHAKI1.getColor()),
     /**
      * Pale green for a valid Petri net
      */
-    VALID(CustomColor.PALE_GREEN.getColor()),
+    VALID(ECustomColor.PALE_GREEN.getColor()),
     /**
      * Light coral for an invalid Petri net
      */
-    INVALID(CustomColor.LIGHT_CORAL.getColor());
+    INVALID(ECustomColor.LIGHT_CORAL.getColor());
 
     private final Color color;
 
-    private ValidationColor(Color c) {
+    private EValidationColor(Color c) {
         this.color = c;
     }
 
     /**
-     * @return the color of this enum elemment
+     * @return the color of this enum element
      */
     public Color getColor() {
         return this.color;

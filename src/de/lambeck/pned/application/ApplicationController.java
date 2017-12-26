@@ -28,9 +28,7 @@ import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.DataModelController;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
-import de.lambeck.pned.models.data.validation.IValidationMessagesPanel;
-import de.lambeck.pned.models.data.validation.RecursionValidator;
-import de.lambeck.pned.models.data.validation.ValidationController;
+import de.lambeck.pned.models.data.validation.*;
 import de.lambeck.pned.models.gui.*;
 
 /**
@@ -78,7 +76,7 @@ public class ApplicationController extends AbstractApplicationController {
     private int currNewFileIndex = -1;
 
     /**
-     * Indicates whether we are importing data from a pnml file or not. This is
+     * Indicates whether we are importing data from a PNML file or not. This is
      * important to avoid infinite loops when adding elements.
      * 
      * (If true: changes to a data model need to be passed to the GUI model. If
@@ -121,10 +119,12 @@ public class ApplicationController extends AbstractApplicationController {
         /*
          * Add controllers for data models, GUI models and validation
          */
-        this.dataModelController = new DataModelController(this, i18n);
-        this.guiModelController = new GuiModelController(this, i18n, popupActions);
-        this.validationController = new ValidationController(this.dataModelController);
-        this.validationController.addValidator(new RecursionValidator());
+        addControllers(i18n);
+
+        /*
+         * Add validators to the validation controller.
+         */
+        addValidators(i18n);
 
         /*
          * Create and set up the content pane (BEFORE adding menu, tool and
@@ -176,6 +176,35 @@ public class ApplicationController extends AbstractApplicationController {
          * Start the validation controller (thread).
          */
         this.validationController.start();
+    }
+
+    /**
+     * Adds all necessary controllers.
+     * 
+     * @param i18n
+     *            The source object for I18N strings
+     */
+    @SuppressWarnings("hiding")
+    private void addControllers(I18NManager i18n) {
+        this.dataModelController = new DataModelController(this, i18n);
+        this.guiModelController = new GuiModelController(this, i18n, this.popupActions);
+        this.validationController = new ValidationController(this.dataModelController, i18n);
+    }
+
+    /**
+     * Adds all necessary {@link AbstractValidator} to the
+     * {@link ValidationController}.
+     * 
+     * @param i18n
+     *            The source object for I18N strings
+     */
+    @SuppressWarnings("hiding")
+    private void addValidators(I18NManager i18n) {
+        AbstractValidator startPlacesValidator = new StartPlacesValidator(dataModelController, i18n);
+        this.validationController.addValidator(startPlacesValidator);
+
+        AbstractValidator endPlacesValidator = new EndPlacesValidator(dataModelController, i18n);
+        this.validationController.addValidator(endPlacesValidator);
     }
 
     /*
@@ -469,12 +498,13 @@ public class ApplicationController extends AbstractApplicationController {
             }
             guiModelController.setCurrentDrawPanel(newActiveDrawPanel);
 
-            IValidationMessagesPanel newValidationMessagesPanel = dataModelController
-                    .getValidationMessagePanel(activeFile);
-            if (newValidationMessagesPanel == null) {
-                System.err.println("setActiveFile, ValidationMessagesPanel for '" + activeFile + "' does not exist!");
-            }
-            dataModelController.setCurrentValidationMessagesPanel(newValidationMessagesPanel);
+            // IValidationMsgPanel newValidationMessagesPanel =
+            // dataModelController.getValidationMessagePanel(activeFile);
+            // if (newValidationMessagesPanel == null) {
+            // System.err.println("setActiveFile, ValidationMessagesPanel for '"
+            // + activeFile + "' does not exist!");
+            // }
+            // dataModelController.setCurrentValidationMessagesPanel(newValidationMessagesPanel);
         }
 
         /*
@@ -820,7 +850,7 @@ public class ApplicationController extends AbstractApplicationController {
      * used later to determine the current active file.)
      * 
      * @param fullName
-     *            The full path name of the pnml file
+     *            The full path name of the PNML file
      * @param displayName
      *            The title of the tab (= the file name)
      */
@@ -841,7 +871,7 @@ public class ApplicationController extends AbstractApplicationController {
          * Get the validation messages panel for this tab from the data
          * controller, which has created it in his addDataModel() method.
          */
-        IValidationMessagesPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(fullName);
+        IValidationMsgPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(fullName);
 
         /*
          * Add the draw panel to a scroll pane on a new tab.
@@ -881,7 +911,7 @@ public class ApplicationController extends AbstractApplicationController {
         guiModelController.addGuiModel(canonicalPath, displayName);
 
         /*
-         * Add a data model from the pnml file.
+         * Add a data model from the PNML file.
          * 
          * Note: -> The method with a File parameter
          */
@@ -920,15 +950,15 @@ public class ApplicationController extends AbstractApplicationController {
          * Get the validation messages panel for this tab from the data
          * controller, which has created it in his addDataModel() method.
          */
-        IValidationMessagesPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(canonicalPath);
+        IValidationMsgPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(canonicalPath);
 
         addTabForDrawPanel(drawPanel, validationMessagesPanel, canonicalPath, displayName);
 
-        /*
-         * Let the data model controller start the validation since we already
-         * have a Petri net to check.
-         */
-        dataModelController.startValidation(canonicalPath);
+        // /*
+        // * Let the data model controller start the validation since we already
+        // * have a Petri net to check.
+        // */
+        // dataModelController.startValidation(canonicalPath);
     }
 
     /**
@@ -940,16 +970,15 @@ public class ApplicationController extends AbstractApplicationController {
      * @param drawPanel
      *            The draw panel
      * @param validationMsgPanel
-     *            The {@link IValidationMessagesPanel} for the validation
-     *            messages
+     *            The {@link IValidationMsgPanel} for the validation messages
      * @param fullName
-     *            The full path name of the pnml file. (Intended to be the
+     *            The full path name of the PNML file. (Intended to be the
      *            modelName of the draw panel!)
      * @param displayName
      *            The title of the tab (= the file name)
      */
-    private void addTabForDrawPanel(DrawPanel drawPanel, IValidationMessagesPanel validationMessagesPanel,
-            String fullName, String displayName) {
+    private void addTabForDrawPanel(DrawPanel drawPanel, IValidationMsgPanel validationMessagesPanel, String fullName,
+            String displayName) {
         /*
          * Add the path to the list of files. Use the (unique) canonical path
          * name if the file is a file on the file system.
@@ -1036,7 +1065,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return OPERATION_SUCCESSFUL if an unmodified file was closed without
      *         saving, exit code depending on {@link askSaveChanges} if the file
      *         was modified and {@link closeFile} if the user selected "Yes";
@@ -1088,7 +1117,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param saveChanges
      *            Save changes before closing?
      * @return OPERATION_SUCCESSFUL if an unmodified file was closed without
@@ -1150,7 +1179,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return True if the file was modified; otherwise false
      */
     private boolean isFileModified(String modelName) {
@@ -1175,7 +1204,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     private void disposeFile(String modelName) {
         if (isParamUndefined(modelName, "disposeFile", "modelName"))
@@ -1227,7 +1256,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return 0 = YES_OPTION, 1 = NO_OPTION, 2 = CANCEL_OPTION; otherwise
      *         UNEXPECTED_ERROR
      */
@@ -1284,7 +1313,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELLED if
      *         the user didn't chose a file name for a new file; otherwise
      *         UNEXPECTED_ERROR
@@ -1324,7 +1353,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param saveAsFullName
      *            The full path name of the file to be written
      * @param displayAlerts
@@ -1507,7 +1536,7 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Returns a writer for pnml files.
+     * Returns a writer for PNML files.
      * 
      * @param saveAsFullName
      *            The full path name of the file to be written
@@ -1555,7 +1584,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param saveAsFullName
      *            The full path name of the file to be written
      * @return Exit code is the exit code of {@link saveToExistingFile};
@@ -1581,7 +1610,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The old name of the model (This is intended to be the full
-     *            path name of the pnml file represented by this model.)
+     *            path name of the PNML file represented by this model.)
      * @param saveAsFullName
      *            The new full path name
      */
@@ -1606,7 +1635,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param oldModelName
      *            The old name of the model (This is intended to be the full
-     *            path name of the pnml file represented by this model.)
+     *            path name of the PNML file represented by this model.)
      * @param newModelName
      *            The new name of the model (Use the canonical path name!)
      * @param displayName
@@ -1645,7 +1674,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     private void activateTabForFile(String modelName) {
         int tabIndex = getTabIndexForFile(modelName);
@@ -1660,7 +1689,7 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return The tab index if found; otherwise -1
      */
     private int getTabIndexForFile(String modelName) {
@@ -1959,16 +1988,36 @@ public class ApplicationController extends AbstractApplicationController {
      */
 
     /**
-     * Handles the {@link IDataModelController} request to update the start
-     * place on the draw panel.
-     * 
-     * Note: Parameter modelName to be independent from the "current model"
-     * (active file) so that the validator should be allowed to work as
-     * background thread for any model.
+     * Handles the {@link IDataModelController} request to reset all start
+     * places on the draw panel.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
+     */
+    public void resetAllStartPlaces(String modelName) {
+        guiModelController.resetAllStartPlaces(modelName);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to reset all end places
+     * on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    public void resetAllEndPlaces(String modelName) {
+        guiModelController.resetAllStartPlaces(modelName);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to update the start
+     * place on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b
@@ -1982,13 +2031,9 @@ public class ApplicationController extends AbstractApplicationController {
      * Handles the {@link IDataModelController} request to update the end place
      * on the draw panel.
      * 
-     * Note: Parameter modelName to be independent from the "current model"
-     * (active file) so that the validator should be allowed to work as
-     * background thread for any model.
-     * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b

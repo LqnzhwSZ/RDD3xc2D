@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
 import de.lambeck.pned.elements.data.EPlaceToken;
-import de.lambeck.pned.gui.CustomColor;
+import de.lambeck.pned.gui.ECustomColor;
 
 /**
  * Implements the places for the GUI model of the Petri net.
@@ -152,7 +152,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
          */
         int borderWidth = 5;
         g2.setStroke(new BasicStroke(borderWidth));
-        g2.setColor(CustomColor.DARK_GREEN.getColor());
+        g2.setColor(ECustomColor.DARK_GREEN.getColor());
 
         /*
          * Draw the circle at the inside of the normal shape.
@@ -178,7 +178,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
          */
         int borderWidth = 5;
         g2.setStroke(new BasicStroke(borderWidth));
-        g2.setColor(CustomColor.FIREBRICK.getColor());
+        g2.setColor(ECustomColor.FIREBRICK.getColor());
 
         /*
          * Draw the circle at the inside of the normal shape.
