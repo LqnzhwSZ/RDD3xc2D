@@ -132,30 +132,6 @@ public interface IDataModelController extends IInfo_Status {
      */
     IValidationMsgPanel getValidationMessagePanel(String modelName);
 
-    // IValidationMessagesPanel getCurrentValidationMessagePanel();
-
-    // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the
-    // validator should work with it.)
-
-    // /**
-    // * Sets the specified {@link IValidationMsgPanel} as current (active)
-    // * validation messages panel of the {@link DataModelController}.
-    // *
-    // * @param validationMessagesPanel
-    // */
-    // void setCurrentValidationMessagesPanel(IValidationMsgPanel
-    // validationMessagesPanel);
-
-    // /**
-    // * Returns the specified {@link IWorkflowNetValidator}.
-    // *
-    // * @param modelName
-    // * The name of the model (This is intended to be the full path
-    // * name of the PNML file represented by this model.)
-    // * @return The specified workflow net validator
-    // */
-    // public IWorkflowNetValidator getWorkflowNetValidator(String modelName);
-
     /**
      * Returns a list of data models which have been modified and need to be
      * saved.
@@ -319,27 +295,6 @@ public interface IDataModelController extends IInfo_Status {
     /*
      * Validation events
      */
-
-    // /**
-    // * Starts the validation of the specified file.
-    // *
-    // * @param modelName
-    // * The name of the model (This is intended to be the full path
-    // * name of the PNML file represented by this model.)
-    // */
-    // void startValidation(String modelName);
-
-    // /**
-    // * Restarts the validation of the specified file. Resets former outputs on
-    // * the corresponding {@link ValidationMessagesPanel}.
-    // *
-    // * Note: Use this method after structural changes in the Petri net.
-    // *
-    // * @param modelName
-    // * The name of the model (This is intended to be the full path
-    // * name of the PNML file represented by this model.)
-    // */
-    // void restartValidation(String modelName);
 
     /**
      * Callback for the {@link StartPlacesValidator} to reset all start places.

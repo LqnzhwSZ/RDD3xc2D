@@ -47,23 +47,94 @@ public class StartPlacesValidator extends AbstractValidator {
         /* Store all start places. */
         List<String> startPlaces = getStartPlaces();
 
-        /* Evaluate the result. */
+        /* Evaluate the results... */
+        if (evaluateNoPlaces(startPlaces))
+            return;
+
+        if (evaluateNoStartPlaces(startPlaces))
+            return;
+
+        /* At least 1 start place; highlight all */
+        highlightStartPlaces(startPlaces);
+
+        if (evaluateTooManyStartPlaces(startPlaces))
+            return;
+
+        /*
+         * Start places are OK, test successful
+         */
+        reportValidationSuccessful();
+    }
+
+    /**
+     * Returns true if the model has no places.
+     * 
+     * @param startPlaces
+     *            The {@link List} of start places
+     */
+    private boolean evaluateNoPlaces(List<String> startPlaces) {
         if (startPlaces == null) {
-            handleNoPlaces();
-            return;
-        }
+            String message = i18n.getMessage("warningValidatorNoPlaces");
+            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            validationMessages.add(vMessage);
 
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the model has no start place.
+     * 
+     * @param startPlaces
+     *            The {@link List} of start places
+     */
+    private boolean evaluateNoStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() == 0) {
-            handleNoStartPlaces();
-            return;
-        }
+            String message = i18n.getMessage("warningValidatorNoStartPlace");
+            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            validationMessages.add(vMessage);
 
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Informs the data model controller which places need to be highlighted as
+     * start places.
+     * 
+     * @param startPlaces
+     *            The {@link List} of start places
+     */
+    private void highlightStartPlaces(List<String> startPlaces) {
+        for (String placeId : startPlaces) {
+            myDataModelController.setStartPlace(myDataModelName, placeId, true);
+        }
+    }
+
+    /**
+     * Returns true if the model has too many start places.
+     * 
+     * @param startPlaces
+     *            The {@link List} of start places
+     */
+    private boolean evaluateTooManyStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() > 1) {
-            handleTooManyStartPlaces();
-            return;
-        }
+            String message = i18n.getMessage("warningValidatorTooManyStartPlaces");
+            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            validationMessages.add(vMessage);
 
-        /* Start places are OK, test successful */
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Adds the final {@link IValidationMsg} with status "INFO" to the messages
+     * list.
+     */
+    private void reportValidationSuccessful() {
         // String message = "";
         DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
         String message = ZonedDateTime.now().format(fmt);
@@ -71,24 +142,13 @@ public class StartPlacesValidator extends AbstractValidator {
         validationMessages.add(vMessage);
     }
 
-    private void handleNoPlaces() {
-        String message = i18n.getMessage("warningValidatorNoPlaces");
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
-        validationMessages.add(vMessage);
-    }
-
-    private void handleNoStartPlaces() {
-        String message = i18n.getMessage("warningValidatorNoStartPlace");
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
-        validationMessages.add(vMessage);
-    }
-
-    private void handleTooManyStartPlaces() {
-        String message = i18n.getMessage("warningValidatorTooManyStartPlaces");
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
-        validationMessages.add(vMessage);
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.lambeck.pned.models.data.validation.AbstractValidator#hasMoreMessages(
+     * )
+     */
     @Override
     public Boolean hasMoreMessages() {
         if (!validationMessages.isEmpty())
@@ -98,6 +158,12 @@ public class StartPlacesValidator extends AbstractValidator {
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.lambeck.pned.models.data.validation.AbstractValidator#nextMessage()
+     */
     @Override
     public IValidationMsg nextMessage() {
         IValidationMsg nextMessage = null;

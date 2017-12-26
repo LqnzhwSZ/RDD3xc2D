@@ -44,7 +44,7 @@ public interface IDataModel extends IModel {
      * @return false = model needs checking, true = model already checked
      * 
      */
-    public boolean isModelChecked();
+    boolean isModelChecked();
 
     /**
      * The check state indicates, whether the model needs checking or not. This
@@ -54,7 +54,7 @@ public interface IDataModel extends IModel {
      * @param b
      *            new model check state
      */
-    public void setModelChecked(boolean b);
+    void setModelChecked(boolean b);
 
     /**
      * The validity state indicates, whether the model is valid or not. This
@@ -64,7 +64,7 @@ public interface IDataModel extends IModel {
      * @return false = model is invalid / has errors, true = model is valid
      * 
      */
-    public boolean isModelValid();
+    boolean isModelValid();
 
     /**
      * The validity state indicates, whether the model is valid or not. This
@@ -73,7 +73,7 @@ public interface IDataModel extends IModel {
      * @param b
      *            new model check state
      */
-    public void setModelValidity(boolean b);
+    void setModelValidity(boolean b);
 
     /*
      * Methods for adding, modify and removal of elements

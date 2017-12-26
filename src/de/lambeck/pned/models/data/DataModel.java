@@ -111,11 +111,11 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public void setModified(boolean b) {
-        if (b == false) {
-            this.modelChecked = false;
-            this.modelValid = false;
+        if (b == true) {
+            this.modelChecked = false; // Info for the ValidationController
+            this.modelValid = false; // Info for the ValidationController
         }
-        this.modelModified = b;
+        this.modelModified = b; // Info for FileClose
     }
 
     @Override

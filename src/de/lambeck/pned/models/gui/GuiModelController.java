@@ -1998,6 +1998,8 @@ public class GuiModelController implements IGuiModelController {
         }
 
         guiModel.setStartPlace(placeId, b);
+
+        // TODO repaint?
     }
 
     @Override

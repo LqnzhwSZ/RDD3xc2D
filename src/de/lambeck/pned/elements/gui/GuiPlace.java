@@ -5,6 +5,7 @@ import java.awt.geom.Ellipse2D;
 
 import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.gui.ECustomColor;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Implements the places for the GUI model of the Petri net.
@@ -16,6 +17,8 @@ import de.lambeck.pned.gui.ECustomColor;
  *
  */
 public class GuiPlace extends GuiNode implements IGuiPlace {
+
+    private static boolean debug = false;
 
     /** The size of the token circle relative to the shape size */
     private final static int tokensSizePercentage = 33;
@@ -74,11 +77,19 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
 
     @Override
     public void setStartPlace(boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setStartPlace", b);
+        }
+
         this.isStartPlace = b;
     }
 
     @Override
     public void setEndPlace(boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setEndPlace", b);
+        }
+
         this.isEndPlace = b;
     }
 

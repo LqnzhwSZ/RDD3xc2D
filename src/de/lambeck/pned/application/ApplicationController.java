@@ -2008,7 +2008,7 @@ public class ApplicationController extends AbstractApplicationController {
      *            name of the PNML file represented by this model.)
      */
     public void resetAllEndPlaces(String modelName) {
-        guiModelController.resetAllStartPlaces(modelName);
+        guiModelController.resetAllEndPlaces(modelName);
     }
 
     /**

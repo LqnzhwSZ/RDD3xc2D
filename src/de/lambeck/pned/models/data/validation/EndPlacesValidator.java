@@ -47,23 +47,94 @@ public class EndPlacesValidator extends AbstractValidator {
         /* Store all end places. */
         List<String> endPlaces = getEndPlaces();
 
-        /* Evaluate the result. */
+        /* Evaluate the results... */
+        if (evaluateNoPlaces(endPlaces))
+            return;
+
+        if (evaluateNoEndPlaces(endPlaces))
+            return;
+
+        /* At least 1 end place; highlight all */
+        highlightEndPlaces(endPlaces);
+
+        if (evaluateTooManyEndPlaces(endPlaces))
+            return;
+
+        /*
+         * End places are OK, test successful
+         */
+        reportValidationSuccessful();
+    }
+
+    /**
+     * Returns true if the model has no places.
+     * 
+     * @param endPlaces
+     *            The {@link List} of end places
+     */
+    private boolean evaluateNoPlaces(List<String> endPlaces) {
         if (endPlaces == null) {
-            handleNoPlaces();
-            return;
-        }
+            String message = i18n.getMessage("warningValidatorNoPlaces");
+            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            validationMessages.add(vMessage);
 
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the model has no end place.
+     * 
+     * @param endPlaces
+     *            The {@link List} of end places
+     */
+    private boolean evaluateNoEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() == 0) {
-            handleNoEndPlaces();
-            return;
-        }
+            String message = i18n.getMessage("warningValidatorNoEndPlace");
+            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            validationMessages.add(vMessage);
 
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Informs the data model controller which places need to be highlighted as
+     * end places.
+     * 
+     * @param endPlaces
+     *            The {@link List} of end places
+     */
+    private void highlightEndPlaces(List<String> endPlaces) {
+        for (String placeId : endPlaces) {
+            myDataModelController.setEndPlace(myDataModelName, placeId, true);
+        }
+    }
+
+    /**
+     * Returns true if the model has too many end places.
+     * 
+     * @param endPlaces
+     *            The {@link List} of end places
+     */
+    private boolean evaluateTooManyEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() > 1) {
-            handleTooManyEndPlaces();
-            return;
-        }
+            String message = i18n.getMessage("warningValidatorTooManyEndPlaces");
+            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            validationMessages.add(vMessage);
 
-        /* End places are OK, test successful */
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Adds the final {@link IValidationMsg} with status "INFO" to the messages
+     * list.
+     */
+    private void reportValidationSuccessful() {
         // String message = "";
         DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
         String message = ZonedDateTime.now().format(fmt);
@@ -71,24 +142,13 @@ public class EndPlacesValidator extends AbstractValidator {
         validationMessages.add(vMessage);
     }
 
-    private void handleNoPlaces() {
-        String message = i18n.getMessage("warningValidatorNoPlaces");
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
-        validationMessages.add(vMessage);
-    }
-
-    private void handleNoEndPlaces() {
-        String message = i18n.getMessage("warningValidatorNoEndPlace");
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
-        validationMessages.add(vMessage);
-    }
-
-    private void handleTooManyEndPlaces() {
-        String message = i18n.getMessage("warningValidatorTooManyEndPlaces");
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
-        validationMessages.add(vMessage);
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.lambeck.pned.models.data.validation.AbstractValidator#hasMoreMessages(
+     * )
+     */
     @Override
     public Boolean hasMoreMessages() {
         if (!validationMessages.isEmpty())
@@ -98,6 +158,12 @@ public class EndPlacesValidator extends AbstractValidator {
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.lambeck.pned.models.data.validation.AbstractValidator#nextMessage()
+     */
     @Override
     public IValidationMsg nextMessage() {
         IValidationMsg nextMessage = null;

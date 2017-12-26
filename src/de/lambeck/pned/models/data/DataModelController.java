@@ -120,22 +120,13 @@ public class DataModelController implements IDataModelController {
         newDataModel.setModelChecked(true);
         this.dataModels.put(modelName, newDataModel);
 
-        /*
-         * Set as current data model.
-         */
+        /* Set as current data model. */
         this.currentModel = newDataModel;
 
-        /*
-         * Add an associated validation messages panel.
-         */
+        /* Add an associated validation messages panel. */
         IValidationMsgPanel validationMessagesPanel = addValidationMessagePanel(modelName);
         if (validationMessagesPanel == null)
             return;
-
-        // /*
-        // * Add an associated validator.
-        // */
-        // addValidator(modelName, newDataModel, validationMessagesPanel);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -148,9 +139,7 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.addDataModel", pnmlFile);
         }
 
-        /*
-         * New data model.
-         */
+        /* New data model. */
         String canonicalPath = FSInfo.getCanonicalPath(pnmlFile);
         if (canonicalPath == null) {
             String errMessage = i18n.getMessage("errFileOpen");
@@ -162,15 +151,25 @@ public class DataModelController implements IDataModelController {
         String displayName = pnmlFile.getName();
 
         /*
-         * Add the data model.
+         * Set "importingFromPnml" to true, so that methods like addPlace() do
+         * not set the "checked" state of the current model to false before we
+         * have finished the import.
          * 
-         * -> Set "checked" state to true as soon as possible to prevent the
-         * ValidationController thread from starting the validation before we
-         * even have added a validation messages panel!
+         * (Which would consume unnecessary computing time for validations on an
+         * incomplete model and might even produce confusing temporary outputs.)
          */
+        this.importingFromPnml = true;
+
+        /* Add the data model. */
         IDataModel newDataModel = new DataModel(canonicalPath, displayName);
-        newDataModel.setModelChecked(true);
         this.dataModels.put(canonicalPath, newDataModel);
+
+        /*
+         * Set "checked" state to true as soon as possible to prevent the
+         * ValidationController thread from starting the validation before we
+         * even have added the validation messages panel!
+         */
+        newDataModel.setModelChecked(true);
 
         /*
          * Set as current data model.
@@ -180,45 +179,46 @@ public class DataModelController implements IDataModelController {
          */
         this.currentModel = newDataModel;
 
-        /*
-         * Parse the file.
-         */
+        /* Parse the file. */
         PNMLParser pnmlParser = new PNMLParser(pnmlFile, this);
         pnmlParser.initParser();
         this.elementsAddedToCurrentModel = 0;
         int returnValue = pnmlParser.parse();
 
-        /*
-         * Check errors during import. (Accept or discard this model?)
-         */
+        /* Check import errors. (Accept or discard model?) */
         boolean accepted = acceptModel(canonicalPath, returnValue);
         if (!accepted) {
             /*
-             * Do nothing more here. The ApplicationController will remove all
+             * Do nothing more here: The ApplicationController will remove all
              * models in his disposeFile() method.
              */
             return ExitCode.OPERATION_CANCELLED;
         }
 
-        /*
-         * File was successfully imported.
-         */
+        /* File import was successful. */
 
-        /*
-         * Add an associated validation messages panel.
-         */
+        /* Add an associated validation messages panel. */
         IValidationMsgPanel validationMessagesPanel = addValidationMessagePanel(canonicalPath);
         if (validationMessagesPanel == null)
             return ExitCode.OPERATION_FAILED;
 
-        // /*
-        // * Add an associated validator.
-        // */
-        // addValidator(canonicalPath, newDataModel, validationMessagesPanel);
+        /*
+         * Set "checked" state to false so that the ValidationController will
+         * start the first validation in his next cycle.
+         */
+        newDataModel.setModelChecked(false);
+
+        /*
+         * Reset "importingFromPnml" as well, so that methods like addPlace() or
+         * removeElement() can set the "checked" state of the current model to
+         * false if they make structural changes in the model.
+         */
+        this.importingFromPnml = false;
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
         }
+
         return ExitCode.OPERATION_SUCCESSFUL;
     }
 
@@ -252,43 +252,6 @@ public class DataModelController implements IDataModelController {
 
         return newValidationMessagesPanel;
     }
-
-    // /**
-    // * Called by addDataModel to add an associated
-    // * {@link IWorkflowNetValidator}.
-    // *
-    // * @param modelName
-    // * The name of the model (This is intended to be the full path
-    // * name of the pnml file represented by this model.)
-    // * @param dataModel
-    // * The data model
-    // * @param validationMessagesPanel
-    // * The validation messages panel for this data model
-    // */
-    // private void addValidator(String modelName, IDataModel dataModel,
-    // IValidationMessagesPanel validationMessagesPanel) {
-    // if (debug) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.addValidator",
-    // modelName);
-    // }
-    //
-    // /*
-    // * Add a validator.
-    // */
-    // IWorkflowNetValidator newValidator = new WorkflowNetValidator(modelName,
-    // this, dataModel,
-    // validationMessagesPanel, i18n);
-    // this.validators.put(modelName, newValidator);
-    //
-    // // /*
-    // // * Set as current validator.
-    // // */
-    // // this.currentValidator = newValidator;
-    //
-    // if (debug) {
-    // System.out.println("Validators count: " + validators.size());
-    // }
-    // }
 
     /**
      * Returns the result of acceptModel(returnValue) and shows additional (user
@@ -480,30 +443,6 @@ public class DataModelController implements IDataModelController {
         }
     }
 
-    // /**
-    // * Called by removeDataModel() to remove the associated
-    // * {@link IWorkflowNetValidator}.
-    // *
-    // * @param modelName
-    // * The name of the model (This is intended to be the full path
-    // * name of the pnml file represented by this model.)
-    // */
-    // private void removeWorkflowNetValidator(String modelName) {
-    // if (debug) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.removeWorkflowNetValidator",
-    // modelName);
-    // }
-    //
-    // /*
-    // * Remove the validator.
-    // */
-    // this.validators.remove(modelName);
-    //
-    // if (debug) {
-    // System.out.println("Validators count: " + validators.size());
-    // }
-    // }
-
     @Override
     public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
         /*
@@ -598,31 +537,6 @@ public class DataModelController implements IDataModelController {
         return null;
     }
 
-    // TODO Is setCurrentValidationMessagesPanel() necessary? (Only the
-    // validator should work with it.)
-
-    // @Override
-    // public void setCurrentValidationMessagesPanel(IValidationMsgPanel
-    // validationMessagesPanel) {
-    // if (debug) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.setCurrentValidationMessagesPanel",
-    // validationMessagesPanel.getModelName());
-    // }
-    //
-    // this.currentValidationMessagePanel = validationMessagesPanel;
-    //
-    // /*
-    // * TODO Inform the validation messages panel to reset its state? (like
-    // * for setCurrentDrawPanel in the GUI controller)
-    // */
-    // this.currentValidationMessagePanel.reset();
-    // }
-
-    // @Override
-    // public IWorkflowNetValidator getWorkflowNetValidator(String modelName) {
-    // return this.validators.get(modelName);
-    // }
-
     @Override
     public List<String> getModifiedDataModels() {
         List<String> modifiedModels = new ArrayList<String>();
@@ -643,58 +557,61 @@ public class DataModelController implements IDataModelController {
      * updates between data and GUI model controller)
      */
 
+    /*
+     * Add elements
+     */
+
     @Override
     public void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position) {
         currentModel.addPlace(id, "", initialTokens, position);
+
+        if (!this.importingFromPnml)
+            currentModel.setModelChecked(false);
     }
 
     @Override
     public void addPlaceToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
         currentModel.addPlace(id, name, initialTokens, position);
-        // if (debug) {
-        // System.out.println("Place added to data model " +
-        // currentModel.getModelName());
-        // }
         this.elementsAddedToCurrentModel++;
 
-        /*
-         * Update the GUI
-         */
+        // TODO The following command should be obsolete for nodes.
+        if (!this.importingFromPnml)
+            currentModel.setModelChecked(false);
+
+        /* Update the GUI */
         appController.placeAddedToCurrentDataModel(id, name, initialTokens, position);
     }
 
     @Override
     public void addTransitionToCurrentDataModel(String id, Point position) {
         currentModel.addTransition(id, "", position);
+
+        if (!this.importingFromPnml)
+            currentModel.setModelChecked(false);
     }
 
     @Override
     public void addTransitionToCurrentDataModel(String id, String name, Point position) {
         currentModel.addTransition(id, name, position);
-        // if (debug) {
-        // System.out.println("Transition added to data model " +
-        // currentModel.getModelName());
-        // }
         this.elementsAddedToCurrentModel++;
 
-        /*
-         * Update the GUI
-         */
+        // TODO The following command should be obsolete for nodes.
+        if (!this.importingFromPnml)
+            currentModel.setModelChecked(false);
+
+        /* Update the GUI */
         appController.transitionAddedToCurrentDataModel(id, name, position);
     }
 
     @Override
     public void addArcToCurrentDataModel(String id, String sourceId, String targetId) {
         currentModel.addArc(id, sourceId, targetId);
-        // if (debug) {
-        // System.out.println("Arc added to data model " +
-        // currentModel.getModelName());
-        // }
         this.elementsAddedToCurrentModel++;
 
-        /*
-         * Update the GUI
-         */
+        if (!this.importingFromPnml)
+            currentModel.setModelChecked(false);
+
+        /* Update the GUI */
         appController.arcAddedToCurrentDataModel(id, sourceId, targetId);
     }
 
@@ -847,55 +764,6 @@ public class DataModelController implements IDataModelController {
     /*
      * Validation events
      */
-
-    // @Override
-    // public void startValidation(String modelName) {
-    // IDataModel model = getDataModel(modelName);
-    // if (model == null) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation",
-    // modelName);
-    // System.err.println("DataModelController.startValidation(modelName):
-    // specified model == null: " + modelName);
-    // return;
-    // }
-    //
-    // IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
-    // if (validator == null) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.startValidation",
-    // modelName);
-    // System.err.println(
-    // "DataModelController.startValidation(modelName): specified validator ==
-    // null: " + modelName);
-    // return;
-    // }
-    //
-    // validator.startValidation();
-    // }
-
-    // @Override
-    // public void restartValidation(String modelName) {
-    // IDataModel model = getDataModel(modelName);
-    // if (model == null) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation",
-    // modelName);
-    // System.err
-    // .println("DataModelController.restartValidation(modelName): specified
-    // model == null: " + modelName);
-    // return;
-    // }
-    //
-    // IWorkflowNetValidator validator = getWorkflowNetValidator(modelName);
-    // if (validator == null) {
-    // ConsoleLogger.consoleLogMethodCall("DataModelController.restartValidation",
-    // modelName);
-    // System.err.println(
-    // "DataModelController.restartValidation(modelName): specified validator ==
-    // null: " + modelName);
-    // return;
-    // }
-    //
-    // validator.restartValidation();
-    // }
 
     @Override
     public void resetAllStartPlaces(String modelName) {
