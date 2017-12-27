@@ -200,11 +200,14 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @SuppressWarnings("hiding")
     private void addValidators(I18NManager i18n) {
-        AbstractValidator startPlacesValidator = new StartPlacesValidator(dataModelController, i18n);
+        AbstractValidator startPlacesValidator = new StartPlacesValidator(1, dataModelController, i18n);
         this.validationController.addValidator(startPlacesValidator);
 
-        AbstractValidator endPlacesValidator = new EndPlacesValidator(dataModelController, i18n);
+        AbstractValidator endPlacesValidator = new EndPlacesValidator(2, dataModelController, i18n);
         this.validationController.addValidator(endPlacesValidator);
+
+        AbstractValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, dataModelController, i18n);
+        this.validationController.addValidator(allNodesOnPathsValidator);
     }
 
     /*
@@ -549,6 +552,9 @@ public class ApplicationController extends AbstractApplicationController {
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
             System.out.println(testMsg);
         }
+
+        if (isFileAlreadyOpen(pnmlFile))
+            return;
 
         addNewModelFromFile(pnmlFile);
     }
@@ -1530,7 +1536,7 @@ public class ApplicationController extends AbstractApplicationController {
         /*
          * Reset the modified state of this data model!
          */
-        model.setModified(false);
+        model.setModified(false, false);
 
         return ExitCode.OPERATION_SUCCESSFUL;
     }
@@ -1668,6 +1674,30 @@ public class ApplicationController extends AbstractApplicationController {
     /*
      * Helpers
      */
+
+    /**
+     * Checks if the specified file is already open.
+     * 
+     * @param pnmlFile
+     *            The {@link File} to be opened
+     * @return True if the file is already open; otherwise false
+     */
+    private boolean isFileAlreadyOpen(File pnmlFile) {
+        String fullName = FSInfo.getCanonicalPath(pnmlFile);
+        if (!fileList.contains(fullName))
+            return false;
+
+        /* Show a warning message before returning true. */
+        String displayName = FSInfo.getFileName(pnmlFile);
+        String title = displayName;
+
+        String message = i18n.getMessage("errFileAlreadyOpen").replace("%fullName%", fullName);
+
+        int messageType = JOptionPane.OK_OPTION + JOptionPane.WARNING_MESSAGE;
+        JOptionPane.showMessageDialog(mainFrame, message, title, messageType);
+
+        return true;
+    }
 
     /**
      * Activates the tab which is representing the specified file.
@@ -2041,6 +2071,23 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void setEndPlace(String modelName, String placeId, boolean b) {
         guiModelController.setEndPlace(modelName, placeId, b);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to update the status of
+     * the specified node.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param nodeId
+     *            The id of the {@link IDataNode}
+     * @param b
+     *            True = unreachable; False = can be reached from the start
+     *            place and can reach the end place
+     */
+    public void highlightUnreachable(String modelName, String nodeId, boolean b) {
+        guiModelController.highlightUnreachable(modelName, nodeId, b);
     }
 
 }

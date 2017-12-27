@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
 
+import de.lambeck.pned.elements.gui.IGuiElement;
+import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.gui.popupMenu.PopupMenuManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
@@ -316,6 +318,60 @@ public class MyMouseAdapter extends MouseAdapter {
          * Always update the mouse position info!
          */
         myDrawPanel.updateMousePos(e.getPoint());
+
+        /*
+         * Show tool tip on nodes.
+         */
+        showTooltip(e);
+    }
+
+    /**
+     * Shows the ID and the name of an {@link IGuiNode} in a tool tip on
+     * mouseover.
+     * 
+     * @param e
+     *            The {@link MouseEvent}
+     */
+    private void showTooltip(MouseEvent e) {
+        IGuiElement element = myGuiController.getSelectableElementAtLocation(e.getPoint());
+        if (element == null) {
+            myDrawPanel.setToolTipText(null);
+            return;
+        }
+
+        if (!(element instanceof IGuiNode)) {
+            myDrawPanel.setToolTipText(null);
+            return;
+        }
+
+        IGuiNode node = (IGuiNode) element;
+
+        String nodeInfo = getNodeInfo(node);
+        myDrawPanel.setToolTipText(nodeInfo);
+    }
+
+    /**
+     * Returns the information to the specified node as HTML-formatted String to
+     * allow line breaks.
+     * 
+     * @param node
+     *            The {@link IGuiNode}
+     * @return A HTML-formatted String
+     */
+    private String getNodeInfo(IGuiNode node) {
+        String nodeInfo;
+
+        /*
+         * Multi-line tool tip:
+         * https://docs.oracle.com/javase/tutorial/uiswing/components/html.html
+         */
+        nodeInfo = "<html>";
+        nodeInfo = nodeInfo + "Name: " + node.getName();
+        nodeInfo = nodeInfo + "<BR>";
+        nodeInfo = nodeInfo + "ID: " + node.getId();
+        nodeInfo = nodeInfo + "</html>";
+
+        return nodeInfo;
     }
 
     /*

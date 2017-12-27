@@ -89,6 +89,7 @@ public class ValidationController extends Thread {
                     msgPanel = myDataModelController.getValidationMessagePanel(modelName);
 
                     if (msgPanel == null) {
+                        // Import from PNML file not finished?
                         String errMsg = "ValidationController, cannot start validation: ";
                         errMsg = errMsg + "no message panel for model '" + model.getModelName() + "'";
                         System.err.println(errMsg);
@@ -114,6 +115,7 @@ public class ValidationController extends Thread {
                                     break;
                                 }
                             }
+                            msgPanel.addMessage("");
 
                             /*
                              * Check if the user has switched to another file.
@@ -128,25 +130,27 @@ public class ValidationController extends Thread {
                                 break;
                             }
                         }
-                    }
 
-                    /*
-                     * Return the result to the model and change the background
-                     * of the validation message panel if we have a result.
-                     * 
-                     * But we have to check if the model wasn't modified in the
-                     * meantime! (In which case model.isModelChecked() would
-                     * return false.)
-                     * 
-                     * -> In this case: the last validation is already obsolete!
-                     */
-                    if (model.isModelChecked()) {
-                        model.setModelValidity(isModelValid);
+                        /*
+                         * Return the result to the model and change the
+                         * background of the validation message panel if we have
+                         * a result.
+                         * 
+                         * But we have to check if the model wasn't modified in
+                         * the meantime! (In which case model.isModelChecked()
+                         * would return false.)
+                         * 
+                         * -> In this case: the last validation is already
+                         * obsolete!
+                         */
+                        if (model.isModelChecked()) {
+                            model.setModelValidity(isModelValid);
 
-                        if (isModelValid) {
-                            msgPanel.setBgColor(EValidationColor.VALID);
-                        } else {
-                            msgPanel.setBgColor(EValidationColor.INVALID);
+                            if (isModelValid) {
+                                msgPanel.setBgColor(EValidationColor.VALID);
+                            } else {
+                                msgPanel.setBgColor(EValidationColor.INVALID);
+                            }
                         }
                     }
                 }

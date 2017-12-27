@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import de.lambeck.pned.application.*;
@@ -366,11 +367,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         Graphics2D g2 = (Graphics2D) g;
         activateAntialiasing(g2);
 
-        // if (debug)
         drawGridLines(g2);
-
-        // TODO Wenn die Nodes sortiert werden, müssen die Elemente in gleicher
-        // Reihenfolge gezeichnet werden!
 
         boolean areaChanged = false;
 

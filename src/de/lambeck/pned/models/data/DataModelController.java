@@ -238,13 +238,9 @@ public class DataModelController implements IDataModelController {
         /*
          * Add the validation messages panel.
          */
-        IValidationMsgPanel newValidationMessagesPanel = new ValidationMsgPanel(modelName);
+        String title = i18n.getNameOnly("ValidatorMessages");
+        IValidationMsgPanel newValidationMessagesPanel = new ValidationMsgPanel(modelName, title);
         this.validationMessagePanels.put(modelName, newValidationMessagesPanel);
-
-        // /*
-        // * Set as current validation messages panel.
-        // */
-        // this.currentValidationMessagePanel = newValidationMessagesPanel;
 
         if (debug) {
             System.out.println("Validation message panels count: " + validationMessagePanels.size());
@@ -366,7 +362,7 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void resetModifiedDataModel(String modelName) {
-        currentModel.setModified(false);
+        currentModel.setModified(false, false);
     }
 
     @Override
@@ -566,7 +562,7 @@ public class DataModelController implements IDataModelController {
         currentModel.addPlace(id, "", initialTokens, position);
 
         if (!this.importingFromPnml)
-            currentModel.setModelChecked(false);
+            currentModel.setModified(true, true);
     }
 
     @Override
@@ -576,7 +572,7 @@ public class DataModelController implements IDataModelController {
 
         // TODO The following command should be obsolete for nodes.
         if (!this.importingFromPnml)
-            currentModel.setModelChecked(false);
+            currentModel.setModified(true, true);
 
         /* Update the GUI */
         appController.placeAddedToCurrentDataModel(id, name, initialTokens, position);
@@ -587,7 +583,7 @@ public class DataModelController implements IDataModelController {
         currentModel.addTransition(id, "", position);
 
         if (!this.importingFromPnml)
-            currentModel.setModelChecked(false);
+            currentModel.setModified(true, true);
     }
 
     @Override
@@ -597,7 +593,7 @@ public class DataModelController implements IDataModelController {
 
         // TODO The following command should be obsolete for nodes.
         if (!this.importingFromPnml)
-            currentModel.setModelChecked(false);
+            currentModel.setModified(true, true);
 
         /* Update the GUI */
         appController.transitionAddedToCurrentDataModel(id, name, position);
@@ -609,7 +605,7 @@ public class DataModelController implements IDataModelController {
         this.elementsAddedToCurrentModel++;
 
         if (!this.importingFromPnml)
-            currentModel.setModelChecked(false);
+            currentModel.setModified(true, true);
 
         /* Update the GUI */
         appController.arcAddedToCurrentDataModel(id, sourceId, targetId);
@@ -639,7 +635,7 @@ public class DataModelController implements IDataModelController {
 
         IDataNode node = (IDataNode) element;
         node.setName(newName);
-        currentModel.setModified(true);
+        currentModel.setModified(true, false);
 
         /*
          * No further action required since this method should only be called
@@ -668,7 +664,7 @@ public class DataModelController implements IDataModelController {
          */
         if (element instanceof IDataArc) {
             currentModel.removeElement(elementId);
-            currentModel.setModified(true);
+            currentModel.setModified(true, true);
             return;
         }
 
@@ -683,13 +679,10 @@ public class DataModelController implements IDataModelController {
          * Remove the node.
          */
         currentModel.removeElement(elementId);
-        currentModel.setModified(true);
+        currentModel.setModified(true, true);
 
         /*
-         * TODO Nur noch im data model controller!
-         * 
-         * Remove all adjacent arcs. (Just to make sure; this should have been
-         * handled by the GUI controller already.)
+         * Remove all adjacent arcs.
          */
         if (predElements.size() > 0) {
             for (IDataArc arc : predElements) {
@@ -718,11 +711,13 @@ public class DataModelController implements IDataModelController {
     @Override
     public void removeElementFromCurrentDataModel(String id) throws NoSuchElementException {
         currentModel.removeElement(id);
+        currentModel.setModified(true, true);
     }
 
     @Override
     public void clearCurrentDataModel() {
         currentModel.clear();
+        currentModel.setModified(true, true);
     }
 
     /*
@@ -753,7 +748,7 @@ public class DataModelController implements IDataModelController {
 
         IDataNode node = (IDataNode) element;
         node.setPosition(newPosition);
-        currentModel.setModified(true);
+        currentModel.setModified(true, false);
 
         /*
          * No further action required since this method should only be called
@@ -801,8 +796,13 @@ public class DataModelController implements IDataModelController {
         appController.setEndPlace(modelName, placeId, b);
     }
 
-    /*
-     * Private helpers
-     */
+    @Override
+    public void highlightUnreachable(String modelName, String nodeId, boolean b) {
+        /*
+         * Nothing to do here. Only the GUINode needs this information for his
+         * paintElement() method.
+         */
+        appController.highlightUnreachable(modelName, nodeId, b);
+    }
 
 }

@@ -369,7 +369,7 @@ public class GuiModelController implements IGuiModelController {
         this.currentDrawPanel = drawPanel;
 
         /*
-         * Inform the draw panel that is has got the focus. (In order to reset
+         * Inform the draw panel that it has got the focus. (In order to reset
          * its state.)
          */
         this.currentDrawPanel.resetState();
@@ -402,10 +402,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
         currentModel.addPlace(id, name, initialTokens, position);
-        // if (debug) {
-        // System.out.println("Place added to GUI model " +
-        // currentModel.getModelName());
-        // }
+        currentModel.setModified(true);
 
         /*
          * Update the data model
@@ -416,10 +413,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void addTransitionToCurrentGuiModel(String id, String name, Point position) {
         currentModel.addTransition(id, name, position);
-        // if (debug) {
-        // System.out.println("Transition added to GUI model " +
-        // currentModel.getModelName());
-        // }
+        currentModel.setModified(true);
 
         /*
          * Update the data model
@@ -430,10 +424,7 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void addArcToCurrentGuiModel(String id, String sourceId, String targetId) {
         currentModel.addArc(id, sourceId, targetId);
-        // if (debug) {
-        // System.out.println("Arc added to GUI model " +
-        // currentModel.getModelName());
-        // }
+        currentModel.setModified(true);
 
         /*
          * Update the data model
@@ -852,6 +843,12 @@ public class GuiModelController implements IGuiModelController {
          * Update the drawing
          */
         updateDrawing(rect);
+    }
+
+    @Override
+    public void clearCurrentGuiModel() {
+        currentModel.clear();
+        currentModel.setModified(true);
     }
 
     /*
@@ -1981,6 +1978,7 @@ public class GuiModelController implements IGuiModelController {
             }
         }
 
+        /* Repaint (everything) */
         updateDrawing();
     }
 
@@ -1999,7 +1997,10 @@ public class GuiModelController implements IGuiModelController {
 
         guiModel.setStartPlace(placeId, b);
 
-        // TODO repaint?
+        /* Repaint */
+        IGuiNode node = currentModel.getNodeById(placeId);
+        Rectangle rect = node.getLastDrawingArea();
+        updateDrawing(rect);
     }
 
     @Override
@@ -2016,6 +2017,32 @@ public class GuiModelController implements IGuiModelController {
         }
 
         guiModel.setEndPlace(placeId, b);
+
+        /* Repaint */
+        IGuiNode node = currentModel.getNodeById(placeId);
+        Rectangle rect = node.getLastDrawingArea();
+        updateDrawing(rect);
+    }
+
+    @Override
+    public void highlightUnreachable(String modelName, String nodeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.highlightUnreachable", modelName, nodeId, b);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            System.err.println(message);
+            return;
+        }
+
+        guiModel.highlightUnreachable(nodeId, b);
+
+        /* Repaint */
+        IGuiNode node = currentModel.getNodeById(nodeId);
+        Rectangle rect = node.getLastDrawingArea();
+        updateDrawing(rect);
     }
 
 }

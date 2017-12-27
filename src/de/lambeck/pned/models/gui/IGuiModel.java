@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.gui.IGuiElement;
+import de.lambeck.pned.elements.gui.IGuiNode;
+import de.lambeck.pned.elements.gui.IGuiPlace;
 import de.lambeck.pned.models.IModel;
 
 /**
@@ -32,9 +35,9 @@ public interface IGuiModel extends IModel {
      * 
      * @param id
      *            The id to search for
-     * @return The element if found
+     * @return The {@link IGuiElement} if found
      * @throws NoSuchElementException
-     *             if element was not found
+     *             if the element was not found
      */
     IGuiElement getElementById(String id) throws NoSuchElementException;
 
@@ -44,6 +47,28 @@ public interface IGuiModel extends IModel {
      * @return Elements of the petri net
      */
     List<IGuiElement> getSelectedElements();
+
+    /**
+     * Returns the {@link IGuiNode} with the specified id.
+     * 
+     * @param id
+     *            The id to search for
+     * @return The {@link IGuiNode} if found
+     * @throws NoSuchElementException
+     *             if the node was not found
+     */
+    IGuiNode getNodeById(String id) throws NoSuchElementException;
+
+    /**
+     * Returns the {@link IGuiPlace} with the specified id.
+     * 
+     * @param id
+     *            The id to search for
+     * @return The {@link IGuiPlace} if found
+     * @throws NoSuchElementException
+     *             if the place was not found
+     */
+    IGuiPlace getPlaceById(String id) throws NoSuchElementException;
 
     /**
      * Returns the minimum Z value for all elements in this GUI model.
@@ -162,5 +187,17 @@ public interface IGuiModel extends IModel {
      *            True to set as end place; otherwise false
      */
     void setEndPlace(String placeId, boolean b);
+
+    /**
+     * Handles the {@link IGuiModelController} request to update the status of
+     * the specified node.
+     * 
+     * @param nodeId
+     *            The id of the {@link IDataNode}
+     * @param b
+     *            True = unreachable; False = can be reached from the start
+     *            place and can reach the end place
+     */
+    void highlightUnreachable(String nodeId, boolean b);
 
 }

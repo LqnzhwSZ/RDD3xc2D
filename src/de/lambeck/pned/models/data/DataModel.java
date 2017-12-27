@@ -111,11 +111,17 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public void setModified(boolean b) {
-        if (b == true) {
+        setModified(b, true);
+    }
+
+    @Override
+    public void setModified(boolean b, boolean revalidate) {
+        this.modelModified = b; // Info for FileClose
+
+        if (revalidate) {
             this.modelChecked = false; // Info for the ValidationController
             this.modelValid = false; // Info for the ValidationController
         }
-        this.modelModified = b; // Info for FileClose
     }
 
     @Override
@@ -318,7 +324,7 @@ public class DataModel implements IDataModel, IModelRename {
          * Add the element
          */
         this.elements.add(newElement);
-        this.modelModified = true;
+        // DataModelController does this! // setModified(true, true);
 
         /*
          * If the added element was an arc: update the predecessor and successor
@@ -425,7 +431,9 @@ public class DataModel implements IDataModel, IModelRename {
         /*
          * Remove the element
          */
-        this.modelModified = elements.remove(removeElement);
+        boolean elementRemoved = elements.remove(removeElement);
+        // DataModelController does this! // if (elementRemoved)
+        // setModified(true, true);
 
         /*
          * If the removed element was an arc: update the predecessor and
@@ -560,7 +568,7 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         elements.clear();
-        this.modelModified = true;
+        // DataModelController does this! // setModified(true, true);
     }
 
     /*
@@ -574,7 +582,7 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public IDataElement getElementById(String id) throws NoSuchElementException {
-        for (IDataElement element : elements) {
+        for (IDataElement element : this.elements) {
             if (element.getId() == id)
                 return element;
         }

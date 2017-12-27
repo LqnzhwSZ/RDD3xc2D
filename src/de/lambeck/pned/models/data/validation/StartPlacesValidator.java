@@ -1,9 +1,5 @@
 package de.lambeck.pned.models.data.validation;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,25 +17,34 @@ import de.lambeck.pned.models.data.IDataModelController;
  */
 public class StartPlacesValidator extends AbstractValidator {
 
-    // private static boolean debug = true;
-
-    private List<IValidationMsg> validationMessages = new ArrayList<IValidationMsg>();
+    /*
+     * Constructor
+     */
 
     /**
+     * @param Id
+     *            The ID of this validator (for validation messages)
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public StartPlacesValidator(IDataModelController dataModelController, I18NManager i18n) {
-        super(dataModelController, i18n);
+    public StartPlacesValidator(int Id, IDataModelController dataModelController, I18NManager i18n) {
+        super(Id, dataModelController, i18n);
+        this.validatorInfoString = "infoStartPlacesValidator";
     }
+
+    /*
+     * Validation methods
+     */
 
     @Override
     public void startValidation(IDataModel dataModel) {
         this.myDataModel = dataModel;
         this.myDataModelName = dataModel.getModelName();
+
+        addValidatorInfo();
 
         /* Reset all previous start places. */
         myDataModelController.resetAllStartPlaces(myDataModelName);
@@ -75,7 +80,7 @@ public class StartPlacesValidator extends AbstractValidator {
     private boolean evaluateNoPlaces(List<String> startPlaces) {
         if (startPlaces == null) {
             String message = i18n.getMessage("warningValidatorNoPlaces");
-            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
             validationMessages.add(vMessage);
 
             return true;
@@ -92,7 +97,7 @@ public class StartPlacesValidator extends AbstractValidator {
     private boolean evaluateNoStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() == 0) {
             String message = i18n.getMessage("warningValidatorNoStartPlace");
-            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
             validationMessages.add(vMessage);
 
             return true;
@@ -122,53 +127,12 @@ public class StartPlacesValidator extends AbstractValidator {
     private boolean evaluateTooManyStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() > 1) {
             String message = i18n.getMessage("warningValidatorTooManyStartPlaces");
-            IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.CRITICAL);
+            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
             validationMessages.add(vMessage);
 
             return true;
         }
         return false;
-    }
-
-    /**
-     * Adds the final {@link IValidationMsg} with status "INFO" to the messages
-     * list.
-     */
-    private void reportValidationSuccessful() {
-        // String message = "";
-        DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
-        String message = ZonedDateTime.now().format(fmt);
-        IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.INFO);
-        validationMessages.add(vMessage);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.lambeck.pned.models.data.validation.AbstractValidator#hasMoreMessages(
-     * )
-     */
-    @Override
-    public Boolean hasMoreMessages() {
-        if (!validationMessages.isEmpty())
-            return true;
-
-        this.myDataModel = null;
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.lambeck.pned.models.data.validation.AbstractValidator#nextMessage()
-     */
-    @Override
-    public IValidationMsg nextMessage() {
-        IValidationMsg nextMessage = null;
-        nextMessage = validationMessages.remove(0);
-        return nextMessage;
     }
 
     /*
@@ -179,7 +143,7 @@ public class StartPlacesValidator extends AbstractValidator {
      * Generates a {@link List} of start places of the Petri net.
      * 
      * @return A {@link List} of type {@link String} with the IDs of all start
-     *         places; empty if no place is a start place; null if the Petri not
+     *         places; empty if no place is a start place; null if the Petri net
      *         does not contain any places
      */
     private List<String> getStartPlaces() {
@@ -199,7 +163,7 @@ public class StartPlacesValidator extends AbstractValidator {
 
                 /* Show start places on the message panel. */
                 String message = i18n.getNameOnly("StartPlace") + ": " + place.getId();
-                IValidationMsg vMessage = new ValidationMessage(myDataModel, message, EValidationResultSeverity.INFO);
+                IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
                 validationMessages.add(vMessage);
             }
         }

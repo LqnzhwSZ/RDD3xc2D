@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
 public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
 
     private final int ROWS = 0;
-    private final int COLUMNS = 20; // Defines the width
+    private final int COLUMNS = 30; // Defines the width
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -56,10 +56,12 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
+     * @param title
+     *            The title of this message panel
      */
     @SuppressWarnings("hiding")
-    public ValidationMsgPanel(String modelName) {
+    public ValidationMsgPanel(String modelName, String title) {
         this.modelName = modelName;
 
         textArea = new JTextArea(ROWS, COLUMNS);
@@ -74,7 +76,7 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
         infoScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         // infoScrollPane.setBorder(BorderFactory.createEtchedBorder());
-        infoScrollPane.setBorder(BorderFactory.createTitledBorder("Validator"));
+        infoScrollPane.setBorder(BorderFactory.createTitledBorder(title));
 
         /*
          * Add the components.

@@ -12,6 +12,7 @@ import de.lambeck.pned.application.actions.NewPlaceAction;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;
@@ -313,6 +314,11 @@ public interface IGuiModelController
      */
     void removeGuiArc(String arcId);
 
+    /**
+     * Removes all elements from the current GUI model.
+     */
+    void clearCurrentGuiModel();
+
     // void clearCurrentGuiModel();
 
     /*
@@ -485,5 +491,20 @@ public interface IGuiModelController
      *            True to set as end place; otherwise false
      */
     void setEndPlace(String modelName, String placeId, boolean b);
+
+    /**
+     * Handles the {@link ApplicationController} request to update the status of
+     * the specified node.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param nodeId
+     *            The id of the {@link IDataNode}
+     * @param b
+     *            True = unreachable; False = can be reached from the start
+     *            place and can reach the end place
+     */
+    void highlightUnreachable(String modelName, String nodeId, boolean b);
 
 }

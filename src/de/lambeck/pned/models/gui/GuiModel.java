@@ -169,14 +169,44 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public List<IGuiElement> getElements() {
-        // sortElements();
         return this.elements;
     }
 
     @Override
     public List<IGuiElement> getSelectedElements() {
-        // sortSelected();
         return selected;
+    }
+
+    @Override
+    public IGuiPlace getPlaceById(String placeId) {
+        IGuiElement element = getElementById(placeId);
+        if (element == null) {
+            System.err.println("Element " + placeId + " not found!");
+            return null;
+        }
+
+        if (element instanceof IGuiPlace) {
+            IGuiPlace place = (IGuiPlace) element;
+            return place;
+        }
+
+        return null;
+    }
+
+    @Override
+    public IGuiNode getNodeById(String nodeId) {
+        IGuiElement element = getElementById(nodeId);
+        if (element == null) {
+            System.err.println("Element " + nodeId + " not found!");
+            return null;
+        }
+
+        if (element instanceof IGuiNode) {
+            IGuiNode node = (IGuiNode) element;
+            return node;
+        }
+
+        return null;
     }
 
     /*
@@ -381,7 +411,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             if (test == newElement) { throw new PNDuplicateAddedException("Duplicate of: " + test.toString()); }
         }
         elements.add(newElement);
-        this.modelModified = true;
+        // GuiModelController does this! // setModified(true);
     }
 
     @Override
@@ -400,7 +430,10 @@ public class GuiModel implements IGuiModel, IModelRename {
                 /*
                  * Remove the element.
                  */
-                this.modelModified = elements.remove(test);
+                boolean elementRemoved = elements.remove(test);
+                // GuiModelController does this! // if (elementRemoved)
+                // setModified(true);
+
                 return;
             }
         }
@@ -416,7 +449,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         elements.clear();
         selected.clear();
-        this.modelModified = true;
+        // GuiModelController does this! // setModified(true);
 
         /*
          * Repaint everything (Drawing should be empty anyways.)
@@ -552,6 +585,21 @@ public class GuiModel implements IGuiModel, IModelRename {
         place.setEndPlace(b);
     }
 
+    @Override
+    public void highlightUnreachable(String nodeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setEndPlace", nodeId, b);
+        }
+
+        IGuiNode node = getNodeById(nodeId);
+        if (node == null) {
+            System.err.println("Node " + nodeId + " not found!");
+            return;
+        }
+
+        node.setUnreachable(b);
+    }
+
     /*
      * Private helper methods
      */
@@ -635,28 +683,6 @@ public class GuiModel implements IGuiModel, IModelRename {
 
             System.out.println(outputString);
         }
-    }
-
-    /**
-     * Returns the {@link IGuiPlace} with the specified ID.
-     * 
-     * @param placeID
-     *            The specified ID
-     * @return The {@link IGuiPlace}; or null if place does not exist
-     */
-    private IGuiPlace getPlaceById(String placeId) {
-        IGuiElement element = getElementById(placeId);
-        if (element == null) {
-            System.err.println("Element " + placeId + " not found!");
-            return null;
-        }
-
-        if (element instanceof IGuiPlace) {
-            IGuiPlace place = (IGuiPlace) element;
-            return place;
-        }
-
-        return null;
     }
 
 }

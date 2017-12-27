@@ -8,7 +8,7 @@ import de.lambeck.pned.models.data.IDataModel;
  * @author Thomas Lambeck, 4128320
  *
  */
-public class ValidationMessage implements IValidationMsg {
+public class ValidationMsg implements IValidationMsg {
 
     private String modelId;
 
@@ -50,7 +50,7 @@ public class ValidationMessage implements IValidationMsg {
      *            ({@link EValidationResultSeverity})
      */
     @SuppressWarnings("hiding")
-    public ValidationMessage(IDataModel model, String message, EValidationResultSeverity severity) {
+    public ValidationMsg(IDataModel model, String message, EValidationResultSeverity severity) {
         this.modelId = model.getModelName();
         this.message = message;
         this.severity = severity;

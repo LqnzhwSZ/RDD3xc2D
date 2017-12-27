@@ -8,6 +8,8 @@ import java.util.NoSuchElementException;
 import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.data.IDataNode;
+import de.lambeck.pned.models.data.validation.AllNodesOnPathsValidator;
 import de.lambeck.pned.models.data.validation.EndPlacesValidator;
 import de.lambeck.pned.models.data.validation.IValidationMsgPanel;
 import de.lambeck.pned.models.data.validation.StartPlacesValidator;
@@ -341,5 +343,20 @@ public interface IDataModelController extends IInfo_Status {
      *            True to set as end place; otherwise false
      */
     void setEndPlace(String modelName, String placeId, boolean b);
+
+    /**
+     * Callback for the {@link AllNodesOnPathsValidator} to highlight nodes that
+     * cannot be reached from the start place or cannot reach the end place.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param nodeId
+     *            The id of the {@link IDataNode}
+     * @param b
+     *            True = unreachable; False = can be reached from the start
+     *            place and can reach the end place
+     */
+    void highlightUnreachable(String modelName, String nodeId, boolean b);
 
 }

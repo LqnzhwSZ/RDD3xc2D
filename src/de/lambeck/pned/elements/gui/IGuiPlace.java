@@ -26,7 +26,7 @@ public interface IGuiPlace extends IGuiNode {
     void setTokens(EPlaceToken newTokens);
 
     /**
-     * Sets this places status as start place.
+     * Sets this places status as a start place.
      * 
      * @param b
      *            Set to true if this is the start place; otherwise false.
@@ -34,7 +34,7 @@ public interface IGuiPlace extends IGuiNode {
     void setStartPlace(boolean b);
 
     /**
-     * Sets this places status as end place.
+     * Sets this places status as an end place.
      * 
      * @param b
      *            Set to true if this is the end place; otherwise false.

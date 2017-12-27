@@ -75,4 +75,13 @@ public interface IGuiNode extends IGuiElement, INode {
      */
     Point getArcAnchor(Point target);
 
+    /**
+     * Sets this nodes "unreachable" status.
+     * 
+     * @param b
+     *            True = unreachable; False = can be reached from the start
+     *            place and can reach the end place
+     */
+    void setUnreachable(boolean b);
+
 }

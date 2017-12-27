@@ -34,6 +34,12 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /** The center of the shape (ignoring the size of the label) */
     protected Point shapeCenter = null; // The center of the shape
 
+    /**
+     * This nodes "unreachable" status: True = unreachable; False = can be
+     * reached from the start place and can reach the end place
+     */
+    protected boolean unreachable = false;
+
     /*
      * Info for label position
      */
@@ -202,6 +208,11 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         return this.totalHeight;
     }
 
+    @Override
+    public void setUnreachable(boolean b) {
+        this.unreachable = b;
+    }
+
     /*
      * Individual methods
      */
@@ -232,7 +243,12 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          * Draw the interior first because the shape must be above it to be
          * visible.
          */
-        g2.setColor(ECustomColor.IVORY.getColor());
+        if (!this.unreachable) {
+            g2.setColor(ECustomColor.IVORY.getColor());
+        } else {
+            /* Overwrite interior color to highlight unreachable nodes! */
+            g2.setColor(Color.GRAY);
+        }
         drawInterior(g2);
 
         /*

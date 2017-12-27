@@ -13,57 +13,56 @@ import de.lambeck.pned.elements.data.EPlaceToken;
  */
 public interface IModel {
 
-	/*
-	 * Setter and Getter
-	 */
+    /*
+     * Setter and Getter
+     */
 
-	/**
-	 * Returns the full name of this model. This should be the canonical (unique)
-	 * path name of the file.
-	 * 
-	 * @return The full name
-	 */
-	String getModelName();
+    /**
+     * Returns the full name of this model. This should be the canonical
+     * (unique) path name of the file.
+     * 
+     * @return The full name
+     */
+    String getModelName();
 
-	/*
-	 * setModelName(String s) is part of interface IModelRename!
-	 */
-	// void setModelName(String s);
+    /*
+     * setModelName(String s) is part of interface IModelRename!
+     */
+    // void setModelName(String s);
 
-	/**
-	 * Returns the display name of this model.
-	 * 
-	 * Intended use: name of the tab
-	 * 
-	 * @return The display name
-	 */
-	String getDisplayName();
+    /**
+     * Returns the display name of this model.
+     * 
+     * Intended use: name of the tab
+     * 
+     * @return The display name
+     */
+    String getDisplayName();
 
-	/*
-	 * setDisplayName(String s) is part of interface IModelRename!
-	 */
-	// void setDisplayName(String s);
+    /*
+     * setDisplayName(String s) is part of interface IModelRename!
+     */
+    // void setDisplayName(String s);
 
-	/**
-	 * Returns true if this model has been modified, otherwise false.
-	 * 
-	 * @return The current modified state of the model
-	 */
-	boolean isModified();
+    /**
+     * Returns true if this model has been modified, otherwise false.
+     * 
+     * @return The current modified state of the model
+     */
+    boolean isModified();
 
-	/**
-	 * Sets the "modified" attribute of this model. It should be used by the model
-	 * controller to reset it after loading a PNML file.
-	 * 
-	 * Note: All methods of this model which add, modify or remove elements set the
-	 * "modified" attribute to true. That's why we need a method to reset this
-	 * attribute after importing data from PNML files. Otherwise: The model would be
-	 * marked as "modified" before the user actually has modified anything.
-	 * 
-	 * @param b
-	 *            The new state
-	 */
-	void setModified(boolean b);
+    /**
+     * Sets the "modified" attribute of this model. Use this method when
+     * changing persistent data (e.g. name and position of nodes).
+     * 
+     * Note: It should also be used by the model controller to reset the
+     * "modified" attribute after loading a PNML file. Otherwise: The model
+     * would be marked as "modified" before the user has modified anything.
+     * 
+     * @param b
+     *            The new state
+     */
+    void setModified(boolean b);
 
     /*
      * Methods for adding, modify and removal of elements
@@ -111,8 +110,8 @@ public interface IModel {
     /**
      * Adds a transition to this model.
      * 
-     * Intended use: adding a transition after a GUI event when the new transition
-     * is without a name after creation.
+     * Intended use: adding a transition after a GUI event when the new
+     * transition is without a name after creation.
      * 
      * @param id
      *            The ID of the transition
@@ -142,8 +141,8 @@ public interface IModel {
     /**
      * Adds an arc to this model.
      * 
-     * Note: This method should be the same for GUI events and reading from a PNML
-     * file because arcs will have all 3 attributes in both cases.
+     * Note: This method should be the same for GUI events and reading from a
+     * PNML file because arcs will have all 3 attributes in both cases.
      * 
      * @param id
      *            The id of the arc
@@ -168,9 +167,9 @@ public interface IModel {
      */
     void removeElement(String id) throws NoSuchElementException;
 
-	/**
-	 * Removes all elements from this model.
-	 */
-	void clear();
+    /**
+     * Removes all elements from this model.
+     */
+    void clear();
 
 }
