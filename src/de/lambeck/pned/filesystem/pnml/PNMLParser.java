@@ -50,8 +50,7 @@ public class PNMLParser {
         } else {
             // System.out.println("Bitte eine Datei als Parameter angeben!");
             String[] example = { "G:\\Aufgabenstellung\\Beispiele\\Beispiel-03.pnml" };
-            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test -
-            // falsche Werte.pnml" };
+            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test - falsche Werte.pnml" };
             // String[] example = { "G:\\Testdateien\\Test1.pnml" };
             main(example);
         }
@@ -529,7 +528,7 @@ public class PNMLParser {
         if (invalidValues) {
             this.invalidValues = false;
             resetNextValues();
-            System.err.println("Element ignored.");
+            System.out.println("Element ignored.");
             return;
         }
 

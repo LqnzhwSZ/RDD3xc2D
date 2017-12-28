@@ -433,10 +433,11 @@ public class ApplicationController extends AbstractApplicationController {
     /**
      * Adds the file name to the title of the main frame.
      * 
-     * Note: This method is visible in this package because class TabListener
-     * uses this method too!
+     * Note: This method is visible in this package because the TabListener uses
+     * this method!
      * 
      * @param filename
+     *            The name of the active file
      */
     void setFilenameOnTitle(String filename) {
         String newTitle = "";
@@ -451,6 +452,9 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the TabListener
+     * 
+     * Note: This method is visible in this package because the TabListener uses
+     * this method!
      * 
      * @param tabIndex
      *            The index of the active tab
@@ -500,14 +504,6 @@ public class ApplicationController extends AbstractApplicationController {
                 System.err.println("setActiveFile, DrawPanel for '" + activeFile + "' does not exist!");
             }
             guiModelController.setCurrentDrawPanel(newActiveDrawPanel);
-
-            // IValidationMsgPanel newValidationMessagesPanel =
-            // dataModelController.getValidationMessagePanel(activeFile);
-            // if (newValidationMessagesPanel == null) {
-            // System.err.println("setActiveFile, ValidationMessagesPanel for '"
-            // + activeFile + "' does not exist!");
-            // }
-            // dataModelController.setCurrentValidationMessagesPanel(newValidationMessagesPanel);
         }
 
         /*
@@ -518,6 +514,22 @@ public class ApplicationController extends AbstractApplicationController {
         if (debug) {
             System.out.println("ApplicationController.setActiveFile, new active file: " + this.activeFile);
         }
+    }
+
+    /**
+     * Determines the active tab "manually" to call setActiveFile(tabIndex).
+     * 
+     * Note: This might be necessary in case there is no tab stateChanged event
+     * in the {@link TabListener} even if "current file" is no longer valid.
+     * 
+     * Example: If the {@link IDataModelController} discards a corrupted file,
+     * all "current models" etc. that were prepared for this file will be reset
+     * to null. And because the tab for this file was not displayed yet, the
+     * {@link TabListener} cannot notice that another file is now active.
+     */
+    private void refreshActiveFile() {
+        int tabIndex = tabbedPane.getSelectedIndex();
+        setActiveFile(tabIndex);
     }
 
     /*
@@ -934,6 +946,16 @@ public class ApplicationController extends AbstractApplicationController {
             System.err.println(errorMessage);
             JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
 
+            /*
+             * Try to update/reset the current file now! (the last open file)!
+             * 
+             * Otherwise: disposeFile() would reset current model, current draw
+             * panel etc. and we would just be forced to refresh all those
+             * references anyways to continue working with another file.
+             */
+            refreshActiveFile();
+
+            /* Dispose this file after we "returned" to the previous. */
             disposeFile(canonicalPath);
 
             return;
@@ -959,12 +981,6 @@ public class ApplicationController extends AbstractApplicationController {
         IValidationMsgPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(canonicalPath);
 
         addTabForDrawPanel(drawPanel, validationMessagesPanel, canonicalPath, displayName);
-
-        // /*
-        // * Let the data model controller start the validation since we already
-        // * have a Petri net to check.
-        // */
-        // dataModelController.startValidation(canonicalPath);
     }
 
     /**

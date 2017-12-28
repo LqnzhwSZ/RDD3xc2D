@@ -51,14 +51,6 @@ public class DataModelController implements IDataModelController {
      */
     private Map<String, IValidationMsgPanel> validationMessagePanels = new HashMap<String, IValidationMsgPanel>();
 
-    // TODO Wird currentValidationMessagePanel wirklich benötigt? (Nur der
-    // validator sollte darauf arbeiten.)
-    // /**
-    // * Current validation messages panel is the message panel that corresponds
-    // * to the active tab of the tabbed pane.
-    // */
-    // private IValidationMsgPanel currentValidationMessagePanel = null;
-
     /**
      * Indicates whether we are importing data from a PNML file or not. This is
      * important to avoid infinite loops when adding elements.
@@ -67,12 +59,6 @@ public class DataModelController implements IDataModelController {
      * false: changes to a GUI model need to be passed to the data model.)
      */
     private boolean importingFromPnml = false;
-
-    // /**
-    // * List of validators identified by their name (full name of the file)
-    // */
-    // private Map<String, IWorkflowNetValidator> validators = new
-    // HashMap<String, IWorkflowNetValidator>();
 
     /**
      * Counter for the number of added elements during import ("File open").
@@ -269,8 +255,8 @@ public class DataModelController implements IDataModelController {
              * Show an error message!
              */
             dataModels.remove(canonicalPath);
-            String errorMessage = i18n.getMessage("errDataModelNotAccepted");
-            System.err.println(errorMessage);
+            String infoMessage = i18n.getMessage("errDataModelNotAccepted");
+            System.out.println(infoMessage);
         } else {
             /*
              * Show info on status bar.
@@ -328,7 +314,7 @@ public class DataModelController implements IDataModelController {
         if (flagInvalidValuesSet) {
             errorMessage = i18n.getMessage("errInvalidValuesInPnml");
             errorMessage = errorMessage.replace("%fullName%", currentModel.getModelName());
-            System.err.println(errorMessage);
+            System.out.println(errorMessage);
             setInfo_Status(errorMessage, EStatusMessageLevel.WARNING);
         }
 
