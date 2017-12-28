@@ -1,11 +1,6 @@
 package de.lambeck.pned.filesystem.pnml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -63,7 +58,12 @@ public final class PNMLWriter {
      * Dies ist eine Referenz zum XML Writer. Diese Referenz wird durch die
      * Methode startXMLDocument() initialisiert.
      */
-    private XMLStreamWriter writer = null;
+    private XMLStreamWriter xmlWriter = null;
+
+    /**
+     * Reference to the {@link FileOutputStream}. (Defined as class attribute
+     * because the xmlWriter (that is using it) is used in different methods.)
+     */
     private FileOutputStream fos = null;
 
     /**
@@ -90,20 +90,25 @@ public final class PNMLWriter {
         int result = -1;
 
         try {
-        	this.fos = (FileOutputStream) saveOutputStreamClose(this.fos);
+            /* Make sure that previous FileOutputStream is closed and null. */
+            this.fos = (FileOutputStream) safeOutputStreamClose(this.fos);
+
+            /* Create a new FileOutputStream. */
             this.fos = new FileOutputStream(pnmlDatei);
+
+            /* Create a new instance of the XMLStreamWriter. */
             XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            writer = factory.createXMLStreamWriter(fos, "UTF-8");
+            xmlWriter = factory.createXMLStreamWriter(fos, "UTF-8");
 
             // XML Dokument mit Version 1.0 und Kodierung UTF-8 beginnen
-            writer.writeStartDocument("UTF-8", "1.0");
+            xmlWriter.writeStartDocument("UTF-8", "1.0");
             newLine();
 
-            writer.writeStartElement("pnml");
+            xmlWriter.writeStartElement("pnml");
             newLine();
 
             insertSpacers(1);
-            writer.writeStartElement("net");
+            xmlWriter.writeStartElement("net");
             newLine();
 
             result = 0;
@@ -132,20 +137,21 @@ public final class PNMLWriter {
     public int finishXMLDocument() {
         int result = -1;
 
-        if (writer != null) {
+        if (xmlWriter != null) {
             try {
                 insertSpacers(1);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
-                writer.writeEndDocument();
+                xmlWriter.writeEndDocument();
 
-                writer.close();
+                xmlWriter.close();
 
-                this.fos = (FileOutputStream) saveOutputStreamClose(this.fos);
-                
+                /* Close and set the FileOutputStream to null. */
+                this.fos = (FileOutputStream) safeOutputStreamClose(this.fos);
+
                 result = 0;
 
             } catch (XMLStreamException e) {
@@ -181,66 +187,66 @@ public final class PNMLWriter {
             final String initialMarking) {
         int result = -1;
 
-        if (writer != null) {
+        if (xmlWriter != null) {
             try {
                 insertSpacers(2);
-                writer.writeStartElement("", "place", "");
-                writer.writeAttribute("id", id);
+                xmlWriter.writeStartElement("", "place", "");
+                xmlWriter.writeAttribute("id", id);
                 newLine();
 
                 insertSpacers(3);
-                writer.writeStartElement("", "name", "");
+                xmlWriter.writeStartElement("", "name", "");
                 newLine();
 
                 insertSpacers(4);
-                writer.writeStartElement("", "value", "");
-                writer.writeCharacters(label);
-                writer.writeEndElement();
+                xmlWriter.writeStartElement("", "value", "");
+                xmlWriter.writeCharacters(label);
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeStartElement("", "initialMarking", "");
+                xmlWriter.writeStartElement("", "initialMarking", "");
                 newLine();
 
                 insertSpacers(4);
-                writer.writeStartElement("", "token", "");
+                xmlWriter.writeStartElement("", "token", "");
                 newLine();
 
                 insertSpacers(5);
-                writer.writeStartElement("", "value", "");
-                writer.writeCharacters(initialMarking);
-                writer.writeEndElement();
+                xmlWriter.writeStartElement("", "value", "");
+                xmlWriter.writeCharacters(initialMarking);
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(4);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeStartElement("", "graphics", "");
+                xmlWriter.writeStartElement("", "graphics", "");
                 newLine();
 
                 insertSpacers(4);
-                writer.writeStartElement("", "position", "");
-                writer.writeAttribute("x", xPosition);
-                writer.writeAttribute("y", yPosition);
-                writer.writeEndElement();
+                xmlWriter.writeStartElement("", "position", "");
+                xmlWriter.writeAttribute("x", xPosition);
+                xmlWriter.writeAttribute("y", yPosition);
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(2);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 result = 0;
@@ -276,44 +282,44 @@ public final class PNMLWriter {
     public int addTransition(final String id, final String label, final String xPosition, final String yPosition) {
         int result = -1;
 
-        if (writer != null) {
+        if (xmlWriter != null) {
             try {
                 insertSpacers(2);
-                writer.writeStartElement("", "transition", "");
-                writer.writeAttribute("id", id);
+                xmlWriter.writeStartElement("", "transition", "");
+                xmlWriter.writeAttribute("id", id);
                 newLine();
 
                 insertSpacers(3);
-                writer.writeStartElement("", "name", "");
+                xmlWriter.writeStartElement("", "name", "");
                 newLine();
 
                 insertSpacers(4);
-                writer.writeStartElement("", "value", "");
-                writer.writeCharacters(label);
-                writer.writeEndElement();
+                xmlWriter.writeStartElement("", "value", "");
+                xmlWriter.writeCharacters(label);
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeStartElement("", "graphics", "");
+                xmlWriter.writeStartElement("", "graphics", "");
                 newLine();
 
                 insertSpacers(4);
-                writer.writeStartElement("", "position", "");
-                writer.writeAttribute("x", xPosition);
-                writer.writeAttribute("y", yPosition);
-                writer.writeEndElement();
+                xmlWriter.writeStartElement("", "position", "");
+                xmlWriter.writeAttribute("x", xPosition);
+                xmlWriter.writeAttribute("y", yPosition);
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(3);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 insertSpacers(2);
-                writer.writeEndElement();
+                xmlWriter.writeEndElement();
                 newLine();
 
                 result = 0;
@@ -347,14 +353,14 @@ public final class PNMLWriter {
     public int addArc(final String id, final String source, final String target) {
         int result = -1;
 
-        if (writer != null) {
+        if (xmlWriter != null) {
             try {
                 insertSpacers(2);
-                writer.writeStartElement("", "arc", "");
-                writer.writeAttribute("id", id);
-                writer.writeAttribute("source", source);
-                writer.writeAttribute("target", target);
-                writer.writeEndElement();
+                xmlWriter.writeStartElement("", "arc", "");
+                xmlWriter.writeAttribute("id", id);
+                xmlWriter.writeAttribute("source", source);
+                xmlWriter.writeAttribute("target", target);
+                xmlWriter.writeEndElement();
                 newLine();
 
                 result = 0;
@@ -378,7 +384,7 @@ public final class PNMLWriter {
      */
     private void newLine() {
         try {
-            writer.writeCharacters(System.getProperty("line.separator"));
+            xmlWriter.writeCharacters(System.getProperty("line.separator"));
         } catch (XMLStreamException e) {
             System.err.println("Unable to write a line separator: " + e.getMessage());
             e.printStackTrace();
@@ -398,38 +404,33 @@ public final class PNMLWriter {
 
         try {
             for (int i = 0; i < number; i++) {
-                writer.writeCharacters(spacer);
+                xmlWriter.writeCharacters(spacer);
             }
         } catch (XMLStreamException e) {
             System.err.println("Unable to write spacers: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
-    private OutputStream saveOutputStreamClose(OutputStream os) {
-    	if (os == null) {
-    		return null;
-    	}
-    	try {
-			os.flush();
-			os.close();
-		} catch (IOException e) {
-			// NOP
-		}
-    	os = null;
-    	return os;
+
+    /**
+     * Ensures that the previous instance of the specified {@link OutputStream}
+     * is closed and null.
+     * 
+     * @param os
+     *            The {@link OutputStream}
+     * @return The reset {@link OutputStream}
+     */
+    private OutputStream safeOutputStreamClose(OutputStream os) {
+        if (os == null) { return null; }
+
+        try {
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            // NOP
+        }
+        os = null;
+        return os;
     }
 
-    private InputStream saveInputStreamClose(InputStream os) {
-    	if (os == null) {
-    		return null;
-    	}
-    	try {
-			os.close();
-		} catch (IOException e) {
-			// NOP
-		}
-    	os = null;
-    	return os;
-    }
 }

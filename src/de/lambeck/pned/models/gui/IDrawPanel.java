@@ -3,13 +3,13 @@ package de.lambeck.pned.models.gui;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiArc;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
-import de.lambeck.pned.gui.popupMenu.PopupMenuManager;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 
 /**
@@ -76,8 +76,8 @@ public interface IDrawPanel {
     void resetState();
 
     /**
-     * Handles the request of the {@link PopupMenuManager} if an element can be
-     * selected. (squares, circles and arrows)
+     * Handles the request of the {@link MouseAdapter} to check if an element
+     * can be selected. (squares, circles and arrows)
      * 
      * Passes this request to the GUI controller.
      * 

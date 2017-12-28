@@ -27,7 +27,7 @@ public enum EPNMLElement {
     }
 
     /**
-     * @return the value of the enum elemment
+     * @return the value of the enum element
      */
     public String getValue() {
         return this.value;

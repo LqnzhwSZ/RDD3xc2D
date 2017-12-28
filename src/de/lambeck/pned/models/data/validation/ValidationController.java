@@ -17,7 +17,7 @@ import de.lambeck.pned.models.data.IDataModelController;
  * @author Thomas Lambeck, 4128320
  *
  */
-public class ValidationController extends Thread {
+public class ValidationController extends Thread implements IValidationController {
 
     // private static boolean debug = true;
 
@@ -32,7 +32,7 @@ public class ValidationController extends Thread {
     /**
      * The Set of {@link AbstractValidator} to run on each {@link DataModel}.
      */
-    private Set<AbstractValidator> validatorSet = new LinkedHashSet<AbstractValidator>();
+    private Set<IValidator> validatorSet = new LinkedHashSet<IValidator>();
 
     /**
      * Constructs this validation controller with a reference to the
@@ -54,14 +54,9 @@ public class ValidationController extends Thread {
         this.i18n = i18n;
     }
 
-    /**
-     * Adds an {@link AbstractValidator} to the {@link Set} of validators.
-     * 
-     * @param validator
-     *            The {@link AbstractValidator} to add
-     */
-    public void addValidator(AbstractValidator validator) {
-        validatorSet.add(validator);
+    @Override
+    public void addValidator(IValidator startPlacesValidator) {
+        validatorSet.add(startPlacesValidator);
     }
 
     @Override
@@ -100,7 +95,7 @@ public class ValidationController extends Thread {
                         msgPanel.setBgColor(EValidationColor.PENDING);
 
                         /* Run all validators on the current model. */
-                        for (AbstractValidator validator : this.validatorSet) {
+                        for (IValidator validator : this.validatorSet) {
                             validator.startValidation(model);
 
                             /* Get all messages from the current validator. */

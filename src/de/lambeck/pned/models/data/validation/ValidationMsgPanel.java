@@ -36,10 +36,10 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
      */
     private final Color startBackground = EValidationColor.EMPTY.getColor();
 
-    /**
-     * The background color for the current validation result
-     */
-    private Color currentBackground = Color.WHITE;
+    // /**
+    // * The background color for the current validation result
+    // */
+    // private Color currentBackground = Color.WHITE;
 
     /**
      * The text content of the text area
@@ -139,7 +139,7 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
     public void setBgColor(EValidationColor c) {
         Color color = c.getColor();
         this.textArea.setBackground(color);
-        this.currentBackground = color;
+        // this.currentBackground = color;
     }
 
 }

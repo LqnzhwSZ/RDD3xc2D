@@ -35,7 +35,7 @@ public enum EIconSize {
     }
 
     /**
-     * @return the value of the enum elemment
+     * @return the value of the enum element
      */
     public int getValue() {
         return this.size;

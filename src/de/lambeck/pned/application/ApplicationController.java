@@ -89,7 +89,7 @@ public class ApplicationController extends AbstractApplicationController {
      */
     private List<String> modifiedDataModels = new ArrayList<String>();
 
-    /** Reference to the validation controller */
+    /** Reference to the {@link ValidationController} */
     private ValidationController validationController;
 
     /**
@@ -192,7 +192,7 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds all necessary {@link AbstractValidator} to the
+     * Adds all necessary {@link IValidator} to the
      * {@link ValidationController}.
      * 
      * @param i18n
@@ -200,13 +200,13 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @SuppressWarnings("hiding")
     private void addValidators(I18NManager i18n) {
-        AbstractValidator startPlacesValidator = new StartPlacesValidator(1, dataModelController, i18n);
+        IValidator startPlacesValidator = new StartPlacesValidator(1, dataModelController, i18n);
         this.validationController.addValidator(startPlacesValidator);
 
-        AbstractValidator endPlacesValidator = new EndPlacesValidator(2, dataModelController, i18n);
+        IValidator endPlacesValidator = new EndPlacesValidator(2, dataModelController, i18n);
         this.validationController.addValidator(endPlacesValidator);
 
-        AbstractValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, dataModelController, i18n);
+        IValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, dataModelController, i18n);
         this.validationController.addValidator(allNodesOnPathsValidator);
     }
 

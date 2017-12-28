@@ -1,10 +1,7 @@
 package de.lambeck.pned.filesystem.pnml;
 
 import java.awt.Point;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Iterator;
 
 import javax.swing.JOptionPane;
@@ -34,7 +31,7 @@ public class PNMLParser {
      * werden.
      *
      * @param args
-     *            Die Konsolen Parameter, mit denen das Programm aufgerufen
+     *            Die Konsolen-Parameter, mit denen das Programm aufgerufen
      *            wird.
      */
     public static void main(final String[] args) {
@@ -68,6 +65,12 @@ public class PNMLParser {
     private XMLEventReader xmlParser = null;
 
     /**
+     * Reference to the {@link FileInputStream}. (Defined as class attribute
+     * because the xmlParser (that is using it) is used in different methods.)
+     */
+    private FileInputStream fis = null;
+
+    /**
      * Diese Variable dient als Zwischenspeicher für die ID des zuletzt
      * gefundenen Elements.
      */
@@ -97,17 +100,38 @@ public class PNMLParser {
      */
     private IDataModelController dataModelController;
 
-    /**
+    /*
      * Attributes for the next element which will be passed to the data model
-     * controller after reading all information from the pnml file.
+     * controller after reading all information from the PNML file.
+     */
+
+    /**
+     * Stores the type ({@link EPNMLElement}) of the element that is parsed at
+     * the moment.
      */
     private EPNMLElement nextElementType = null;
+
+    /** Stores the id of the current element. */
     private String nextId = null;
+
+    /** Stores the name of the current element. */
     private String nextName = null;
+
+    /**
+     * Stores the number of tokens ({@link EPlaceToken}) of the current element.
+     */
     private EPlaceToken nextMarking = null;
+
+    /** Stores the position ({@link Point}) of the current element. */
     private Point nextPosition = null;
+
+    /** Stores the id of the source for the current arc. */
     private String nextSourceId = null;
+
+    /** Stores the id of the target for the current arc. */
     private String nextTargetId = null;
+
+    /** Stores if the PNML file had invalid values for the current element. */
     private boolean invalidValues = false;
 
     /**
@@ -139,15 +163,21 @@ public class PNMLParser {
      */
     public final void initParser() {
         try {
-            InputStream dateiEingabeStrom = new FileInputStream(pnmlDatei);
+            /* Make sure that previous FileInputStream is closed and null. */
+            this.fis = (FileInputStream) safeInputStreamClose(this.fis);
+
+            /* Create a new FileInputStream. */
+            this.fis = new FileInputStream(pnmlDatei);
+
+            /* Create a new instance of the XMLEventReader. */
             XMLInputFactory factory = XMLInputFactory.newInstance();
             try {
-                xmlParser = factory.createXMLEventReader(dateiEingabeStrom);
-
+                xmlParser = factory.createXMLEventReader(fis);
             } catch (XMLStreamException e) {
                 System.err.println("XML Verarbeitungsfehler: " + e.getMessage());
                 e.printStackTrace();
             }
+
         } catch (FileNotFoundException e) {
             System.err.println("Die Datei wurde nicht gefunden! " + e.getMessage());
         }
@@ -194,6 +224,10 @@ public class PNMLParser {
                 case XMLStreamConstants.END_DOCUMENT:
                     // schließe den Parser
                     xmlParser.close();
+
+                    /* Close and set the FileInputStream to null. */
+                    this.fis = (FileInputStream) safeInputStreamClose(this.fis);
+
                     break;
                 default:
                 }
@@ -378,7 +412,7 @@ public class PNMLParser {
         /*
          * Note: The element is not complete! (We have to wait for the parser to
          * find the end tag because places and transitions are multi-line values
-         * in the pnml file.)
+         * in the PNML file.)
          */
     }
 
@@ -403,7 +437,7 @@ public class PNMLParser {
         /*
          * Note: The element is not complete! (We have to wait for the parser to
          * find the end tag because places and transitions are multi-line values
-         * in the pnml file.)
+         * in the PNML file.)
          */
     }
 
@@ -522,7 +556,7 @@ public class PNMLParser {
 
     /**
      * Sends the last element to the controller if all values were read from the
-     * pnml file.
+     * PNML file.
      */
     private void sendElementToController() {
         if (invalidValues) {
@@ -598,7 +632,7 @@ public class PNMLParser {
         }
 
         /*
-         * Reset the "next" values for the next element in the pnml file!
+         * Reset the "next" values for the next element in the PNML file!
          */
         resetNextValues();
     }
@@ -643,7 +677,7 @@ public class PNMLParser {
     }
 
     /**
-     * Resets all values for the next element in the pnml file.
+     * Resets all values for the next element in the PNML file.
      */
     private void resetNextValues() {
         if (debug) {
@@ -656,6 +690,26 @@ public class PNMLParser {
         this.nextPosition = null;
         this.nextSourceId = null;
         this.nextTargetId = null;
+    }
+
+    /**
+     * Ensures that the previous instance of the specified {@link InputStream}
+     * is closed and null.
+     * 
+     * @param is
+     *            The {@link InputStream}
+     * @return The reset {@link InputStream}
+     */
+    private InputStream safeInputStreamClose(InputStream is) {
+        if (is == null) { return null; }
+
+        try {
+            is.close();
+        } catch (IOException e) {
+            // NOP
+        }
+        is = null;
+        return is;
     }
 
 }

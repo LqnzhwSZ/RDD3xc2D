@@ -693,11 +693,11 @@ public class GuiModelController implements IGuiModelController {
             }
         }
 
-        if (debug) {
-            if (foundElement == null)
-                System.out.println(
-                        "GuiModelController.getSelectableElementAtLocation: No selectable element at this Point!");
-        }
+        // if (debug) {
+        // if (foundElement == null)
+        // System.out.println("GuiModelController.getSelectableElementAtLocation:
+        // No selectable element at this Point!");
+        // }
 
         return foundElement;
     }
@@ -1242,6 +1242,7 @@ public class GuiModelController implements IGuiModelController {
             return;
 
         int newZValue = currentModel.getIncrMaxZ();
+        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + newZValue + ")");
         element.setZValue(newZValue);
 
         /*
@@ -1334,6 +1335,7 @@ public class GuiModelController implements IGuiModelController {
             return;
 
         int newZValue = currentModel.getDecrMinZ();
+        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + newZValue + ")");
         element.setZValue(newZValue);
 
         /*
@@ -1446,7 +1448,9 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Swap element and swap element
          */
+        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZValue + ")");
         element.setZValue(swapZValue);
+        ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZValue + ")");
         swap.setZValue(currZValue);
 
         /*
@@ -1559,7 +1563,9 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Swap element and swap element
          */
+        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZValue + ")");
         element.setZValue(swapZValue);
+        ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZValue + ")");
         swap.setZValue(currZValue);
 
         /*

@@ -39,7 +39,7 @@ public enum EPNMLParserExitCode {
     }
 
     /**
-     * @return the value of the enum elemment
+     * @return the value of the enum element
      */
     public int getValue() {
         return this.value;

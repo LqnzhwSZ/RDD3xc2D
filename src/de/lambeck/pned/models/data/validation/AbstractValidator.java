@@ -16,7 +16,7 @@ import de.lambeck.pned.models.data.IDataModelController;
  * @author Thomas Lambeck, 4128320
  *
  */
-public abstract class AbstractValidator {
+public abstract class AbstractValidator implements IValidator {
 
     /**
      * The variable for the the {@link I18NManager} to get the info string for
@@ -81,11 +81,7 @@ public abstract class AbstractValidator {
      * Validation methods
      */
 
-    /**
-     * Starts this validation for the specified {@link IDataModel}.
-     * 
-     * @param dataModel
-     */
+    @Override
     public void startValidation(IDataModel dataModel) {
         this.myDataModel = dataModel;
         this.myDataModelName = dataModel.getModelName();
@@ -95,15 +91,8 @@ public abstract class AbstractValidator {
      * Return methods
      */
 
-    /**
-     * Returns true if this {@link AbstractValidator} has more
-     * {@link IValidationMsg} in his list of validation messages. Otherwise:
-     * Removes the reference to the {@link IDataModel} and returns false to
-     * indicate that this validation is complete.
-     * 
-     * @return True if there are more messages; otherwise false
-     */
-    public Boolean hasMoreMessages() {
+    @Override
+    public boolean hasMoreMessages() {
         // if (this.curNode != null) { return true; }
         if (!validationMessages.isEmpty())
             return true;
@@ -112,11 +101,7 @@ public abstract class AbstractValidator {
         return false;
     }
 
-    /**
-     * Returns the next message of this validator.
-     * 
-     * @return The next {@link IValidationMsg}
-     */
+    @Override
     public IValidationMsg nextMessage() {
         IValidationMsg nextMessage = null;
         nextMessage = validationMessages.remove(0);

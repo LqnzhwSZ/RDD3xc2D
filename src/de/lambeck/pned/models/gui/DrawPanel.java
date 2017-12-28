@@ -13,7 +13,6 @@ import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.gui.ECustomColor;
-import de.lambeck.pned.gui.popupMenu.PopupMenuManager;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
@@ -170,12 +169,11 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         setLayout(new BorderLayout());
 
         /*
-         * Two MouseListeners for "normal" MouseEvents and MouseEvents
-         * requesting a popup menu and a 3rd MouseMotionListener
+         * MouseListener to select and move nodes and to show popup menus and a
+         * MouseMotionListener
          */
-        addMouseListener(new MyMouseAdapter(this, guiController));
-        addMouseListener(new PopupMenuManager(this, guiController, popupActions));
-        addMouseMotionListener(new MyMouseAdapter(this, guiController));
+        addMouseListener(new MyMouseAdapter(this, myGuiController, popupActions));
+        addMouseMotionListener(new MyMouseAdapter(this, myGuiController, popupActions));
 
         /*
          * KeyboardFocusManager replaces KeyBindings because of unexpected mouse

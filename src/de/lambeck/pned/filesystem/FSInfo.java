@@ -21,6 +21,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class FSInfo {
 
+    /** The standard suffix of PNML files */
+    private final static String suffix = ".pnml";
+
     /**
      * Self test...
      * 
@@ -202,6 +205,10 @@ public class FSInfo {
 
             File file = fileChooser.getSelectedFile();
             canonicalPath = getCanonicalPath(file);
+
+            if (!canonicalPath.endsWith(suffix)) {
+                canonicalPath = canonicalPath + suffix;
+            }
 
             /*
              * Overwrite warning?

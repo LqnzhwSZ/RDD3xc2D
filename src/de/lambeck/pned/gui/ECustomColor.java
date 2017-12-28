@@ -98,7 +98,7 @@ public enum ECustomColor {
     }
 
     /**
-     * @return the color of this enum elemment
+     * @return the color of this enum element
      */
     public Color getColor() {
         return new Color(red, green, blue);
