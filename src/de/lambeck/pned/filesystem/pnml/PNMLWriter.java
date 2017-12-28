@@ -3,6 +3,9 @@ package de.lambeck.pned.filesystem.pnml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -61,6 +64,7 @@ public final class PNMLWriter {
      * Methode startXMLDocument() initialisiert.
      */
     private XMLStreamWriter writer = null;
+    private FileOutputStream fos = null;
 
     /**
      * Dieser Konstruktor erstellt einen neuen Writer für PNML Dateien, dem die
@@ -86,7 +90,8 @@ public final class PNMLWriter {
         int result = -1;
 
         try {
-            FileOutputStream fos = new FileOutputStream(pnmlDatei);
+        	this.fos = (FileOutputStream) saveOutputStreamClose(this.fos);
+            this.fos = new FileOutputStream(pnmlDatei);
             XMLOutputFactory factory = XMLOutputFactory.newInstance();
             writer = factory.createXMLStreamWriter(fos, "UTF-8");
 
@@ -139,6 +144,8 @@ public final class PNMLWriter {
 
                 writer.close();
 
+                this.fos = (FileOutputStream) saveOutputStreamClose(this.fos);
+                
                 result = 0;
 
             } catch (XMLStreamException e) {
@@ -397,5 +404,32 @@ public final class PNMLWriter {
             System.err.println("Unable to write spacers: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    
+    private OutputStream saveOutputStreamClose(OutputStream os) {
+    	if (os == null) {
+    		return null;
+    	}
+    	try {
+			os.flush();
+			os.close();
+		} catch (IOException e) {
+			// NOP
+		}
+    	os = null;
+    	return os;
+    }
+
+    private InputStream saveInputStreamClose(InputStream os) {
+    	if (os == null) {
+    		return null;
+    	}
+    	try {
+			os.close();
+		} catch (IOException e) {
+			// NOP
+		}
+    	os = null;
+    	return os;
     }
 }
