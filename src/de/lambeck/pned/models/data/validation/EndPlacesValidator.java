@@ -47,7 +47,7 @@ public class EndPlacesValidator extends AbstractValidator {
         addValidatorInfo();
 
         /* Reset all previous end places. */
-        myDataModelController.resetAllEndPlaces(myDataModelName);
+        myDataModelController.resetAllDataEndPlaces(myDataModelName);
 
         /* Store all end places. */
         List<String> endPlaces = getEndPlaces();
@@ -114,7 +114,7 @@ public class EndPlacesValidator extends AbstractValidator {
      */
     private void highlightEndPlaces(List<String> endPlaces) {
         for (String placeId : endPlaces) {
-            myDataModelController.setEndPlace(myDataModelName, placeId, true);
+            myDataModelController.setDataEndPlace(myDataModelName, placeId, true);
         }
     }
 

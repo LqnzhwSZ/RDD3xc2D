@@ -35,7 +35,7 @@ public class DataModel implements IDataModel, IModelRename {
     /**
      * List of all elements in this model
      */
-    private ArrayList<IDataElement> elements = new ArrayList<>();
+    private List<IDataElement> elements = new ArrayList<>();
 
     /**
      * This attribute is set if the model was modified in any way to make sure
@@ -320,11 +320,8 @@ public class DataModel implements IDataModel, IModelRename {
             }
         }
 
-        /*
-         * Add the element
-         */
+        /* Add the element */
         this.elements.add(newElement);
-        // DataModelController does this! // setModified(true, true);
 
         /*
          * If the added element was an arc: update the predecessor and successor
@@ -428,12 +425,8 @@ public class DataModel implements IDataModel, IModelRename {
             throw new NoSuchElementException(errorMessage);
         }
 
-        /*
-         * Remove the element
-         */
-        boolean elementRemoved = elements.remove(removeElement);
-        // DataModelController does this! // if (elementRemoved)
-        // setModified(true, true);
+        /* Remove the element */
+        elements.remove(removeElement);
 
         /*
          * If the removed element was an arc: update the predecessor and
@@ -568,7 +561,6 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         elements.clear();
-        // DataModelController does this! // setModified(true, true);
     }
 
     /*
@@ -577,7 +569,9 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public List<IDataElement> getElements() {
-        return elements;
+        // return this.elements;
+        List<IDataElement> copy = new ArrayList<IDataElement>(this.elements);
+        return copy;
     }
 
     @Override

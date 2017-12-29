@@ -76,7 +76,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     }
 
     @Override
-    public void setStartPlace(boolean b) {
+    public void setGuiStartPlace(boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setStartPlace", b);
         }
@@ -85,7 +85,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     }
 
     @Override
-    public void setEndPlace(boolean b) {
+    public void setGuiEndPlace(boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setEndPlace", b);
         }
@@ -136,7 +136,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
      *            The Graphics2D object
      */
     private void drawTokens(Graphics2D g2) {
-        int size = shapeSize * (tokensSizePercentage / 100); // shapeSize =
+        int size = (shapeSize * tokensSizePercentage) / 100; // shapeSize =
                                                              // shape diameter
         int offset = size / 2;
         int left_x = this.shapeCenter.x - offset;

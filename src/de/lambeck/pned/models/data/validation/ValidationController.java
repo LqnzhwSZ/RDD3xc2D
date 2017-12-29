@@ -113,6 +113,16 @@ public class ValidationController extends Thread implements IValidationControlle
                             msgPanel.addMessage("");
 
                             /*
+                             * Check if validation errors already are severe
+                             * enough to cancel further validators. (We started
+                             * with the assumption that the model is valid.)
+                             */
+                            if (!isModelValid) {
+                                /* Don't change the "checked" state. */
+                                break;
+                            }
+
+                            /*
                              * Check if the user has switched to another file.
                              * (In which case the current model would have been
                              * changed and we can quit before starting the next

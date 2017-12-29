@@ -305,7 +305,7 @@ public interface IDataModelController extends IInfo_Status {
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      */
-    void resetAllStartPlaces(String modelName);
+    void resetAllDataStartPlaces(String modelName);
 
     /**
      * Callback for the {@link EndPlacesValidator} to reset all end places.
@@ -314,7 +314,7 @@ public interface IDataModelController extends IInfo_Status {
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      */
-    void resetAllEndPlaces(String modelName);
+    void resetAllDataEndPlaces(String modelName);
 
     /**
      * Callback for the {@link StartPlacesValidator} to set the specified
@@ -328,7 +328,7 @@ public interface IDataModelController extends IInfo_Status {
      * @param b
      *            True to set as start place; otherwise false
      */
-    void setStartPlace(String modelName, String placeId, boolean b);
+    void setDataStartPlace(String modelName, String placeId, boolean b);
 
     /**
      * Callback for the {@link EndPlacesValidator} to set the specified
@@ -342,7 +342,7 @@ public interface IDataModelController extends IInfo_Status {
      * @param b
      *            True to set as end place; otherwise false
      */
-    void setEndPlace(String modelName, String placeId, boolean b);
+    void setDataEndPlace(String modelName, String placeId, boolean b);
 
     /**
      * Callback for the {@link AllNodesOnPathsValidator} to highlight nodes that
@@ -357,6 +357,30 @@ public interface IDataModelController extends IInfo_Status {
      *            True = unreachable; False = can be reached from the start
      *            place and can reach the end place
      */
-    void highlightUnreachable(String modelName, String nodeId, boolean b);
+    void highlightUnreachableDataNode(String modelName, String nodeId, boolean b);
+
+    /**
+     * Removes the token from all {@link DataPlace} in the specified data model.
+     * 
+     * Intended use: After structural changes in the model
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    void removeAllDataTokens(String modelName);
+
+    /**
+     * Adds a token to all specified {@link DataPlace} in the specified data
+     * model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placesWithToken
+     *            A {@link List} of type {@link String} with the IDs of the
+     *            specified places
+     */
+    void addDataToken(String modelName, List<String> placesWithToken);
 
 }

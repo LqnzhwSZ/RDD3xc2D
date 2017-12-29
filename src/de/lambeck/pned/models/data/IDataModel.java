@@ -20,9 +20,14 @@ public interface IDataModel extends IModel {
      */
 
     /**
-     * Adds parameter "revalidate" to setModified(boolean b) because not all
-     * changes to the model change the structure of the workflow net. (e.g.
-     * renaming a node)
+     * Adds parameter "revalidate" to setModified(boolean b) in {@link IModel}
+     * because not all changes to the model change the structure of the workflow
+     * net. (e.g. renaming a node)
+     * 
+     * Note: Use this method in the {@link IDataModelController} only because
+     * some changes in the data model (e.g. firing a transition) must leave the
+     * validation unchanged (because validators may reset the marking of the
+     * Petri net to the initial marking)!
      * 
      * @param b
      *            The new state

@@ -10,9 +10,7 @@ import de.lambeck.pned.application.actions.EditDeleteAction;
 import de.lambeck.pned.application.actions.EditRenameAction;
 import de.lambeck.pned.application.actions.NewPlaceAction;
 import de.lambeck.pned.elements.ENodeType;
-import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.EPlaceToken;
-import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;
@@ -452,7 +450,7 @@ public interface IGuiModelController
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      */
-    void resetAllStartPlaces(String modelName);
+    void resetAllGuiStartPlaces(String modelName);
 
     /**
      * Handles the {@link ApplicationController} request to reset all end places
@@ -462,7 +460,7 @@ public interface IGuiModelController
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      */
-    void resetAllEndPlaces(String modelName);
+    void resetAllGuiEndPlaces(String modelName);
 
     /**
      * Handles the {@link ApplicationController} request to update the start
@@ -472,11 +470,11 @@ public interface IGuiModelController
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @param placeId
-     *            The id of the {@link DataPlace}
+     *            The id of the {@link IGuiPlace}
      * @param b
      *            True to set as start place; otherwise false
      */
-    void setStartPlace(String modelName, String placeId, boolean b);
+    void setGuiStartPlace(String modelName, String placeId, boolean b);
 
     /**
      * Handles the {@link ApplicationController} request to update the end place
@@ -486,25 +484,48 @@ public interface IGuiModelController
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @param placeId
-     *            The id of the {@link DataPlace}
+     *            The id of the {@link IGuiPlace}
      * @param b
      *            True to set as end place; otherwise false
      */
-    void setEndPlace(String modelName, String placeId, boolean b);
+    void setGuiEndPlace(String modelName, String placeId, boolean b);
 
     /**
      * Handles the {@link ApplicationController} request to update the status of
-     * the specified node.
+     * the specified GUI node.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @param nodeId
-     *            The id of the {@link IDataNode}
+     *            The id of the {@link IGuiNode}
      * @param b
      *            True = unreachable; False = can be reached from the start
      *            place and can reach the end place
      */
-    void highlightUnreachable(String modelName, String nodeId, boolean b);
+    void highlightUnreachableGuiNode(String modelName, String nodeId, boolean b);
+
+    /**
+     * Handles the {@link ApplicationController} request to remove the token
+     * from all GUI places in the specified model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    void removeAllGuiTokens(String modelName);
+
+    /**
+     * Handles the {@link ApplicationController} request to add a token to all
+     * specified GUI places in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placesWithToken
+     *            A {@link List} of type {@link String} with the IDs of the
+     *            specified places
+     */
+    void addGuiToken(String modelName, List<String> placesWithToken);
 
 }

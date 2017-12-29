@@ -238,7 +238,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
             String nodeId = entry.getKey();
             // IDataNode node = entry.getValue();
             // String nodeId = node.getId();
-            myDataModelController.highlightUnreachable(myDataModelName, nodeId, false);
+            myDataModelController.highlightUnreachableDataNode(myDataModelName, nodeId, false);
         }
     }
 
@@ -318,7 +318,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
     private void highlightUnreachableNodes(List<IDataNode> unreachableNodes) {
         for (IDataNode node : unreachableNodes) {
             String nodeId = node.getId();
-            myDataModelController.highlightUnreachable(myDataModelName, nodeId, true);
+            myDataModelController.highlightUnreachableDataNode(myDataModelName, nodeId, true);
         }
     }
 

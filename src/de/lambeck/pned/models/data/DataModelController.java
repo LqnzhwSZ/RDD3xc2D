@@ -8,10 +8,7 @@ import java.util.Map.Entry;
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
-import de.lambeck.pned.elements.data.EPlaceToken;
-import de.lambeck.pned.elements.data.IDataArc;
-import de.lambeck.pned.elements.data.IDataElement;
-import de.lambeck.pned.elements.data.IDataNode;
+import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
@@ -747,48 +744,91 @@ public class DataModelController implements IDataModelController {
      */
 
     @Override
-    public void resetAllStartPlaces(String modelName) {
+    public void resetAllDataStartPlaces(String modelName) {
         /*
          * Nothing to do here. Only the GUIPlaces need this information for
          * their paintElement() method.
          */
-        appController.resetAllStartPlaces(modelName);
+        appController.resetAllGuiStartPlaces(modelName);
     }
 
     @Override
-    public void resetAllEndPlaces(String modelName) {
+    public void resetAllDataEndPlaces(String modelName) {
         /*
          * Nothing to do here. Only the GUIPlaces need this information for
          * their paintElement() method.
          */
-        appController.resetAllEndPlaces(modelName);
+        appController.resetAllGuiEndPlaces(modelName);
     }
 
     @Override
-    public void setStartPlace(String modelName, String placeId, boolean b) {
+    public void setDataStartPlace(String modelName, String placeId, boolean b) {
         /*
          * Nothing to do here. Only the GUIPlace needs this information for his
          * paintElement() method.
          */
-        appController.setStartPlace(modelName, placeId, b);
+        appController.setGuiStartPlace(modelName, placeId, b);
     }
 
     @Override
-    public void setEndPlace(String modelName, String placeId, boolean b) {
+    public void setDataEndPlace(String modelName, String placeId, boolean b) {
         /*
          * Nothing to do here. Only the GUIPlace needs this information for his
          * paintElement() method.
          */
-        appController.setEndPlace(modelName, placeId, b);
+        appController.setGuiEndPlace(modelName, placeId, b);
     }
 
     @Override
-    public void highlightUnreachable(String modelName, String nodeId, boolean b) {
+    public void highlightUnreachableDataNode(String modelName, String nodeId, boolean b) {
         /*
          * Nothing to do here. Only the GUINode needs this information for his
          * paintElement() method.
          */
-        appController.highlightUnreachable(modelName, nodeId, b);
+        appController.highlightUnreachableGuiNode(modelName, nodeId, b);
+    }
+
+    @Override
+    public void removeAllDataTokens(String modelName) {
+        IDataModel dataModel = this.dataModels.get(modelName);
+        if (dataModel == null)
+            return; // Validator thread might work with slightly too old data.
+
+        /*
+         * Remove the token from all data places and pass the info to the GUI
+         * model controller.
+         */
+        for (IDataElement dataElement : dataModel.getElements()) {
+            if (dataElement instanceof DataPlace) {
+                DataPlace dataPlace = (DataPlace) dataElement;
+                dataPlace.setTokens(EPlaceToken.ZERO);
+            }
+        }
+
+        appController.removeAllGuiTokens(modelName);
+    }
+
+    @Override
+    public void addDataToken(String modelName, List<String> placesWithToken) {
+        IDataModel dataModel = this.dataModels.get(modelName);
+        if (dataModel == null)
+            return; // Validator thread might work with slightly too old data.
+
+        /*
+         * Add a token to all specified data places and pass the info to the GUI
+         * model controller.
+         */
+        for (IDataElement dataElement : dataModel.getElements()) {
+            if (dataElement instanceof DataPlace) {
+                DataPlace dataPlace = (DataPlace) dataElement;
+                String dataPlaceId = dataPlace.getId();
+                if (placesWithToken.contains(dataPlaceId)) {
+                    dataPlace.setTokens(EPlaceToken.ONE);
+                }
+            }
+        }
+
+        appController.addGuiToken(modelName, placesWithToken);
     }
 
 }

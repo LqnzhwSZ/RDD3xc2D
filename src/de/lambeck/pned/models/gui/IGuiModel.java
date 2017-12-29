@@ -175,7 +175,7 @@ public interface IGuiModel extends IModel {
      * @param b
      *            True to set as start place; otherwise false
      */
-    void setStartPlace(String placeId, boolean b);
+    void setGuiStartPlace(String placeId, boolean b);
 
     /**
      * Handles the {@link IGuiModelController} request to update the end place
@@ -186,11 +186,11 @@ public interface IGuiModel extends IModel {
      * @param b
      *            True to set as end place; otherwise false
      */
-    void setEndPlace(String placeId, boolean b);
+    void setGuiEndPlace(String placeId, boolean b);
 
     /**
      * Handles the {@link IGuiModelController} request to update the status of
-     * the specified node.
+     * the specified GUI node on the draw panel.
      * 
      * @param nodeId
      *            The id of the {@link IDataNode}
@@ -198,6 +198,6 @@ public interface IGuiModel extends IModel {
      *            True = unreachable; False = can be reached from the start
      *            place and can reach the end place
      */
-    void highlightUnreachable(String nodeId, boolean b);
+    void highlightUnreachableGuiNode(String nodeId, boolean b);
 
 }

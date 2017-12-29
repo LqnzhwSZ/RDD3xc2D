@@ -41,24 +41,17 @@ public class GuiModel implements IGuiModel, IModelRename {
     /**
      * List of all elements in this model
      */
-    private ArrayList<IGuiElement> elements = new ArrayList<>();
-
-    @Override
-    public IGuiElement getElementById(String id) throws NoSuchElementException {
-        for (IGuiElement element : elements) {
-            if (element.getId() == id)
-                return element;
-        }
-
-        throw new NoSuchElementException();
-    }
+    private List<IGuiElement> elements = new ArrayList<>();
 
     /**
      * List of all elements selected by the user.
      */
-    private ArrayList<IGuiElement> selected = new ArrayList<>();
+    private List<IGuiElement> selected = new ArrayList<>();
 
+    /** The minimum z value of all elements in this model */
     private int minZValue = 0;
+
+    /** The maximum z value of all elements in this model */
     private int maxZValue = 0;
 
     /**
@@ -116,6 +109,62 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
+    public List<IGuiElement> getElements() {
+        // return this.elements;
+        List<IGuiElement> copy = new ArrayList<IGuiElement>(this.elements);
+        return copy;
+    }
+
+    @Override
+    public IGuiElement getElementById(String id) throws NoSuchElementException {
+        for (IGuiElement element : elements) {
+            if (element.getId() == id)
+                return element;
+        }
+
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public List<IGuiElement> getSelectedElements() {
+        // return this.selected;
+        List<IGuiElement> copy = new ArrayList<IGuiElement>(this.selected);
+        return copy;
+    }
+
+    @Override
+    public IGuiNode getNodeById(String nodeId) {
+        IGuiElement element = getElementById(nodeId);
+        if (element == null) {
+            System.err.println("Element " + nodeId + " not found!");
+            return null;
+        }
+
+        if (element instanceof IGuiNode) {
+            IGuiNode node = (IGuiNode) element;
+            return node;
+        }
+
+        return null;
+    }
+
+    @Override
+    public IGuiPlace getPlaceById(String placeId) {
+        IGuiElement element = getElementById(placeId);
+        if (element == null) {
+            System.err.println("Element " + placeId + " not found!");
+            return null;
+        }
+
+        if (element instanceof IGuiPlace) {
+            IGuiPlace place = (IGuiPlace) element;
+            return place;
+        }
+
+        return null;
+    }
+
+    @Override
     public int getMinZValue() {
         return this.minZValue;
     }
@@ -165,48 +214,6 @@ public class GuiModel implements IGuiModel, IModelRename {
     @Override
     public void setModified(boolean b) {
         this.modelModified = b;
-    }
-
-    @Override
-    public List<IGuiElement> getElements() {
-        return this.elements;
-    }
-
-    @Override
-    public List<IGuiElement> getSelectedElements() {
-        return selected;
-    }
-
-    @Override
-    public IGuiPlace getPlaceById(String placeId) {
-        IGuiElement element = getElementById(placeId);
-        if (element == null) {
-            System.err.println("Element " + placeId + " not found!");
-            return null;
-        }
-
-        if (element instanceof IGuiPlace) {
-            IGuiPlace place = (IGuiPlace) element;
-            return place;
-        }
-
-        return null;
-    }
-
-    @Override
-    public IGuiNode getNodeById(String nodeId) {
-        IGuiElement element = getElementById(nodeId);
-        if (element == null) {
-            System.err.println("Element " + nodeId + " not found!");
-            return null;
-        }
-
-        if (element instanceof IGuiNode) {
-            IGuiNode node = (IGuiNode) element;
-            return node;
-        }
-
-        return null;
     }
 
     /*
@@ -411,7 +418,6 @@ public class GuiModel implements IGuiModel, IModelRename {
             if (test == newElement) { throw new PNDuplicateAddedException("Duplicate of: " + test.toString()); }
         }
         elements.add(newElement);
-        // GuiModelController does this! // setModified(true);
     }
 
     @Override
@@ -427,12 +433,8 @@ public class GuiModel implements IGuiModel, IModelRename {
                  */
                 this.selected.remove(test);
 
-                /*
-                 * Remove the element.
-                 */
-                boolean elementRemoved = elements.remove(test);
-                // GuiModelController does this! // if (elementRemoved)
-                // setModified(true);
+                /* Remove the element. */
+                elements.remove(test);
 
                 return;
             }
@@ -449,17 +451,115 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         elements.clear();
         selected.clear();
-        // GuiModelController does this! // setModified(true);
 
-        /*
-         * Repaint everything (Drawing should be empty anyways.)
-         */
+        /* Repaint everything. (Draw panel should be empty anyways.) */
         myGuiController.updateDrawing(null);
     }
 
+    @Override
+    public void selectSingleElement(IGuiElement element) {
+        clearSelection();
+        addToSelection(element);
+    }
+
+    @Override
+    public void toggleSelection(IGuiElement element) {
+        if (element == null)
+            return;
+
+        // List<IGuiElement> selected = myGuiModel.getSelectedElements();
+
+        if (!selected.contains(element)) {
+            addToSelection(element);
+        } else {
+            removeFromSelection(element);
+        }
+    }
+
+    @Override
+    public void clearSelection() {
+        /*
+         * Task: Invoke removeFromSelection() for all selected elements.
+         */
+
+        if (selected.size() == 0)
+            return;
+
+        /*
+         * Add to a separate list first to avoid ConcurrentModificationException
+         * when removeFromSelection() removes the element from the list!
+         */
+        List<IGuiElement> toBeRemoved = new ArrayList<IGuiElement>();
+        for (IGuiElement element : selected) {
+            toBeRemoved.add(element);
+        }
+
+        for (IGuiElement element : toBeRemoved) {
+            removeFromSelection(element);
+        }
+    }
+
     /*
-     * Helper methods
+     * Private helper methods
      */
+
+    private void addToSelection(IGuiElement element) {
+        if (element == null)
+            return;
+
+        // List<IGuiElement> selected = currentModel.getSelectedElements();
+
+        selected.add(element);
+        element.setSelected(true);
+
+        consoleLogSelection();
+    }
+
+    /**
+     * Removes the specified element from the selected elements.
+     * 
+     * @param element
+     *            The element to remove from selection
+     */
+    private void removeFromSelection(IGuiElement element) {
+        if (element == null)
+            return;
+
+        /*
+         * Repaint its area after removing the selection from this element!
+         */
+        Rectangle oldArea = element.getLastDrawingArea();
+        element.setSelected(false);
+        myGuiController.updateDrawing(oldArea);
+
+        /*
+         * Remove the element from the list of selected elements.
+         */
+        if (selected.size() == 0)
+            return;
+        if (!selected.contains(element))
+            return;
+        selected.remove(element);
+
+        consoleLogSelection();
+    }
+
+    private void consoleLogSelection() {
+        if (selected.size() == 0) {
+            System.out.println("No selection");
+        } else {
+            System.out.print("GuiModel, Selected elements: ");
+
+            String outputString = "";
+            for (IGuiElement element : selected) {
+                if (outputString != "")
+                    outputString = outputString + ", ";
+                outputString = outputString + element.getId();
+            }
+
+            System.out.println(outputString);
+        }
+    }
 
     /**
      * Increases x and y if the specified position is too far to the left or to
@@ -528,35 +628,11 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     /*
-     * Methods for adding, modify and removal of elements
-     */
-
-    @Override
-    public void selectSingleElement(IGuiElement element) {
-        clearSelection();
-        addToSelection(element);
-    }
-
-    @Override
-    public void toggleSelection(IGuiElement element) {
-        if (element == null)
-            return;
-
-        // List<IGuiElement> selected = myGuiModel.getSelectedElements();
-
-        if (!selected.contains(element)) {
-            addToSelection(element);
-        } else {
-            removeFromSelection(element);
-        }
-    }
-
-    /*
      * Validation events
      */
 
     @Override
-    public void setStartPlace(String placeId, boolean b) {
+    public void setGuiStartPlace(String placeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setStartPlace", placeId, b);
         }
@@ -567,11 +643,11 @@ public class GuiModel implements IGuiModel, IModelRename {
             return;
         }
 
-        place.setStartPlace(b);
+        place.setGuiStartPlace(b);
     }
 
     @Override
-    public void setEndPlace(String placeId, boolean b) {
+    public void setGuiEndPlace(String placeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setEndPlace", placeId, b);
         }
@@ -582,11 +658,11 @@ public class GuiModel implements IGuiModel, IModelRename {
             return;
         }
 
-        place.setEndPlace(b);
+        place.setGuiEndPlace(b);
     }
 
     @Override
-    public void highlightUnreachable(String nodeId, boolean b) {
+    public void highlightUnreachableGuiNode(String nodeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setEndPlace", nodeId, b);
         }
@@ -598,91 +674,6 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
 
         node.setUnreachable(b);
-    }
-
-    /*
-     * Private helper methods
-     */
-
-    private void addToSelection(IGuiElement element) {
-        if (element == null)
-            return;
-
-        // List<IGuiElement> selected = currentModel.getSelectedElements();
-
-        selected.add(element);
-        element.setSelected(true);
-
-        consoleLogSelection();
-    }
-
-    /**
-     * Removes the specified element from the selected elements.
-     * 
-     * @param element
-     *            The element to remove from selection
-     */
-    private void removeFromSelection(IGuiElement element) {
-        if (element == null)
-            return;
-
-        /*
-         * Repaint its area after removing the selection from this element!
-         */
-        Rectangle oldArea = element.getLastDrawingArea();
-        element.setSelected(false);
-        myGuiController.updateDrawing(oldArea);
-
-        /*
-         * Remove the element from the list of selected elements.
-         */
-        if (selected.size() == 0)
-            return;
-        if (!selected.contains(element))
-            return;
-        selected.remove(element);
-
-        consoleLogSelection();
-    }
-
-    @Override
-    public void clearSelection() {
-        /*
-         * Task: Invoke removeFromSelection() for all selected elements.
-         */
-
-        if (selected.size() == 0)
-            return;
-
-        /*
-         * Add to a separate list first to avoid ConcurrentModificationException
-         * when removeFromSelection() removes the element from the list!
-         */
-        List<IGuiElement> toBeRemoved = new ArrayList<IGuiElement>();
-        for (IGuiElement element : selected) {
-            toBeRemoved.add(element);
-        }
-
-        for (IGuiElement element : toBeRemoved) {
-            removeFromSelection(element);
-        }
-    }
-
-    private void consoleLogSelection() {
-        if (selected.size() == 0) {
-            System.out.println("No selection");
-        } else {
-            System.out.print("GuiModel, Selected elements: ");
-
-            String outputString = "";
-            for (IGuiElement element : selected) {
-                if (outputString != "")
-                    outputString = outputString + ", ";
-                outputString = outputString + element.getId();
-            }
-
-            System.out.println(outputString);
-        }
     }
 
 }

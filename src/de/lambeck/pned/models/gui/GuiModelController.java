@@ -1942,7 +1942,7 @@ public class GuiModelController implements IGuiModelController {
      */
 
     @Override
-    public void resetAllStartPlaces(String modelName) {
+    public void resetAllGuiStartPlaces(String modelName) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("resetAllStartPlaces", modelName);
         }
@@ -1954,18 +1954,19 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        for (IGuiElement element : guiModel.getElements()) {
-            if (element instanceof IGuiPlace) {
-                IGuiPlace place = (IGuiPlace) element;
-                place.setStartPlace(false);
+        for (IGuiElement guiElement : guiModel.getElements()) {
+            if (guiElement instanceof IGuiPlace) {
+                IGuiPlace guiPlace = (IGuiPlace) guiElement;
+                guiPlace.setGuiStartPlace(false);
             }
         }
 
+        /* Repaint (everything) */
         updateDrawing();
     }
 
     @Override
-    public void resetAllEndPlaces(String modelName) {
+    public void resetAllGuiEndPlaces(String modelName) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("resetAllEndPlaces", modelName);
         }
@@ -1977,10 +1978,10 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        for (IGuiElement element : guiModel.getElements()) {
-            if (element instanceof IGuiPlace) {
-                IGuiPlace place = (IGuiPlace) element;
-                place.setEndPlace(false);
+        for (IGuiElement guiElement : guiModel.getElements()) {
+            if (guiElement instanceof IGuiPlace) {
+                IGuiPlace guiPlace = (IGuiPlace) guiElement;
+                guiPlace.setGuiEndPlace(false);
             }
         }
 
@@ -1989,7 +1990,7 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public void setStartPlace(String modelName, String placeId, boolean b) {
+    public void setGuiStartPlace(String modelName, String placeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setStartPlace", modelName, placeId, b);
         }
@@ -2001,16 +2002,16 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        guiModel.setStartPlace(placeId, b);
+        guiModel.setGuiStartPlace(placeId, b);
 
         /* Repaint */
-        IGuiNode node = currentModel.getNodeById(placeId);
-        Rectangle rect = node.getLastDrawingArea();
+        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
 
     @Override
-    public void setEndPlace(String modelName, String placeId, boolean b) {
+    public void setGuiEndPlace(String modelName, String placeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setEndPlace", modelName, placeId, b);
         }
@@ -2022,16 +2023,16 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        guiModel.setEndPlace(placeId, b);
+        guiModel.setGuiEndPlace(placeId, b);
 
         /* Repaint */
-        IGuiNode node = currentModel.getNodeById(placeId);
-        Rectangle rect = node.getLastDrawingArea();
+        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
 
     @Override
-    public void highlightUnreachable(String modelName, String nodeId, boolean b) {
+    public void highlightUnreachableGuiNode(String modelName, String nodeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.highlightUnreachable", modelName, nodeId, b);
         }
@@ -2043,12 +2044,57 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        guiModel.highlightUnreachable(nodeId, b);
+        guiModel.highlightUnreachableGuiNode(nodeId, b);
 
         /* Repaint */
-        IGuiNode node = currentModel.getNodeById(nodeId);
-        Rectangle rect = node.getLastDrawingArea();
+        IGuiNode guiNode = currentModel.getNodeById(nodeId);
+        Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
+    }
+
+    @Override
+    public void removeAllGuiTokens(String modelName) {
+        IGuiModel model = this.guiModels.get(modelName);
+        if (model == null)
+            return; // Validator thread might work with slightly too old data.
+
+        /* Remove the token from all GUI places as well. */
+        for (IGuiElement guiElement : model.getElements()) {
+            if (guiElement instanceof IGuiPlace) {
+                IGuiPlace guiPlace = (IGuiPlace) guiElement;
+                guiPlace.setTokens(EPlaceToken.ZERO);
+            }
+        }
+
+        /* Repaint (everything) */
+        updateDrawing();
+    }
+
+    @Override
+    public void addGuiToken(String modelName, List<String> placesWithToken) {
+        IGuiModel model = this.guiModels.get(modelName);
+        if (model == null)
+            return; // Validator thread might work with slightly too old data.
+
+        /* List for the drawing areas we are going to change. */
+        List<Rectangle> drawingAreas = new LinkedList<Rectangle>();
+
+        /* Add a token to all specified GUI places as well. */
+        for (IGuiElement guiElement : model.getElements()) {
+            if (guiElement instanceof IGuiPlace) {
+                IGuiPlace guiPlace = (IGuiPlace) guiElement;
+                String guiPlaceId = guiPlace.getId();
+                if (placesWithToken.contains(guiPlaceId)) {
+                    guiPlace.setTokens(EPlaceToken.ONE);
+
+                    Rectangle rect = guiPlace.getLastDrawingArea();
+                    drawingAreas.add(rect);
+                }
+            }
+        }
+
+        /* Repaint */
+        updateDrawing(drawingAreas);
     }
 
 }

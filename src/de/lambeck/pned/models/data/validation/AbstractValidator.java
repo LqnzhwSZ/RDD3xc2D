@@ -25,11 +25,12 @@ public abstract class AbstractValidator implements IValidator {
     protected String validatorInfoString = "";
 
     /** The ID of this validator */
-    protected int Id = -1;
+    protected int validatorId = -1;
 
     /** The {@link IDataModelController} for important messages/results */
     protected IDataModelController myDataModelController = null;
 
+    /** The source object for I18N strings */
     protected I18NManager i18n;
 
     /** The {@link IDataModel} to check */
@@ -72,7 +73,7 @@ public abstract class AbstractValidator implements IValidator {
     @SuppressWarnings("hiding")
     public AbstractValidator(int Id, IDataModelController dataModelController, I18NManager i18n) {
         super();
-        this.Id = Id;
+        this.validatorId = Id;
         this.myDataModelController = dataModelController;
         this.i18n = i18n;
     }
@@ -119,7 +120,7 @@ public abstract class AbstractValidator implements IValidator {
         String message;
         IValidationMsg vMessage;
 
-        message = "Validator " + this.Id + ":";
+        message = "Validator " + this.validatorId + ":";
         vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
         validationMessages.add(vMessage);
 

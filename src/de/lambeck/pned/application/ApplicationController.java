@@ -14,10 +14,7 @@ import javax.swing.*;
 
 import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.data.*;
-import de.lambeck.pned.elements.gui.GuiTransition;
-import de.lambeck.pned.elements.gui.IGuiArc;
-import de.lambeck.pned.elements.gui.IGuiElement;
-import de.lambeck.pned.elements.gui.IGuiPlace;
+import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.PNMLWriter;
 import de.lambeck.pned.gui.menuBar.MenuBar;
@@ -208,6 +205,9 @@ public class ApplicationController extends AbstractApplicationController {
 
         IValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, dataModelController, i18n);
         this.validationController.addValidator(allNodesOnPathsValidator);
+
+        IValidator initialMarkingValidator = new InitialMarkingValidator(4, dataModelController, i18n);
+        this.validationController.addValidator(initialMarkingValidator);
     }
 
     /*
@@ -2041,8 +2041,8 @@ public class ApplicationController extends AbstractApplicationController {
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      */
-    public void resetAllStartPlaces(String modelName) {
-        guiModelController.resetAllStartPlaces(modelName);
+    public void resetAllGuiStartPlaces(String modelName) {
+        guiModelController.resetAllGuiStartPlaces(modelName);
     }
 
     /**
@@ -2053,8 +2053,8 @@ public class ApplicationController extends AbstractApplicationController {
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      */
-    public void resetAllEndPlaces(String modelName) {
-        guiModelController.resetAllEndPlaces(modelName);
+    public void resetAllGuiEndPlaces(String modelName) {
+        guiModelController.resetAllGuiEndPlaces(modelName);
     }
 
     /**
@@ -2065,12 +2065,12 @@ public class ApplicationController extends AbstractApplicationController {
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @param placeId
-     *            The id of the {@link DataPlace}
+     *            The id of the {@link IGuiPlace}
      * @param b
      *            True to set as start place; otherwise false
      */
-    public void setStartPlace(String modelName, String placeId, boolean b) {
-        guiModelController.setStartPlace(modelName, placeId, b);
+    public void setGuiStartPlace(String modelName, String placeId, boolean b) {
+        guiModelController.setGuiStartPlace(modelName, placeId, b);
     }
 
     /**
@@ -2081,29 +2081,56 @@ public class ApplicationController extends AbstractApplicationController {
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @param placeId
-     *            The id of the {@link DataPlace}
+     *            The id of the {@link IGuiPlace}
      * @param b
      *            True to set as end place; otherwise false
      */
-    public void setEndPlace(String modelName, String placeId, boolean b) {
-        guiModelController.setEndPlace(modelName, placeId, b);
+    public void setGuiEndPlace(String modelName, String placeId, boolean b) {
+        guiModelController.setGuiEndPlace(modelName, placeId, b);
     }
 
     /**
      * Handles the {@link IDataModelController} request to update the status of
-     * the specified node.
+     * the specified GUI node.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @param nodeId
-     *            The id of the {@link IDataNode}
+     *            The id of the {@link IGuiNode}
      * @param b
      *            True = unreachable; False = can be reached from the start
      *            place and can reach the end place
      */
-    public void highlightUnreachable(String modelName, String nodeId, boolean b) {
-        guiModelController.highlightUnreachable(modelName, nodeId, b);
+    public void highlightUnreachableGuiNode(String modelName, String nodeId, boolean b) {
+        guiModelController.highlightUnreachableGuiNode(modelName, nodeId, b);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to remove the token from
+     * all GUI places in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    public void removeAllGuiTokens(String modelName) {
+        guiModelController.removeAllGuiTokens(modelName);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to add a token to all
+     * specified GUI places in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placesWithToken
+     *            A {@link List} of type {@link String} with the IDs of the
+     *            specified places
+     */
+    public void addGuiToken(String modelName, List<String> placesWithToken) {
+        guiModelController.addGuiToken(modelName, placesWithToken);
     }
 
 }

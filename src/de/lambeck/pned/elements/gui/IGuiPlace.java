@@ -31,7 +31,7 @@ public interface IGuiPlace extends IGuiNode {
      * @param b
      *            Set to true if this is the start place; otherwise false.
      */
-    void setStartPlace(boolean b);
+    void setGuiStartPlace(boolean b);
 
     /**
      * Sets this places status as an end place.
@@ -39,6 +39,6 @@ public interface IGuiPlace extends IGuiNode {
      * @param b
      *            Set to true if this is the end place; otherwise false.
      */
-    void setEndPlace(boolean b);
+    void setGuiEndPlace(boolean b);
 
 }

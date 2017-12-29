@@ -47,7 +47,7 @@ public class StartPlacesValidator extends AbstractValidator {
         addValidatorInfo();
 
         /* Reset all previous start places. */
-        myDataModelController.resetAllStartPlaces(myDataModelName);
+        myDataModelController.resetAllDataStartPlaces(myDataModelName);
 
         /* Store all start places. */
         List<String> startPlaces = getStartPlaces();
@@ -114,7 +114,7 @@ public class StartPlacesValidator extends AbstractValidator {
      */
     private void highlightStartPlaces(List<String> startPlaces) {
         for (String placeId : startPlaces) {
-            myDataModelController.setStartPlace(myDataModelName, placeId, true);
+            myDataModelController.setDataStartPlace(myDataModelName, placeId, true);
         }
     }
 

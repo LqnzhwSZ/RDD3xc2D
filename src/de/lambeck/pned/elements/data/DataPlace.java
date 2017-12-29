@@ -45,8 +45,10 @@ public class DataPlace extends DataNode {
     }
 
     /**
+     * Sets the new tokens count ({@link EPlaceToken}) of this place.
+     * 
      * @param newTokens
-     *            Specifies the new tokens count of this place.
+     *            The new tokens count
      */
     public void setTokens(EPlaceToken newTokens) {
         this.tokens = newTokens;
