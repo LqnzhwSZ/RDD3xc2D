@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.models.IModel;
+import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
 
 /**
  * Sub type of IModel for data models (with all persistent information loaded
@@ -32,7 +33,8 @@ public interface IDataModel extends IModel {
      * @param b
      *            The new state
      * @param revalidate
-     *            Indicates if the changes require a revalidation of the model.
+     *            Indicates whether the changes require a revalidation of the
+     *            model.
      */
     void setModified(boolean b, boolean revalidate);
 
@@ -64,14 +66,35 @@ public interface IDataModel extends IModel {
     boolean isModelChecked();
 
     /**
+     * This function indicates whether the next validation of this model is the
+     * initial validation after reading from a PNML file.
+     * 
+     * Note: This function is necessary for the {@link InitialMarkingValidator}
+     * to allow to decide whether to reset the marking or not.
+     * 
+     * @return true = model was never checked before, false = model already was
+     *         checked before
+     */
+    boolean isInitialModelCheck();
+
+    /**
      * The check state indicates, whether the model needs checking or not. This
-     * method will set this state. Any changes to the model will set this state
-     * to false.
+     * method will set this state. The {@link IDataModelController} has to
+     * invoke this method whenever changes to this data model change the
+     * structure of the Petri net. (Not simple changes like moving or renaming
+     * nodes.)
+     * 
+     * Parameter "removeInitialCheckState" allows to control which validation
+     * will count as "initial validation" since "initial validation" is abort
+     * condition for some validators.
      * 
      * @param b
      *            new model check state
+     * @param removeInitialCheckState
+     *            True = remove "initial check" state from the model, false = do
+     *            not change the "initial check" state
      */
-    void setModelChecked(boolean b);
+    void setModelChecked(boolean b, boolean removeInitialCheckState);
 
     /**
      * The validity state indicates, whether the model is valid or not. This

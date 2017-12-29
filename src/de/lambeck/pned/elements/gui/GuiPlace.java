@@ -3,7 +3,7 @@ package de.lambeck.pned.elements.gui;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.util.ConsoleLogger;
 

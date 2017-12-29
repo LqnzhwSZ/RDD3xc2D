@@ -1,4 +1,4 @@
-package de.lambeck.pned.elements.data;
+package de.lambeck.pned.elements;
 
 /**
  * Possible tokens for places. (0 or 1 for a Workflow net)
@@ -35,4 +35,12 @@ public enum EPlaceToken {
     public String toPnedString() {
         return Integer.toString(this.value);
     }
+
+    /**
+     * @return the value of the enum element as int
+     */
+    public int toInt() {
+        return this.value;
+    }
+
 }

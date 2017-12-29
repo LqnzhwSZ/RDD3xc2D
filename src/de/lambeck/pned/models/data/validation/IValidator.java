@@ -14,8 +14,12 @@ public interface IValidator {
      * Starts this validation for the specified {@link IDataModel}.
      * 
      * @param dataModel
+     *            The specified {@link IDataModel}
+     * @param initialModelCheck
+     *            True = data model was just loaded from a PNML file, false =
+     *            data model has already been checked before.
      */
-    void startValidation(IDataModel dataModel);
+    void startValidation(IDataModel dataModel, boolean initialModelCheck);
 
     /**
      * Returns true if this {@link AbstractValidator} has more

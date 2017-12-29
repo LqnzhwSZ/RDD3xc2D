@@ -1,39 +1,29 @@
 package de.lambeck.pned.models.data.validation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataElement;
-import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Sets the initial marking (token on the start place) and checks which
- * transitions are activated.
+ * Sets the initial marking (token on the start place) if the model was modified
+ * but leaves an existing initial marking from a PNML file unchanged in case of
+ * the first validation of the model.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class InitialMarkingValidator extends AbstractValidator {
 
-    private static boolean debug = false;
+    // private static boolean debug = false;
 
     /** The start place of the model (if unambiguous) */
     private DataPlace myStartPlace = null;
-
-    /**
-     * A {@link List} of all {@link IDataElement} in the model; Gets data in
-     * getDataFromModel(IDataModel dataModel).
-     */
-    private List<IDataElement> allElements = null;
-
-    /**
-     * A {@link Map} of all {@link IDataNode} in the model used to fast lookup
-     * for the target of the arcs.
-     */
-    private Map<String, IDataNode> allNodes = new HashMap<String, IDataNode>();
 
     /*
      * Constructor
@@ -43,86 +33,87 @@ public class InitialMarkingValidator extends AbstractValidator {
      * 
      * @param Id
      *            The ID of this validator (for validation messages)
+     * @param validationController
+     *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public InitialMarkingValidator(int Id, IDataModelController dataModelController, I18NManager i18n) {
-        super(Id, dataModelController, i18n);
+    public InitialMarkingValidator(int Id, IValidationController validationController,
+            IDataModelController dataModelController, I18NManager i18n) {
+        super(Id, validationController, dataModelController, i18n);
         this.validatorInfoString = "infoInitialMarkingValidator";
     }
-
-    /*
-     * TODO
-     * 
-     * - Highlight start place
-     * 
-     * -> Sequence: structural model changes -> checked = false -> highlight
-     * start place again
-     * 
-     * - Highlight activated transitions
-     * 
-     */
 
     /*
      * Validation methods
      */
 
     @Override
-    public void startValidation(IDataModel dataModel) {
+    public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
         getDataFromModel(dataModel);
+        this.isInitialModelCheck = initialModelCheck;
 
         addValidatorInfo();
 
-        /*
-         * Check condition 1: exactly 1 start place
-         */
+        if (checkAbortCondition1())
+            return;
+
+        removeExistingMarking();
+
+        if (checkAbortCondition2())
+            return;
+
+        /* Check condition: exactly 1 start place */
         if (!evaluateStartPlace())
             return;
 
-        /* Reset the model to the initial marking */
-        resetToInitialMarking(this.myStartPlace);
+        /* Set the initial marking */
+        setInitialMarking(this.myStartPlace);
 
-        // /*
-        // * Initialize the lists because this validator gets called for
-        // different
-        // * models!
-        // */
-        // initializeLists();
-        // resetPrevUnreachableHighlighting();
-
-        // /*
-        // * Check condition 2: all nodes reachable from the start place?
-        // */
-        // traverseAllNodesForward(myStartPlace);
-        // highlightUnreachableNodes(noPathFromStartNode);
-        // int noPathFromStart = noPathFromStartNode.size();
-        // if (noPathFromStart > 0)
-        // reportFailed_NoPathFromStartPlace(noPathFromStart);
-
-        /*
-         * Evaluate result?
-         */
-
-        /*
-         * ?
-         */
+        /* Initial marking OK, test successful. */
         reportValidationSuccessful();
     }
 
-    private void getDataFromModel(IDataModel dataModel) {
-        this.myDataModel = dataModel;
-        this.myDataModelName = dataModel.getModelName();
+    /*
+     * Abort conditions
+     */
 
-        List<IDataElement> modelElements = myDataModel.getElements();
-        this.allElements = new ArrayList<IDataElement>(modelElements);
+    /**
+     * Checks abort condition 1: Model with tokens just loaded from a PNML file?
+     */
+    private boolean checkAbortCondition1() {
+        if (this.isInitialModelCheck) {
+            int tokensInModelCount = getTokensCount(this.myDataModel);
+            if (tokensInModelCount > 0) {
+                infoIgnoredForInitialCheck();
+                return true;
+            }
+        }
+        return false;
     }
 
-    /*
-     * For check 1
+    private void removeExistingMarking() {
+        myDataModelController.removeAllDataTokens(myDataModelName);
+    }
+
+    /**
+     * Checks abort condition 2: Model already classified as invalid?
      */
+    private boolean checkAbortCondition2() {
+        EValidationResultSeverity currentResultsSeverity = this.myValidationController.getCurrentValidationStatus();
+
+        int current = currentResultsSeverity.toInt();
+        int critical = EValidationResultSeverity.CRITICAL.toInt();
+        if (current < critical)
+            return false;
+
+        /* This result is critical! */
+        infoIgnoredForInvalidModel();
+        return true;
+    }
 
     /**
      * Stores the (unique) start place in the local attribute startPlace.
@@ -150,13 +141,12 @@ public class InitialMarkingValidator extends AbstractValidator {
         return result;
     }
 
-    private void resetToInitialMarking(DataPlace startPlace) {
+    private void setInitialMarking(DataPlace startPlace) {
         String placeId = startPlace.getId();
 
         List<String> placesWithToken = new ArrayList<String>();
         placesWithToken.add(placeId);
 
-        myDataModelController.removeAllDataTokens(myDataModelName);
         myDataModelController.addDataToken(myDataModelName, placesWithToken);
     }
 
@@ -164,9 +154,56 @@ public class InitialMarkingValidator extends AbstractValidator {
      * Messages
      */
 
+    /**
+     * Adds an info message to indicate that this validation is ignored for the
+     * initial check of a model.
+     */
+    private void infoIgnoredForInitialCheck() {
+        String message = i18n.getMessage("infoValidatorIgnoredForInitialCheck");
+        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds an info message to indicate that this validation is stopped for an
+     * invalid model.
+     * 
+     * Note: This message is an "INFO" message because the
+     * {@link ValidationController} stores only the highest
+     * {@link EValidationResultSeverity} anyways.
+     */
+    private void infoIgnoredForInvalidModel() {
+        String message = i18n.getMessage("infoIgnoredForInvalidModel");
+        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        validationMessages.add(vMessage);
+    }
+
     /*
      * Private helpers
      */
+
+    /**
+     * Determines the number of tokens in a {@link IDataModel}.
+     * 
+     * @param dataModel
+     *            The data model
+     * @return The number of tokens; -1 if the model does not contain places
+     */
+    private int getTokensCount(IDataModel dataModel) {
+        /* Get all places. */
+        List<IDataElement> elements = myDataModel.getElements();
+        List<DataPlace> places = getPlaces(elements);
+        if (places.size() == 0)
+            return -1;
+
+        /* Determine the number of tokens. */
+        int allTokensCount = 0;
+        for (DataPlace place : places) {
+            allTokensCount = allTokensCount + place.getTokensCount().toInt();
+        }
+
+        return allTokensCount;
+    }
 
     /**
      * Determines the unambiguous start place of the Petri net.

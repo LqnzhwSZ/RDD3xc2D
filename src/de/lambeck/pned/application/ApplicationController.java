@@ -13,7 +13,11 @@ import java.util.Set;
 import javax.swing.*;
 
 import de.lambeck.pned.application.actions.*;
-import de.lambeck.pned.elements.data.*;
+import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.elements.data.DataArc;
+import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.DataTransition;
+import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.PNMLWriter;
@@ -40,6 +44,7 @@ public class ApplicationController extends AbstractApplicationController {
 
     private static boolean debug = false;
 
+    /** The application title to begin with */
     private static String initialTitle = "Petri net Editor - Thomas Lambeck, MatrNr. 4128320";
 
     /**
@@ -197,16 +202,18 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @SuppressWarnings("hiding")
     private void addValidators(I18NManager i18n) {
-        IValidator startPlacesValidator = new StartPlacesValidator(1, dataModelController, i18n);
+        IValidator startPlacesValidator = new StartPlacesValidator(1, validationController, dataModelController, i18n);
         this.validationController.addValidator(startPlacesValidator);
 
-        IValidator endPlacesValidator = new EndPlacesValidator(2, dataModelController, i18n);
+        IValidator endPlacesValidator = new EndPlacesValidator(2, validationController, dataModelController, i18n);
         this.validationController.addValidator(endPlacesValidator);
 
-        IValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, dataModelController, i18n);
+        IValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, validationController, dataModelController,
+                i18n);
         this.validationController.addValidator(allNodesOnPathsValidator);
 
-        IValidator initialMarkingValidator = new InitialMarkingValidator(4, dataModelController, i18n);
+        IValidator initialMarkingValidator = new InitialMarkingValidator(4, validationController, dataModelController,
+                i18n);
         this.validationController.addValidator(initialMarkingValidator);
     }
 

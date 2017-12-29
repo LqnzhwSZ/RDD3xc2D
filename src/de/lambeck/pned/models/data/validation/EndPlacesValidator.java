@@ -24,14 +24,17 @@ public class EndPlacesValidator extends AbstractValidator {
     /**
      * @param Id
      *            The ID of this validator (for validation messages)
+     * @param validationController
+     *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public EndPlacesValidator(int Id, IDataModelController dataModelController, I18NManager i18n) {
-        super(Id, dataModelController, i18n);
+    public EndPlacesValidator(int Id, IValidationController validationController,
+            IDataModelController dataModelController, I18NManager i18n) {
+        super(Id, validationController, dataModelController, i18n);
         this.validatorInfoString = "infoEndPlacesValidator";
     }
 
@@ -40,9 +43,10 @@ public class EndPlacesValidator extends AbstractValidator {
      */
 
     @Override
-    public void startValidation(IDataModel dataModel) {
-        this.myDataModel = dataModel;
-        this.myDataModelName = dataModel.getModelName();
+    public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
+        getDataFromModel(dataModel);
+        this.isInitialModelCheck = initialModelCheck;
+        /* Note: This validator doesn't use "initialModelCheck". */
 
         addValidatorInfo();
 
@@ -65,9 +69,7 @@ public class EndPlacesValidator extends AbstractValidator {
         if (evaluateTooManyEndPlaces(endPlaces))
             return;
 
-        /*
-         * End places are OK, test successful
-         */
+        /* End places are OK, test successful. */
         reportValidationSuccessful();
     }
 

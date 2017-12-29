@@ -8,12 +8,14 @@ import java.util.Map.Entry;
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.validation.IValidationMsgPanel;
+import de.lambeck.pned.models.data.validation.ValidationController;
 import de.lambeck.pned.models.data.validation.ValidationMsgPanel;
 import de.lambeck.pned.util.ConsoleLogger;
 
@@ -28,7 +30,16 @@ public class DataModelController implements IDataModelController {
 
     private static boolean debug = false;
 
+    /**
+     * Predefined parameter because only the {@link ValidationController} should
+     * change the "initial check" state of the {@link IDataModel}.
+     */
+    private final static boolean NEVER_REMOVE_INITIAL_CHECK_STATE = false;
+
+    /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
+
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n = null;
 
     /**
@@ -100,7 +111,7 @@ public class DataModelController implements IDataModelController {
          * even have added a validation messages panel!
          */
         IDataModel newDataModel = new DataModel(modelName, displayName);
-        newDataModel.setModelChecked(true);
+        newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
         this.dataModels.put(modelName, newDataModel);
 
         /* Set as current data model. */
@@ -143,16 +154,16 @@ public class DataModelController implements IDataModelController {
          */
         this.importingFromPnml = true;
 
-        /* Add the data model. */
-        IDataModel newDataModel = new DataModel(canonicalPath, displayName);
-        this.dataModels.put(canonicalPath, newDataModel);
-
         /*
-         * Set "checked" state to true as soon as possible to prevent the
+         * Add the data model.
+         * 
+         * -> Set "checked" state to true as soon as possible to prevent the
          * ValidationController thread from starting the validation before we
-         * even have added the validation messages panel!
+         * even have added a validation messages panel!
          */
-        newDataModel.setModelChecked(true);
+        IDataModel newDataModel = new DataModel(canonicalPath, displayName);
+        newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
+        this.dataModels.put(canonicalPath, newDataModel);
 
         /*
          * Set as current data model.
@@ -189,7 +200,7 @@ public class DataModelController implements IDataModelController {
          * Set "checked" state to false so that the ValidationController will
          * start the first validation in his next cycle.
          */
-        newDataModel.setModelChecked(false);
+        newDataModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
 
         /*
          * Reset "importingFromPnml" as well, so that methods like addPlace() or
@@ -745,6 +756,10 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void resetAllDataStartPlaces(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.resetAllDataStartPlaces", modelName);
+        }
+
         /*
          * Nothing to do here. Only the GUIPlaces need this information for
          * their paintElement() method.
@@ -754,6 +769,10 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void resetAllDataEndPlaces(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.resetAllDataEndPlaces", modelName);
+        }
+
         /*
          * Nothing to do here. Only the GUIPlaces need this information for
          * their paintElement() method.
@@ -763,6 +782,10 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void setDataStartPlace(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setDataStartPlace", modelName, placeId, b);
+        }
+
         /*
          * Nothing to do here. Only the GUIPlace needs this information for his
          * paintElement() method.
@@ -772,6 +795,10 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void setDataEndPlace(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setDataEndPlace", modelName, placeId, b);
+        }
+
         /*
          * Nothing to do here. Only the GUIPlace needs this information for his
          * paintElement() method.
@@ -781,6 +808,11 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void highlightUnreachableDataNode(String modelName, String nodeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.highlightUnreachableDataNode", modelName, nodeId,
+                    b);
+        }
+
         /*
          * Nothing to do here. Only the GUINode needs this information for his
          * paintElement() method.
@@ -790,9 +822,24 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void removeAllDataTokens(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.removeAllDataTokens", modelName);
+        }
+
         IDataModel dataModel = this.dataModels.get(modelName);
-        if (dataModel == null)
-            return; // Validator thread might work with slightly too old data.
+        if (dataModel == null) {
+            String message = i18n.getMessage("errDataModelNotFound");
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
 
         /*
          * Remove the token from all data places and pass the info to the GUI
@@ -810,9 +857,24 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addDataToken(String modelName, List<String> placesWithToken) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.addDataToken", modelName, placesWithToken);
+        }
+
         IDataModel dataModel = this.dataModels.get(modelName);
-        if (dataModel == null)
-            return; // Validator thread might work with slightly too old data.
+        if (dataModel == null) {
+            String message = i18n.getMessage("errDataModelNotFound");
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
 
         /*
          * Add a token to all specified data places and pass the info to the GUI

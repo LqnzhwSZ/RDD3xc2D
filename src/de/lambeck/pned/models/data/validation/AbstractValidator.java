@@ -27,7 +27,15 @@ public abstract class AbstractValidator implements IValidator {
     /** The ID of this validator */
     protected int validatorId = -1;
 
-    /** The {@link IDataModelController} for important messages/results */
+    /**
+     * Reference to the {@link IValidationController}
+     */
+    protected IValidationController myValidationController = null;
+
+    /**
+     * Reference to the {@link IDataModelController} for important
+     * messages/results
+     */
     protected IDataModelController myDataModelController = null;
 
     /** The source object for I18N strings */
@@ -35,6 +43,12 @@ public abstract class AbstractValidator implements IValidator {
 
     /** The {@link IDataModel} to check */
     protected IDataModel myDataModel = null;
+
+    /**
+     * Was the data model just loaded from a PNML file? (Abort condition for
+     * some validators)
+     */
+    protected boolean isInitialModelCheck = false;
 
     /**
      * The model name of the {@link IDataModel} for checks if the active file
@@ -65,15 +79,19 @@ public abstract class AbstractValidator implements IValidator {
      * 
      * @param Id
      *            The ID of this validator (for validation messages)
+     * @param validationController
+     *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public AbstractValidator(int Id, IDataModelController dataModelController, I18NManager i18n) {
+    public AbstractValidator(int Id, IValidationController validationController,
+            IDataModelController dataModelController, I18NManager i18n) {
         super();
         this.validatorId = Id;
+        this.myValidationController = validationController;
         this.myDataModelController = dataModelController;
         this.i18n = i18n;
     }
@@ -83,7 +101,20 @@ public abstract class AbstractValidator implements IValidator {
      */
 
     @Override
-    public void startValidation(IDataModel dataModel) {
+    public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
+        getDataFromModel(dataModel);
+        this.isInitialModelCheck = initialModelCheck;
+
+        addValidatorInfo();
+    }
+
+    /**
+     * Retrieves the necessary data from the data model.
+     * 
+     * @param dataModel
+     *            The specified {@link IDataModel}
+     */
+    protected void getDataFromModel(IDataModel dataModel) {
         this.myDataModel = dataModel;
         this.myDataModelName = dataModel.getModelName();
     }
@@ -114,7 +145,7 @@ public abstract class AbstractValidator implements IValidator {
      */
 
     /**
-     * Adds an info message with ID and purpose of this this validator.
+     * Adds an info message with ID and purpose of this validator.
      */
     protected void addValidatorInfo() {
         String message;

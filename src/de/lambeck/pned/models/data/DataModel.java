@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 
 import javax.swing.JOptionPane;
 
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
@@ -48,6 +49,12 @@ public class DataModel implements IDataModel, IModelRename {
      * set to true after the model has been validated to true or false
      */
     private boolean modelChecked = false;
+
+    /**
+     * Will be set to false as soon as "modelChecked" is set to true for the
+     * first time.
+     */
+    private boolean initialModelCheck = true;
 
     /**
      * Will be set to true if the model is valid other wise to false
@@ -110,13 +117,18 @@ public class DataModel implements IDataModel, IModelRename {
     }
 
     @Override
+    public boolean isInitialModelCheck() {
+        return this.initialModelCheck;
+    }
+
+    @Override
     public void setModified(boolean b) {
         setModified(b, true);
     }
 
     @Override
     public void setModified(boolean b, boolean revalidate) {
-        this.modelModified = b; // Info for FileClose
+        this.modelModified = b; // Info for FileCloseAction
 
         if (revalidate) {
             this.modelChecked = false; // Info for the ValidationController
@@ -130,8 +142,13 @@ public class DataModel implements IDataModel, IModelRename {
     }
 
     @Override
-    public void setModelChecked(boolean b) {
+    public void setModelChecked(boolean b, boolean removeInitialCheckState) {
         this.modelChecked = b;
+
+        if (removeInitialCheckState) {
+            /* Remove the abort condition for "initial validations". */
+            this.initialModelCheck = false;
+        }
     }
 
     @Override

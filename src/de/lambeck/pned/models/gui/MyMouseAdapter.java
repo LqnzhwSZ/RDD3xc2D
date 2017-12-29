@@ -86,7 +86,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /** Reference to the {@link DrawPanel} */
     private DrawPanel myDrawPanel = null;

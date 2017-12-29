@@ -70,14 +70,17 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
     /**
      * @param Id
      *            The ID of this validator (for validation messages)
+     * @param validationController
+     *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public AllNodesOnPathsValidator(int Id, IDataModelController dataModelController, I18NManager i18n) {
-        super(Id, dataModelController, i18n);
+    public AllNodesOnPathsValidator(int Id, IValidationController validationController,
+            IDataModelController dataModelController, I18NManager i18n) {
+        super(Id, validationController, dataModelController, i18n);
         this.validatorInfoString = "infoAllNodesOnPathsValidator";
     }
 
@@ -86,8 +89,10 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      */
 
     @Override
-    public void startValidation(IDataModel dataModel) {
+    public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
         getDataFromModel(dataModel);
+        this.isInitialModelCheck = initialModelCheck;
+        /* Note: This validator doesn't use "initialModelCheck". */
 
         addValidatorInfo();
 
@@ -136,10 +141,12 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         reportValidationSuccessful();
     }
 
-    private void getDataFromModel(IDataModel dataModel) {
+    @Override
+    protected void getDataFromModel(IDataModel dataModel) {
         this.myDataModel = dataModel;
         this.myDataModelName = dataModel.getModelName();
 
+        /* Additional info */
         List<IDataElement> modelElements = myDataModel.getElements();
         this.allElements = new ArrayList<IDataElement>(modelElements);
     }

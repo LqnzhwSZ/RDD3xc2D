@@ -10,7 +10,7 @@ import de.lambeck.pned.application.actions.EditDeleteAction;
 import de.lambeck.pned.application.actions.EditRenameAction;
 import de.lambeck.pned.application.actions.NewPlaceAction;
 import de.lambeck.pned.elements.ENodeType;
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;

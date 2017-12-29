@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.elements.ENodeType;
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNElementException;
 import de.lambeck.pned.i18n.I18NManager;
@@ -32,8 +32,12 @@ public class GuiModelController implements IGuiModelController {
     /** Minimum shape size for setter */
     private final static int MIN_SHAPE_SIZE = 20;
 
+    /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
+
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n;
+
     protected Map<String, AbstractAction> popupActions;
 
     /**
@@ -434,10 +438,7 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void createNewPlaceInCurrentGuiModel() {
-        /*
-         * Check if we have a location.
-         */
-        // TODO Nach dem Schießen einer Datei ist currentDrawPanel == null!?
+        /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
             System.err.println(
@@ -445,21 +446,15 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Create a unique ID to avoid any conflict with existing elements.
-         */
+        /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
 
-        /*
-         * ...and a Place with this ID.
-         */
+        /* ...and a Place with this ID. */
         String name = "";
         EPlaceToken initialTokens = EPlaceToken.ZERO;
         addPlaceToCurrentGuiModel(uuid, name, initialTokens, popupMenuLocation);
 
-        /*
-         * Update the drawing
-         */
+        /* Update the drawing. */
         IGuiElement element = currentModel.getElementById(uuid);
         if (element == null)
             return;
@@ -476,9 +471,7 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void createNewTransitionInCurrentGuiModel() {
-        /*
-         * Check if we have a location.
-         */
+        /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
             System.err.println(
@@ -486,20 +479,14 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Create a unique ID to avoid any conflict with existing elements.
-         */
+        /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
 
-        /*
-         * ...and a Transition with this ID.
-         */
+        /* ...and a Transition with this ID. */
         String name = "";
         addTransitionToCurrentGuiModel(uuid, name, popupMenuLocation);
 
-        /*
-         * Update the drawing
-         */
+        /* Update the drawing. */
         IGuiElement element = currentModel.getElementById(uuid);
         if (element == null)
             return;
@@ -1944,13 +1931,21 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void resetAllGuiStartPlaces(String modelName) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("resetAllStartPlaces", modelName);
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiStartPlaces", modelName);
         }
 
         IGuiModel guiModel = getGuiModel(modelName);
         if (guiModel == null) {
             String message = i18n.getMessage("errGuiModelNotFound");
-            System.err.println(message);
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
             return;
         }
 
@@ -1968,13 +1963,21 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void resetAllGuiEndPlaces(String modelName) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("resetAllEndPlaces", modelName);
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiEndPlaces", modelName);
         }
 
         IGuiModel guiModel = getGuiModel(modelName);
         if (guiModel == null) {
             String message = i18n.getMessage("errGuiModelNotFound");
-            System.err.println(message);
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
             return;
         }
 
@@ -1992,13 +1995,21 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void setGuiStartPlace(String modelName, String placeId, boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.setStartPlace", modelName, placeId, b);
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiStartPlace", modelName, placeId, b);
         }
 
         IGuiModel guiModel = getGuiModel(modelName);
         if (guiModel == null) {
             String message = i18n.getMessage("errGuiModelNotFound");
-            System.err.println(message);
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
             return;
         }
 
@@ -2013,13 +2024,21 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void setGuiEndPlace(String modelName, String placeId, boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.setEndPlace", modelName, placeId, b);
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiEndPlace", modelName, placeId, b);
         }
 
         IGuiModel guiModel = getGuiModel(modelName);
         if (guiModel == null) {
             String message = i18n.getMessage("errGuiModelNotFound");
-            System.err.println(message);
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
             return;
         }
 
@@ -2034,13 +2053,21 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void highlightUnreachableGuiNode(String modelName, String nodeId, boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.highlightUnreachable", modelName, nodeId, b);
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.highlightUnreachableGuiNode", modelName, nodeId, b);
         }
 
         IGuiModel guiModel = getGuiModel(modelName);
         if (guiModel == null) {
             String message = i18n.getMessage("errGuiModelNotFound");
-            System.err.println(message);
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
             return;
         }
 
@@ -2054,12 +2081,27 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void removeAllGuiTokens(String modelName) {
-        IGuiModel model = this.guiModels.get(modelName);
-        if (model == null)
-            return; // Validator thread might work with slightly too old data.
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.removeAllGuiTokens", modelName);
+        }
+
+        IGuiModel guiModel = this.guiModels.get(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
 
         /* Remove the token from all GUI places as well. */
-        for (IGuiElement guiElement : model.getElements()) {
+        for (IGuiElement guiElement : guiModel.getElements()) {
             if (guiElement instanceof IGuiPlace) {
                 IGuiPlace guiPlace = (IGuiPlace) guiElement;
                 guiPlace.setTokens(EPlaceToken.ZERO);
@@ -2072,15 +2114,30 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addGuiToken(String modelName, List<String> placesWithToken) {
-        IGuiModel model = this.guiModels.get(modelName);
-        if (model == null)
-            return; // Validator thread might work with slightly too old data.
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.addGuiToken", modelName, placesWithToken);
+        }
+
+        IGuiModel guiModel = this.guiModels.get(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
 
         /* List for the drawing areas we are going to change. */
         List<Rectangle> drawingAreas = new LinkedList<Rectangle>();
 
         /* Add a token to all specified GUI places as well. */
-        for (IGuiElement guiElement : model.getElements()) {
+        for (IGuiElement guiElement : guiModel.getElements()) {
             if (guiElement instanceof IGuiPlace) {
                 IGuiPlace guiPlace = (IGuiPlace) guiElement;
                 String guiPlaceId = guiPlace.getId();

@@ -3,6 +3,7 @@ package de.lambeck.pned.elements.data;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.exceptions.PNElementException;
 
 /**

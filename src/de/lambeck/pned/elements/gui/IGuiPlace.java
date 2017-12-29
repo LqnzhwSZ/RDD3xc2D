@@ -1,6 +1,6 @@
 package de.lambeck.pned.elements.gui;
 
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 
 /**
  * Interface for places with a "token" circle

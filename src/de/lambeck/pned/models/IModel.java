@@ -3,7 +3,7 @@ package de.lambeck.pned.models;
 import java.awt.Point;
 import java.util.NoSuchElementException;
 
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 
 /**
  * Interface for models representing a Petri net.

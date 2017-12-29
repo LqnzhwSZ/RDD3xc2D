@@ -6,7 +6,7 @@ import java.util.*;
 
 import javax.swing.JOptionPane;
 
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;

@@ -14,7 +14,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.util.ConsoleLogger;
 

@@ -18,4 +18,15 @@ public interface IValidationController {
      */
     void addValidator(IValidator validator);
 
+    /**
+     * Returns the highest previous {@link EValidationResultSeverity} for the
+     * current set of validations (for the current model).
+     * 
+     * Note: this is intended to be used by some {@link IValidator} to decide
+     * whether to skip some checks or not.
+     * 
+     * @return {@link EValidationResultSeverity}
+     */
+    EValidationResultSeverity getCurrentValidationStatus();
+
 }

@@ -8,7 +8,7 @@ import java.awt.Point;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import de.lambeck.pned.elements.data.EPlaceToken;
+import de.lambeck.pned.elements.EPlaceToken;
 
 /**
  * Test for the calculation of the arc anchors.

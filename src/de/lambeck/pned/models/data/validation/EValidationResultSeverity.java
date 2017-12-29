@@ -45,4 +45,11 @@ public enum EValidationResultSeverity {
         return returnValue;
     }
 
+    /**
+     * @return the value of the enum element as int
+     */
+    public int toInt() {
+        return this.value;
+    }
+
 }

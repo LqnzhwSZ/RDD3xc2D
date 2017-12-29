@@ -3,8 +3,8 @@ package de.lambeck.pned.models.data.validation;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.DataPlace;
-import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
 import de.lambeck.pned.models.data.validation.WorkflowNetValidator2;

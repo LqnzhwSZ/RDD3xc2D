@@ -2,6 +2,8 @@ package de.lambeck.pned.elements.data;
 
 import java.awt.Point;
 
+import de.lambeck.pned.elements.EPlaceToken;
+
 /**
  * Implements the places (circles) of the Petri net.
  * 

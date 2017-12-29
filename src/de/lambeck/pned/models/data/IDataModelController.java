@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import de.lambeck.pned.application.IInfo_Status;
+import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.DataPlace;
-import de.lambeck.pned.elements.data.EPlaceToken;
 import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.models.data.validation.AllNodesOnPathsValidator;
 import de.lambeck.pned.models.data.validation.EndPlacesValidator;
