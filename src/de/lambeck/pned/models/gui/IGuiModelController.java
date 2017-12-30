@@ -477,6 +477,20 @@ public interface IGuiModelController
     void setGuiStartPlace(String modelName, String placeId, boolean b);
 
     /**
+     * Handles the {@link ApplicationController} request to update the start
+     * place candidate on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placeId
+     *            The id of the {@link IGuiPlace}
+     * @param b
+     *            True to set as start place candidate; otherwise false
+     */
+    void setGuiStartPlaceCandidate(String modelName, String placeId, boolean b);
+
+    /**
      * Handles the {@link ApplicationController} request to update the end place
      * on the draw panel.
      * 
@@ -489,6 +503,20 @@ public interface IGuiModelController
      *            True to set as end place; otherwise false
      */
     void setGuiEndPlace(String modelName, String placeId, boolean b);
+
+    /**
+     * Handles the {@link ApplicationController} request to update the end place
+     * candidate on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placeId
+     *            The id of the {@link IGuiPlace}
+     * @param b
+     *            True to set as end place candidate; otherwise false
+     */
+    void setGuiEndPlaceCandidate(String modelName, String placeId, boolean b);
 
     /**
      * Handles the {@link ApplicationController} request to update the status of

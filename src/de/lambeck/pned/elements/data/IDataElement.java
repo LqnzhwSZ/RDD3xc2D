@@ -1,9 +1,10 @@
 package de.lambeck.pned.elements.data;
 
 import de.lambeck.pned.elements.IElement;
+import de.lambeck.pned.models.data.IDataModel;
 
 /**
- * Sub type of IElement for data models.
+ * Sub type of IElement for elements in a {@link IDataModel}.
  * 
  * @author Thomas Lambeck, 4128320
  * 

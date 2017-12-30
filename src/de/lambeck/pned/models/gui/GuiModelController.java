@@ -1953,6 +1953,7 @@ public class GuiModelController implements IGuiModelController {
             if (guiElement instanceof IGuiPlace) {
                 IGuiPlace guiPlace = (IGuiPlace) guiElement;
                 guiPlace.setGuiStartPlace(false);
+                guiPlace.setGuiStartPlaceCandidate(false);
             }
         }
 
@@ -1985,6 +1986,7 @@ public class GuiModelController implements IGuiModelController {
             if (guiElement instanceof IGuiPlace) {
                 IGuiPlace guiPlace = (IGuiPlace) guiElement;
                 guiPlace.setGuiEndPlace(false);
+                guiPlace.setGuiEndPlaceCandidate(false);
             }
         }
 
@@ -2022,6 +2024,35 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
+    public void setGuiStartPlaceCandidate(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiStartPlaceCandidate", modelName, placeId, b);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
+
+        guiModel.setGuiStartPlaceCandidate(placeId, b);
+
+        /* Repaint */
+        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        Rectangle rect = guiNode.getLastDrawingArea();
+        updateDrawing(rect);
+    }
+
+    @Override
     public void setGuiEndPlace(String modelName, String placeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiEndPlace", modelName, placeId, b);
@@ -2043,6 +2074,35 @@ public class GuiModelController implements IGuiModelController {
         }
 
         guiModel.setGuiEndPlace(placeId, b);
+
+        /* Repaint */
+        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        Rectangle rect = guiNode.getLastDrawingArea();
+        updateDrawing(rect);
+    }
+
+    @Override
+    public void setGuiEndPlaceCandidate(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiEndPlaceCandidate", modelName, placeId, b);
+        }
+
+        IGuiModel guiModel = getGuiModel(modelName);
+        if (guiModel == null) {
+            String message = i18n.getMessage("errGuiModelNotFound");
+            // System.err.println(message);
+
+            /*
+             * In rare cases expected error: This method is part of the
+             * validation process. And the ValidationController thread might
+             * slightly lagging behind in terms of the current model (e.g. if
+             * the user has suddenly closed the current file during validation).
+             */
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
+
+        guiModel.setGuiEndPlaceCandidate(placeId, b);
 
         /* Repaint */
         IGuiNode guiNode = currentModel.getNodeById(placeId);

@@ -45,7 +45,7 @@ public class StartPlacesValidator extends AbstractValidator {
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
         getDataFromModel(dataModel);
-        this.isInitialModelCheck = initialModelCheck;
+        // this.isInitialModelCheck = initialModelCheck;
         /* Note: This validator doesn't use "initialModelCheck". */
 
         addValidatorInfo();
@@ -63,11 +63,11 @@ public class StartPlacesValidator extends AbstractValidator {
         if (evaluateNoStartPlaces(startPlaces))
             return;
 
-        /* At least 1 start place; highlight all */
-        highlightStartPlaces(startPlaces);
-
         if (evaluateTooManyStartPlaces(startPlaces))
             return;
+
+        /* startPlaces.size() must be 1 here! */
+        highlightTheStartPlace(startPlaces.get(0));
 
         /* Start places are OK, test successful. */
         reportValidationSuccessful();
@@ -109,25 +109,20 @@ public class StartPlacesValidator extends AbstractValidator {
 
     /**
      * Informs the data model controller which places need to be highlighted as
-     * start places.
-     * 
-     * @param startPlaces
-     *            The {@link List} of start places
-     */
-    private void highlightStartPlaces(List<String> startPlaces) {
-        for (String placeId : startPlaces) {
-            myDataModelController.setDataStartPlace(myDataModelName, placeId, true);
-        }
-    }
-
-    /**
-     * Returns true if the model has too many start places.
+     * start place candidates and returns true if the model has too many start
+     * place candidates.
      * 
      * @param startPlaces
      *            The {@link List} of start places
      */
     private boolean evaluateTooManyStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() > 1) {
+            /* Highlight as candidates */
+            for (String placeId : startPlaces) {
+                myDataModelController.setDataStartPlaceCandidate(myDataModelName, placeId, true);
+            }
+
+            /* Validation message */
             String message = i18n.getMessage("warningValidatorTooManyStartPlaces");
             IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
             validationMessages.add(vMessage);
@@ -135,6 +130,17 @@ public class StartPlacesValidator extends AbstractValidator {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Informs the data model controller which place to highlight as the real
+     * (unambiguous) start place.
+     * 
+     * @param placeId
+     *            The id of the start place
+     */
+    private void highlightTheStartPlace(String placeId) {
+        myDataModelController.setDataStartPlace(myDataModelName, placeId, true);
     }
 
     /*

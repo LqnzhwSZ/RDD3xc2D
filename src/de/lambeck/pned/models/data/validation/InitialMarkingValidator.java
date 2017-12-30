@@ -95,6 +95,9 @@ public class InitialMarkingValidator extends AbstractValidator {
         return false;
     }
 
+    /**
+     * Removes the token from all {@link IDataPlace}.
+     */
     private void removeExistingMarking() {
         myDataModelController.removeAllDataTokens(myDataModelName);
     }

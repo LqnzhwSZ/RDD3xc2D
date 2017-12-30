@@ -1,44 +1,53 @@
 package de.lambeck.pned.elements.gui;
 
-import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.elements.IPlace;
+import de.lambeck.pned.models.gui.IGuiModel;
 
 /**
- * Interface for places with a "token" circle
+ * Sub type of IGuiNode for places in a {@link IGuiModel} (places with a "token"
+ * circle).
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
-public interface IGuiPlace extends IGuiNode {
+public interface IGuiPlace extends IGuiNode, IPlace {
 
     /**
-     * Getter for the tokens of this place.
-     * 
-     * @return The tokens count of this place
-     */
-    EPlaceToken getTokensCount();
-
-    /**
-     * Setter for the tokens of this place.
-     * 
-     * @param newTokens
-     *            Specifies the new tokens count of this place.
-     */
-    void setTokens(EPlaceToken newTokens);
-
-    /**
-     * Sets this places status as a start place.
+     * Sets this places status as the real (unambiguous) start place.
      * 
      * @param b
-     *            Set to true if this is the start place; otherwise false.
+     *            True = this is the real (unambiguous) start place; false =
+     *            this is not a start place or there are multiple candidates
      */
     void setGuiStartPlace(boolean b);
 
     /**
-     * Sets this places status as an end place.
+     * Use this method to set this places status as a start place candidate if
+     * there is more than 1 place without input arcs. Start place candidates
+     * will be highlighted slightly different to (unambiguous) start places.
+     * 
+     * @param b
+     *            Set to true if this is the start place; otherwise false.
+     */
+    void setGuiStartPlaceCandidate(boolean b);
+
+    /**
+     * Sets this places status as the real (unambiguous) end place.
+     * 
+     * @param b
+     *            True = this is the real (unambiguous) end place; false = this
+     *            is not an end place or there are multiple candidates
+     */
+    void setGuiEndPlace(boolean b);
+
+    /**
+     * Use this method to set this places status as an end place candidate if
+     * there is more than 1 place without output arcs. End place candidates will
+     * be highlighted slightly different to (unambiguous) end places.
      * 
      * @param b
      *            Set to true if this is the end place; otherwise false.
      */
-    void setGuiEndPlace(boolean b);
+    void setGuiEndPlaceCandidate(boolean b);
 
 }

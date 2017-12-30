@@ -318,7 +318,7 @@ public interface IDataModelController extends IInfo_Status {
 
     /**
      * Callback for the {@link StartPlacesValidator} to set the specified
-     * {@link DataPlace} as (one of the) start places.
+     * {@link DataPlace} as the real (unambiguous) start place.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -326,13 +326,14 @@ public interface IDataModelController extends IInfo_Status {
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b
-     *            True to set as start place; otherwise false
+     *            True to set as the real (unambiguous) start place; otherwise
+     *            false
      */
     void setDataStartPlace(String modelName, String placeId, boolean b);
 
     /**
-     * Callback for the {@link EndPlacesValidator} to set the specified
-     * {@link DataPlace} as (one of the) end places.
+     * Callback for the {@link StartPlacesValidator} to set the specified
+     * {@link DataPlace} as a start place candidate.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -340,9 +341,38 @@ public interface IDataModelController extends IInfo_Status {
      * @param placeId
      *            The id of the {@link DataPlace}
      * @param b
-     *            True to set as end place; otherwise false
+     *            True to set as a start place candidate; otherwise false
+     */
+    void setDataStartPlaceCandidate(String modelName, String placeId, boolean b);
+
+    /**
+     * Callback for the {@link EndPlacesValidator} to set the specified
+     * {@link DataPlace} as the real (unambiguous) end place.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as the real (unambiguous) end place; otherwise
+     *            false
      */
     void setDataEndPlace(String modelName, String placeId, boolean b);
+
+    /**
+     * Callback for the {@link EndPlacesValidator} to set the specified
+     * {@link DataPlace} as an end place candidate.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as an end place candidate; otherwise false
+     */
+    void setDataEndPlaceCandidate(String modelName, String placeId, boolean b);
 
     /**
      * Callback for the {@link AllNodesOnPathsValidator} to highlight nodes that

@@ -12,7 +12,7 @@ import de.lambeck.pned.exceptions.PNElementException;
  * @author Thomas Lambeck, 4128320
  * 
  */
-public class DataTransition extends DataNode {
+public class DataTransition extends DataNode implements IDataTransition {
 
     private boolean activated = false;
 
@@ -37,26 +37,16 @@ public class DataTransition extends DataNode {
      * Getter and setter
      */
 
-    /**
-     * @return True if this transition is activated.
-     */
+    @Override
     public boolean isActivated() {
         return this.activated;
     }
 
-    /**
-     * Checks if this transition is activated and sets the member variable
-     * "activated" accordingly.
-     * 
-     * Activated is evaluated to false if there is no previous {@link DataPlace}
-     * or if the first previous DataPlace without a token is found.
-     */
+    @Override
     public void checkActivated() {
         ArrayList<IDataNode> predNodes = getPredNodes();
         if (predNodes == null) {
-            /*
-             * Condition 1: no previous place
-             */
+            /* Condition 1: no previous place */
             this.activated = false;
             return;
         }
@@ -65,18 +55,14 @@ public class DataTransition extends DataNode {
             if (currentNode instanceof DataPlace) {
                 DataPlace currentPlace = (DataPlace) currentNode;
                 if (currentPlace.getTokensCount() == EPlaceToken.ZERO) {
-                    /*
-                     * Condition 2: first previous place without a token
-                     */
+                    /* Condition 2: first previous place without a token */
                     this.activated = false;
                     return;
                 }
             }
         }
 
-        /*
-         * All previous places have a token.
-         */
+        /* All previous places have a token. */
         this.activated = true;
     }
 

@@ -91,7 +91,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
         getDataFromModel(dataModel);
-        this.isInitialModelCheck = initialModelCheck;
+        // this.isInitialModelCheck = initialModelCheck;
         /* Note: This validator doesn't use "initialModelCheck". */
 
         addValidatorInfo();

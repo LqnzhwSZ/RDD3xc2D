@@ -23,14 +23,36 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     /** The size of the token circle relative to the shape size */
     private final static int tokensSizePercentage = 33;
 
+    private final static Color startPlaceCircleColor = ECustomColor.DARK_GREEN.getColor();
+
+    private final static Color endPlaceCircleColor = ECustomColor.FIREBRICK.getColor();
+
     /** The tokens of this place */
     private EPlaceToken tokens;
 
-    /** Stores if this place is the start place in his workflow net */
+    /**
+     * Stores whether this place is the real (unambiguous) start place in this
+     * workflow net.
+     */
     private boolean isStartPlace = false;
 
-    /** Stores if this place is the end place in his workflow net */
+    /**
+     * Stores whether this place is a start place candidate if there is more
+     * than 1 place without input arcs in this workflow net.
+     */
+    private boolean isStartPlaceCandidate = false;
+
+    /**
+     * Stores whether this place is the real (unambiguous) end place in this
+     * workflow net.
+     */
     private boolean isEndPlace = false;
+
+    /**
+     * Stores whether this place is an end place candidate if there is more than
+     * 1 place without output arcs in this workflow net.
+     */
+    private boolean isEndPlaceCandidate = false;
 
     /*
      * Constructor etc.
@@ -78,19 +100,37 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     @Override
     public void setGuiStartPlace(boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setStartPlace", b);
+            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setGuiStartPlace", b);
         }
 
         this.isStartPlace = b;
     }
 
     @Override
+    public void setGuiStartPlaceCandidate(boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setGuiStartPlaceCandidate", b);
+        }
+
+        this.isStartPlaceCandidate = b;
+    }
+
+    @Override
     public void setGuiEndPlace(boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setEndPlace", b);
+            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setGuiEndPlace", b);
         }
 
         this.isEndPlace = b;
+    }
+
+    @Override
+    public void setGuiEndPlaceCandidate(boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setGuiEndPlaceCandidate", b);
+        }
+
+        this.isEndPlaceCandidate = b;
     }
 
     /*
@@ -107,15 +147,8 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
          */
         drawTokens(g2);
 
-        /*
-         * Highlight this place if it is start or end place of the workflow net.
-         */
-        if (this.isStartPlace) {
-            drawStartPlaceCircle(g2);
-        }
-        if (this.isEndPlace) {
-            drawEndPlaceCircle(g2);
-        }
+        /* Highlight if start or end place (candidate). */
+        drawStartOrEndPlaceCircles(g2);
     }
 
     @Override
@@ -152,55 +185,28 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     }
 
     /**
-     * Highlights the start place with a (thicker) green circle.
+     * Highlights start/end place (candidates) with thicker colored (and dashed)
+     * circles.
      * 
      * @param g2
      *            The Graphics2D object
      */
-    private void drawStartPlaceCircle(Graphics2D g2) {
-        /*
-         * Different line width and color.
-         */
-        int borderWidth = 5;
-        g2.setStroke(new BasicStroke(borderWidth));
-        g2.setColor(ECustomColor.DARK_GREEN.getColor());
+    private void drawStartOrEndPlaceCircles(Graphics2D g2) {
+        if (!isStartOrEndPlaceOrCandidate())
+            return;
 
-        /*
-         * Draw the circle at the inside of the normal shape.
-         */
-        g2.drawOval(shapeLeftX + 3, shapeTopY + 3, shapeSize - 6, shapeSize - 6);
+        /* Create a copy of the Graphics instance. */
+        Graphics2D g2copy = (Graphics2D) g2.create();
 
-        /*
-         * Reset line width and color.
-         */
-        g2.setColor(stdLineColor);
-        g2.setStroke(new BasicStroke(stdLineWidth));
-    }
+        /* Line width, (dashed stroke) and color */
+        Stroke stroke = getStartOrEndPlaceStroke();
+        g2copy.setStroke(stroke);
 
-    /**
-     * Highlights the end place with a (thicker) red circle.
-     * 
-     * @param g2
-     *            The Graphics2D object
-     */
-    private void drawEndPlaceCircle(Graphics2D g2) {
-        /*
-         * Different line width and color.
-         */
-        int borderWidth = 5;
-        g2.setStroke(new BasicStroke(borderWidth));
-        g2.setColor(ECustomColor.FIREBRICK.getColor());
+        Color color = getStartOrEndPlaceColor();
+        g2copy.setColor(color);
 
-        /*
-         * Draw the circle at the inside of the normal shape.
-         */
-        g2.drawOval(shapeLeftX + 3, shapeTopY + 3, shapeSize - 6, shapeSize - 6);
-
-        /*
-         * Reset line width and color.
-         */
-        g2.setColor(stdLineColor);
-        g2.setStroke(new BasicStroke(stdLineWidth));
+        /* Draw the circle at the inside of the normal shape. */
+        g2copy.drawOval(shapeLeftX + 3, shapeTopY + 3, shapeSize - 6, shapeSize - 6);
     }
 
     @Override
@@ -248,7 +254,62 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     }
 
     /*
-     * Private helper methods
+     * Private helpers
      */
+
+    /**
+     * @return True = This is a start or end place (candidate).
+     */
+    private boolean isStartOrEndPlaceOrCandidate() {
+        if (this.isStartPlace || this.isStartPlaceCandidate || this.isEndPlace || this.isEndPlaceCandidate)
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Returns the stroke for the place depending on whether this is a start/end
+     * place or a start/end place candidate.
+     * 
+     * @return A {@link Stroke}
+     */
+    private Stroke getStartOrEndPlaceStroke() {
+        int borderWidth = 5;
+
+        Stroke stroke = new BasicStroke();
+
+        if (this.isStartPlace || this.isEndPlace) {
+            /* thicker */
+            stroke = new BasicStroke(borderWidth);
+        }
+
+        if (this.isStartPlaceCandidate || this.isEndPlaceCandidate) {
+            /* thicker and dashed */
+            stroke = new BasicStroke(borderWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 5 },
+                    0);
+        }
+
+        return stroke;
+    }
+
+    /**
+     * Returns the color for the place depending on whether this is a start/end
+     * place or a start/end place candidate.
+     * 
+     * @return A {@link Color}
+     */
+    private Color getStartOrEndPlaceColor() {
+        Color circleColor = Color.BLACK;
+
+        if (this.isStartPlace || this.isStartPlaceCandidate) {
+            circleColor = GuiPlace.startPlaceCircleColor;
+        }
+
+        if (this.isEndPlace || this.isEndPlaceCandidate) {
+            circleColor = GuiPlace.endPlaceCircleColor;
+        }
+
+        return circleColor;
+    }
 
 }

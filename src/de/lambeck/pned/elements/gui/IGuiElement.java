@@ -5,9 +5,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import de.lambeck.pned.elements.IElement;
+import de.lambeck.pned.models.gui.IGuiModel;
 
 /**
- * Sub type of IElement for GUI models.
+ * Sub type of IElement for elements in a {@link IGuiModel}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -34,15 +35,15 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
      */
     boolean contains(Point p);
 
-//    /**
-//     * Returns the area that is used when this element is painted.
-//     * 
-//     * Note: This should be an exact value for nodes (places and transitions).
-//     * But only an approximation for arcs.
-//     * 
-//     * @return The area in which the element is painted
-//     */
-//    Rectangle getApproxDrawArea();
+    // /**
+    // * Returns the area that is used when this element is painted.
+    // *
+    // * Note: This should be an exact value for nodes (places and transitions).
+    // * But only an approximation for arcs.
+    // *
+    // * @return The area in which the element is painted
+    // */
+    // Rectangle getApproxDrawArea();
 
     /**
      * Returns the drawing area used during last invocation of paintElement.

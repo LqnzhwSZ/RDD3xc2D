@@ -3,6 +3,7 @@ package de.lambeck.pned.elements.data;
 import java.awt.Point;
 
 import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.elements.IPlace;
 
 /**
  * Implements the places (circles) of the Petri net.
@@ -10,7 +11,7 @@ import de.lambeck.pned.elements.EPlaceToken;
  * @author Thomas Lambeck, 4128320
  * 
  */
-public class DataPlace extends DataNode {
+public class DataPlace extends DataNode implements IPlace {
 
     /** The tokens of this place */
     private EPlaceToken tokens = EPlaceToken.ZERO;
@@ -39,19 +40,12 @@ public class DataPlace extends DataNode {
      * Getter and setter
      */
 
-    /**
-     * @return The tokens count of this place
-     */
+    @Override
     public EPlaceToken getTokensCount() {
         return this.tokens;
     }
 
-    /**
-     * Sets the new tokens count ({@link EPlaceToken}) of this place.
-     * 
-     * @param newTokens
-     *            The new tokens count
-     */
+    @Override
     public void setTokens(EPlaceToken newTokens) {
         this.tokens = newTokens;
     }

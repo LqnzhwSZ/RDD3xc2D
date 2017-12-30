@@ -82,20 +82,6 @@ public class GuiArc extends GuiElement implements IGuiArc {
         return false;
     }
 
-    @Override
-    public int getAllPredCount() {
-        if (this.pred == null)
-            return 0;
-        return 1; // 0 or 1
-    }
-
-    @Override
-    public int getAllSuccCount() {
-        if (this.succ == null)
-            return 0;
-        return 1; // 0 or 1
-    }
-
     /*
      * Method for interface IGuiElement
      */

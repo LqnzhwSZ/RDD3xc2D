@@ -215,6 +215,10 @@ public class ApplicationController extends AbstractApplicationController {
         IValidator initialMarkingValidator = new InitialMarkingValidator(4, validationController, dataModelController,
                 i18n);
         this.validationController.addValidator(initialMarkingValidator);
+
+        IValidator activatedTransitionsValidator = new ActivatedTransitionsValidator(5, validationController,
+                dataModelController, i18n);
+        this.validationController.addValidator(activatedTransitionsValidator);
     }
 
     /*
@@ -245,7 +249,7 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Makes Ctrl-Tab switch tabs in a JTabbedPane. See:
+     * Makes CTRL-Tab switch tabs in a JTabbedPane. See:
      * http://www.davidc.net/programming/java/how-make-ctrl-tab-switch-tabs-jtabbedpane
      * 
      * @param tabbedPane
@@ -2081,6 +2085,22 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
+     * Handles the {@link IDataModelController} request to update the start
+     * place candidate on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placeId
+     *            The id of the {@link IGuiPlace}
+     * @param b
+     *            True to set as start place candidate; otherwise false
+     */
+    public void setGuiStartPlaceCandidate(String modelName, String placeId, boolean b) {
+        guiModelController.setGuiStartPlaceCandidate(modelName, placeId, b);
+    }
+
+    /**
      * Handles the {@link IDataModelController} request to update the end place
      * on the draw panel.
      * 
@@ -2094,6 +2114,22 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void setGuiEndPlace(String modelName, String placeId, boolean b) {
         guiModelController.setGuiEndPlace(modelName, placeId, b);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to update the end place
+     * candidate on the draw panel.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placeId
+     *            The id of the {@link IGuiPlace}
+     * @param b
+     *            True to set as end place candidate; otherwise false
+     */
+    public void setGuiEndPlaceCandidate(String modelName, String placeId, boolean b) {
+        guiModelController.setGuiEndPlaceCandidate(modelName, placeId, b);
     }
 
     /**

@@ -2,9 +2,10 @@ package de.lambeck.pned.elements.gui;
 
 import de.lambeck.pned.elements.IArc;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.models.gui.IGuiModel;
 
 /**
- * Sub type of IArc for GUI models.
+ * Sub type of IArc for arcs in a {@link IGuiModel}.
  * 
  * @author Thomas Lambeck, 4128320
  * 

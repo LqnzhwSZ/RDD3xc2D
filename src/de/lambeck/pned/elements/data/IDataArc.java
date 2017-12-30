@@ -2,9 +2,10 @@ package de.lambeck.pned.elements.data;
 
 import de.lambeck.pned.elements.IArc;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.models.data.IDataModel;
 
 /**
- * Sub type of IArc for data models.
+ * Sub type of IArc for arcs in a {@link IDataModel}.
  * 
  * @author Thomas Lambeck, 4128320
  * 

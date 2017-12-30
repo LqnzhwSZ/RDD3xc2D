@@ -5,9 +5,10 @@ import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.INode;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
+import de.lambeck.pned.models.data.IDataModel;
 
 /**
- * Sub type of INode for data models.
+ * Sub type of INode for nodes in a {@link IDataModel}.
  * 
  * @author Thomas Lambeck, 4128320
  * 

@@ -45,7 +45,7 @@ public class EndPlacesValidator extends AbstractValidator {
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
         getDataFromModel(dataModel);
-        this.isInitialModelCheck = initialModelCheck;
+        // this.isInitialModelCheck = initialModelCheck;
         /* Note: This validator doesn't use "initialModelCheck". */
 
         addValidatorInfo();
@@ -63,11 +63,11 @@ public class EndPlacesValidator extends AbstractValidator {
         if (evaluateNoEndPlaces(endPlaces))
             return;
 
-        /* At least 1 end place; highlight all */
-        highlightEndPlaces(endPlaces);
-
         if (evaluateTooManyEndPlaces(endPlaces))
             return;
+
+        /* endPlaces.size() must be 1 here! */
+        highlightTheEndPlace(endPlaces.get(0));
 
         /* End places are OK, test successful. */
         reportValidationSuccessful();
@@ -109,25 +109,20 @@ public class EndPlacesValidator extends AbstractValidator {
 
     /**
      * Informs the data model controller which places need to be highlighted as
-     * end places.
-     * 
-     * @param endPlaces
-     *            The {@link List} of end places
-     */
-    private void highlightEndPlaces(List<String> endPlaces) {
-        for (String placeId : endPlaces) {
-            myDataModelController.setDataEndPlace(myDataModelName, placeId, true);
-        }
-    }
-
-    /**
-     * Returns true if the model has too many end places.
+     * end place candidates and returns true if the model has too many end place
+     * candidates.
      * 
      * @param endPlaces
      *            The {@link List} of end places
      */
     private boolean evaluateTooManyEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() > 1) {
+            /* Highlight as candidates */
+            for (String placeId : endPlaces) {
+                myDataModelController.setDataEndPlaceCandidate(myDataModelName, placeId, true);
+            }
+
+            /* Validation message */
             String message = i18n.getMessage("warningValidatorTooManyEndPlaces");
             IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
             validationMessages.add(vMessage);
@@ -135,6 +130,17 @@ public class EndPlacesValidator extends AbstractValidator {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Informs the data model controller which place to highlight as the real
+     * (unambiguous) end place.
+     * 
+     * @param placeId
+     *            The id of the end place
+     */
+    private void highlightTheEndPlace(String placeId) {
+        myDataModelController.setDataEndPlace(myDataModelName, placeId, true);
     }
 
     /*

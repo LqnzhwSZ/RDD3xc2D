@@ -3,9 +3,10 @@ package de.lambeck.pned.elements.gui;
 import java.awt.Point;
 
 import de.lambeck.pned.elements.INode;
+import de.lambeck.pned.models.gui.IGuiModel;
 
 /**
- * Sub type of INode for GUI models.
+ * Sub type of INode for nodes in a {@link IGuiModel}.
  * 
  * @author Thomas Lambeck, 4128320
  *

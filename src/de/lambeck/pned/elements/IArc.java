@@ -1,14 +1,12 @@
 package de.lambeck.pned.elements;
 
-import de.lambeck.pned.elements.data.IDataElement;
-
 /**
  * Interface for all arcs (arrows) in the Petri net.
  * 
  * @author Thomas Lambeck, 4128320
  * 
  */
-public interface IArc extends IDataElement {
+public interface IArc extends IElement {
 
     /*
      * Getter and setter

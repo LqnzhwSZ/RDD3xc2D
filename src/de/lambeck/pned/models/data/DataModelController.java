@@ -9,7 +9,10 @@ import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
 import de.lambeck.pned.elements.EPlaceToken;
-import de.lambeck.pned.elements.data.*;
+import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.IDataArc;
+import de.lambeck.pned.elements.data.IDataElement;
+import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
@@ -794,6 +797,19 @@ public class DataModelController implements IDataModelController {
     }
 
     @Override
+    public void setDataStartPlaceCandidate(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setDataStartPlaceCandidate", modelName, placeId, b);
+        }
+
+        /*
+         * Nothing to do here. Only the GUIPlace needs this information for his
+         * paintElement() method.
+         */
+        appController.setGuiStartPlaceCandidate(modelName, placeId, b);
+    }
+
+    @Override
     public void setDataEndPlace(String modelName, String placeId, boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.setDataEndPlace", modelName, placeId, b);
@@ -804,6 +820,19 @@ public class DataModelController implements IDataModelController {
          * paintElement() method.
          */
         appController.setGuiEndPlace(modelName, placeId, b);
+    }
+
+    @Override
+    public void setDataEndPlaceCandidate(String modelName, String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setDataEndPlaceCandidate", modelName, placeId, b);
+        }
+
+        /*
+         * Nothing to do here. Only the GUIPlace needs this information for his
+         * paintElement() method.
+         */
+        appController.setGuiEndPlaceCandidate(modelName, placeId, b);
     }
 
     @Override

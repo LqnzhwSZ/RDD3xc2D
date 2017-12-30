@@ -634,7 +634,7 @@ public class GuiModel implements IGuiModel, IModelRename {
     @Override
     public void setGuiStartPlace(String placeId, boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModel.setStartPlace", placeId, b);
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiStartPlace", placeId, b);
         }
 
         IGuiPlace place = getPlaceById(placeId);
@@ -647,9 +647,24 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
+    public void setGuiStartPlaceCandidate(String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiStartPlaceCandidate", placeId, b);
+        }
+
+        IGuiPlace place = getPlaceById(placeId);
+        if (place == null) {
+            System.err.println("Place " + placeId + " not found!");
+            return;
+        }
+
+        place.setGuiStartPlaceCandidate(b);
+    }
+
+    @Override
     public void setGuiEndPlace(String placeId, boolean b) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModel.setEndPlace", placeId, b);
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiEndPlace", placeId, b);
         }
 
         IGuiPlace place = getPlaceById(placeId);
@@ -659,6 +674,21 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
 
         place.setGuiEndPlace(b);
+    }
+
+    @Override
+    public void setGuiEndPlaceCandidate(String placeId, boolean b) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiEndPlaceCandidate", placeId, b);
+        }
+
+        IGuiPlace place = getPlaceById(placeId);
+        if (place == null) {
+            System.err.println("Place " + placeId + " not found!");
+            return;
+        }
+
+        place.setGuiEndPlaceCandidate(b);
     }
 
     @Override

@@ -178,6 +178,17 @@ public interface IGuiModel extends IModel {
     void setGuiStartPlace(String placeId, boolean b);
 
     /**
+     * Handles the {@link IGuiModelController} request to update the start place
+     * candidate on the draw panel.
+     * 
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as start place candidate; otherwise false
+     */
+    void setGuiStartPlaceCandidate(String placeId, boolean b);
+
+    /**
      * Handles the {@link IGuiModelController} request to update the end place
      * on the draw panel.
      * 
@@ -187,6 +198,17 @@ public interface IGuiModel extends IModel {
      *            True to set as end place; otherwise false
      */
     void setGuiEndPlace(String placeId, boolean b);
+
+    /**
+     * Handles the {@link IGuiModelController} request to update the end place
+     * candidate on the draw panel.
+     * 
+     * @param placeId
+     *            The id of the {@link DataPlace}
+     * @param b
+     *            True to set as end place candidate; otherwise false
+     */
+    void setGuiEndPlaceCandidate(String placeId, boolean b);
 
     /**
      * Handles the {@link IGuiModelController} request to update the status of
