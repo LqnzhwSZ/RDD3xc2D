@@ -556,4 +556,26 @@ public interface IGuiModelController
      */
     void addGuiToken(String modelName, List<String> placesWithToken);
 
+    /**
+     * Handles the {@link ApplicationController} request to reset the "enabled"
+     * state on all transitions in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    void resetAllGuiTransitionsEnabledState(String modelName);
+
+    /**
+     * Handles the {@link ApplicationController} request to set the "enabled"
+     * state on the specified transition in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    void setGuiTransitionEnabledState(String modelName, String transitionId);
+
 }

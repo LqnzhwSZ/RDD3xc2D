@@ -216,9 +216,9 @@ public class ApplicationController extends AbstractApplicationController {
                 i18n);
         this.validationController.addValidator(initialMarkingValidator);
 
-        IValidator activatedTransitionsValidator = new ActivatedTransitionsValidator(5, validationController,
+        IValidator enabledTransitionsValidator = new EnabledTransitionsValidator(5, validationController,
                 dataModelController, i18n);
-        this.validationController.addValidator(activatedTransitionsValidator);
+        this.validationController.addValidator(enabledTransitionsValidator);
     }
 
     /*
@@ -2151,7 +2151,7 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Handles the {@link IDataModelController} request to remove the token from
-     * all GUI places in the specified GUI model.
+     * all places in the specified GUI model.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -2163,7 +2163,7 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Handles the {@link IDataModelController} request to add a token to all
-     * specified GUI places in the specified GUI model.
+     * specified places in the specified GUI model.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -2174,6 +2174,32 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void addGuiToken(String modelName, List<String> placesWithToken) {
         guiModelController.addGuiToken(modelName, placesWithToken);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to reset the "enabled"
+     * state on all transitions in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    public void resetAllGuiTransitionsEnabledState(String modelName) {
+        guiModelController.resetAllGuiTransitionsEnabledState(modelName);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to set the "enabled"
+     * state on the specified transition in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    public void setGuiTransitionEnabledState(String modelName, String transitionId) {
+        guiModelController.setGuiTransitionEnabledState(modelName, transitionId);
     }
 
 }

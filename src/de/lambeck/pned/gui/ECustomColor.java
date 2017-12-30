@@ -15,7 +15,7 @@ public enum ECustomColor {
      */
     DARK_GREEN(0, 128, 0),
     /**
-     * Pale green (e.g. for activated state)
+     * Pale green (e.g. for enabled state)
      */
     PALE_GREEN(152, 251, 152),
     /**

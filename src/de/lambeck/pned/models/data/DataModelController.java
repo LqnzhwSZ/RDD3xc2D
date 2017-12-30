@@ -9,10 +9,7 @@ import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
 import de.lambeck.pned.elements.EPlaceToken;
-import de.lambeck.pned.elements.data.DataPlace;
-import de.lambeck.pned.elements.data.IDataArc;
-import de.lambeck.pned.elements.data.IDataElement;
-import de.lambeck.pned.elements.data.IDataNode;
+import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
@@ -855,20 +852,9 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeAllDataTokens", modelName);
         }
 
-        IDataModel dataModel = this.dataModels.get(modelName);
-        if (dataModel == null) {
-            String message = i18n.getMessage("errDataModelNotFound");
-            // System.err.println(message);
-
-            /*
-             * In rare cases expected error: This method is part of the
-             * validation process. And the ValidationController thread might
-             * slightly lagging behind in terms of the current model (e.g. if
-             * the user has suddenly closed the current file during validation).
-             */
-            ConsoleLogger.logIfDebug(debug, message);
+        IDataModel dataModel = getDataModelForValidation(modelName);
+        if (dataModel == null)
             return;
-        }
 
         /*
          * Remove the token from all data places and pass the info to the GUI
@@ -890,20 +876,9 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.addDataToken", modelName, placesWithToken);
         }
 
-        IDataModel dataModel = this.dataModels.get(modelName);
-        if (dataModel == null) {
-            String message = i18n.getMessage("errDataModelNotFound");
-            // System.err.println(message);
-
-            /*
-             * In rare cases expected error: This method is part of the
-             * validation process. And the ValidationController thread might
-             * slightly lagging behind in terms of the current model (e.g. if
-             * the user has suddenly closed the current file during validation).
-             */
-            ConsoleLogger.logIfDebug(debug, message);
+        IDataModel dataModel = getDataModelForValidation(modelName);
+        if (dataModel == null)
             return;
-        }
 
         /*
          * Add a token to all specified data places and pass the info to the GUI
@@ -920,6 +895,67 @@ public class DataModelController implements IDataModelController {
         }
 
         appController.addGuiToken(modelName, placesWithToken);
+    }
+
+    @Override
+    public void resetAllDataTransitionsEnabledState(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.resetAllDataTransitionsEnabledState", modelName);
+        }
+
+        IDataModel dataModel = getDataModelForValidation(modelName);
+        if (dataModel == null)
+            return;
+
+        /* Reset the "enabled" state of all transitions. */
+        for (IDataElement dataElement : dataModel.getElements()) {
+            if (dataElement instanceof IDataTransition) {
+                IDataTransition dataTransition = (IDataTransition) dataElement;
+                dataTransition.resetEnabled();
+            }
+        }
+
+        /* Pass the info to the GUI model controller. */
+        appController.resetAllGuiTransitionsEnabledState(modelName);
+    }
+
+    /**
+     * Returns the specified {@link IDataModel} with suppressed error messages
+     * if not found because this error can be expected in rare cases. This
+     * method is part of the validation process. And the ValidationController
+     * thread might slightly lagging behind in terms of the current model (e.g.
+     * if the user has suddenly closed the current file during validation).
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @return The specified {@link IDataModel} if found; otherwise null
+     */
+    private IDataModel getDataModelForValidation(String modelName) {
+        IDataModel dataModel = this.dataModels.get(modelName);
+        if (dataModel == null) {
+            String message = i18n.getMessage("errDataModelNotFound");
+            // System.err.println(message);
+
+            /* -> The expected error */
+            ConsoleLogger.logIfDebug(debug, message);
+            return null;
+        }
+
+        return dataModel;
+    }
+
+    @Override
+    public void setGuiTransitionEnabledState(String modelName, String transitionId) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setGuiTransitionEnabledState", modelName,
+                    transitionId);
+        }
+
+        /*
+         * Nothing to do here. Only the IGuiTransition needs this information.
+         */
+        appController.setGuiTransitionEnabledState(modelName, transitionId);
     }
 
 }

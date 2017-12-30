@@ -195,7 +195,7 @@ public class InitialMarkingValidator extends AbstractValidator {
     private int getTokensCount(IDataModel dataModel) {
         /* Get all places. */
         List<IDataElement> elements = myDataModel.getElements();
-        List<DataPlace> places = getPlaces(elements);
+        List<DataPlace> places = getDataPlaces(elements);
         if (places.size() == 0)
             return -1;
 
@@ -217,7 +217,7 @@ public class InitialMarkingValidator extends AbstractValidator {
     private DataPlace getUnambiguousStartPlace() {
         /* Get all places. */
         List<IDataElement> elements = myDataModel.getElements();
-        List<DataPlace> places = getPlaces(elements);
+        List<DataPlace> places = getDataPlaces(elements);
         if (places.size() == 0)
             return null;
 
@@ -240,21 +240,21 @@ public class InitialMarkingValidator extends AbstractValidator {
      * Returns all {@link DataPlace} in the specified list of
      * {@link IDataElement}.
      * 
-     * @param elements
+     * @param dataElements
      *            The {@link List} of type {@link IDataElement}
      * @return A {@link List} of type {@link DataPlace}
      */
-    private List<DataPlace> getPlaces(List<IDataElement> elements) {
-        List<DataPlace> places = new LinkedList<DataPlace>();
+    private List<DataPlace> getDataPlaces(List<IDataElement> dataElements) {
+        List<DataPlace> dataPlaces = new LinkedList<DataPlace>();
 
-        for (IDataElement element : elements) {
+        for (IDataElement element : dataElements) {
             if (element instanceof DataPlace) {
-                DataPlace place = (DataPlace) element;
-                places.add(place);
+                DataPlace dataPlace = (DataPlace) element;
+                dataPlaces.add(dataPlace);
             }
         }
 
-        return places;
+        return dataPlaces;
     }
 
 }

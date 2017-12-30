@@ -49,10 +49,11 @@ public class DataArc extends DataElement implements IDataArc {
      * transition.
      * 
      * @param source
+     *            The source node
      * @param target
-     * @return true if the combination is valid.
+     *            The target node
+     * @return true = valid combination, false = invalid combination
      */
-    // TODO Checks in separate Klasse auslagern?
     private boolean isValidConnection(IDataNode source, IDataNode target) {
         if (source instanceof DataPlace)
             if (target instanceof DataTransition)
@@ -107,7 +108,9 @@ public class DataArc extends DataElement implements IDataArc {
 
     @Override
     public String toString() {
-        return "DataArc [id=" + id + ", source=" + pred.getId() + ", target=" + succ.getId() + "]";
+        String returnString = "DataArc [" + super.toString() + ", source=" + pred.getId() + ", target=" + succ.getId()
+                + "]";
+        return returnString;
     }
 
 }

@@ -9,10 +9,10 @@ import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataNode;
-import de.lambeck.pned.models.data.validation.AllNodesOnPathsValidator;
-import de.lambeck.pned.models.data.validation.EndPlacesValidator;
-import de.lambeck.pned.models.data.validation.IValidationMsgPanel;
-import de.lambeck.pned.models.data.validation.StartPlacesValidator;
+import de.lambeck.pned.elements.data.IDataTransition;
+import de.lambeck.pned.elements.gui.IGuiTransition;
+import de.lambeck.pned.models.data.validation.*;
+import de.lambeck.pned.models.gui.IGuiModel;
 
 /**
  * Interface for controllers for data models representing a Petri net. This
@@ -412,5 +412,28 @@ public interface IDataModelController extends IInfo_Status {
      *            specified places
      */
     void addDataToken(String modelName, List<String> placesWithToken);
+
+    /**
+     * Resets the "enabled" state for all {@link IDataTransition} in the
+     * specified data model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    void resetAllDataTransitionsEnabledState(String modelName);
+
+    /**
+     * Callback for the {@link EnabledTransitionsValidator} to set the "enabled"
+     * state for the specified {@link IGuiTransition} in the specified
+     * {@link IGuiModel}.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    void setGuiTransitionEnabledState(String modelName, String transitionId);
 
 }

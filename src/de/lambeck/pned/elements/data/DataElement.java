@@ -32,4 +32,10 @@ public abstract class DataElement implements IDataElement {
         return this.id;
     }
 
+    @Override
+    public String toString() {
+        String returnString = "DataElement [id=" + id + "]";
+        return returnString;
+    }
+
 }

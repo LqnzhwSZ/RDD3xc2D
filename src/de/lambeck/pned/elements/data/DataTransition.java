@@ -2,9 +2,11 @@ package de.lambeck.pned.elements.data;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.models.data.IDataModelController;
 
 /**
  * Implements the transitions (squares) of the Petri net.
@@ -14,7 +16,12 @@ import de.lambeck.pned.exceptions.PNElementException;
  */
 public class DataTransition extends DataNode implements IDataTransition {
 
-    private boolean activated = false;
+    /** The enabled state of this transition */
+    private boolean enabled = false;
+
+    /*
+     * Constructor
+     */
 
     /**
      * Constructor with parameters
@@ -38,64 +45,124 @@ public class DataTransition extends DataNode implements IDataTransition {
      */
 
     @Override
-    public boolean isActivated() {
-        return this.activated;
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     @Override
-    public void checkActivated() {
-        ArrayList<IDataNode> predNodes = getPredNodes();
-        if (predNodes == null) {
-            /* Condition 1: no previous place */
-            this.activated = false;
-            return;
+    public void resetEnabled() {
+        this.enabled = false;
+    }
+
+    @Override
+    public boolean checkEnabled() {
+        this.enabled = false;
+
+        List<DataPlace> inputPlaces = getPredPlaces();
+        if (inputPlaces == null) {
+            /* Failed condition 1: At least one input place */
+            return false;
         }
 
-        for (IDataNode currentNode : predNodes) {
-            if (currentNode instanceof DataPlace) {
-                DataPlace currentPlace = (DataPlace) currentNode;
-                if (currentPlace.getTokensCount() == EPlaceToken.ZERO) {
-                    /* Condition 2: first previous place without a token */
-                    this.activated = false;
-                    return;
+        for (DataPlace inputPlace : inputPlaces) {
+            if (inputPlace.getTokensCount() == EPlaceToken.ZERO) {
+                /* Failed condition 2: All input places have a token. */
+                return false;
+            }
+        }
+
+        List<DataPlace> outputPlaces = getSuccPlaces();
+        if (outputPlaces == null) {
+            /* Failed condition 3: At least one output place */
+            return false;
+        }
+
+        for (DataPlace outputPlace : outputPlaces) {
+            if (outputPlace.getTokensCount() == EPlaceToken.ONE) {
+                if (!inputPlaces.contains(outputPlace)) {
+                    /*
+                     * Failed condition 4: Only output places that are input
+                     * places as well have a token.
+                     */
+                    return false;
                 }
             }
         }
 
-        /* All previous places have a token. */
-        this.activated = true;
-    }
-
-    /**
-     * Returns a list of nodes (places) before the previous arcs (arrows). A
-     * transition can use this list to determine it's "activated" state.
-     * 
-     * If the previous arcs have no predecessors (no places), the method returns
-     * null.
-     * 
-     * @return List of all nodes before the predecessors
-     */
-    @SuppressWarnings("null")
-    private ArrayList<IDataNode> getPredNodes() {
-        ArrayList<IDataNode> predNodes = null;
-        IDataNode currentNode;
-
-        for (IDataArc prevArc : this.predElems) {
-            try {
-                currentNode = prevArc.getPredElem();
-                predNodes.add(currentNode);
-            } catch (PNElementException e) {
-                // Nothing
-            }
-        }
-
-        return predNodes;
+        this.enabled = true;
+        return true;
     }
 
     @Override
     public String toString() {
-        return "DataTransition [id=" + id + ", name=" + name + ", position=" + position.getX() + "," + position.getY()
-                + ", activated=" + activated + "]";
+        String returnString = "DataTransition [" + super.toString() + ", isEnabled=" + this.isEnabled() + "]";
+        return returnString;
+    }
+
+    /*
+     * Private helpers
+     */
+
+    /**
+     * Returns a {@link List} of places ({@link DataPlace}) before the previous
+     * arrows ({@link IDataArc}). A transition can use this list to determine
+     * its own "enabled" state.<BR>
+     * <BR>
+     * Note: If the previous arcs have no predecessors (no places), the method
+     * returns null. But the {@link IDataModelController} should prevent this by
+     * removing all adjacent arcs when removing nodes.
+     * 
+     * @return List of all places before the predecessors (arcs)
+     */
+    private List<DataPlace> getPredPlaces() {
+        ArrayList<DataPlace> predPlaces = new ArrayList<DataPlace>();
+        IDataNode currentNode;
+        DataPlace currentPlace;
+
+        for (IDataArc prevArc : this.predElems) {
+            try {
+                currentNode = prevArc.getPredElem();
+                if (currentNode instanceof DataPlace) {
+                    currentPlace = (DataPlace) currentNode;
+                    predPlaces.add(currentPlace);
+                }
+            } catch (PNElementException e) {
+                // NOP
+            }
+        }
+
+        return predPlaces;
+    }
+
+    /**
+     * Returns a {@link List} of places ({@link DataPlace}) behind the following
+     * arrows ({@link IDataArc}). A transition can use this list to determine
+     * its own "enabled" state.<BR>
+     * <BR>
+     * Note: If the following arcs have no successors (no places), the method
+     * returns null. But the {@link IDataModelController} should prevent this by
+     * removing all adjacent arcs when removing nodes.
+     * 
+     * @return List of all places behind the successors (arcs)
+     */
+    private List<DataPlace> getSuccPlaces() {
+        ArrayList<DataPlace> succPlaces = new ArrayList<DataPlace>();
+        IDataNode currentNode;
+        DataPlace currentPlace;
+
+        for (IDataArc succArc : this.succElems) {
+            try {
+                currentNode = succArc.getSuccElem();
+                if (currentNode instanceof DataPlace) {
+                    currentPlace = (DataPlace) currentNode;
+                    succPlaces.add(currentPlace);
+                }
+            } catch (PNElementException e) {
+                // NOP
+            }
+        }
+
+        return succPlaces;
     }
 
 }

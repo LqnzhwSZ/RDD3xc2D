@@ -16,12 +16,13 @@ import de.lambeck.pned.gui.ECustomColor;
  * @author Thomas Lambeck, 4128320
  *
  */
-public class GuiTransition extends GuiNode {
+public class GuiTransition extends GuiNode implements IGuiTransition {
 
-    private boolean activated = false;
+    /** The enabled state of this transition */
+    private boolean enabled = false;
 
     /*
-     * Constructor etc.
+     * Constructor
      */
 
     /**
@@ -46,21 +47,14 @@ public class GuiTransition extends GuiNode {
      * Getter and setter
      */
 
-    /**
-     * @return True if this transition is activated.
-     */
-    public boolean isActivated() {
-        return this.activated;
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
-    /**
-     * Sets the activated attribute of this transition.
-     * 
-     * @param newState
-     *            The new activated state
-     */
-    public void setActivated(boolean newState) {
-        this.activated = newState;
+    @Override
+    public void setEnabled(boolean newState) {
+        this.enabled = newState;
     }
 
     /*
@@ -74,23 +68,23 @@ public class GuiTransition extends GuiNode {
 
     @Override
     void drawInterior(Graphics2D g2) {
-        drawActivated(g2);
+        drawEnabledState(g2);
         g2.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
     }
 
     /**
-     * Paints the shape of this transition in green if activated to show the
-     * activated status.
+     * Paints the shape of this transition in green if enabled to show the
+     * enabled state.
      * 
      * @param g2
      *            The Graphics2D object
      */
-    private void drawActivated(Graphics2D g2) {
+    private void drawEnabledState(Graphics2D g2) {
 
         // TODO Test
-        // setActivated(true);
+        // setEnabled(true);
 
-        if (isActivated()) {
+        if (this.isEnabled()) {
             g2.setColor(ECustomColor.PALE_GREEN.getColor());
             g2.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
         } else {
@@ -222,10 +216,7 @@ public class GuiTransition extends GuiNode {
 
     @Override
     public String toString() {
-        // String returnString = super.toString() + ", GuiTransition [id=" + id
-        // + ", name=" + name + ", position=" + shapeCenter.getX() + "," +
-        // shapeCenter.getY() + "]";
-        String returnString = "GuiTransition [" + super.toString() + "]";
+        String returnString = "GuiTransition [" + super.toString() + ", isEnabled=" + this.isEnabled() + "]";
         return returnString;
     }
 

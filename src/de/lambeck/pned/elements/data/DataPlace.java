@@ -52,8 +52,8 @@ public class DataPlace extends DataNode implements IPlace {
 
     @Override
     public String toString() {
-        return "DataPlace [id=" + id + ", name=" + name + ", tokens=" + tokens + ", position=" + position.getX() + ","
-                + position.getY() + "]";
+        String returnString = "DataPlace [" + super.toString() + ", tokens=" + tokens + "]";
+        return returnString;
     }
 
 }

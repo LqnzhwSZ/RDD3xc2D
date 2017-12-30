@@ -133,4 +133,11 @@ public abstract class DataNode extends DataElement implements IDataNode {
         return this.succElems.contains(arc);
     }
 
+    @Override
+    public String toString() {
+        String returnString = "DataNode [" + super.toString() + ", name=" + name + ", position=" + position.x + ","
+                + position.y + "]";
+        return returnString;
+    }
+
 }

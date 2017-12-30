@@ -69,17 +69,26 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * transition.
      * 
      * @param source
+     *            The source node
      * @param target
-     * @return true if the combination is valid.
+     *            The target node
+     * @return true = valid combination, false = invalid combination
      */
     private boolean isValidConnection(IGuiNode source, IGuiNode target) {
+        boolean place = false;
+        boolean transition = false;
+
         if (source instanceof GuiPlace)
-            if (target instanceof GuiTransition)
-                return true;
+            place = true;
+        if (target instanceof GuiPlace)
+            place = true;
+
         if (source instanceof GuiTransition)
-            if (target instanceof GuiPlace)
-                return true;
-        return false;
+            transition = true;
+        if (target instanceof GuiTransition)
+            transition = true;
+
+        return place & transition;
     }
 
     /*
@@ -502,7 +511,9 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
     @Override
     public String toString() {
-        return "GuiArc [" + super.toString() + ", source=" + pred.getId() + ", target=" + succ.getId() + "]";
+        String returnString = "GuiArc [" + super.toString() + ", source=" + pred.getId() + ", target=" + succ.getId()
+                + "]";
+        return returnString;
     }
 
     private void calculateMyBounds() {

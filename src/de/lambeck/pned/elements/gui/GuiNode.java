@@ -306,7 +306,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
 
     @Override
     public String toString() {
-        // String returnString = super.toString() + ", name=" + this.getName();
         String returnString = "GuiNode [" + super.toString() + ", name=" + name + ", position=" + shapeCenter.x + ","
                 + shapeCenter.y + "]";
         return returnString;

@@ -1,5 +1,6 @@
 package de.lambeck.pned.elements.data;
 
+import de.lambeck.pned.elements.ITransition;
 import de.lambeck.pned.models.data.IDataModel;
 
 /**
@@ -8,20 +9,32 @@ import de.lambeck.pned.models.data.IDataModel;
  * @author Thomas Lambeck, 4128320
  *
  */
-public interface IDataTransition extends IDataNode {
+public interface IDataTransition extends ITransition, IDataNode {
 
     /**
-     * @return True if this transition is activated.
+     * Resets the enabled state of this transition.<BR>
+     * <BR>
+     * Note: No Setter because "enabled" = true will be determined by method
+     * checkEnabled().
      */
-    public boolean isActivated();
+    void resetEnabled();
 
     /**
-     * Checks if this transition is activated and sets the member variable
-     * "activated" accordingly.
+     * Checks whether this transition is enabled due to the state of all
+     * (previous) input and (following) output places. Stores and returns the
+     * result.<BR>
+     * <BR>
+     * A transition is enabled if:<BR>
+     * - It has at least one input place,<BR>
+     * - All input places have a token, <BR>
+     * - It has at least one output place,<BR>
+     * - Only output places that are input places as well have a token.<BR>
+     * <BR>
+     * Note: The transition in the Data model determines its state by itself,
+     * while the transition in the GUI model has a Setter for this state.
      * 
-     * Activated is evaluated to false if there is no previous {@link DataPlace}
-     * or if the first previous DataPlace without a token is found.
+     * @return True = transition enabled, false = transition disabled
      */
-    public void checkActivated();
+    boolean checkEnabled();
 
 }
