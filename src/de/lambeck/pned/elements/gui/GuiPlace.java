@@ -153,12 +153,18 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
 
     @Override
     void drawInterior(Graphics2D g2) {
-        g2.fillOval(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+    	int x = new Double(shapeLeftX * this.zoom).intValue();
+    	int y = new Double(shapeTopY* this.zoom).intValue();
+    	int s = new Double(shapeSize * this.zoom).intValue();
+        g2.fillOval(x, y, s, s);
     }
 
     @Override
     void drawShape(Graphics2D g2) {
-        g2.drawOval(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+    	int x = new Double(shapeLeftX * this.zoom).intValue();
+    	int y = new Double(shapeTopY* this.zoom).intValue();
+    	int s = new Double(shapeSize * this.zoom).intValue();
+        g2.drawOval(x, y, s, s);
     }
 
     /**
@@ -171,9 +177,10 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     private void drawTokens(Graphics2D g2) {
         int size = (shapeSize * tokensSizePercentage) / 100; // shapeSize =
                                                              // shape diameter
-        int offset = size / 2;
-        int left_x = this.shapeCenter.x - offset;
-        int top_y = this.shapeCenter.y - offset;
+        size = new Double(size * this.zoom).intValue();
+        int offset = new Double(size / 2 * this.zoom).intValue();
+        int left_x = new Double((this.shapeCenter.x - offset) * this.zoom).intValue();
+        int top_y = new Double((this.shapeCenter.y - offset) * this.zoom).intValue();
 
         g2.setColor(Color.BLACK);
 
@@ -206,15 +213,18 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         g2copy.setColor(color);
 
         /* Draw the circle at the inside of the normal shape. */
-        g2copy.drawOval(shapeLeftX + 3, shapeTopY + 3, shapeSize - 6, shapeSize - 6);
+        g2copy.drawOval(new Double((double)(shapeLeftX + 3) * this.zoom).intValue(), 
+        		new Double((double)(shapeTopY + 3) * this.zoom).intValue(), 
+        		new Double((double)(shapeSize - 6) * this.zoom).intValue(), 
+        		new Double((double)(shapeSize - 6) * this.zoom).intValue());
     }
 
     @Override
     public boolean contains(Point p) {
-        double x = (double) shapeLeftX;
-        double y = (double) shapeTopY;
-        double w = (double) shapeSize;
-        double h = (double) shapeSize;
+        double x = (double) new Double(shapeLeftX) * this.zoom;
+        double y = (double) new Double(shapeTopY) * this.zoom;
+        double w = (double) new Double(shapeSize) * this.zoom;
+        double h = (double) new Double(shapeSize) * this.zoom;
         return (new Ellipse2D.Double(x, y, w, h).contains(p));
     }
 
@@ -241,8 +251,8 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         double y_coord = this.shapeCenter.getY() + y_offset;
 
         // Create and return the Point
-        int intX = (int) Math.round(x_coord);
-        int intY = (int) Math.round(y_coord);
+        int intX = (int) Math.round(x_coord * this.zoom);
+        int intY = (int) Math.round(y_coord * this.zoom);
         Point anchor = new Point(intX, intY);
         return anchor;
     }

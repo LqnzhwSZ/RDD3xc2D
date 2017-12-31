@@ -117,7 +117,9 @@ public class GuiArc extends GuiElement implements IGuiArc {
         g2.setColor(Color.BLACK);
 
         Point startAnchor = getStartAnchor();
+        startAnchor.setLocation(startAnchor.getX()*this.zoom, startAnchor.getY()*this.zoom);
         Point endAnchor = getEndAnchor();
+        endAnchor.setLocation(endAnchor.getX()*this.zoom, endAnchor.getY()*this.zoom);
 
         if (debug) {
             // Highlight the anchor positions
@@ -541,10 +543,10 @@ public class GuiArc extends GuiElement implements IGuiArc {
         int elem2_x2 = elem2_x1 + elem2.getTotalWidth();
         int elem2_y2 = elem2_y1 + elem2.getTotalHeight();
 
-        int x1 = Math.min(elem1_x1, elem2_x1);
-        int y1 = Math.min(elem1_y1, elem2_y1);
-        int x2 = Math.max(elem1_x2, elem2_x2);
-        int y2 = Math.max(elem1_y2, elem2_y2);
+        int x1 = new Double(new Double(Math.min(elem1_x1, elem2_x1)) * this.zoom).intValue();
+        int y1 = new Double(new Double(Math.min(elem1_y1, elem2_y1)) * this.zoom).intValue();
+        int x2 = new Double(new Double(Math.max(elem1_x2, elem2_x2)) * this.zoom).intValue();
+        int y2 = new Double(new Double(Math.max(elem1_y2, elem2_y2)) * this.zoom).intValue();
 
         Rectangle rect = new Rectangle(x1, y1, x2, y2);
         this.lastDrawingArea = rect;

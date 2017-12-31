@@ -408,7 +408,8 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          * position as well to get information about how much the text sticks
          * out to the left side or the bottom!
          */
-        Rectangle2D rect2d = font.getStringBounds(text, frc);
+        Font zoomedFont = new Font(font.getName(), font.getStyle(), new Double(font.getSize()*this.zoom).intValue());
+        Rectangle2D rect2d = zoomedFont.getStringBounds(text, frc);
 
         message = "GuiNode, getTextBounds(), rect.getMinX(): " + rect2d.getMinX();
         ConsoleLogger.logIfDebug(debug, message);

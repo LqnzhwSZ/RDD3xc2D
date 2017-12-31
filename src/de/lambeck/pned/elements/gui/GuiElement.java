@@ -43,6 +43,8 @@ public abstract class GuiElement implements IGuiElement {
     /** The standard line color */
     protected Color stdLineColor = Color.BLACK;
 
+    protected Double zoom = 1D;
+    
     /**
      * 
      * @param id
@@ -103,5 +105,9 @@ public abstract class GuiElement implements IGuiElement {
         String returnString = "GuiElement [id=" + id + ", zValue=" + getZValue() + ", selected=" + isSelected() + "]";
         return returnString;
     }
+
+	public void setZoom(Double zoom) {
+		this.zoom = zoom;
+	}
 
 }

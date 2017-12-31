@@ -131,6 +131,8 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * Constructor etc.
      */
 
+    private Integer zoom = 1;
+    
     /**
      * Constructs the DrawPanel.
      * 
@@ -437,7 +439,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * @param g2
      */
     private void drawGridLines(Graphics2D g2) {
-        final int GRID_STEP = 100;
+        final int GRID_STEP = new Double(100 * this.zoom).intValue();
         Color gridColor = ECustomColor.SNOW2.getColor();
 
         /*
@@ -449,8 +451,8 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         /*
          * Use the JComponent attributes.
          */
-        int width = getWidth();
-        int height = getHeight();
+        int width = new Double(getWidth() * this.zoom).intValue();
+        int height = new Double(getHeight() * this.zoom).intValue();
         if (width == 0 || height == 0)
             return;
 
@@ -459,14 +461,15 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         /*
          * Horizontal grid lines
          */
-        for (int i = 99; i <= height; i += GRID_STEP) {
+        int start = new Double(99 * this.zoom).intValue();
+        for (int i = start; i <= height; i += GRID_STEP) {
             g2.drawLine(0, i, width, i);
         }
 
         /*
          * Vertical grid lines
          */
-        for (int i = 99; i <= width; i += GRID_STEP) {
+        for (int i = start; i <= width; i += GRID_STEP) {
             g2.drawLine(i, 0, i, height);
         }
     }
@@ -655,4 +658,12 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         myGuiController.setInfo_Status(s, level);
     }
 
+	public Integer getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(Integer zoom) {
+		this.zoom = zoom;
+	}
+    
 }
