@@ -22,8 +22,6 @@ public class EndPlacesValidator extends AbstractValidator {
      */
 
     /**
-     * @param Id
-     *            The ID of this validator (for validation messages)
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
@@ -32,9 +30,9 @@ public class EndPlacesValidator extends AbstractValidator {
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public EndPlacesValidator(int Id, IValidationController validationController,
-            IDataModelController dataModelController, I18NManager i18n) {
-        super(Id, validationController, dataModelController, i18n);
+    public EndPlacesValidator(IValidationController validationController, IDataModelController dataModelController,
+            I18NManager i18n) {
+        super(validationController, dataModelController, i18n);
         this.validatorInfoString = "infoEndPlacesValidator";
     }
 

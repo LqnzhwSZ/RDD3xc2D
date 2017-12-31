@@ -70,9 +70,7 @@ public class PopupMenuForEmptyAreas extends JPopupMenu implements PopupMenuListe
      * Enables the menu items depending on the current element.
      */
     void enableMenuItems() {
-        /*
-         * We can always create new nodes.
-         */
+        /* We can always create new nodes. */
         newPlaceAction.setEnabled(true);
         newTransitionAction.setEnabled(true);
     }

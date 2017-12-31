@@ -11,9 +11,11 @@ import de.lambeck.pned.application.actions.EditRenameAction;
 import de.lambeck.pned.application.actions.NewPlaceAction;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;
+import de.lambeck.pned.models.data.IDataModelController;
 
 /**
  * Interface for controllers for GUI models representing a Petri net. This means
@@ -544,6 +546,19 @@ public interface IGuiModelController
     void removeAllGuiTokens(String modelName);
 
     /**
+     * Handles the {@link ApplicationController} request to remove the token
+     * from all specified GUI places in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placesWithToken
+     *            A {@link List} of type {@link String} with the IDs of the
+     *            specified places
+     */
+    void removeGuiToken(String modelName, List<String> placesWithToken);
+
+    /**
      * Handles the {@link ApplicationController} request to add a token to all
      * specified GUI places in the specified GUI model.
      * 
@@ -577,5 +592,15 @@ public interface IGuiModelController
      *            The id of the {@link IGuiTransition}
      */
     void setGuiTransitionEnabledState(String modelName, String transitionId);
+
+    /**
+     * Callback to fire the transition at the popup menu location.<BR>
+     * <BR>
+     * Note: The purpose of this method in {@link IGuiModelController} is mainly
+     * to provide the id of the desired {@link IDataTransition} to the
+     * {@link IDataModelController} because the popup menu location is known
+     * only to the GUI controller.
+     */
+    void fireGuiTransition();
 
 }

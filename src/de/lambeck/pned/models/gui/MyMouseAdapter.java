@@ -612,8 +612,9 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             int x = p.x;
             int y = p.y;
             popupMenu.show(invoker, x, y);
+
         } else {
-            System.out.println("PopupMenuManager: no popup trigger");
+            ConsoleLogger.logIfDebug(debug, "PopupMenuManager: no popup trigger");
         }
     }
 

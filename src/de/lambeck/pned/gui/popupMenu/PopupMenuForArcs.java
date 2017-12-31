@@ -92,9 +92,7 @@ public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
      * Enables the menu items depending on the current element.
      */
     void enableMenuItems() {
-        /*
-         * All elements can be selected
-         */
+        /* All elements can be selected */
         selectAction.setEnabled(true);
 
         /*

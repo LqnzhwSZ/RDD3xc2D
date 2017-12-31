@@ -48,9 +48,6 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      */
 
     /**
-     * 
-     * @param Id
-     *            The ID of this validator (for validation messages)
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
@@ -59,9 +56,9 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public EnabledTransitionsValidator(int Id, IValidationController validationController,
+    public EnabledTransitionsValidator(IValidationController validationController,
             IDataModelController dataModelController, I18NManager i18n) {
-        super(Id, validationController, dataModelController, i18n);
+        super(validationController, dataModelController, i18n);
         this.validatorInfoString = "infoEnabledTransitionsValidator";
     }
 
@@ -90,8 +87,6 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         /* Is a token on the end place? (Simulation finished) */
         if (evaluateTokenOnEndPlace())
             return;
-
-        // TODO DataTransition has checkEnabled() and isEnabled() methods!
 
         /* Evaluate the number of enabled transitions! */
         int enabledDataTransitionsCount = getEnabledDataTransitionsCount();

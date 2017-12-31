@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.DataPlace;
@@ -435,5 +436,16 @@ public interface IDataModelController extends IInfo_Status {
      *            The id of the {@link IGuiTransition}
      */
     void setGuiTransitionEnabledState(String modelName, String transitionId);
+
+    /**
+     * Handles the {@link ApplicationController} request to fire a
+     * transition.<BR>
+     * <BR>
+     * Note: This refers to the current model (active file).
+     * 
+     * @param transitionId
+     *            The id of the {@link IDataTransition}
+     */
+    void fireDataTransition(String transitionId);
 
 }

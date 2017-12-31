@@ -9,6 +9,7 @@ import javax.swing.event.PopupMenuListener;
 
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiNode;
+import de.lambeck.pned.elements.gui.IGuiTransition;
 import de.lambeck.pned.models.gui.DrawPanel;
 import de.lambeck.pned.models.gui.IDrawPanel;
 import de.lambeck.pned.util.ConsoleLogger;
@@ -44,6 +45,7 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
      * The "buttons" of the popup menu
      */
     private AbstractAction selectAction;
+    private AbstractAction fireTransition;
     private AbstractAction toForegroundAction;
     private AbstractAction oneLayerUpAction;
     private AbstractAction oneLayerDownAction;
@@ -82,6 +84,11 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
 
         addSeparator();
 
+        fireTransition = popupActions.get("FireTransition");
+        add(fireTransition);
+
+        addSeparator();
+
         toForegroundAction = popupActions.get("ElementToTheForeground");
         add(toForegroundAction);
         oneLayerUpAction = popupActions.get("ElementOneLayerUp");
@@ -103,10 +110,12 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
      * Enables the menu items depending on the current element.
      */
     void enableMenuItems() {
-        /*
-         * All elements can be selected
-         */
+        /* All elements can be selected */
         selectAction.setEnabled(true);
+
+        /* Enable "FireTransition" if this transition is "enabled". */
+        boolean enableFireTransitionAction = getEnableFireTransition();
+        fireTransition.setEnabled(enableFireTransitionAction);
 
         /*
          * Enables menu items depending on the z value (height level) of the
@@ -121,14 +130,25 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
         oneLayerDownAction.setEnabled(currZ != minZ);
         toBackgroundAction.setEnabled(currZ != minZ);
 
-        /*
-         * Check if we are adding a new arc (of proper type).
-         */
+        /* Check if we are adding a new arc (of proper type). */
         boolean enableNewArcFromHereAction = getEnableNewArcFromHere();
         newArcFromHereAction.setEnabled(enableNewArcFromHereAction);
 
         boolean enableNewArcToHereAction = getEnableNewArcToHere();
         newArcToHereAction.setEnabled(enableNewArcToHereAction);
+    }
+
+    private boolean getEnableFireTransition() {
+        if (this.node == null)
+            return false;
+
+        if (!(this.node instanceof IGuiTransition))
+            return false;
+
+        IGuiTransition transition = (IGuiTransition) node;
+        boolean result = transition.isEnabled();
+
+        return result;
     }
 
     private boolean getEnableNewArcFromHere() {

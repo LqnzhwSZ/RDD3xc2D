@@ -1,7 +1,10 @@
 package de.lambeck.pned.elements.data;
 
+import java.util.List;
+
 import de.lambeck.pned.elements.ITransition;
 import de.lambeck.pned.models.data.IDataModel;
+import de.lambeck.pned.models.data.IDataModelController;
 
 /**
  * Interface for transitions in a {@link IDataModel}.
@@ -36,5 +39,31 @@ public interface IDataTransition extends ITransition, IDataNode {
      * @return True = transition enabled, false = transition disabled
      */
     boolean checkEnabled();
+
+    /**
+     * Returns a {@link List} of places ({@link DataPlace}) before the previous
+     * arrows ({@link IDataArc}). A transition can use this list to determine
+     * its own "enabled" state.<BR>
+     * <BR>
+     * Note: If the previous arcs have no predecessors (no places), the method
+     * returns null. But the {@link IDataModelController} should prevent this by
+     * removing all adjacent arcs when removing nodes.
+     * 
+     * @return List of all places before the predecessors (arcs)
+     */
+    List<DataPlace> getPredPlaces();
+
+    /**
+     * Returns a {@link List} of places ({@link DataPlace}) behind the following
+     * arrows ({@link IDataArc}). A transition can use this list to determine
+     * its own "enabled" state.<BR>
+     * <BR>
+     * Note: If the following arcs have no successors (no places), the method
+     * returns null. But the {@link IDataModelController} should prevent this by
+     * removing all adjacent arcs when removing nodes.
+     * 
+     * @return List of all places behind the successors (arcs)
+     */
+    List<DataPlace> getSuccPlaces();
 
 }

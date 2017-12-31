@@ -14,18 +14,17 @@ import javax.swing.*;
 
 import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.EPlaceToken;
-import de.lambeck.pned.elements.data.DataArc;
-import de.lambeck.pned.elements.data.DataPlace;
-import de.lambeck.pned.elements.data.DataTransition;
-import de.lambeck.pned.elements.data.IDataElement;
+import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.PNMLWriter;
 import de.lambeck.pned.gui.menuBar.MenuBar;
+import de.lambeck.pned.gui.popupMenu.PopupMenuForTransitions;
 import de.lambeck.pned.gui.settings.SizeSlider;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.gui.toolBar.PnedToolBar;
 import de.lambeck.pned.i18n.I18NManager;
+import de.lambeck.pned.models.data.DataModel;
 import de.lambeck.pned.models.data.DataModelController;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
@@ -94,6 +93,40 @@ public class ApplicationController extends AbstractApplicationController {
     /** Reference to the {@link ValidationController} */
     private ValidationController validationController;
 
+    /* Validator names */
+
+    /**
+     * The name of the {@link StartPlacesValidator} (for requests of individual
+     * validations)
+     */
+    public final static String startPlacesValidatorName = "startPlacesValidator";
+
+    /**
+     * The name of the {@link EndPlacesValidator} (for requests of individual
+     * validations)
+     */
+    public final static String endPlacesValidatorName = "endPlacesValidator";
+
+    /**
+     * The name of the {@link AllNodesOnPathsValidator} (for requests of
+     * individual validations)
+     */
+    public final static String allNodesOnPathsValidatorName = "allNodesOnPathsValidator";
+
+    /**
+     * The name of the {@link InitialMarkingValidator} (for requests of
+     * individual validations)
+     */
+    public final static String initialMarkingValidatorName = "initialMarkingValidator";
+
+    /**
+     * The name of the {@link EnabledTransitionsValidator} (for requests of
+     * individual validations)
+     */
+    public final static String enabledTransitionsValidatorName = "enabledTransitionsValidator";
+
+    /* Constructor */
+
     /**
      * Constructs the application controller for the specified main frame
      * (application window).
@@ -118,14 +151,10 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.addWindowListener(this);
         mainFrame.addWindowStateListener(this);
 
-        /*
-         * Add controllers for data models, GUI models and validation
-         */
+        /* Add controllers for data models, GUI models and validation */
         addControllers(i18n);
 
-        /*
-         * Add validators to the validation controller.
-         */
+        /* Add validators to the validation controller. */
         addValidators(i18n);
 
         /*
@@ -140,9 +169,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         mainFrame.setContentPane(contentPane);
 
-        /*
-         * Add menu, tool and status bar.
-         */
+        /* Add menu, tool and status bar. */
         MenuBar menuBar = new MenuBar(frame, this, i18n);
         JToolBar toolBarElements = new PnedToolBar(this, i18n);
 
@@ -154,13 +181,11 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.add(toolBarElements, BorderLayout.PAGE_START);
         mainFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
-        /*
-         * Additional settings
-         */
+        /* Additional settings */
         Dimension preferredSize = getScreenDependingMinimumSize();
         mainFrame.setPreferredSize(preferredSize);
 
-        // Ctrl-Tab switch tabs in a JTabbedPane
+        // CTRL-Tab switch tabs in a JTabbedPane
         setupTabTraversalKeys(tabbedPane);
 
         /*
@@ -174,9 +199,7 @@ public class ApplicationController extends AbstractApplicationController {
         // methods/other classes? (So that static methods as in FSInfo.java can
         // use localized messages.)
 
-        /*
-         * Start the validation controller (thread).
-         */
+        /* Start the validation controller (thread). */
         this.validationController.start();
     }
 
@@ -202,23 +225,23 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @SuppressWarnings("hiding")
     private void addValidators(I18NManager i18n) {
-        IValidator startPlacesValidator = new StartPlacesValidator(1, validationController, dataModelController, i18n);
-        this.validationController.addValidator(startPlacesValidator);
+        IValidator startPlacesValidator = new StartPlacesValidator(validationController, dataModelController, i18n);
+        validationController.addValidator(startPlacesValidator, startPlacesValidatorName);
 
-        IValidator endPlacesValidator = new EndPlacesValidator(2, validationController, dataModelController, i18n);
-        this.validationController.addValidator(endPlacesValidator);
+        IValidator endPlacesValidator = new EndPlacesValidator(validationController, dataModelController, i18n);
+        validationController.addValidator(endPlacesValidator, endPlacesValidatorName);
 
-        IValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(3, validationController, dataModelController,
+        IValidator allNodesOnPathsValidator = new AllNodesOnPathsValidator(validationController, dataModelController,
                 i18n);
-        this.validationController.addValidator(allNodesOnPathsValidator);
+        validationController.addValidator(allNodesOnPathsValidator, allNodesOnPathsValidatorName);
 
-        IValidator initialMarkingValidator = new InitialMarkingValidator(4, validationController, dataModelController,
+        IValidator initialMarkingValidator = new InitialMarkingValidator(validationController, dataModelController,
                 i18n);
-        this.validationController.addValidator(initialMarkingValidator);
+        validationController.addValidator(initialMarkingValidator, initialMarkingValidatorName);
 
-        IValidator enabledTransitionsValidator = new EnabledTransitionsValidator(5, validationController,
+        IValidator enabledTransitionsValidator = new EnabledTransitionsValidator(validationController,
                 dataModelController, i18n);
-        this.validationController.addValidator(enabledTransitionsValidator);
+        validationController.addValidator(enabledTransitionsValidator, enabledTransitionsValidatorName);
     }
 
     /*
@@ -294,7 +317,6 @@ public class ApplicationController extends AbstractApplicationController {
         // Menu "Edit"
         allActions.put("EditRename...", new FileNewAction(this, i18n));
         allActions.put("EditDelete", new FileNewAction(this, i18n));
-        allActions.put("EditSettings...", new FileNewAction(this, i18n));
 
         // Tool bar "Elements"
         allActions.put("ElementToTheForeground", new FileNewAction(this, i18n));
@@ -302,12 +324,9 @@ public class ApplicationController extends AbstractApplicationController {
         allActions.put("ElementOneLayerDown", new FileNewAction(this, i18n));
         allActions.put("ElementToTheBackground", new FileNewAction(this, i18n));
 
-        // Tool bar "Testrun"
-        allActions.put("TestingStep", new FileNewAction(this, i18n));
-        allActions.put("TestingComplete", new FileNewAction(this, i18n));
-        allActions.put("TestingQuit", new FileNewAction(this, i18n));
-
         // Popup menu "Elements"
+        popupActions.put("FireTransition", new FireTransitionAction(this, i18n));
+
         popupActions.put("ElementSelect", new ElementSelectAction(this, i18n));
         popupActions.put("ElementToTheForeground", new ElementToTheForegroundAction(this, i18n));
         popupActions.put("ElementOneLayerUp", new ElementOneLayerUpAction(this, i18n));
@@ -674,19 +693,6 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for {@link EditSettingsAction}, shows an input dialog.
-     */
-    public void menuCmd_EditSettings() {
-        if (debug) {
-            String testMsg = "Menu command: EditSettings...";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
-        // TODO Implement a SettingsManager
-    }
-
-    /**
      * Callback for {@link ElementSelectAction}, selects the current element.
      */
     public void menuCmd_ElementSelect() {
@@ -800,42 +806,14 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for ActionTestingStep, test 1 step forward
+     * Callback for {@link FireTransitionAction} in
+     * {@link PopupMenuForTransitions}, fires the transition at the popup
+     * location.<BR>
+     * <BR>
+     * Note: This method should only be invokable from .
      */
-    public void menuCmd_TestingStep() {
-        if (debug) {
-            String testMsg = "Menu command: TestingStep";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
-        // TODO Implement
-    }
-
-    /**
-     * Callback for TestingCompleteAction, complete test
-     */
-    public void menuCmd_TestingComplete() {
-        if (debug) {
-            String testMsg = "Menu command: TestingComplete";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
-        // TODO Implement
-    }
-
-    /**
-     * Callback for TestingQuitAction, stop test
-     */
-    public void menuCmd_TestingQuit() {
-        if (debug) {
-            String testMsg = "Menu command: TestingQuit";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
-        // TODO Implement
+    public void menuCmd_FireTransition() {
+        guiModelController.fireGuiTransition();
     }
 
     /**
@@ -1024,13 +1002,9 @@ public class ApplicationController extends AbstractApplicationController {
             this.fileList.add(fullName);
         }
 
-        /*
-         * Add the draw panel to a scroll pane on a new tab.
-         */
+        /* Add the draw panel to a scroll pane on a new tab. */
         JScrollPane scrollPanel = new JScrollPane();
         scrollPanel.setViewportView(drawPanel);
-
-        // TODO Add infoScrollPane?
 
         JPanel documentPanel = new JPanel(new BorderLayout());
         documentPanel.add(scrollPanel, BorderLayout.CENTER);
@@ -1049,22 +1023,18 @@ public class ApplicationController extends AbstractApplicationController {
             System.out.println("tabbedPane.getToolTipTextAt(index): " + tabbedPane.getToolTipTextAt(index));
         }
 
-        /*
-         * Activate the new tab
-         */
+        /* Activate the new tab */
         this.tabbedPane.setSelectedIndex(index);
         this.tabbedPane.requestFocus();
 
-        /*
-         * Additional settings
-         */
+        /* Additional settings */
 
         // Speedup vertical scrolling
         scrollPanel.getVerticalScrollBar().setUnitIncrement(5);
         // ...horizontal scrolling too?
         scrollPanel.getHorizontalScrollBar().setUnitIncrement(20);
 
-        // Tab colors?
+        // TODO Tab colors?
         // initTabColor(index);
     }
 
@@ -1505,9 +1475,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (returnValue > 0)
             return ExitCode.OPERATION_FAILED;
 
-        /*
-         * Write all places in this model
-         */
+        /* Write all places in this model */
         for (IDataElement element : model.getElements()) {
             if (element instanceof DataPlace) {
                 String id = element.getId();
@@ -1522,9 +1490,7 @@ public class ApplicationController extends AbstractApplicationController {
             }
         }
 
-        /*
-         * Write all transitions in this model
-         */
+        /* Write all transitions in this model */
         for (IDataElement element : model.getElements()) {
             if (element instanceof DataTransition) {
                 String id = element.getId();
@@ -1538,9 +1504,7 @@ public class ApplicationController extends AbstractApplicationController {
             }
         }
 
-        /*
-         * Write all arcs in this model
-         */
+        /* Write all arcs in this model */
         for (IDataElement element : model.getElements()) {
             if (element instanceof DataArc) {
                 String id = element.getId();
@@ -1553,16 +1517,12 @@ public class ApplicationController extends AbstractApplicationController {
             }
         }
 
-        /*
-         * Finish the document
-         */
+        /* Finish the document */
         int result = writer.finishXMLDocument();
         if (result > 0)
             return ExitCode.OPERATION_FAILED;
 
-        /*
-         * Reset the modified state of this data model!
-         */
+        /* Reset the modified state of this data model! */
         model.setModified(false, false);
 
         return ExitCode.OPERATION_SUCCESSFUL;
@@ -2162,6 +2122,21 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
+     * Handles the {@link IDataModelController} request to remove the token from
+     * all specified places in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param placesWithToken
+     *            A {@link List} of type {@link String} with the IDs of the
+     *            specified places
+     */
+    public void removeGuiToken(String modelName, List<String> placesWithToken) {
+        guiModelController.removeGuiToken(modelName, placesWithToken);
+    }
+
+    /**
      * Handles the {@link IDataModelController} request to add a token to all
      * specified places in the specified GUI model.
      * 
@@ -2200,6 +2175,31 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void setGuiTransitionEnabledState(String modelName, String transitionId) {
         guiModelController.setGuiTransitionEnabledState(modelName, transitionId);
+    }
+
+    /**
+     * Handles the {@link IGuiModelController} request to fire a transition.<BR>
+     * <BR>
+     * Note: This refers to the current model (active file).
+     * 
+     * @param transitionId
+     *            The id of the {@link IDataTransition}
+     */
+    public void fireDataTransition(String transitionId) {
+        dataModelController.fireDataTransition(transitionId);
+    }
+
+    /**
+     * Passes the request to validate the specified {@link DataModel} with the
+     * specified {@link IValidator} to the {@link IValidationController}.
+     * 
+     * @param validatorName
+     *            The name of the specified {@link IValidator}
+     * @param dataModel
+     *            The specified {@link IDataModel}
+     */
+    public void requestIndividualValidation(String validatorName, IDataModel dataModel) {
+        validationController.requestIndividualValidation(validatorName, dataModel);
     }
 
 }

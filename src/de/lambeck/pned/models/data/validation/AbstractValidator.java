@@ -24,9 +24,6 @@ public abstract class AbstractValidator implements IValidator {
      */
     protected String validatorInfoString = "";
 
-    /** The ID of this validator */
-    protected int validatorId = -1;
-
     /**
      * Reference to the {@link IValidationController}
      */
@@ -56,8 +53,6 @@ public abstract class AbstractValidator implements IValidator {
      */
     protected String myDataModelName = null;
 
-    // protected IDataElement curNode = null;
-
     protected List<IValidationMsg> validationMessages = new ArrayList<IValidationMsg>();
 
     /*
@@ -77,8 +72,6 @@ public abstract class AbstractValidator implements IValidator {
      * {@link IDataModelController} to be able to pass important
      * messages/results to it.
      * 
-     * @param Id
-     *            The ID of this validator (for validation messages)
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
@@ -87,10 +80,9 @@ public abstract class AbstractValidator implements IValidator {
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public AbstractValidator(int Id, IValidationController validationController,
-            IDataModelController dataModelController, I18NManager i18n) {
+    public AbstractValidator(IValidationController validationController, IDataModelController dataModelController,
+            I18NManager i18n) {
         super();
-        this.validatorId = Id;
         this.myValidationController = validationController;
         this.myDataModelController = dataModelController;
         this.i18n = i18n;
@@ -125,7 +117,6 @@ public abstract class AbstractValidator implements IValidator {
 
     @Override
     public boolean hasMoreMessages() {
-        // if (this.curNode != null) { return true; }
         if (!validationMessages.isEmpty())
             return true;
 
@@ -150,10 +141,6 @@ public abstract class AbstractValidator implements IValidator {
     protected void addValidatorInfo() {
         String message;
         IValidationMsg vMessage;
-
-        message = "Validator " + this.validatorId + ":";
-        vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
-        validationMessages.add(vMessage);
 
         message = i18n.getMessage(this.validatorInfoString);
         vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);

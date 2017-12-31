@@ -28,7 +28,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class DataModelController implements IDataModelController {
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /**
      * Predefined parameter because only the {@link ValidationController} should
@@ -956,6 +956,132 @@ public class DataModelController implements IDataModelController {
          * Nothing to do here. Only the IGuiTransition needs this information.
          */
         appController.setGuiTransitionEnabledState(modelName, transitionId);
+    }
+
+    @Override
+    public void fireDataTransition(String transitionId) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.fireDataTransition", transitionId);
+        }
+
+        IDataElement element = currentModel.getElementById(transitionId);
+        if (element == null) {
+            System.err.println("Not found: data transition id=" + transitionId);
+            return;
+        }
+
+        if (!(element instanceof IDataTransition)) {
+            String warning = i18n.getMessage("warningNoTransition");
+            // String explanation = i18n.getMessage("warningOnlyNodesAllowed");
+            String message = warning; // + " (" + explanation + ")";
+
+            System.out.println(message);
+            setInfo_Status(message, EStatusMessageLevel.WARNING);
+            return;
+        }
+
+        IDataTransition transition = (IDataTransition) element;
+        removeTokenFromAllInputPlaces(transition);
+        addTokenToAllOutputPlaces(transition);
+
+        // TODO Now we need a revalidation - but not a complete validation!
+        // currentModel.setModified(true, true);
+        String validatorName = ApplicationController.enabledTransitionsValidatorName;
+        appController.requestIndividualValidation(validatorName, currentModel);
+    }
+
+    /**
+     * Removes the token from all input places ({@link DataPlace}) for the
+     * specified {@link IDataTransition}.
+     * 
+     * @param transition
+     *            The specified transition
+     */
+    private void removeTokenFromAllInputPlaces(IDataTransition transition) {
+        List<DataPlace> placesToRemoveToken = transition.getPredPlaces();
+        int tokensRemoved = 0;
+        List<String> placesWithRemovedToken = new ArrayList<String>();
+
+        for (DataPlace dataPlace : placesToRemoveToken) {
+            removeToken(dataPlace, tokensRemoved, placesWithRemovedToken);
+        }
+        ConsoleLogger.logIfDebug(debug, tokensRemoved + " tokens removed.");
+
+        /* Update the GUI */
+        appController.removeGuiToken(currentModel.getModelName(), placesWithRemovedToken);
+    }
+
+    /**
+     * Removes the token from the specified {@link IDataTransition}.
+     * 
+     * @param dataPlace
+     *            The {@link DataPlace} to remove the token from
+     * @param tokensRemoved
+     *            Counter for removed tokens
+     * @param placesWithRemovedToken
+     *            List with the ID of all processed places
+     */
+    private void removeToken(DataPlace dataPlace, int tokensRemoved, List<String> placesWithRemovedToken) {
+        if (!(dataPlace.getTokensCount() == EPlaceToken.ONE)) {
+            String errMsg = dataPlace.getId() + " has no token to remove!";
+            System.err.println(errMsg);
+            return;
+        }
+
+        dataPlace.setTokens(EPlaceToken.ZERO);
+        tokensRemoved++;
+
+        String placeId = dataPlace.getId();
+        placesWithRemovedToken.add(placeId);
+
+        ConsoleLogger.logIfDebug(debug, "Token removed from: " + placeId);
+    }
+
+    /**
+     * Adds a token to all output places ({@link DataPlace}) for the specified
+     * {@link IDataTransition}.
+     * 
+     * @param transition
+     *            The specified transition
+     */
+    private void addTokenToAllOutputPlaces(IDataTransition transition) {
+        List<DataPlace> placesToAddToken = transition.getSuccPlaces();
+        int tokensAdded = 0;
+        List<String> placesWithAddedToken = new ArrayList<String>();
+
+        for (DataPlace dataPlace : placesToAddToken) {
+            addToken(dataPlace, tokensAdded, placesWithAddedToken);
+        }
+        ConsoleLogger.logIfDebug(debug, tokensAdded + " tokens added.");
+
+        /* Update the GUI */
+        appController.addGuiToken(currentModel.getModelName(), placesWithAddedToken);
+    }
+
+    /**
+     * Adds a token to the specified {@link IDataTransition}.
+     * 
+     * @param dataPlace
+     *            The {@link DataPlace} to add the token to
+     * @param tokensAdded
+     *            Counter for added tokens
+     * @param placesWithRemovedToken
+     *            List with the ID of all processed places
+     */
+    private void addToken(DataPlace dataPlace, int tokensAdded, List<String> placesWithAddedToken) {
+        if (!(dataPlace.getTokensCount() == EPlaceToken.ZERO)) {
+            String errMsg = dataPlace.getId() + " already has a token!";
+            System.err.println(errMsg);
+            return;
+        }
+
+        dataPlace.setTokens(EPlaceToken.ONE);
+        tokensAdded++;
+
+        String placeId = dataPlace.getId();
+        placesWithAddedToken.add(placeId);
+
+        ConsoleLogger.logIfDebug(debug, "Token added to: " + placeId);
     }
 
 }

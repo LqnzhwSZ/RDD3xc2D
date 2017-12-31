@@ -57,12 +57,6 @@ public class PnedToolBar extends AbstractPnedToolBar {
         addSeparator();
 
         add(new EditDeleteAction(appController, i18n));
-
-        addSeparator();
-
-        add(new TestingStepAction(appController, i18n));
-        add(new TestingCompleteAction(appController, i18n));
-        add(new TestingQuitAction(appController, i18n));
     }
 
 }

@@ -120,10 +120,6 @@ public class MenuBar extends JMenuBar {
         editMenu.add(new EditRenameAction(appController, i18n));
         editMenu.add(new EditDeleteAction(appController, i18n));
 
-        editMenu.addSeparator();
-
-        editMenu.add(new EditSettingsAction(appController, i18n));
-
         return editMenu;
     }
 

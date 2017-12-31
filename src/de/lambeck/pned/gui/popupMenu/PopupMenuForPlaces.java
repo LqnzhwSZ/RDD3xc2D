@@ -64,11 +64,7 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
      */
     @SuppressWarnings("hiding")
     public PopupMenuForPlaces(IDrawPanel sourceDrawPanel, IGuiNode node, Map<String, AbstractAction> popupActions) {
-        // super(title);
         this.myDrawPanel = sourceDrawPanel;
-        // this.myLocation = mouseLocation;
-        // this.myGuiController = controller;
-        // this.myGuiModel = guiModel;
         this.node = node;
         this.popupActions = popupActions;
 
@@ -106,9 +102,7 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
      * Enables the menu items depending on the current element.
      */
     void enableMenuItems() {
-        /*
-         * All elements can be selected
-         */
+        /* All elements can be selected */
         selectAction.setEnabled(true);
 
         /*
@@ -124,9 +118,7 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         oneLayerDownAction.setEnabled(currZ != minZ);
         toBackgroundAction.setEnabled(currZ != minZ);
 
-        /*
-         * Check if we are adding a new arc (of proper type).
-         */
+        /* Check if we are adding a new arc (of proper type). */
         boolean enableNewArcFromHereAction = getEnableNewArcFromHere();
         newArcFromHereAction.setEnabled(enableNewArcFromHereAction);
 

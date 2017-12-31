@@ -503,9 +503,7 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void setSourceNodeForNewArc() {
-        /*
-         * Check if we have a location.
-         */
+        /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
             System.err.println(
@@ -513,16 +511,12 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Check if we have a node at this location.
-         */
+        /* Check if we have a node at this location. */
         IGuiNode node = getNodeAtLocation(popupMenuLocation);
         if (node == null)
             return;
 
-        /*
-         * Store this node as source for the new Arc.
-         */
+        /* Store this node as source for the new Arc. */
         sourceNodeForNewArc = node;
 
         if (node instanceof GuiPlace) {
@@ -531,9 +525,7 @@ public class GuiModelController implements IGuiModelController {
             sourceForNewArcType = ENodeType.TRANSITION;
         }
 
-        /*
-         * Set my state.
-         */
+        /* Set my state. */
         setStateAddingNewArc();
     }
 
@@ -571,15 +563,11 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void setTargetNodeForNewArc() {
-        /*
-         * Check the current state!
-         */
+        /* Check the current state! */
         if (!getStateAddingNewArc())
             return;
 
-        /*
-         * Check if we have a location.
-         */
+        /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
             System.err.println(
@@ -587,43 +575,27 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Check if we have a node at this location.
-         */
+        /* Check if we have a node at this location. */
         IGuiNode node = getNodeAtLocation(popupMenuLocation);
         if (node == null)
             return;
-
-        /*
-         * TODO Check if both nodes are of different type!
-         * 
-         * -> Or already in the popup menu?
-         */
 
         /*
          * Create a unique ID to avoid any conflict with existing elements.
          */
         String uuid = UUID.randomUUID().toString();
 
-        /*
-         * Get the IDs of source and target.
-         */
+        /* Get the IDs of source and target. */
         String sourceId = sourceNodeForNewArc.getId();
         String targetId = node.getId();
 
-        /*
-         * And create an Arc with these IDs.
-         */
+        /* And create an Arc with these IDs. */
         addArcToCurrentGuiModel(uuid, sourceId, targetId);
 
-        /*
-         * Reset my state.
-         */
+        /* Reset my state. */
         resetStateAddingNewArc();
 
-        /*
-         * Update the drawing
-         */
+        /* Update the drawing */
         IGuiElement element = currentModel.getElementById(uuid);
         if (element == null)
             return;
@@ -1688,6 +1660,37 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
+     * Returns the transition (not other elements) at the specified Point.
+     * 
+     * @param p
+     *            The specified Point
+     * @return The transition at the specified point
+     */
+    private IGuiTransition getTransitionAtLocation(Point p) {
+        IGuiElement foundElement = getElementAtLocation(p);
+        if (foundElement == null)
+            return null;
+
+        /*
+         * Note: getElementAtLocation() should have returned the topmost
+         * element.
+         */
+        IGuiTransition foundTransition = null;
+        if (foundElement instanceof IGuiTransition) {
+            foundTransition = (IGuiTransition) foundElement;
+        }
+
+        if (foundTransition == null) {
+            if (debug) {
+                System.out.println("No transition at this Point!");
+            }
+            return null;
+        }
+
+        return foundTransition;
+    }
+
+    /**
      * Checks if exactly 1 element is selected.
      * 
      * @return The selected element
@@ -2085,6 +2088,37 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
+    public void removeGuiToken(String modelName, List<String> placesWithToken) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiToken", modelName, placesWithToken);
+        }
+
+        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        if (guiModel == null)
+            return;
+
+        /* List for the drawing areas we are going to change. */
+        List<Rectangle> drawingAreas = new LinkedList<Rectangle>();
+
+        /* Remove the token from all specified GUI places. */
+        for (IGuiElement guiElement : guiModel.getElements()) {
+            if (guiElement instanceof IGuiPlace) {
+                IGuiPlace guiPlace = (IGuiPlace) guiElement;
+                String guiPlaceId = guiPlace.getId();
+                if (placesWithToken.contains(guiPlaceId)) {
+                    guiPlace.setTokens(EPlaceToken.ZERO);
+
+                    Rectangle rect = guiPlace.getLastDrawingArea();
+                    drawingAreas.add(rect);
+                }
+            }
+        }
+
+        /* Repaint */
+        updateDrawing(drawingAreas);
+    }
+
+    @Override
     public void addGuiToken(String modelName, List<String> placesWithToken) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.addGuiToken", modelName, placesWithToken);
@@ -2097,7 +2131,7 @@ public class GuiModelController implements IGuiModelController {
         /* List for the drawing areas we are going to change. */
         List<Rectangle> drawingAreas = new LinkedList<Rectangle>();
 
-        /* Add a token to all specified GUI places as well. */
+        /* Add a token to all specified GUI places. */
         for (IGuiElement guiElement : guiModel.getElements()) {
             if (guiElement instanceof IGuiPlace) {
                 IGuiPlace guiPlace = (IGuiPlace) guiElement;
@@ -2197,6 +2231,34 @@ public class GuiModelController implements IGuiModelController {
 
         /* Repaint this transition */
         updateDrawing(drawingArea);
+    }
+
+    @Override
+    public void fireGuiTransition() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.fireDataTransition");
+        }
+
+        /* Check if we have a location. */
+        Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
+        if (popupMenuLocation == null) {
+            System.err.println(
+                    "GuiModelController.fireTransition(): Unable to fire transition: popup menu location unknown.");
+            return;
+        }
+
+        /* Check if we have a transition at this location. */
+        IGuiTransition transition = getTransitionAtLocation(popupMenuLocation);
+        if (transition == null)
+            return;
+
+        /* Check if this transition is enabled. */
+        if (!transition.isEnabled())
+            return;
+
+        /* Inform the application controller */
+        String transitionId = transition.getId();
+        appController.fireDataTransition(transitionId);
     }
 
 }

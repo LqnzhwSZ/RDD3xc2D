@@ -68,8 +68,6 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      */
 
     /**
-     * @param Id
-     *            The ID of this validator (for validation messages)
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
@@ -78,9 +76,9 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      *            The source object for I18N strings
      */
     @SuppressWarnings("hiding")
-    public AllNodesOnPathsValidator(int Id, IValidationController validationController,
+    public AllNodesOnPathsValidator(IValidationController validationController,
             IDataModelController dataModelController, I18NManager i18n) {
-        super(Id, validationController, dataModelController, i18n);
+        super(validationController, dataModelController, i18n);
         this.validatorInfoString = "infoAllNodesOnPathsValidator";
     }
 

@@ -6,7 +6,6 @@ import java.util.List;
 
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.exceptions.PNElementException;
-import de.lambeck.pned.models.data.IDataModelController;
 
 /**
  * Implements the transitions (squares) of the Petri net.
@@ -99,22 +98,8 @@ public class DataTransition extends DataNode implements IDataTransition {
         return returnString;
     }
 
-    /*
-     * Private helpers
-     */
-
-    /**
-     * Returns a {@link List} of places ({@link DataPlace}) before the previous
-     * arrows ({@link IDataArc}). A transition can use this list to determine
-     * its own "enabled" state.<BR>
-     * <BR>
-     * Note: If the previous arcs have no predecessors (no places), the method
-     * returns null. But the {@link IDataModelController} should prevent this by
-     * removing all adjacent arcs when removing nodes.
-     * 
-     * @return List of all places before the predecessors (arcs)
-     */
-    private List<DataPlace> getPredPlaces() {
+    @Override
+    public List<DataPlace> getPredPlaces() {
         ArrayList<DataPlace> predPlaces = new ArrayList<DataPlace>();
         IDataNode currentNode;
         DataPlace currentPlace;
@@ -134,18 +119,8 @@ public class DataTransition extends DataNode implements IDataTransition {
         return predPlaces;
     }
 
-    /**
-     * Returns a {@link List} of places ({@link DataPlace}) behind the following
-     * arrows ({@link IDataArc}). A transition can use this list to determine
-     * its own "enabled" state.<BR>
-     * <BR>
-     * Note: If the following arcs have no successors (no places), the method
-     * returns null. But the {@link IDataModelController} should prevent this by
-     * removing all adjacent arcs when removing nodes.
-     * 
-     * @return List of all places behind the successors (arcs)
-     */
-    private List<DataPlace> getSuccPlaces() {
+    @Override
+    public List<DataPlace> getSuccPlaces() {
         ArrayList<DataPlace> succPlaces = new ArrayList<DataPlace>();
         IDataNode currentNode;
         DataPlace currentPlace;
