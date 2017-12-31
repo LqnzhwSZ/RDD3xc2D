@@ -108,6 +108,28 @@ public class ValidationController extends Thread implements IValidationControlle
             if (key == validatorName) {
                 IValidator validator = entry.getValue();
                 validator.startValidation(dataModel, false);
+
+                /* Get the message panel. */
+                IValidationMsgPanel msgPanel = getMsgPanel(dataModel);
+                if (msgPanel == null) {
+                    /*
+                     * This should never happen because we should be within a
+                     * simulation now. Which means that there must be a current
+                     * model (and therefore draw and message panels as well).
+                     */
+                    String errMsg = "ValidationController, cannot start validation: ";
+                    errMsg = errMsg + "no message panel for model '" + dataModel.getModelName() + "'";
+                    System.err.println(errMsg);
+
+                    return;
+                }
+
+                /*
+                 * Pass the results to the message panel, but ignore return
+                 * values because "real" validation would be recognized by
+                 * "modelChecked = false" in the run() method.
+                 */
+                getValidatorMessages(true, msgPanel, validator);
             }
         }
     }
@@ -159,17 +181,7 @@ public class ValidationController extends Thread implements IValidationControlle
                 validator.startValidation(dataModel, isInitialModelCheck);
 
                 /* Get all messages from the current validator. */
-                while ((this.getState() != Thread.State.TERMINATED) && (validator.hasMoreMessages())) {
-                    IValidationMsg message = validator.nextMessage();
-
-                    isModelValid = handleMessage(isModelValid, msgPanel, message);
-
-                    Thread.yield();
-
-                    if (this.getState() == Thread.State.TERMINATED) {
-                        break;
-                    }
-                }
+                isModelValid = getValidatorMessages(isModelValid, msgPanel, validator);
                 msgPanel.addMessage("");
 
                 /*
@@ -221,6 +233,32 @@ public class ValidationController extends Thread implements IValidationControlle
         msgPanel.reset();
         msgPanel.setBgColor(EValidationColor.PENDING);
         this.currentValidationStatus = EValidationResultSeverity.INFO;
+    }
+
+    /**
+     * Handles all messages from the specified validator.
+     * 
+     * @param isModelValid
+     *            Current model "validity" state
+     * @param msgPanel
+     *            The {@link IValidationMsgPanel}
+     * @param validator
+     *            The {@link IValidator}
+     * @return The new "validity" state
+     */
+    private boolean getValidatorMessages(boolean isModelValid, IValidationMsgPanel msgPanel, IValidator validator) {
+        while ((this.getState() != Thread.State.TERMINATED) && (validator.hasMoreMessages())) {
+            IValidationMsg message = validator.nextMessage();
+
+            isModelValid = handleMessage(isModelValid, msgPanel, message);
+
+            Thread.yield();
+
+            if (this.getState() == Thread.State.TERMINATED) {
+                break;
+            }
+        }
+        return isModelValid;
     }
 
     /**

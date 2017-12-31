@@ -32,12 +32,6 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     private List<IDataElement> allDataElements = null;
 
     /**
-     * A {@link List} of all {@link DataPlace} in the model; Gets data in
-     * getDataFromModel(IDataModel dataModel).
-     */
-    private List<DataPlace> allDataPlaces = null;
-
-    /**
      * A {@link List} of all {@link IDataTransition} in the model; Gets data in
      * getDataFromModel(IDataModel dataModel).
      */
@@ -107,7 +101,6 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         this.allDataElements = new ArrayList<IDataElement>(modelElements);
 
         /* Store all places and transitions in lists */
-        this.allDataPlaces = getDataPlaces(allDataElements);
         this.allDataTransitions = getDataTransitions(allDataElements);
     }
 

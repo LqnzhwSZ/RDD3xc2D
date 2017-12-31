@@ -1084,4 +1084,16 @@ public class DataModelController implements IDataModelController {
         ConsoleLogger.logIfDebug(debug, "Token added to: " + placeId);
     }
 
+    @Override
+    public void stopSimulation() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.stopSimulation");
+        }
+
+        if (currentModel == null)
+            return;
+
+        currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
+    }
+
 }

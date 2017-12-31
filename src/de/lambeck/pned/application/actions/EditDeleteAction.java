@@ -38,9 +38,6 @@ public class EditDeleteAction extends AbstractPNAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        /*
-         * Handle the action
-         */
         appController.menuCmd_EditDelete();
     }
 }

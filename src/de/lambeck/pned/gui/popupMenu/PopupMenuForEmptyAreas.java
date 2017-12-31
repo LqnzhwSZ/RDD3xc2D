@@ -26,17 +26,15 @@ public class PopupMenuForEmptyAreas extends JPopupMenu implements PopupMenuListe
 
     private static boolean debug = false;
 
+    /** The Map with existing Actions, suitable for this popup menu. */
     protected Map<String, AbstractAction> popupActions;
 
-    /**
-     * Source of the popup trigger
-     */
+    /** Source of the popup trigger */
     private IDrawPanel myDrawPanel = null;
 
-    /**
-     * The "buttons" of the popup menu
-     */
+    /** A popup menu "button" */
     private AbstractAction newPlaceAction;
+    /** A popup menu "button" */
     private AbstractAction newTransitionAction;
 
     /**

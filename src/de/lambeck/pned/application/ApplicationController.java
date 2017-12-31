@@ -30,6 +30,7 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.models.data.validation.*;
 import de.lambeck.pned.models.gui.*;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Extends the abstract application controller. Observes the application (e.g.
@@ -170,15 +171,15 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.setContentPane(contentPane);
 
         /* Add menu, tool and status bar. */
-        MenuBar menuBar = new MenuBar(frame, this, i18n);
-        JToolBar toolBarElements = new PnedToolBar(this, i18n);
+        MenuBar menuBar = new MenuBar(frame, i18n, allActions);
+        JToolBar toolBar = new PnedToolBar(this, i18n, allActions);
 
-        toolBarElements.addSeparator();
+        toolBar.addSeparator();
         String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
-        toolBarElements.add(new SizeSlider(sizeSliderName, this));
+        toolBar.add(new SizeSlider(sizeSliderName, this));
 
         mainFrame.setJMenuBar(menuBar);
-        mainFrame.add(toolBarElements, BorderLayout.PAGE_START);
+        mainFrame.add(toolBar, BorderLayout.PAGE_START);
         mainFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         /* Additional settings */
@@ -306,39 +307,69 @@ public class ApplicationController extends AbstractApplicationController {
 
     @Override
     protected void addAllActionsToHashMaps() {
+        /* Create all Actions... */
+        AbstractAction fileNewAction = new FileNewAction(this, i18n);
+        AbstractAction fileOpenAction = new FileOpenAction(this, i18n, mainFrame);
+        AbstractAction fileCloseAction = new FileCloseAction(this, i18n);
+        AbstractAction fileSaveAction = new FileSaveAction(this, i18n);
+        AbstractAction fileSaveAsAction = new FileSaveAsAction(this, i18n, mainFrame);
+        AbstractAction appExitAction = new AppExitAction(this, i18n);
+
+        AbstractAction editRenameAction = new EditRenameAction(this, i18n);
+        AbstractAction editDeleteAction = new EditDeleteAction(this, i18n);
+
+        AbstractAction toForegroundAction = new ElementToTheForegroundAction(this, i18n);
+        AbstractAction oneLayerUpAction = new ElementOneLayerUpAction(this, i18n);
+        AbstractAction oneLayerDownAction = new ElementOneLayerDownAction(this, i18n);
+        AbstractAction toBackgroundAction = new ElementToTheBackgroundAction(this, i18n);
+
+        AbstractAction elementSelectAction = new ElementSelectAction(this, i18n);
+        AbstractAction fireTransitionAction = new FireTransitionAction(this, i18n);
+        AbstractAction stopSimulationAction = new StopSimulationAction(this, i18n);
+
+        AbstractAction newArcFromHereAction = new NewArcFromHereAction(this, i18n);
+        AbstractAction newArcToHereAction = new NewArcToHereAction(this, i18n);
+
+        AbstractAction newPlaceAction = new NewPlaceAction(this, i18n);
+        AbstractAction newTransitionAction = new NewTransitionAction(this, i18n);
+
+        /* ...and add them to the Maps... */
+
         // Menu "File"
-        allActions.put("FileNew", new FileNewAction(this, i18n));
-        allActions.put("FileOpen...", new FileNewAction(this, i18n));
-        allActions.put("FileClose", new FileNewAction(this, i18n));
-        allActions.put("FileSave", new FileNewAction(this, i18n));
-        allActions.put("FileSaveAs...", new FileNewAction(this, i18n));
-        allActions.put("AppExit", new FileNewAction(this, i18n));
+        allActions.put("FileNew", fileNewAction);
+        allActions.put("FileOpen...", fileOpenAction);
+        allActions.put("FileClose", fileCloseAction);
+        allActions.put("FileSave", fileSaveAction);
+        allActions.put("FileSaveAs...", fileSaveAsAction);
+        allActions.put("AppExit", appExitAction);
 
         // Menu "Edit"
-        allActions.put("EditRename...", new FileNewAction(this, i18n));
-        allActions.put("EditDelete", new FileNewAction(this, i18n));
+        allActions.put("EditRename...", editRenameAction);
+        allActions.put("EditDelete", editDeleteAction);
 
         // Tool bar "Elements"
-        allActions.put("ElementToTheForeground", new FileNewAction(this, i18n));
-        allActions.put("ElementOneLayerUp", new FileNewAction(this, i18n));
-        allActions.put("ElementOneLayerDown", new FileNewAction(this, i18n));
-        allActions.put("ElementToTheBackground", new FileNewAction(this, i18n));
+        allActions.put("ElementToTheForeground", toForegroundAction);
+        allActions.put("ElementOneLayerUp", oneLayerUpAction);
+        allActions.put("ElementOneLayerDown", oneLayerDownAction);
+        allActions.put("ElementToTheBackground", toBackgroundAction);
+
+        allActions.put("StopSimulation", stopSimulationAction);
 
         // Popup menu "Elements"
-        popupActions.put("FireTransition", new FireTransitionAction(this, i18n));
+        popupActions.put("FireTransition", fireTransitionAction);
 
-        popupActions.put("ElementSelect", new ElementSelectAction(this, i18n));
-        popupActions.put("ElementToTheForeground", new ElementToTheForegroundAction(this, i18n));
-        popupActions.put("ElementOneLayerUp", new ElementOneLayerUpAction(this, i18n));
-        popupActions.put("ElementOneLayerDown", new ElementOneLayerDownAction(this, i18n));
-        popupActions.put("ElementToTheBackground", new ElementToTheBackgroundAction(this, i18n));
+        popupActions.put("ElementSelect", elementSelectAction);
+        popupActions.put("ElementToTheForeground", toForegroundAction);
+        popupActions.put("ElementOneLayerUp", oneLayerUpAction);
+        popupActions.put("ElementOneLayerDown", oneLayerDownAction);
+        popupActions.put("ElementToTheBackground", toBackgroundAction);
 
-        popupActions.put("NewArcFromHere", new NewArcFromHereAction(this, i18n));
-        popupActions.put("NewArcToHere", new NewArcToHereAction(this, i18n));
+        popupActions.put("NewArcFromHere", newArcFromHereAction);
+        popupActions.put("NewArcToHere", newArcToHereAction);
 
         // Popup menu "Empty area"
-        popupActions.put("NewPlace", new NewPlaceAction(this, i18n));
-        popupActions.put("NewTransition", new NewTransitionAction(this, i18n));
+        popupActions.put("NewPlace", newPlaceAction);
+        popupActions.put("NewTransition", newTransitionAction);
     }
 
     /**
@@ -411,9 +442,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Updates the attribute allowedToClose.
      */
     private void updateAllowedToClose() {
-        /*
-         * Check if it's safe to close the application.
-         */
+        /* Check if it's safe to close the application. */
         updateModifiedDataModelsList();
         int allModifiedDataModelsCount = modifiedDataModels.size();
         this.allowedToClose = (allModifiedDataModelsCount == 0);
@@ -669,6 +698,9 @@ public class ApplicationController extends AbstractApplicationController {
      * Petri net.
      */
     public void menuCmd_EditRename() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: EditRename...";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -683,6 +715,9 @@ public class ApplicationController extends AbstractApplicationController {
      * Petri net.
      */
     public void menuCmd_EditDelete() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: EditDelete";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -696,12 +731,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Callback for {@link ElementSelectAction}, selects the current element.
      */
     public void menuCmd_ElementSelect() {
-        if (debug) {
-            String testMsg = "Menu command: ElementSelect";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
+        /* Called only from popup menus */
         guiModelController.selectElementAtPopupMenu();
     }
 
@@ -710,6 +740,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} to the foreground.
      */
     public void menuCmd_ElementToTheForeground() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementToTheForeground";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -724,6 +757,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} to the foreground.
      */
     public void menuCmd_ElementToTheBackground() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementToTheBackground";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -738,6 +774,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} 1 layer up.
      */
     public void menuCmd_ElementOneLayerUp() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementOneLayerUp";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -752,6 +791,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} 1 layer down.
      */
     public void menuCmd_ElementOneLayerDown() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementOneLayerDown";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -766,12 +808,7 @@ public class ApplicationController extends AbstractApplicationController {
      * the current {@link IGuiModel}.
      */
     public void menuCmd_NewPlace() {
-        if (debug) {
-            String testMsg = "Menu command: NewPlace";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
+        /* Called only from popup menus */
         guiModelController.createNewPlaceInCurrentGuiModel();
     }
 
@@ -780,12 +817,7 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link GuiTransition} in the current {@link IGuiModel}.
      */
     public void menuCmd_NewTransition() {
-        if (debug) {
-            String testMsg = "Menu command: NewTransition";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
+        /* Called only from popup menus */
         guiModelController.createNewTransitionInCurrentGuiModel();
     }
 
@@ -794,6 +826,7 @@ public class ApplicationController extends AbstractApplicationController {
      * source of the new {@link IGuiArc} in the current {@link IGuiModel}.
      */
     public void menuCmd_NewArcFromHere() {
+        /* Called only from popup menus */
         guiModelController.setSourceNodeForNewArc();
     }
 
@@ -802,18 +835,35 @@ public class ApplicationController extends AbstractApplicationController {
      * of the new {@link IGuiArc} in the current {@link IGuiModel}.
      */
     public void menuCmd_NewArcToHere() {
+        /* Called only from popup menus */
         guiModelController.setTargetNodeForNewArc();
     }
 
     /**
      * Callback for {@link FireTransitionAction} in
      * {@link PopupMenuForTransitions}, fires the transition at the popup
-     * location.<BR>
-     * <BR>
-     * Note: This method should only be invokable from .
+     * location.
      */
     public void menuCmd_FireTransition() {
+        /* Called only from popup menus */
         guiModelController.fireGuiTransition();
+    }
+
+    /**
+     * Callback for {@link StopSimulationAction}, resets the current state of
+     * tokens and enabled transitions.
+     */
+    public void menuCmd_StopSimulation() {
+        if (!isFileOpen())
+            return;
+
+        if (debug) {
+            String testMsg = "Menu command: StopSimulation";
+            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
+            System.out.println(testMsg);
+        }
+
+        dataModelController.stopSimulation();
     }
 
     /**
@@ -824,6 +874,7 @@ public class ApplicationController extends AbstractApplicationController {
      *            The new size
      */
     public void changeShapeSize(int size) {
+        /* Changes a general setting for all {@link IGuiNode} */
         guiModelController.changeShapeSize(size);
     }
 
@@ -1659,8 +1710,22 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /*
-     * Helpers
+     * Private helpers
      */
+
+    /**
+     * Checks whether there is at least 1 file open or not.
+     * 
+     * @return True = At least one open file, false = no open files
+     */
+    private boolean isFileOpen() {
+        if (this.activeFile == null || this.activeFile == "") {
+            ConsoleLogger.logIfDebug(debug, "No file open.");
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Checks if the specified file is already open.

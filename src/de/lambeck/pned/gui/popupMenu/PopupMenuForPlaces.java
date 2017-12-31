@@ -28,27 +28,28 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
 
     private static boolean debug = true;
 
+    /** The Map with existing Actions, suitable for this popup menu. */
     protected Map<String, AbstractAction> popupActions;
 
-    /**
-     * Source of the popup trigger
-     */
+    /** Source of the popup trigger */
     private IDrawPanel myDrawPanel = null;
 
-    /**
-     * Local reference to the current node
-     */
+    /** Local reference to the current node */
     private IGuiNode node;
 
-    /**
-     * The "buttons" of the popup menu
-     */
+    /** A popup menu "button" */
     private AbstractAction selectAction;
+    /** A popup menu "button" */
     private AbstractAction toForegroundAction;
+    /** A popup menu "button" */
     private AbstractAction oneLayerUpAction;
+    /** A popup menu "button" */
     private AbstractAction oneLayerDownAction;
+    /** A popup menu "button" */
     private AbstractAction toBackgroundAction;
+    /** A popup menu "button" */
     private AbstractAction newArcFromHereAction;
+    /** A popup menu "button" */
     private AbstractAction newArcToHereAction;
 
     /**

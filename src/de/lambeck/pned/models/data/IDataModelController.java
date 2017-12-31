@@ -448,4 +448,9 @@ public interface IDataModelController extends IInfo_Status {
      */
     void fireDataTransition(String transitionId);
 
+    /**
+     * Resets the current state of tokens and enabled transitions.
+     */
+    void stopSimulation();
+
 }
