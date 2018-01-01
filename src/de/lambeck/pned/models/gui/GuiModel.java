@@ -282,16 +282,12 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         position = shiftPositionToMinXY(position);
 
-        /*
-         * Get the next value for zOrder
-         */
+        /* Get the next value for zOrder. */
         int zOrder = getIncrMaxZ();
 
         GuiPlace newPlace = new GuiPlace(id, name, position, zOrder, initialTokens);
 
-        /*
-         * Add the place to the model
-         */
+        /* Add the place to the model. */
         try {
             addElement(newPlace);
         } catch (PNDuplicateAddedException e) {
@@ -320,17 +316,13 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         position = shiftPositionToMinXY(position);
 
-        /*
-         * Get the next value for zOrder
-         */
+        /* Get the next value for zOrder. */
         int zOrder = getIncrMaxZ();
 
         GuiTransition newTransition = new GuiTransition(id, name, position, zOrder);
         newTransition.setName(name);
 
-        /*
-         * Add the transition to the model
-         */
+        /* Add the transition to the model. */
         try {
             addElement(newTransition);
         } catch (PNDuplicateAddedException e) {
@@ -349,9 +341,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public void addArc(String id, String sourceId, String targetId) {
-        /*
-         * Get source and target objects
-         */
+        /* Get source and target objects. */
         IGuiNode source = null;
         IGuiNode target = null;
 
@@ -377,9 +367,7 @@ public class GuiModel implements IGuiModel, IModelRename {
          */
         IGuiArc newArc = null;
 
-        /*
-         * Get the next value for zOrder
-         */
+        /* Get the next value for zOrder. */
         int zOrder = getIncrMaxZ();
 
         try {
@@ -390,9 +378,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             return;
         }
 
-        /*
-         * Add the arc to the model
-         */
+        /* Add the arc to the model. */
         try {
             addElement(newArc);
         } catch (PNDuplicateAddedException e) {
@@ -428,9 +414,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         for (IGuiElement test : elements) {
             if (test.getId() == id) {
-                /*
-                 * Remove from the list of selected elements!
-                 */
+                /* Remove from the list of selected elements! */
                 this.selected.remove(test);
 
                 /* Remove the element. */
@@ -466,8 +450,6 @@ public class GuiModel implements IGuiModel, IModelRename {
     public void toggleSelection(IGuiElement element) {
         if (element == null)
             return;
-
-        // List<IGuiElement> selected = myGuiModel.getSelectedElements();
 
         if (!selected.contains(element)) {
             addToSelection(element);
@@ -507,8 +489,6 @@ public class GuiModel implements IGuiModel, IModelRename {
         if (element == null)
             return;
 
-        // List<IGuiElement> selected = currentModel.getSelectedElements();
-
         selected.add(element);
         element.setSelected(true);
 
@@ -525,16 +505,12 @@ public class GuiModel implements IGuiModel, IModelRename {
         if (element == null)
             return;
 
-        /*
-         * Repaint its area after removing the selection from this element!
-         */
+        /* Repaint its area after removing the selection from this element! */
         Rectangle oldArea = element.getLastDrawingArea();
         element.setSelected(false);
         myGuiController.updateDrawing(oldArea);
 
-        /*
-         * Remove the element from the list of selected elements.
-         */
+        /* Remove the element from the list of selected elements. */
         if (selected.size() == 0)
             return;
         if (!selected.contains(element))
@@ -570,9 +546,7 @@ public class GuiModel implements IGuiModel, IModelRename {
      * @return The new position
      */
     private Point shiftPositionToMinXY(Point position) {
-        /*
-         * Increase x and y if we are too far to the left or to the top.
-         */
+        /* Increase x and y if we are too far to the left or to the top. */
         int pos_x = position.x;
         int pos_y = position.y;
         int min_x = GuiNode.getShapeSize() / 2;

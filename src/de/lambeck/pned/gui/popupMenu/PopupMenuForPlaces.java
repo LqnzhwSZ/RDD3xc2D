@@ -119,23 +119,19 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         oneLayerDownAction.setEnabled(currZ != minZ);
         toBackgroundAction.setEnabled(currZ != minZ);
 
-        /* Check if we are adding a new arc (of proper type). */
-        boolean enableNewArcFromHereAction = getEnableNewArcFromHere();
-        newArcFromHereAction.setEnabled(enableNewArcFromHereAction);
+        newArcFromHereAction.setEnabled(true);
 
+        /* Check if we are adding a new arc (of proper type). */
         boolean enableNewArcToHereAction = getEnableNewArcToHere();
         newArcToHereAction.setEnabled(enableNewArcToHereAction);
     }
 
-    private boolean getEnableNewArcFromHere() {
-        boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
-
-        if (addingNewArc)
-            return false;
-
-        return true;
-    }
-
+    /**
+     * Checks the type of node that is stored as source for the next arc.
+     * 
+     * @return True = enabled (source for the next arc is a transition), false =
+     *         disabled
+     */
     private boolean getEnableNewArcToHere() {
         boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
         ENodeType sourceForNewArc = myDrawPanel.getSourceForNewArcType();

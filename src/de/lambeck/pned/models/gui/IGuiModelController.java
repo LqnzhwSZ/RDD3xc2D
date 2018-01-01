@@ -603,4 +603,14 @@ public interface IGuiModelController
      */
     void fireGuiTransition();
 
+    /**
+     * @return the minimum z value from the current {@link IGuiModel}
+     */
+    int getCurrentMinZValue();
+
+    /**
+     * @return the maximum z value from the current {@link IGuiModel}
+     */
+    int getCurrentMaxZValue();
+
 }

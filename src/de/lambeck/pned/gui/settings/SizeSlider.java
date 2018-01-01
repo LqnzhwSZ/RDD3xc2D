@@ -24,44 +24,28 @@ import de.lambeck.pned.application.ApplicationController;
 @SuppressWarnings({ "serial" })
 public class SizeSlider extends JPanel implements ChangeListener {
 
-    /**
-     * Reference to the application controller
-     */
+    /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
 
-    /**
-     * Minimum value of the slider
-     */
+    /** Minimum value of the slider */
     private static final int SIZE_MIN = 30;
 
-    /**
-     * Maximum value of the slider
-     */
+    /** Maximum value of the slider */
     private static final int SIZE_MAX = 100;
 
-    /**
-     * Initial value of the slider
-     */
+    /** Initial value of the slider */
     private static final int SIZE_INIT = 50; // (Initial shape size)
 
-    /**
-     * Font for the slider tick labels (and size label)
-     */
+    /** Font for the slider tick labels (and size label) */
     private static final Font LABEL_FONT = new Font("Dialog", Font.PLAIN, 10);
 
-    /**
-     * The preferred height of the slider component.
-     */
+    /** The preferred height of the slider component. */
     private static final int WANTED_HEIGHT = 41;
 
-    /**
-     * The slider for size adjustment.
-     */
+    /** The slider for size adjustment. */
     JSlider shapeSizeSlider;
 
-    /**
-     * The label to display the current value (when testing).
-     */
+    /** The label to display the current value (when testing). */
     JLabel sizeLabel;
 
     /**
@@ -85,21 +69,15 @@ public class SizeSlider extends JPanel implements ChangeListener {
             setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         }
 
-        /*
-         * Create the label.
-         */
+        /* Create the label. */
         JLabel sliderLabel = new JLabel(title, JLabel.CENTER);
         sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        /*
-         * Create the slider.
-         */
+        /* Create the slider. */
         shapeSizeSlider = new JSlider(JSlider.HORIZONTAL, SIZE_MIN, SIZE_MAX, SIZE_INIT);
         shapeSizeSlider.addChangeListener(this);
 
-        /*
-         * Turn on labels at major tick marks.
-         */
+        /* Turn on labels at major tick marks. */
         shapeSizeSlider.setMajorTickSpacing(10);
         shapeSizeSlider.setMinorTickSpacing(5);
         shapeSizeSlider.setPaintTicks(true);
@@ -111,24 +89,18 @@ public class SizeSlider extends JPanel implements ChangeListener {
         shapeSizeSlider.setFont(LABEL_FONT);
 
         if (appController == null) {
-            /*
-             * Create the label that displays the size.
-             */
+            /* Create the label that displays the size. */
             sizeLabel = new JLabel();
             sizeLabel.setHorizontalAlignment(JLabel.CENTER);
             sizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             sizeLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
                     BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-            /*
-             * Display the initial size.
-             */
+            /* Display the initial size. */
             updateSize();
         }
 
-        /*
-         * Put everything together.
-         */
+        /* Put everything together. */
         add(sliderLabel);
         add(shapeSizeSlider);
         if (appController == null) {
@@ -137,9 +109,7 @@ public class SizeSlider extends JPanel implements ChangeListener {
             // setBorder(BorderFactory.createEtchedBorder());
         }
 
-        /*
-         * Additional settings
-         */
+        /* Additional settings */
 
         // Preferred size?
         int labelWidth = shapeSizeSlider.getFontMetrics(LABEL_FONT).stringWidth(String.valueOf(SIZE_MAX));
@@ -147,12 +117,14 @@ public class SizeSlider extends JPanel implements ChangeListener {
         Dimension dim = new Dimension(sliderBaseWidth + labelWidth, WANTED_HEIGHT);
         shapeSizeSlider.setPreferredSize(dim);
 
-        // Allow direct left mouse click at a value.
-        // https://stackoverflow.com/a/518672/5944475
+        /*
+         * Allow direct left mouse click at a value.
+         * (https://stackoverflow.com/a/518672/5944475)
+         */
         shapeSizeSlider.setUI(new MetalSliderUI() {
             @Override
             protected void scrollDueToClickInTrack(int direction) {
-                // this is the default behaviour, let's comment that out
+                // Default behavior, commented out
                 // scrollByBlock(direction);
 
                 int value = shapeSizeSlider.getValue();

@@ -42,14 +42,21 @@ public class StatusBar extends JPanel
     private final static EIconSize imagesSize = EIconSize.NONE; // No different
                                                                 // sizes
                                                                 // available
+
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n;
 
+    /** JLabel for the current mouse position */
     private JLabel mousePos = new JLabel("");
+    /** JLabel for the size of the current selection frame */
     private JLabel selectionRangeSize = new JLabel("");
+    /** JLabel for the size of the drawing area */
     private JLabel drawingAreaSize = new JLabel("");
+    /** JLabel for the current status (last event) */
     private JLabel status = new JLabel("");
 
-    private static int borderOffset = 5; // For font and EtchedBorder
+    /** Offset for font and EtchedBorder */
+    private static int borderOffset = 5;
 
     /**
      * Constructor for a status bar with a reference to an i18n manager.
@@ -73,9 +80,7 @@ public class StatusBar extends JPanel
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 0));
         JPanel center = new JPanel(new BorderLayout(1, 0));
 
-        /*
-         * Add all labels to their panels
-         */
+        /* Add all labels to their panels. */
         left.add(mousePos);
         left.add(selectionRangeSize);
         left.add(drawingAreaSize);
@@ -83,9 +88,7 @@ public class StatusBar extends JPanel
 
         status.setOpaque(true);
 
-        /*
-         * Define the status bar itself
-         */
+        /* Define the status bar itself. */
         this.setLayout(new BorderLayout(1, 0));
         this.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         this.add(left, BorderLayout.WEST);
@@ -101,10 +104,7 @@ public class StatusBar extends JPanel
     private void createLabels() {
         String text;
 
-        /*
-         * Define the fonts
-         */
-        // TODO Test: different fonts and sizes
+        /* Define the fonts. */
         setPlainFont(mousePos);
         setPlainFont(selectionRangeSize);
         setPlainFont(drawingAreaSize);
@@ -121,38 +121,28 @@ public class StatusBar extends JPanel
         drawingAreaSize.setPreferredSize(new Dimension(prefWidth, fontHeight));
         status.setPreferredSize(new Dimension(prefWidth, fontHeight));
 
-        /*
-         * Define mousePos label
-         */
+        /* Define mousePos label. */
         text = i18n.getMessage("infoCurrentMousePosition");
         mousePos.setToolTipText(text);
         mousePos.setPreferredSize(new Dimension(prefWidth, fontHeight));
 
-        /*
-         * Define selectionFrameSize label
-         */
+        /* Define selectionFrameSize label. */
         text = i18n.getMessage("infoCurrentSizeOfSelectionFrame");
         selectionRangeSize.setToolTipText(text);
         selectionRangeSize.setPreferredSize(new Dimension(prefWidth, fontHeight));
 
-        /*
-         * Define drawingAreaSize label
-         */
+        /* Define drawingAreaSize label. */
         text = i18n.getMessage("infoCurrentSizeOfDrawingArea");
         drawingAreaSize.setToolTipText(text);
         drawingAreaSize.setPreferredSize(new Dimension(prefWidth, fontHeight));
 
-        /*
-         * Define status label
-         */
+        /* Define status label. */
         status.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         text = i18n.getMessage("infoStatusMessages");
         status.setToolTipText(text);
         status.setPreferredSize(new Dimension(prefWidth, fontHeight));
 
-        /*
-         * Borders (https://stackoverflow.com/a/22384566)
-         */
+        /* Borders (https://stackoverflow.com/a/22384566) */
         Border border = javax.swing.BorderFactory.createEtchedBorder();
         Border margin = new EmptyBorder(borderOffset, borderOffset, borderOffset, borderOffset);
 

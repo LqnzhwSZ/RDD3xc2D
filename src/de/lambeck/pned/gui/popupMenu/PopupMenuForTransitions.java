@@ -132,10 +132,9 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
         oneLayerDownAction.setEnabled(currZ != minZ);
         toBackgroundAction.setEnabled(currZ != minZ);
 
-        /* Check if we are adding a new arc (of proper type). */
-        boolean enableNewArcFromHereAction = getEnableNewArcFromHere();
-        newArcFromHereAction.setEnabled(enableNewArcFromHereAction);
+        newArcFromHereAction.setEnabled(true);
 
+        /* Check if we are adding a new arc (of proper type). */
         boolean enableNewArcToHereAction = getEnableNewArcToHere();
         newArcToHereAction.setEnabled(enableNewArcToHereAction);
     }
@@ -153,15 +152,12 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
         return result;
     }
 
-    private boolean getEnableNewArcFromHere() {
-        boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
-
-        if (addingNewArc)
-            return false;
-
-        return true;
-    }
-
+    /**
+     * Checks the type of node that is stored as source for the next arc.
+     * 
+     * @return True = enabled (source for the next arc is a place), false =
+     *         disabled
+     */
     private boolean getEnableNewArcToHere() {
         boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
         ENodeType sourceForNewArc = myDrawPanel.getSourceForNewArcType();

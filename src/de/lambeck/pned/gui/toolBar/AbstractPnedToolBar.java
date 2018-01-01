@@ -42,9 +42,7 @@ public abstract class AbstractPnedToolBar extends JToolBar {
 
         createButtons();
 
-        /*
-         * Set some tool bar properties:
-         */
+        /* Set some tool bar properties. */
         // this.setFloatable(true);
         // this.setRollover(true);
         // this.setBorderPainted(true);

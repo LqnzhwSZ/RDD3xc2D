@@ -44,9 +44,16 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     private static boolean debug = false;
 
+    /** Reference to the {@link ApplicationController} */
     protected ApplicationController myAppController = null;
+
+    /** Reference to the {@link IGuiModelController} */
     protected IGuiModelController myGuiController = null;
+
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n;
+
+    /** The {@link Map} with the popup Actions */
     protected Map<String, AbstractAction> popupActions;
 
     /**
@@ -59,6 +66,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      */
     private String displayName = "";
 
+    /** Reference to the {@link IGuiModel} for this draw panel */
     private IGuiModel myGuiModel = null;
 
     /**
@@ -77,7 +85,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * chance to abort an action by dragging the mouse away before releasing the
      * mouse button.
      */
-    volatile MyMouseEvent lastMouseEvent = MyMouseEvent.NONE;
+    volatile EMouseEvent lastMouseEvent = EMouseEvent.NONE;
 
     /**
      * Location of the mousePressed event. (Mouse click or start of dragging)
@@ -172,8 +180,8 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
          * MouseListener to select and move nodes and to show popup menus and a
          * MouseMotionListener
          */
-        addMouseListener(new MyMouseAdapter(this, myGuiController, popupActions));
-        addMouseMotionListener(new MyMouseAdapter(this, myGuiController, popupActions));
+        addMouseListener(new MyMouseAdapter(this, myGuiController, popupActions, myAppController));
+        addMouseMotionListener(new MyMouseAdapter(this, myGuiController, popupActions, myAppController));
 
         /*
          * KeyboardFocusManager replaces KeyBindings because of unexpected mouse
@@ -327,28 +335,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
          */
         setCursor(null);
     }
-
-    // private void keyEvent_Escape_Occurred() {
-    // if (debug) {
-    // ConsoleLogger.consoleLogMethodCall("DrawPanel.keyEvent_Escape_Occurred");
-    // System.out.println("DrawPanel.this.getPopupMenuLocation(): " +
-    // DrawPanel.this.getPopupMenuLocation());
-    // }
-    //
-    // /*
-    // * Are we just "leaving" a popup menu with ESCAPE?
-    // */
-    // if (DrawPanel.this.popupMenuLocation != null) {
-    // DrawPanel.this.popupMenuLocation = null;
-    // return; // Do nothing more!
-    // }
-    //
-    // /*
-    // * Let the GUI controller do whatever is necessary (to remove the
-    // selection).
-    // */
-    // myGuiController.keyEvent_Escape_Occurred();
-    // }
 
     /*
      * Painting code...
@@ -535,7 +521,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * Resets old mouse operations.
      */
     private void resetMouseOperations() {
-        this.lastMouseEvent = MyMouseEvent.NONE;
+        this.lastMouseEvent = EMouseEvent.NONE;
         this.mousePressedLocation = null;
         this.mouseIsDragging = false;
         this.initialDraggedFrom = null;

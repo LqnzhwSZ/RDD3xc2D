@@ -229,9 +229,7 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.addValidationMessagesPanel", modelName);
         }
 
-        /*
-         * Add the validation messages panel.
-         */
+        /* Add the validation messages panel. */
         String title = i18n.getNameOnly("ValidatorMessages");
         IValidationMsgPanel newValidationMessagesPanel = new ValidationMsgPanel(modelName, title);
         this.validationMessagePanels.put(modelName, newValidationMessagesPanel);
@@ -259,16 +257,12 @@ public class DataModelController implements IDataModelController {
         acceptModel = acceptModel(returnValue);
 
         if (acceptModel == false) {
-            /*
-             * Show an error message!
-             */
+            /* Show an error message! */
             dataModels.remove(canonicalPath);
             String infoMessage = i18n.getMessage("errDataModelNotAccepted");
             System.out.println(infoMessage);
         } else {
-            /*
-             * Show info on status bar.
-             */
+            /* Show info on status bar. */
             String addedCount = Integer.toString(this.elementsAddedToCurrentModel);
             String infoMessage = i18n.getMessage("infoElementsLoadedFromPnml");
             infoMessage = infoMessage.replace("%number%", addedCount);
@@ -288,9 +282,7 @@ public class DataModelController implements IDataModelController {
      * @return True if the input is OK; otherwise false
      */
     private boolean acceptModel(int returnValue) {
-        /*
-         * Return values from the pnml parser:
-         */
+        /* Return values from the PNML parser: */
         @SuppressWarnings("unused")
         int flagUnknownElement = EPNMLParserExitCode.FLAG_UNKNOWN_ELEMENT.getValue();
         int flagUnknownValues = EPNMLParserExitCode.FLAG_UNKNOWN_VALUES.getValue();
@@ -305,9 +297,7 @@ public class DataModelController implements IDataModelController {
         if (returnValue <= flagUnknownValues)
             return true;
 
-        /*
-         * Error message depending on the error(s)
-         */
+        /* Error message depending on the error(s) */
         String errorMessage = "";
 
         boolean flagMissingValuesSet = ((returnValue & flagMissingValues) == flagMissingValues);
@@ -334,9 +324,7 @@ public class DataModelController implements IDataModelController {
             setInfo_Status(errorMessage, EStatusMessageLevel.WARNING);
         }
 
-        /*
-         * Return false anyways
-         */
+        /* Return false anyways. */
         return false;
     }
 
@@ -376,20 +364,11 @@ public class DataModelController implements IDataModelController {
             // Nothing to do
         }
 
-        /*
-         * Remove the model.
-         */
+        /* Remove the model. */
         this.dataModels.remove(modelName);
 
-        /*
-         * Remove the associated validation messages panel.
-         */
+        /* Remove the associated validation messages panel. */
         removeValidationMessagePanel(modelName);
-
-        // /*
-        // * Remove the associated validator.
-        // */
-        // removeWorkflowNetValidator(modelName);
 
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
@@ -409,23 +388,7 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeValidationMessagePanel", modelName);
         }
 
-        // /*
-        // * Reset the "current validation message panel" attribute if we remove
-        // * the current validation message panel.
-        // */
-        // try {
-        // if
-        // (this.currentValidationMessagePanel.getModelName().equalsIgnoreCase(modelName))
-        // {
-        // this.currentValidationMessagePanel = null;
-        // }
-        // } catch (NullPointerException ignore) {
-        // // Nothing to do
-        // }
-
-        /*
-         * Remove the validation message panel.
-         */
+        /* Remove the validation message panel. */
         this.validationMessagePanels.remove(modelName);
 
         if (debug) {
@@ -435,19 +398,13 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
-        /*
-         * The key for the Map of models.
-         */
+        /* The key for the Map of models. */
         String oldKey = model.getModelName();
 
-        /*
-         * Get the associated validation message panel;
-         */
+        /* Get the associated validation message panel. */
         IValidationMsgPanel validationMessagePanel = getValidationMessagePanel(oldKey);
 
-        /*
-         * Rename the model and the associated validation message panel.
-         */
+        /* Rename the model and the associated validation message panel. */
         IModelRename renameCandidate;
 
         renameCandidate = (IModelRename) model;
@@ -455,9 +412,7 @@ public class DataModelController implements IDataModelController {
 
         setValidationMessagePanelNames(validationMessagePanel, newModelName);
 
-        /*
-         * Update both Maps!
-         */
+        /* Update both Maps! */
         IDataModel value1 = dataModels.remove(oldKey);
         dataModels.put(newModelName, value1);
 
@@ -568,8 +523,9 @@ public class DataModelController implements IDataModelController {
         if (!this.importingFromPnml)
             currentModel.setModified(true, true);
 
-        /* Update the GUI */
-        appController.placeAddedToCurrentDataModel(id, name, initialTokens, position);
+        /* Update the GUI if the place does not come from a GUI event. */
+        if (this.importingFromPnml)
+            appController.placeAddedToCurrentDataModel(id, name, initialTokens, position);
     }
 
     @Override
@@ -589,8 +545,9 @@ public class DataModelController implements IDataModelController {
         if (!this.importingFromPnml)
             currentModel.setModified(true, true);
 
-        /* Update the GUI */
-        appController.transitionAddedToCurrentDataModel(id, name, position);
+        /* Update the GUI if the transition does not come from a GUI event. */
+        if (this.importingFromPnml)
+            appController.transitionAddedToCurrentDataModel(id, name, position);
     }
 
     @Override
@@ -601,8 +558,9 @@ public class DataModelController implements IDataModelController {
         if (!this.importingFromPnml)
             currentModel.setModified(true, true);
 
-        /* Update the GUI */
-        appController.arcAddedToCurrentDataModel(id, sourceId, targetId);
+        /* Update the GUI if the arc does not come from a GUI event. */
+        if (this.importingFromPnml)
+            appController.arcAddedToCurrentDataModel(id, sourceId, targetId);
     }
 
     /*
@@ -611,8 +569,10 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameNode(String nodeId, String newName) {
-        IDataElement element = currentModel.getElementById(nodeId);
-        if (element == null) {
+        IDataElement element;
+        try {
+            element = currentModel.getElementById(nodeId);
+        } catch (NoSuchElementException e) {
             System.err.println("Not found: data node id=" + nodeId);
             return;
         }
@@ -647,15 +607,15 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeDataElement", elementId);
         }
 
-        IDataElement element = currentModel.getElementById(elementId);
-        if (element == null) {
+        IDataElement element;
+        try {
+            element = currentModel.getElementById(elementId);
+        } catch (NoSuchElementException e) {
             System.err.println("Not found: data element id=" + elementId);
             return;
         }
 
-        /*
-         * Check if element is an arc an can be removed directly.
-         */
+        /* Check if element is an arc an can be removed directly. */
         if (element instanceof IDataArc) {
             currentModel.removeElement(elementId);
             currentModel.setModified(true, true);
@@ -669,23 +629,17 @@ public class DataModelController implements IDataModelController {
         List<IDataArc> predElements = node.getPredElems();
         List<IDataArc> succElements = node.getSuccElems();
 
-        /*
-         * Remove the node.
-         */
+        /* Remove the node. */
         currentModel.removeElement(elementId);
         currentModel.setModified(true, true);
 
-        /*
-         * Remove all adjacent arcs.
-         */
+        /* Remove all adjacent arcs. */
         if (predElements.size() > 0) {
             for (IDataArc arc : predElements) {
                 String arcId = arc.getId();
                 removeDataElement(arcId);
 
-                /*
-                 * Inform the controller to update the GUI model!
-                 */
+                /* Inform the controller to update the GUI model! */
                 appController.dataArcRemoved(arcId);
             }
         }
@@ -694,9 +648,7 @@ public class DataModelController implements IDataModelController {
                 String arcId = arc.getId();
                 removeDataElement(arcId);
 
-                /*
-                 * Inform the controller to update the GUI model!
-                 */
+                /* Inform the controller to update the GUI model! */
                 appController.dataArcRemoved(arcId);
             }
         }
@@ -724,8 +676,10 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.moveNode", nodeId, newPosition);
         }
 
-        IDataElement element = currentModel.getElementById(nodeId);
-        if (element == null) {
+        IDataElement element;
+        try {
+            element = currentModel.getElementById(nodeId);
+        } catch (NoSuchElementException e) {
             System.err.println("Not found: data node id=" + nodeId);
             return;
         }
@@ -964,8 +918,10 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.fireDataTransition", transitionId);
         }
 
-        IDataElement element = currentModel.getElementById(transitionId);
-        if (element == null) {
+        IDataElement element;
+        try {
+            element = currentModel.getElementById(transitionId);
+        } catch (NoSuchElementException e) {
             System.err.println("Not found: data transition id=" + transitionId);
             return;
         }
@@ -984,8 +940,9 @@ public class DataModelController implements IDataModelController {
         removeTokenFromAllInputPlaces(transition);
         addTokenToAllOutputPlaces(transition);
 
-        // TODO Now we need a revalidation - but not a complete validation!
-        // currentModel.setModified(true, true);
+        /*
+         * Now we need a revalidation - but not a complete validation!
+         */
         String validatorName = ApplicationController.enabledTransitionsValidatorName;
         appController.requestIndividualValidation(validatorName, currentModel);
     }
@@ -1007,7 +964,7 @@ public class DataModelController implements IDataModelController {
         }
         ConsoleLogger.logIfDebug(debug, tokensRemoved + " tokens removed.");
 
-        /* Update the GUI */
+        /* Update the GUI. */
         appController.removeGuiToken(currentModel.getModelName(), placesWithRemovedToken);
     }
 
@@ -1054,7 +1011,7 @@ public class DataModelController implements IDataModelController {
         }
         ConsoleLogger.logIfDebug(debug, tokensAdded + " tokens added.");
 
-        /* Update the GUI */
+        /* Update the GUI. */
         appController.addGuiToken(currentModel.getModelName(), placesWithAddedToken);
     }
 

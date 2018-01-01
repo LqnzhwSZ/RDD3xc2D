@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.elements.gui.IGuiArc;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
@@ -99,6 +100,9 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
      */
     protected Map<String, AbstractAction> popupActions;
 
+    /** Reference to the {@link ApplicationController} */
+    protected ApplicationController myAppController = null;
+
     // /** Stores if we are showing a popup menu now. */
     // boolean popupMenuActive = false;
 
@@ -122,13 +126,16 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
      *            The {@link IGuiModelController}
      * @param popupActions
      *            The {@link Map} of {@link AbstractAction} for the popup menus
+     * @param appController
+     *            The {@link ApplicationController}
      */
     @SuppressWarnings("hiding")
     public MyMouseAdapter(DrawPanel drawPanel, IGuiModelController guiController,
-            Map<String, AbstractAction> popupActions) {
+            Map<String, AbstractAction> popupActions, ApplicationController appController) {
         this.myDrawPanel = drawPanel;
         this.myGuiController = guiController;
         this.popupActions = popupActions;
+        this.myAppController = appController;
     }
 
     /*
@@ -421,10 +428,6 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
      * Methods for mouseClicked
      */
 
-    /*
-     * Update comment?
-     */
-
     /**
      * Checks if the mouse event requires any action in the the GUI.
      * 
@@ -481,7 +484,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
         boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
         boolean altKey_pressed = myDrawPanel.altKey_pressed;
-        MyMouseEvent event;
+        EMouseEvent event;
 
         /*
          * Only left mouse button pressed?
@@ -490,7 +493,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
          */
         if (!ctrlKey_pressed && !altKey_pressed) {
             // myGuiController.mouseClick_Occurred(e);
-            event = MyMouseEvent.MOUSE_PRESSED;
+            event = EMouseEvent.MOUSE_PRESSED;
             myDrawPanel.lastMouseEvent = event;
             if (debug)
                 System.out.println(event.getValue());
@@ -504,7 +507,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
          */
         if (ctrlKey_pressed && !altKey_pressed) {
             // myGuiController.mouseClick_WithCtrl_Occurred(e);
-            event = MyMouseEvent.MOUSE_PRESSED_CTRL;
+            event = EMouseEvent.MOUSE_PRESSED_CTRL;
             myDrawPanel.lastMouseEvent = event;
             if (debug)
                 System.out.println(event.getValue());
@@ -518,7 +521,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
          */
         if (altKey_pressed && !ctrlKey_pressed) {
             // myGuiController.mouseClick_WithAlt_Occurred(e);
-            event = MyMouseEvent.MOUSE_PRESSED_ALT;
+            event = EMouseEvent.MOUSE_PRESSED_ALT;
             myDrawPanel.lastMouseEvent = event;
             if (debug)
                 System.out.println(event.getValue());
@@ -647,11 +650,15 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         }
 
         /*
-         * All of them: element, node and arc, might be null!
+         * All of them: element, node and arc, might be null here!
+         * 
+         * But we need the info anyways because we have to update the enabled
+         * state of the "z level" Actions ("ElementToTheForeground" ...).
          */
+        myAppController.updateZValueDependingActions(element);
 
+        /* Decide which popup to show */
         String simpleClassName = getSimpleClassName(element);
-
         switch (simpleClassName) {
         case "GuiPlace":
             return new PopupMenuForPlaces(myDrawPanel, node, popupActions);

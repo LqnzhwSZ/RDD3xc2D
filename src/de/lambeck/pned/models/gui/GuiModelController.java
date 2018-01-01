@@ -143,9 +143,7 @@ public class GuiModelController implements IGuiModelController {
         this.currentModel = new GuiModel(modelName, displayName, this);
         this.guiModels.put(modelName, currentModel);
 
-        /*
-         * Add an associated draw panel as well!
-         */
+        /* Add an associated draw panel as well! */
         addDrawPanel(modelName, displayName);
 
         if (debug) {
@@ -213,14 +211,10 @@ public class GuiModelController implements IGuiModelController {
             // Nothing to do
         }
 
-        /*
-         * Remove the model.
-         */
+        /* Remove the model. */
         this.guiModels.remove(modelName);
 
-        /*
-         * Remove the associated draw panel as well.
-         */
+        /* Remove the associated draw panel as well. */
         removeDrawPanel(modelName);
 
         if (debug) {
@@ -252,9 +246,7 @@ public class GuiModelController implements IGuiModelController {
             // Nothing to do
         }
 
-        /*
-         * Remove the draw panel.
-         */
+        /* Remove the draw panel. */
         this.drawPanels.remove(modelName);
 
         if (debug) {
@@ -264,19 +256,13 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void renameGuiModel(IGuiModel model, String newModelName, String newDisplayName) {
-        /*
-         * The key for the Map of models.
-         */
+        /* The key for the Map of models. */
         String oldKey = model.getModelName();
 
-        /*
-         * Get the associated draw panel;
-         */
+        /* Get the associated draw panel. */
         IDrawPanel drawPanel = getDrawPanel(oldKey);
 
-        /*
-         * Rename the model and the associated draw panel.
-         */
+        /* Rename the model and the associated draw panel. */
         IModelRename renameCandidate;
 
         renameCandidate = (IModelRename) model;
@@ -285,9 +271,7 @@ public class GuiModelController implements IGuiModelController {
         renameCandidate = (IModelRename) drawPanel;
         setDrawPanelNames(renameCandidate, newModelName, newDisplayName);
 
-        /*
-         * Update both Maps!
-         */
+        /* Update both Maps! */
         IGuiModel value1 = guiModels.remove(oldKey);
         guiModels.put(newModelName, value1);
 
@@ -408,9 +392,7 @@ public class GuiModelController implements IGuiModelController {
         currentModel.addPlace(id, name, initialTokens, position);
         currentModel.setModified(true);
 
-        /*
-         * Update the data model
-         */
+        /* Update the data model */
         appController.placeAddedToCurrentGuiModel(id, name, initialTokens, position);
     }
 
@@ -419,9 +401,7 @@ public class GuiModelController implements IGuiModelController {
         currentModel.addTransition(id, name, position);
         currentModel.setModified(true);
 
-        /*
-         * Update the data model
-         */
+        /* Update the data model */
         appController.transitionAddedToCurrentGuiModel(id, name, position);
     }
 
@@ -430,9 +410,7 @@ public class GuiModelController implements IGuiModelController {
         currentModel.addArc(id, sourceId, targetId);
         currentModel.setModified(true);
 
-        /*
-         * Update the data model
-         */
+        /* Update the data model */
         appController.arcAddedToCurrentGuiModel(id, sourceId, targetId);
     }
 
@@ -455,9 +433,13 @@ public class GuiModelController implements IGuiModelController {
         addPlaceToCurrentGuiModel(uuid, name, initialTokens, popupMenuLocation);
 
         /* Update the drawing. */
-        IGuiElement element = currentModel.getElementById(uuid);
-        if (element == null)
+        IGuiElement element;
+        try {
+            element = currentModel.getElementById(uuid);
+        } catch (NoSuchElementException e) {
+            System.err.println("New place not created!");
             return;
+        }
 
         Rectangle rect = element.getLastDrawingArea();
         updateDrawing(rect);
@@ -487,9 +469,13 @@ public class GuiModelController implements IGuiModelController {
         addTransitionToCurrentGuiModel(uuid, name, popupMenuLocation);
 
         /* Update the drawing. */
-        IGuiElement element = currentModel.getElementById(uuid);
-        if (element == null)
+        IGuiElement element;
+        try {
+            element = currentModel.getElementById(uuid);
+        } catch (NoSuchElementException e) {
+            System.err.println("New transition not created!");
             return;
+        }
 
         Rectangle rect = element.getLastDrawingArea();
         updateDrawing(rect);
@@ -589,16 +575,25 @@ public class GuiModelController implements IGuiModelController {
         String sourceId = sourceNodeForNewArc.getId();
         String targetId = node.getId();
 
-        /* And create an Arc with these IDs. */
-        addArcToCurrentGuiModel(uuid, sourceId, targetId);
+        /* Does such a arc already exist in this model? */
+        if (arcAlreadyExist(sourceId, targetId)) {
+            /* Leave the "add new arc" mode and return. */
+            resetStateAddingNewArc();
+            return;
+        }
 
-        /* Reset my state. */
+        /* Create the Arc and leave the "add new arc" mode.. */
+        addArcToCurrentGuiModel(uuid, sourceId, targetId);
         resetStateAddingNewArc();
 
-        /* Update the drawing */
-        IGuiElement element = currentModel.getElementById(uuid);
-        if (element == null)
+        /* Update the drawing. */
+        IGuiElement element;
+        try {
+            element = currentModel.getElementById(uuid);
+        } catch (NoSuchElementException e) {
+            System.err.println("New arc not created!");
             return;
+        }
 
         Rectangle rect = element.getLastDrawingArea();
         updateDrawing(rect);
@@ -608,6 +603,50 @@ public class GuiModelController implements IGuiModelController {
          * popup menu with the NewPlaceAction!
          */
         currentDrawPanel.setPopupMenuLocation(null);
+    }
+
+    /**
+     * Checks if an arc with the specified source and target exists in the
+     * current model.
+     * 
+     * @param sourceId
+     *            The ID of the source {@link IGuiNode}
+     * @param targetId
+     *            The ID of the target {@link IGuiNode}
+     * @return True = such an arc already exists, false = such an arc does not
+     *         exist
+     */
+    private boolean arcAlreadyExist(String sourceId, String targetId) {
+        List<IGuiElement> guiElements = currentModel.getElements();
+        List<IGuiArc> guiArcs = new ArrayList<IGuiArc>();
+        boolean arcAlreadyExists = false;
+
+        for (IGuiElement guiElement : guiElements) {
+            if (guiElement instanceof IGuiArc) {
+                IGuiArc guiArc = (IGuiArc) guiElement;
+                guiArcs.add(guiArc);
+            }
+        }
+
+        for (IGuiArc guiArc : guiArcs) {
+            if (guiArc.getSourceId() == sourceId)
+                if (guiArc.getTargetId() == targetId) {
+                    arcAlreadyExists = true;
+                }
+        }
+
+        if (arcAlreadyExists) {
+            String title = currentModel.getModelName();
+            String errorMessage = i18n.getMessage("errDuplicateArc");
+            System.err.println(errorMessage);
+            // TODO let the application controller show all messages to have a
+            // parent component?
+            JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -696,25 +735,17 @@ public class GuiModelController implements IGuiModelController {
         if (newName == null)
             return; // User cancelled the operation
 
-        /*
-         * We have a new name.
-         */
+        /* We have a new name. */
         selectedNode.setName(newName);
         currentModel.setModified(true);
 
-        /*
-         * Update the data model!
-         */
+        /* Update the data model! */
         String nodeId = selectedNode.getId();
         appController.guiNodeRenamed(nodeId, newName);
 
-        /*
-         * Update the drawing!
-         */
+        /* Update the drawing! */
         Rectangle area = selectedNode.getLastDrawingArea();
         updateDrawing(area);
-        // area = selectedNode.getLastDrawingArea();
-        // updateDrawing(area);
     }
 
     @Override
@@ -739,14 +770,10 @@ public class GuiModelController implements IGuiModelController {
          * Task: Remove all selected elements *and* all adjacent arcs!
          */
 
-        /*
-         * Get all selected elements.
-         */
+        /* Get all selected elements. */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
 
-        /*
-         * Store the drawing area for repainting
-         */
+        /* Store the drawing area for repainting. */
         List<Rectangle> drawingAreas = getDrawingAreas(toBeRemoved);
 
         /*
@@ -758,9 +785,7 @@ public class GuiModelController implements IGuiModelController {
             toBeRemoved_IDs.add(element.getId());
         }
 
-        /*
-         * Remove all elements
-         */
+        /* Remove all elements. */
         for (String id : toBeRemoved_IDs) {
             if (debug) {
                 System.out.println("GuiModelController.removeSelectedGuiElements: Remove id: " + id);
@@ -775,9 +800,7 @@ public class GuiModelController implements IGuiModelController {
             appController.guiElementRemoved(id);
         }
 
-        /*
-         * Repaint the areas.
-         */
+        /* Repaint the areas. */
         updateDrawing(drawingAreas);
     }
 
@@ -787,20 +810,20 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiArc", arcId);
         }
 
-        /*
-         * Store the drawing area for repainting
-         */
-        IGuiElement element = currentModel.getElementById(arcId);
-        if (element == null)
+        /* Store the drawing area for repainting. */
+        IGuiElement element;
+        try {
+            element = currentModel.getElementById(arcId);
+        } catch (NoSuchElementException e) {
+            System.err.println("Arc to remove not found!");
             return;
+        }
         Rectangle rect = element.getLastDrawingArea();
 
         currentModel.removeElement(arcId);
         currentModel.setModified(true);
 
-        /*
-         * Update the drawing
-         */
+        /* Update the drawing. */
         updateDrawing(rect);
     }
 
@@ -822,11 +845,14 @@ public class GuiModelController implements IGuiModelController {
 
         if (mousePressedLocation == null) {
             System.err.println("mousePressedLocation == null");
+            appController.updateZValueDependingActions(null);
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
+
+        appController.updateZValueDependingActions(mousePressedElement);
 
         if (mousePressedElement == null) {
             resetSelection();
@@ -837,9 +863,7 @@ public class GuiModelController implements IGuiModelController {
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
 
         if (mousePressedElement != mouseReleasedElement) {
-            /*
-             * Reject this mouseClicked event as unintended!
-             */
+            /* Reject this mouseClicked event as unintended! */
             return;
         }
 
@@ -888,11 +912,14 @@ public class GuiModelController implements IGuiModelController {
 
         if (mousePressedLocation == null) {
             System.err.println("mousePressedLocation == null");
+            appController.updateZValueDependingActions(null);
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
+
+        appController.updateZValueDependingActions(mousePressedElement);
 
         if (mousePressedElement == null) { return; }
 
@@ -900,9 +927,7 @@ public class GuiModelController implements IGuiModelController {
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
 
         if (mousePressedElement != mouseReleasedElement) {
-            /*
-             * Reject this mouseClicked event as unintended!
-             */
+            /* Reject this mouseClicked event as unintended! */
             return;
         }
 
@@ -953,9 +978,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Get all selected elements.
-         */
+        /* Get all selected elements. */
         List<IGuiElement> selectedElements = currentModel.getSelectedElements();
         if (selectedElements.size() == 0)
             return;
@@ -963,9 +986,7 @@ public class GuiModelController implements IGuiModelController {
             System.out.println(selectedElements.size() + " selected element(s)");
         }
 
-        /*
-         * Limit the elements to the nodes.
-         */
+        /* Limit the elements to the nodes. */
         List<IGuiNode> selectedNodes = new LinkedList<IGuiNode>();
 
         for (IGuiElement element : selectedElements) {
@@ -1004,9 +1025,7 @@ public class GuiModelController implements IGuiModelController {
         if (!dragToTopAllowed && (distance_y < 0))
             distance_y = 0;
 
-        /*
-         * Get the old drawing areas for repainting.
-         */
+        /* Get the old drawing areas for repainting. */
         List<Rectangle> oldDrawingAreas = getDrawingAreas(selectedNodes);
 
         /*
@@ -1035,9 +1054,7 @@ public class GuiModelController implements IGuiModelController {
         List<IGuiArc> adjacentArcs = getAdjacentArcs(selectedNodes);
         List<Rectangle> arcAreas = getDrawingAreas(adjacentArcs);
 
-        /*
-         * Update the drawing.
-         */
+        /* Update the drawing. */
         updateDrawing(oldDrawingAreas);
         updateDrawing(newDrawingAreas);
         updateDrawing(arcAreas);
@@ -1144,9 +1161,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Call via menu bar: We need one (single) selected element.
-         */
+        /* Call via menu bar: We need one (single) selected element. */
         IGuiElement selectedElement;
         try {
             selectedElement = getSingleSelectedElement();
@@ -1160,9 +1175,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * OK, we have exactly 1 element.
-         */
+        /* OK, we have exactly 1 element. */
         moveToForeground(selectedElement);
     }
 
@@ -1204,14 +1217,10 @@ public class GuiModelController implements IGuiModelController {
         ConsoleLogger.logIfDebug(debug, "element.setZValue(" + newZValue + ")");
         element.setZValue(newZValue);
 
-        /*
-         * Let the model resort the List of elements.
-         */
+        /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /*
-         * Repaint this element and (if necessary) adjacent arcs.
-         */
+        /* Repaint this element and (if necessary) adjacent arcs. */
         List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
         toBeRepainted.add(element);
 
@@ -1221,8 +1230,6 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        // updateDrawing(areas);
         updateDrawing();
     }
 
@@ -1230,16 +1237,12 @@ public class GuiModelController implements IGuiModelController {
     public void moveElementToBackground() {
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation != null) {
-            /*
-             * Call via popup menu: there is a location
-             */
+            /* Call via popup menu: there is a location. */
             moveElementAtPopupMenuToBackground(popupMenuLocation);
             return;
         }
 
-        /*
-         * Call via menu bar: We need one (single) selected element.
-         */
+        /* Call via menu bar: We need one (single) selected element. */
         IGuiElement selectedElement;
         try {
             selectedElement = getSingleSelectedElement();
@@ -1253,9 +1256,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * OK, we have exactly 1 element.
-         */
+        /* OK, we have exactly 1 element. */
         moveToBackground(selectedElement);
     }
 
@@ -1297,14 +1298,10 @@ public class GuiModelController implements IGuiModelController {
         ConsoleLogger.logIfDebug(debug, "element.setZValue(" + newZValue + ")");
         element.setZValue(newZValue);
 
-        /*
-         * Let the model resort the List of elements.
-         */
+        /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /*
-         * Repaint this element and (if necessary) adjacent arcs.
-         */
+        /* Repaint this element and (if necessary) adjacent arcs. */
         List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
         toBeRepainted.add(element);
 
@@ -1314,8 +1311,6 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        // updateDrawing(areas);
         updateDrawing();
     }
 
@@ -1323,16 +1318,12 @@ public class GuiModelController implements IGuiModelController {
     public void moveElementOneLayerUp() {
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation != null) {
-            /*
-             * Call via popup menu: there is a location
-             */
+            /* Call via popup menu: there is a location. */
             moveElementAtPopupMenuOneLayerUp(popupMenuLocation);
             return;
         }
 
-        /*
-         * Call via menu bar: We need one (single) selected element.
-         */
+        /* Call via menu bar: We need one (single) selected element. */
         IGuiElement selectedElement;
         try {
             selectedElement = getSingleSelectedElement();
@@ -1346,9 +1337,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * OK, we have exactly 1 element.
-         */
+        /* OK, we have exactly 1 element. */
         moveOneLayerUp(selectedElement);
     }
 
@@ -1385,9 +1374,7 @@ public class GuiModelController implements IGuiModelController {
         if (currZValue == currMax)
             return;
 
-        /*
-         * Switch layer with the next higher element.
-         */
+        /* Switch layer with the next higher element. */
         List<IGuiElement> elements = currentModel.getElements();
         IGuiElement swap = null;
         int swapZValue = currMax + 1; // A "safe" value to start with
@@ -1404,22 +1391,16 @@ public class GuiModelController implements IGuiModelController {
             }
         }
 
-        /*
-         * Swap element and swap element
-         */
+        /* Swap element and swap element. */
         ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZValue + ")");
         element.setZValue(swapZValue);
         ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZValue + ")");
         swap.setZValue(currZValue);
 
-        /*
-         * Let the model resort the List of elements.
-         */
+        /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /*
-         * Repaint this element and (if necessary) adjacent arcs.
-         */
+        /* Repaint this element and (if necessary) adjacent arcs. */
         List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
         toBeRepainted.add(element);
 
@@ -1429,8 +1410,6 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        // updateDrawing(areas);
         updateDrawing();
     }
 
@@ -1438,16 +1417,12 @@ public class GuiModelController implements IGuiModelController {
     public void moveElementOneLayerDown() {
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation != null) {
-            /*
-             * Call via popup menu: there is a location
-             */
+            /* Call via popup menu: there is a location. */
             moveElementAtPopupMenuOneLayerDown(popupMenuLocation);
             return;
         }
 
-        /*
-         * Call via menu bar: We need one (single) selected element.
-         */
+        /* Call via menu bar: We need one (single) selected element. */
         IGuiElement selectedElement;
         try {
             selectedElement = getSingleSelectedElement();
@@ -1461,9 +1436,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * OK, we have exactly 1 element.
-         */
+        /* OK, we have exactly 1 element. */
         moveOneLayerDown(selectedElement);
     }
 
@@ -1500,9 +1473,7 @@ public class GuiModelController implements IGuiModelController {
         if (currZValue == currMin)
             return;
 
-        /*
-         * Switch layer with the next higher element.
-         */
+        /* Switch layer with the next higher element. */
         List<IGuiElement> elements = currentModel.getElements();
         IGuiElement swap = null;
         int swapZValue = currMin - 1; // A "safe" value to start with
@@ -1519,22 +1490,16 @@ public class GuiModelController implements IGuiModelController {
             }
         }
 
-        /*
-         * Swap element and swap element
-         */
+        /* Swap element and swap element. */
         ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZValue + ")");
         element.setZValue(swapZValue);
         ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZValue + ")");
         swap.setZValue(currZValue);
 
-        /*
-         * Let the model resort the List of elements.
-         */
+        /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /*
-         * Repaint this element and (if necessary) adjacent arcs.
-         */
+        /* Repaint this element and (if necessary) adjacent arcs. */
         List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
         toBeRepainted.add(element);
 
@@ -1544,8 +1509,6 @@ public class GuiModelController implements IGuiModelController {
             toBeRepainted.addAll(arcs);
         }
 
-        // List<Rectangle> areas = getDrawingAreas(toBeRepainted);
-        // updateDrawing(areas);
         updateDrawing();
     }
 
@@ -1556,9 +1519,7 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * Change the static attributes.
-         */
+        /* Change the static attributes. */
         GuiNode.changeShapeSize(size);
         GuiArc.changeShapeSize(size);
 
@@ -1609,7 +1570,6 @@ public class GuiModelController implements IGuiModelController {
         java.util.List<IGuiElement> elements = currentModel.getElements();
         IGuiElement foundElement = null;
 
-        // TODO Sort according to z value and return the topmost element!
         for (IGuiElement element : elements) {
             if (element.contains(p)) {
                 foundElement = element;
@@ -1698,9 +1658,7 @@ public class GuiModelController implements IGuiModelController {
      *             if no or too many elements are selected
      */
     private IGuiElement getSingleSelectedElement() throws PNElementException {
-        /*
-         * Check if exactly 1 element is selected.
-         */
+        /* Check if exactly 1 element is selected. */
         java.util.List<IGuiElement> selected = currentModel.getSelectedElements();
         IGuiElement selectedElement = null;
         int count = 0;
@@ -1736,9 +1694,7 @@ public class GuiModelController implements IGuiModelController {
             throw new PNElementException(explanation);
         }
 
-        /*
-         * Check if exactly 1 node is selected.
-         */
+        /* Check if exactly 1 node is selected. */
         java.util.List<IGuiElement> selected = currentModel.getSelectedElements();
         IGuiNode selectedNode = null;
         int count = 0;
@@ -1863,9 +1819,7 @@ public class GuiModelController implements IGuiModelController {
      *         false
      */
     private boolean isAdjacentArc(IGuiArc arc, IGuiNode node) {
-        /*
-         * Node is predecessor of the arc?
-         */
+        /* Node is predecessor of the arc? */
         try {
             if (arc.getPredElem() == node) { return true; }
         } catch (PNElementException e) {
@@ -1873,9 +1827,7 @@ public class GuiModelController implements IGuiModelController {
             e.printStackTrace();
         }
 
-        /*
-         * Node is successor of the arc?
-         */
+        /* Node is successor of the arc? */
         try {
             if (arc.getSuccElem() == node) { return true; }
         } catch (PNElementException e) {
@@ -1884,36 +1836,6 @@ public class GuiModelController implements IGuiModelController {
         }
         return false;
     }
-
-    // /**
-    // * Combines the two lists without duplicate entries.
-    // *
-    // * @param elements
-    // * A {@link List} of type {@link IGuiElement}
-    // * @param arcs
-    // * A {@link List} of type {@link IGuiArc}
-    // * @return The combined {@link List} of type {@link IGuiElement} without
-    // * duplicates
-    // */
-    // private List<IGuiElement> combineElementsAndArcs(List<IGuiElement>
-    // elements, List<IGuiArc> arcs) {
-    // for (IGuiElement element : arcs) {
-    // if (!elements.contains(element)) {
-    // elements.add(element);
-    // }
-    // }
-    //
-    // /*
-    // * Better methods in Java 8?:
-    // */
-    // // List<?> newList = Stream.of(elements,
-    // // arcs).flatMap(List::stream).collect(Collectors.toList());
-    //
-    // // List<IGuiElement> newList = Stream.of(elements,
-    // // arcs).collect(ArrayList::new, List::addAll, List::addAll);
-    //
-    // return elements;
-    // }
 
     /**
      * Asks the user for a new name.
@@ -2259,6 +2181,16 @@ public class GuiModelController implements IGuiModelController {
         /* Inform the application controller */
         String transitionId = transition.getId();
         appController.fireDataTransition(transitionId);
+    }
+
+    @Override
+    public int getCurrentMinZValue() {
+        return currentModel.getMinZValue();
+    }
+
+    @Override
+    public int getCurrentMaxZValue() {
+        return currentModel.getMaxZValue();
     }
 
 }

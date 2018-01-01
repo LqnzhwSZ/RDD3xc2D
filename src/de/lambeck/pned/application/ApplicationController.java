@@ -152,7 +152,7 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.addWindowListener(this);
         mainFrame.addWindowStateListener(this);
 
-        /* Add controllers for data models, GUI models and validation */
+        /* Add controllers */
         addControllers(i18n);
 
         /* Add validators to the validation controller. */
@@ -172,14 +172,16 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Add menu, tool and status bar. */
         MenuBar menuBar = new MenuBar(frame, i18n, allActions);
+        mainFrame.setJMenuBar(menuBar);
+
         JToolBar toolBar = new PnedToolBar(this, i18n, allActions);
+        mainFrame.add(toolBar, BorderLayout.PAGE_START);
 
         toolBar.addSeparator();
         String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
-        toolBar.add(new SizeSlider(sizeSliderName, this));
+        SizeSlider sizeSlider = new SizeSlider(sizeSliderName, this);
+        toolBar.add(sizeSlider);
 
-        mainFrame.setJMenuBar(menuBar);
-        mainFrame.add(toolBar, BorderLayout.PAGE_START);
         mainFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         /* Additional settings */
@@ -212,6 +214,10 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @SuppressWarnings("hiding")
     private void addControllers(I18NManager i18n) {
+        this.actionManager = new ActionManager(this, i18n, mainFrame);
+        this.allActions = this.actionManager.getAllActions();
+        this.popupActions = this.actionManager.getPopupActions();
+
         this.dataModelController = new DataModelController(this, i18n);
         this.guiModelController = new GuiModelController(this, i18n, this.popupActions);
         this.validationController = new ValidationController(this.dataModelController, i18n);
@@ -305,72 +311,81 @@ public class ApplicationController extends AbstractApplicationController {
      * Methods for super class AbstractApplicationController
      */
 
-    @Override
-    protected void addAllActionsToHashMaps() {
-        /* Create all Actions... */
-        AbstractAction fileNewAction = new FileNewAction(this, i18n);
-        AbstractAction fileOpenAction = new FileOpenAction(this, i18n, mainFrame);
-        AbstractAction fileCloseAction = new FileCloseAction(this, i18n);
-        AbstractAction fileSaveAction = new FileSaveAction(this, i18n);
-        AbstractAction fileSaveAsAction = new FileSaveAsAction(this, i18n, mainFrame);
-        AbstractAction appExitAction = new AppExitAction(this, i18n);
-
-        AbstractAction editRenameAction = new EditRenameAction(this, i18n);
-        AbstractAction editDeleteAction = new EditDeleteAction(this, i18n);
-
-        AbstractAction toForegroundAction = new ElementToTheForegroundAction(this, i18n);
-        AbstractAction oneLayerUpAction = new ElementOneLayerUpAction(this, i18n);
-        AbstractAction oneLayerDownAction = new ElementOneLayerDownAction(this, i18n);
-        AbstractAction toBackgroundAction = new ElementToTheBackgroundAction(this, i18n);
-
-        AbstractAction elementSelectAction = new ElementSelectAction(this, i18n);
-        AbstractAction fireTransitionAction = new FireTransitionAction(this, i18n);
-        AbstractAction stopSimulationAction = new StopSimulationAction(this, i18n);
-
-        AbstractAction newArcFromHereAction = new NewArcFromHereAction(this, i18n);
-        AbstractAction newArcToHereAction = new NewArcToHereAction(this, i18n);
-
-        AbstractAction newPlaceAction = new NewPlaceAction(this, i18n);
-        AbstractAction newTransitionAction = new NewTransitionAction(this, i18n);
-
-        /* ...and add them to the Maps... */
-
-        // Menu "File"
-        allActions.put("FileNew", fileNewAction);
-        allActions.put("FileOpen...", fileOpenAction);
-        allActions.put("FileClose", fileCloseAction);
-        allActions.put("FileSave", fileSaveAction);
-        allActions.put("FileSaveAs...", fileSaveAsAction);
-        allActions.put("AppExit", appExitAction);
-
-        // Menu "Edit"
-        allActions.put("EditRename...", editRenameAction);
-        allActions.put("EditDelete", editDeleteAction);
-
-        // Tool bar "Elements"
-        allActions.put("ElementToTheForeground", toForegroundAction);
-        allActions.put("ElementOneLayerUp", oneLayerUpAction);
-        allActions.put("ElementOneLayerDown", oneLayerDownAction);
-        allActions.put("ElementToTheBackground", toBackgroundAction);
-
-        allActions.put("StopSimulation", stopSimulationAction);
-
-        // Popup menu "Elements"
-        popupActions.put("FireTransition", fireTransitionAction);
-
-        popupActions.put("ElementSelect", elementSelectAction);
-        popupActions.put("ElementToTheForeground", toForegroundAction);
-        popupActions.put("ElementOneLayerUp", oneLayerUpAction);
-        popupActions.put("ElementOneLayerDown", oneLayerDownAction);
-        popupActions.put("ElementToTheBackground", toBackgroundAction);
-
-        popupActions.put("NewArcFromHere", newArcFromHereAction);
-        popupActions.put("NewArcToHere", newArcToHereAction);
-
-        // Popup menu "Empty area"
-        popupActions.put("NewPlace", newPlaceAction);
-        popupActions.put("NewTransition", newTransitionAction);
-    }
+    // @Override
+    // protected void addAllActionsToHashMaps() {
+    // /* Create all Actions... */
+    // AbstractAction fileNewAction = new FileNewAction(this, i18n);
+    // AbstractAction fileOpenAction = new FileOpenAction(this, i18n,
+    // mainFrame);
+    // AbstractAction fileCloseAction = new FileCloseAction(this, i18n);
+    // AbstractAction fileSaveAction = new FileSaveAction(this, i18n);
+    // AbstractAction fileSaveAsAction = new FileSaveAsAction(this, i18n,
+    // mainFrame);
+    // AbstractAction appExitAction = new AppExitAction(this, i18n);
+    //
+    // AbstractAction editRenameAction = new EditRenameAction(this, i18n);
+    // AbstractAction editDeleteAction = new EditDeleteAction(this, i18n);
+    //
+    // AbstractAction toForegroundAction = new
+    // ElementToTheForegroundAction(this, i18n);
+    // AbstractAction oneLayerUpAction = new ElementOneLayerUpAction(this,
+    // i18n);
+    // AbstractAction oneLayerDownAction = new ElementOneLayerDownAction(this,
+    // i18n);
+    // AbstractAction toBackgroundAction = new
+    // ElementToTheBackgroundAction(this, i18n);
+    //
+    // AbstractAction elementSelectAction = new ElementSelectAction(this, i18n);
+    // AbstractAction fireTransitionAction = new FireTransitionAction(this,
+    // i18n);
+    // AbstractAction stopSimulationAction = new StopSimulationAction(this,
+    // i18n);
+    //
+    // AbstractAction newArcFromHereAction = new NewArcFromHereAction(this,
+    // i18n);
+    // AbstractAction newArcToHereAction = new NewArcToHereAction(this, i18n);
+    //
+    // AbstractAction newPlaceAction = new NewPlaceAction(this, i18n);
+    // AbstractAction newTransitionAction = new NewTransitionAction(this, i18n);
+    //
+    // /* ...and add them to the Maps... */
+    //
+    // // Menu "File"
+    // allActions.put("FileNew", fileNewAction);
+    // allActions.put("FileOpen...", fileOpenAction);
+    // allActions.put("FileClose", fileCloseAction);
+    // allActions.put("FileSave", fileSaveAction);
+    // allActions.put("FileSaveAs...", fileSaveAsAction);
+    // allActions.put("AppExit", appExitAction);
+    //
+    // // Menu "Edit"
+    // allActions.put("EditRename...", editRenameAction);
+    // allActions.put("EditDelete", editDeleteAction);
+    //
+    // // Tool bar "Elements"
+    // allActions.put("ElementToTheForeground", toForegroundAction);
+    // allActions.put("ElementOneLayerUp", oneLayerUpAction);
+    // allActions.put("ElementOneLayerDown", oneLayerDownAction);
+    // allActions.put("ElementToTheBackground", toBackgroundAction);
+    //
+    // allActions.put("StopSimulation", stopSimulationAction);
+    //
+    // // Popup menu "Elements"
+    // popupActions.put("FireTransition", fireTransitionAction);
+    //
+    // popupActions.put("ElementSelect", elementSelectAction);
+    // popupActions.put("ElementToTheForeground", toForegroundAction);
+    // popupActions.put("ElementOneLayerUp", oneLayerUpAction);
+    // popupActions.put("ElementOneLayerDown", oneLayerDownAction);
+    // popupActions.put("ElementToTheBackground", toBackgroundAction);
+    //
+    // popupActions.put("NewArcFromHere", newArcFromHereAction);
+    // popupActions.put("NewArcToHere", newArcToHereAction);
+    //
+    // // Popup menu "Empty area"
+    // popupActions.put("NewPlace", newPlaceAction);
+    // popupActions.put("NewTransition", newTransitionAction);
+    // }
 
     /**
      * Asks the data model controller for it's list of models that have been
@@ -978,9 +993,7 @@ public class ApplicationController extends AbstractApplicationController {
         importingFromPnml = false;
 
         if (returnValue != ExitCode.OPERATION_SUCCESSFUL) {
-            /*
-             * Show an error message
-             */
+            /* Show an error message. */
             String title = displayName;
             String errorMessage = i18n.getMessage("errFileNotAccepted") + canonicalPath;
             System.err.println(errorMessage);
@@ -2265,6 +2278,36 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void requestIndividualValidation(String validatorName, IDataModel dataModel) {
         validationController.requestIndividualValidation(validatorName, dataModel);
+    }
+
+    /**
+     * Passes the request to update the "enabled" state of
+     * {@link AbstractAction} to the {@link IActionManager}. That refers to
+     * Actions which depend on the currently selected element or the element at
+     * the popup menu location.
+     * 
+     * @param element
+     */
+    public void updateZValueDependingActions(IGuiElement element) {
+        actionManager.updateZValueDependingActions(element);
+    }
+
+    /**
+     * Callback for the {@link IActionManager}
+     * 
+     * @return the minimum z value from the current {@link IGuiModel}
+     */
+    public int getCurrentMinZValue() {
+        return guiModelController.getCurrentMinZValue();
+    }
+
+    /**
+     * Callback for the {@link IActionManager}
+     * 
+     * @return the maximum z value from the current {@link IGuiModel}
+     */
+    public int getCurrentMaxZValue() {
+        return guiModelController.getCurrentMaxZValue();
     }
 
 }
