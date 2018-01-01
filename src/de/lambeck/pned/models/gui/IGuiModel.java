@@ -221,5 +221,9 @@ public interface IGuiModel extends IModel {
      *            place and can reach the end place
      */
     void highlightUnreachableGuiNode(String nodeId, boolean b);
+    
+    public void setZoom(Double zoom);
+    
+    public Double getZoom();
 
 }

@@ -262,7 +262,10 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          */
         String labelText = this.getName();
         Point labelLocation = this.getLabelLocation();
-        g2.setFont(labelFont);
+        labelLocation.setLocation(labelLocation.getX()*this.zoom, labelLocation.getY()*this.zoom);
+        Font zoomedFont = new Font(labelFont.getName(), labelFont.getStyle(), new Double(new Double(labelFont.getSize()) * this.zoom).intValue());
+       
+        g2.setFont(zoomedFont);
         g2.drawString(labelText, labelLocation.x, labelLocation.y);
 
         /*
@@ -270,10 +273,14 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          */
         if (debug) {
             g2.setColor(Color.LIGHT_GRAY);
-            g2.drawRect(totalLeftX, totalTopY, totalWidth, totalHeight);
+            int x = new Double(new Double(totalLeftX)*this.zoom).intValue();
+            int y = new Double(new Double(totalTopY)*this.zoom).intValue();
+            int w = new Double(new Double(totalWidth)*this.zoom).intValue();
+            int h = new Double(new Double(totalHeight)*this.zoom).intValue();
+            g2.drawRect(x, y, w, h);
             String infoText = "z=" + zValue;
             int textWidth = g2.getFontMetrics().stringWidth(infoText);
-            g2.drawString(infoText, shapeLeftX + totalWidth - textWidth, shapeTopY + fontSize);
+            g2.drawString(infoText, x + w - textWidth, y + zoomedFont.getSize());
         }
 
         /*
@@ -300,7 +307,11 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         // TODO Nur Eckpunkte zum Darstellen der Selektion?
         if (this.selected) {
             g2.setColor(Color.BLUE);
-            g2.drawRect(totalLeftX, totalTopY, totalWidth, totalHeight);
+            int x = new Double(new Double(totalLeftX)*this.zoom).intValue();
+            int y = new Double(new Double(totalTopY)*this.zoom).intValue();
+            int w = new Double(new Double(totalWidth)*this.zoom).intValue();
+            int h = new Double(new Double(totalHeight)*this.zoom).intValue();
+            g2.drawRect(x, y, w, h);
         }
     }
 
@@ -370,10 +381,10 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          * 
          * (Are these just rounding errors???)
          */
-        x = x - 1;
-        y = y - 1;
-        width = width + 2;
-        height = height + 2;
+        x = new Double(new Double(x - 1) * this.zoom).intValue();
+        y = new Double(new Double(y - 1) * this.zoom).intValue();
+        width = new Double(new Double(width + 2) * this.zoom).intValue();
+        height = new Double(new Double(height + 2) * this.zoom).intValue();
 
         Rectangle rect = new Rectangle(x, y, width, height);
         this.lastDrawingArea = rect;

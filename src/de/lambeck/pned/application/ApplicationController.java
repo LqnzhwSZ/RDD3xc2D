@@ -176,7 +176,9 @@ public class ApplicationController extends AbstractApplicationController {
         toolBarElements.addSeparator();
         String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
         toolBarElements.add(new SizeSlider(sizeSliderName, this));
-
+        toolBarElements.addSeparator();
+        toolBarElements.add(new SizeSlider("Draw Panel Zoom", this));
+        
         mainFrame.setJMenuBar(menuBar);
         mainFrame.add(toolBarElements, BorderLayout.PAGE_START);
         mainFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);

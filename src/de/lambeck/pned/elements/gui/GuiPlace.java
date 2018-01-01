@@ -83,6 +83,16 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
      * Getter and Setter
      */
 
+    @Override
+    public Double getZoom() {
+    	return this.zoom;
+    }
+    
+    @Override
+    public void setZoom(Double zoom) {
+    	this.zoom = zoom;
+    }
+    
     /*
      * Methods for interface IGuiPlace
      */

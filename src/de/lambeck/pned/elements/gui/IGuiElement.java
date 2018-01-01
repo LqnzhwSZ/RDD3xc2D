@@ -51,5 +51,8 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
      * @return The last drawing area as {@link Rectangle}
      */
     Rectangle getLastDrawingArea();
+    
+    public void setZoom(Double zoom);
 
+    public Double getZoom();
 }

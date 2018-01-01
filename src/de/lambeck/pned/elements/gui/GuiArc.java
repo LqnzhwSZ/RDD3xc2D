@@ -95,6 +95,16 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * Method for interface IGuiElement
      */
 
+    @Override
+    public Double getZoom() {
+    	return this.zoom;
+    }
+    
+    @Override
+    public void setZoom(Double zoom) {
+    	this.zoom = zoom;
+    }
+    
     /**
      * Changes the size of all shapes (static attribute). Calculates a smaller
      * value to make arcs smaller than the nodes!

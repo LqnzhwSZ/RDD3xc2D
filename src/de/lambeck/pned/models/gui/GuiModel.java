@@ -59,6 +59,8 @@ public class GuiModel implements IGuiModel, IModelRename {
      * that the user is asked for "file save" when closing the file.
      */
     private boolean modelModified = false;
+    
+    private Double zoom = 1D;
 
     /**
      * Constructs a new GUI model with the name as parameter. (Name is the full
@@ -107,7 +109,19 @@ public class GuiModel implements IGuiModel, IModelRename {
     public void setDisplayName(String s) {
         this.displayName = s;
     }
+    
+    @Override
+    public void setZoom(Double zoom) {
+        List<IGuiElement> copy = new ArrayList<IGuiElement>(this.elements);
+        for (IGuiElement e : copy) {
+        	e.setZoom(this.zoom);
+        }
+    }
 
+    @Override 
+    public Double getZoom() {
+    	return this.zoom;
+    }
     @Override
     public List<IGuiElement> getElements() {
         // return this.elements;
@@ -417,6 +431,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         for (IGuiElement test : elements) {
             if (test == newElement) { throw new PNDuplicateAddedException("Duplicate of: " + test.toString()); }
         }
+        newElement.setZoom(this.zoom);
         elements.add(newElement);
     }
 

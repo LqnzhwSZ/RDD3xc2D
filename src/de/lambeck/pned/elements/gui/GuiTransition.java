@@ -48,6 +48,16 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
      */
 
     @Override
+    public Double getZoom() {
+    	return this.zoom;
+    }
+    
+    @Override
+    public void setZoom(Double zoom) {
+    	this.zoom = zoom;
+    }
+    
+    @Override
     public boolean isEnabled() {
         return this.enabled;
     }
