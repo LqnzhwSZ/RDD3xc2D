@@ -168,7 +168,7 @@ public class ActionManager implements IActionManager {
     }
 
     @Override
-    public void updateZValueDependingActions(IGuiElement element) {
+    public void updateZValueActions(IGuiElement element) {
         if (element == null) {
             toForegroundAction.setEnabled(false);
             oneLayerUpAction.setEnabled(false);

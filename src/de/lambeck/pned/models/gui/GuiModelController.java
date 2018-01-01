@@ -733,7 +733,7 @@ public class GuiModelController implements IGuiModelController {
         String newName = askUserForNewName();
 
         if (newName == null)
-            return; // User cancelled the operation
+            return; // User canceled the operation
 
         /* We have a new name. */
         selectedNode.setName(newName);
@@ -845,14 +845,14 @@ public class GuiModelController implements IGuiModelController {
 
         if (mousePressedLocation == null) {
             System.err.println("mousePressedLocation == null");
-            appController.updateZValueDependingActions(null);
+            appController.updateZValueActions(null);
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
 
-        appController.updateZValueDependingActions(mousePressedElement);
+        appController.updateZValueActions(mousePressedElement);
 
         if (mousePressedElement == null) {
             resetSelection();
@@ -912,14 +912,14 @@ public class GuiModelController implements IGuiModelController {
 
         if (mousePressedLocation == null) {
             System.err.println("mousePressedLocation == null");
-            appController.updateZValueDependingActions(null);
+            appController.updateZValueActions(null);
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
 
-        appController.updateZValueDependingActions(mousePressedElement);
+        appController.updateZValueActions(mousePressedElement);
 
         if (mousePressedElement == null) { return; }
 
@@ -1177,6 +1177,9 @@ public class GuiModelController implements IGuiModelController {
 
         /* OK, we have exactly 1 element. */
         moveToForeground(selectedElement);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1191,6 +1194,9 @@ public class GuiModelController implements IGuiModelController {
             return;
 
         moveToForeground(element);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1258,6 +1264,9 @@ public class GuiModelController implements IGuiModelController {
 
         /* OK, we have exactly 1 element. */
         moveToBackground(selectedElement);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1272,6 +1281,9 @@ public class GuiModelController implements IGuiModelController {
             return;
 
         moveToBackground(element);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1339,6 +1351,9 @@ public class GuiModelController implements IGuiModelController {
 
         /* OK, we have exactly 1 element. */
         moveOneLayerUp(selectedElement);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1353,6 +1368,9 @@ public class GuiModelController implements IGuiModelController {
             return;
 
         moveOneLayerUp(element);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1438,6 +1456,9 @@ public class GuiModelController implements IGuiModelController {
 
         /* OK, we have exactly 1 element. */
         moveOneLayerDown(selectedElement);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1452,6 +1473,9 @@ public class GuiModelController implements IGuiModelController {
             return;
 
         moveOneLayerDown(element);
+
+        /* Update the Actions (buttons) */
+        updateZValueActionsDependingOnSelection();
     }
 
     /**
@@ -1840,13 +1864,28 @@ public class GuiModelController implements IGuiModelController {
     /**
      * Asks the user for a new name.
      * 
-     * @return Null if the user cancelled the input; otherwise the input String
+     * @return Null if the user canceled the input; otherwise the input String
      */
     private String askUserForNewName() {
         String question = i18n.getMessage("questionNewName");
         String inputValue = JOptionPane.showInputDialog(question);
         System.out.println("inputValue: " + inputValue);
         return inputValue;
+    }
+
+    /**
+     * Invokes updateZValueActions() in {@link ApplicationController} with the
+     * proper parameter depending on whether a (single) {@link IGuiElement} is
+     * selected or not.
+     */
+    private void updateZValueActionsDependingOnSelection() {
+        IGuiElement selectedElement;
+        try {
+            selectedElement = getSingleSelectedElement();
+            appController.updateZValueActions(selectedElement);
+        } catch (PNElementException e) {
+            appController.updateZValueActions(null);
+        }
     }
 
     /*

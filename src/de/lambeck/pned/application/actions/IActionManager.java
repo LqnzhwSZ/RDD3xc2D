@@ -32,8 +32,9 @@ public interface IActionManager {
      * 
      * @param element
      *            The {@link IGuiElement} that is currently selected or at the
-     *            popup menu location
+     *            popup menu location, or null = no element selected and no
+     *            element at the popup menu location
      */
-    void updateZValueDependingActions(IGuiElement element);
+    void updateZValueActions(IGuiElement element);
 
 }

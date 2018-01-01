@@ -311,82 +311,6 @@ public class ApplicationController extends AbstractApplicationController {
      * Methods for super class AbstractApplicationController
      */
 
-    // @Override
-    // protected void addAllActionsToHashMaps() {
-    // /* Create all Actions... */
-    // AbstractAction fileNewAction = new FileNewAction(this, i18n);
-    // AbstractAction fileOpenAction = new FileOpenAction(this, i18n,
-    // mainFrame);
-    // AbstractAction fileCloseAction = new FileCloseAction(this, i18n);
-    // AbstractAction fileSaveAction = new FileSaveAction(this, i18n);
-    // AbstractAction fileSaveAsAction = new FileSaveAsAction(this, i18n,
-    // mainFrame);
-    // AbstractAction appExitAction = new AppExitAction(this, i18n);
-    //
-    // AbstractAction editRenameAction = new EditRenameAction(this, i18n);
-    // AbstractAction editDeleteAction = new EditDeleteAction(this, i18n);
-    //
-    // AbstractAction toForegroundAction = new
-    // ElementToTheForegroundAction(this, i18n);
-    // AbstractAction oneLayerUpAction = new ElementOneLayerUpAction(this,
-    // i18n);
-    // AbstractAction oneLayerDownAction = new ElementOneLayerDownAction(this,
-    // i18n);
-    // AbstractAction toBackgroundAction = new
-    // ElementToTheBackgroundAction(this, i18n);
-    //
-    // AbstractAction elementSelectAction = new ElementSelectAction(this, i18n);
-    // AbstractAction fireTransitionAction = new FireTransitionAction(this,
-    // i18n);
-    // AbstractAction stopSimulationAction = new StopSimulationAction(this,
-    // i18n);
-    //
-    // AbstractAction newArcFromHereAction = new NewArcFromHereAction(this,
-    // i18n);
-    // AbstractAction newArcToHereAction = new NewArcToHereAction(this, i18n);
-    //
-    // AbstractAction newPlaceAction = new NewPlaceAction(this, i18n);
-    // AbstractAction newTransitionAction = new NewTransitionAction(this, i18n);
-    //
-    // /* ...and add them to the Maps... */
-    //
-    // // Menu "File"
-    // allActions.put("FileNew", fileNewAction);
-    // allActions.put("FileOpen...", fileOpenAction);
-    // allActions.put("FileClose", fileCloseAction);
-    // allActions.put("FileSave", fileSaveAction);
-    // allActions.put("FileSaveAs...", fileSaveAsAction);
-    // allActions.put("AppExit", appExitAction);
-    //
-    // // Menu "Edit"
-    // allActions.put("EditRename...", editRenameAction);
-    // allActions.put("EditDelete", editDeleteAction);
-    //
-    // // Tool bar "Elements"
-    // allActions.put("ElementToTheForeground", toForegroundAction);
-    // allActions.put("ElementOneLayerUp", oneLayerUpAction);
-    // allActions.put("ElementOneLayerDown", oneLayerDownAction);
-    // allActions.put("ElementToTheBackground", toBackgroundAction);
-    //
-    // allActions.put("StopSimulation", stopSimulationAction);
-    //
-    // // Popup menu "Elements"
-    // popupActions.put("FireTransition", fireTransitionAction);
-    //
-    // popupActions.put("ElementSelect", elementSelectAction);
-    // popupActions.put("ElementToTheForeground", toForegroundAction);
-    // popupActions.put("ElementOneLayerUp", oneLayerUpAction);
-    // popupActions.put("ElementOneLayerDown", oneLayerDownAction);
-    // popupActions.put("ElementToTheBackground", toBackgroundAction);
-    //
-    // popupActions.put("NewArcFromHere", newArcFromHereAction);
-    // popupActions.put("NewArcToHere", newArcToHereAction);
-    //
-    // // Popup menu "Empty area"
-    // popupActions.put("NewPlace", newPlaceAction);
-    // popupActions.put("NewTransition", newTransitionAction);
-    // }
-
     /**
      * Asks the data model controller for it's list of models that have been
      * changed and need to be saved.
@@ -434,7 +358,7 @@ public class ApplicationController extends AbstractApplicationController {
             System.out.println("AppController.windowClosing(), askSaveModifiedModelsBeforeExit(), answer: " + answer);
         }
 
-        if (answer == ExitCode.OPERATION_CANCELLED)
+        if (answer == ExitCode.OPERATION_CANCELED)
             return;
         if (answer == ExitCode.OPERATION_FAILED)
             return;
@@ -1161,7 +1085,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         switch (answer) {
         case JOptionPane.CANCEL_OPTION:
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
 
         case JOptionPane.NO_OPTION:
             disposeFile(modelName);
@@ -1346,7 +1270,7 @@ public class ApplicationController extends AbstractApplicationController {
         Toolkit.getDefaultToolkit().beep();
         int answer = JOptionPane.showConfirmDialog(mainFrame, question, title, messageType);
         if (answer == -1)
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
         return answer;
     }
 
@@ -1381,7 +1305,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
-     * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELLED if
+     * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELED if
      *         the user didn't chose a file name for a new file; otherwise
      *         UNEXPECTED_ERROR
      */
@@ -1404,7 +1328,7 @@ public class ApplicationController extends AbstractApplicationController {
          */
         String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame);
         if (saveAsFullName == null)
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
 
         int result = saveToFile(modelName, saveAsFullName, true);
         return result;
@@ -1426,8 +1350,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param displayAlerts
      *            Show an alert if a file already exists?
      * @return Exit code OPERATION_SUCCESSFUL if the file was saved,
-     *         OPERATION_FAILED if the file was not saved, OPERATION_CANCELLED
-     *         if the user cancelled the operation; otherwise UNEXPECTED_ERROR
+     *         OPERATION_FAILED if the file was not saved, OPERATION_CANCELED if
+     *         the user canceled the operation; otherwise UNEXPECTED_ERROR
      */
     private int saveToFile(String modelName, String saveAsFullName, boolean displayAlerts) {
         if (isParamUndefined(modelName, "saveToExistingFile", "modelName"))
@@ -1454,7 +1378,7 @@ public class ApplicationController extends AbstractApplicationController {
             int answer = JOptionPane.showConfirmDialog(mainFrame, question, title, messageType);
 
             if (answer == JOptionPane.CANCEL_OPTION)
-                return ExitCode.OPERATION_CANCELLED;
+                return ExitCode.OPERATION_CANCELED;
             if (answer == JOptionPane.NO_OPTION)
                 return ExitCode.OPERATION_FAILED;
         }
@@ -1465,7 +1389,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (saveAsFullName == null || saveAsFullName == "") {
             saveAsFullName = FSInfo.getSaveAsFullName(mainFrame);
             if (saveAsFullName == null)
-                return ExitCode.OPERATION_CANCELLED;
+                return ExitCode.OPERATION_CANCELED;
         }
 
         /*
@@ -1498,12 +1422,12 @@ public class ApplicationController extends AbstractApplicationController {
         case ExitCode.OPERATION_SUCCESSFUL:
             return ExitCode.OPERATION_SUCCESSFUL;
         case ExitCode.OPERATION_FAILED:
-        case ExitCode.OPERATION_CANCELLED:
+        case ExitCode.OPERATION_CANCELED:
             return ExitCode.OPERATION_FAILED;
         default:
             System.err.println(
                     "Unexpected return value from writeToPnmlFile(modifiedDataModel, saveAsFullName): " + result);
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
         }
     }
 
@@ -1854,8 +1778,8 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @return Exit code OPERATION_SUCCESSFUL if all modified file were saved,
      *         OPERATION_FAILED if at least one file was not saved,
-     *         OPERATION_CANCELLED if the user cancelled the operation;
-     *         otherwise UNEXPECTED_ERROR
+     *         OPERATION_CANCELED if the user canceled the operation; otherwise
+     *         UNEXPECTED_ERROR
      */
     private int askSaveModifiedModelsBeforeExit() {
         int result = ExitCode.UNEXPECTED_ERROR;
@@ -1888,7 +1812,7 @@ public class ApplicationController extends AbstractApplicationController {
             }
 
             if (answer == JOptionPane.CANCEL_OPTION)
-                return ExitCode.OPERATION_CANCELLED;
+                return ExitCode.OPERATION_CANCELED;
 
             if (answer == JOptionPane.NO_OPTION) {
                 disposeFile(file);
@@ -2287,9 +2211,12 @@ public class ApplicationController extends AbstractApplicationController {
      * the popup menu location.
      * 
      * @param element
+     *            The {@link IGuiElement} that is currently selected or at the
+     *            popup menu location, or null = no element selected and no
+     *            element at the popup menu location
      */
-    public void updateZValueDependingActions(IGuiElement element) {
-        actionManager.updateZValueDependingActions(element);
+    public void updateZValueActions(IGuiElement element) {
+        actionManager.updateZValueActions(element);
     }
 
     /**

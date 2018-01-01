@@ -79,55 +79,39 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      */
 
     /**
-     * Stores the last event (e.g. "mousePressed") and modifiers (e.g. "CTRL").
-     * 
-     * But the events will not fire until mouseReleased to give the user a
-     * chance to abort an action by dragging the mouse away before releasing the
-     * mouse button.
-     */
-    volatile EMouseEvent lastMouseEvent = EMouseEvent.NONE;
-
-    /**
      * Location of the mousePressed event. (Mouse click or start of dragging)
      */
-    volatile Point mousePressedLocation = null;
+    private Point mousePressedLocation = null;
 
     /**
-     * Stores if the mouse is actually dragging. (To allow updating the data
+     * Stores whether we are in mouse dragging mode. (To allow updating the data
      * model after finishing the drag operation.)
      */
-    volatile boolean mouseIsDragging = false;
+    private boolean mouseDragMode = false;
 
     /**
      * Location of the mouse pointer when dragging started. (e.g. for debug
      * info)
      */
-    volatile Point initialDraggedFrom = null;
+    private Point initialDraggedFrom = null;
 
     /**
      * Location of the mouse prior to the current (intermediate) step of
      * dragging
      */
-    volatile Point mouseDraggedFrom = null;
+    private Point mouseDraggedFrom = null;
 
     /**
      * Location of the mouse after dragging
      */
-    volatile Point mouseDraggedTo = null;
+    private Point mouseDraggedTo = null;
 
     /*
      * Variables for KeyBinding
      */
 
-    /**
-     * Stores if the CTRL modifier has been (and is currently) pressed.
-     */
+    /** Stores if the CTRL modifier has been (and is currently) pressed. */
     boolean ctrlKey_pressed = false;
-
-    /**
-     * Stores if the ALT modifier has been (and is currently) pressed.
-     */
-    boolean altKey_pressed = false;
 
     /*
      * Variable for the PopupMenuManager
@@ -194,56 +178,22 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
 
-                /*
-                 * F2 - rename
-                 * 
-                 * -> EditRenameAction with keyEvent F2 in the menu bar!
-                 */
+                /* F2 - rename -> EditRenameAction in the menu bar! */
 
-                /*
-                 * Delete
-                 * 
-                 * -> EditDeleteAction with keyEvent Delete in the menu bar!
-                 */
+                /* Delete -> EditDeleteAction in the menu bar! */
 
-                if (e.getKeyCode() == KeyEvent.VK_CONTROL && e.isControlDown() && !e.isAltDown()) {
+                if (e.getKeyCode() == KeyEvent.VK_CONTROL && e.isControlDown()) {
                     if (debug) {
-                        System.out.println("DrawPanel.KeyboardFocusManager: Only CTRL");
+                        System.out.println("DrawPanel.KeyboardFocusManager: CTRL");
                     }
                     ctrl_pressed_Action_occurred();
-                    alt_released_Action_occurred(); // Or only in else branch?
-                    // return true; // consume the event
-
-                } else if (e.getKeyCode() == KeyEvent.VK_ALT && !e.isControlDown() && e.isAltDown()) {
-                    if (debug) {
-                        System.out.println("DrawPanel.KeyboardFocusManager: Only ALT");
-                    }
-                    alt_pressed_Action_occurred();
-                    ctrl_released_Action_occurred(); // Or only in else branch?
-                    // return true; // consume the event
-
-                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    /*
-                     * TODO In conflict with the popupMenuCanceled methods in
-                     * the popup menus. The event gets called twice!?
-                     */
-                    // if (debug) {
-                    // System.out.println("DrawPanel.KeyboardFocusManager:
-                    // Escape");
-                    // }
-                    // keyEvent_Escape_Occurred();
-                    // return true; // consume the event
-                    // e.consume();
 
                 } else {
-                    /*
-                     * Something else
-                     */
+                    /* Something else */
                     if (debug) {
                         System.out.println("DrawPanel.KeyboardFocusManager: —");
                     }
                     ctrl_released_Action_occurred();
-                    alt_released_Action_occurred();
 
                 }
 
@@ -255,10 +205,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
             }
         });
 
-        /*
-         * ComponentResizeListener for updates of the drawing area in the status
-         * bar.
-         */
+        /* Activate updates for the drawing area in the status bar. */
         addComponentListener(new ComponentResizeListener(appController));
 
         if (debug) {
@@ -298,42 +245,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
 
         ctrlKey_pressed = false;
-    }
-
-    private void alt_pressed_Action_occurred() {
-        if (debug) {
-            System.out.println("DrawPanel, alt_pressed_Action: We allow dragging...");
-        }
-
-        /*
-         * Check if already allowed since ALT_PRESSED fires again and again if
-         * the user holds the ALT button down...
-         */
-        // if (!altKey_pressed) {
-        altKey_pressed = true;
-
-        /*
-         * Change Cursor to "moveCursor"
-         */
-        Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-        setCursor(moveCursor);
-        // }
-
-    }
-
-    private void alt_released_Action_occurred() {
-        if (altKey_pressed == true) {
-            if (debug) {
-                System.out.println("DrawPanel, alt_released_Action: We quit dragging.");
-            }
-
-            altKey_pressed = false;
-        }
-
-        /*
-         * Reset the Cursor.
-         */
-        setCursor(null);
     }
 
     /*
@@ -511,6 +422,93 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     }
 
     @Override
+    public Point getMousePressedLocation() {
+        return this.mousePressedLocation;
+    }
+
+    @Override
+    public void setMousePressedLocation(Point p) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("setMousePressedLocation", p);
+        }
+
+        this.mousePressedLocation = p;
+    }
+
+    @Override
+    public boolean getStateMouseDragMode() {
+        return this.mouseDragMode;
+    }
+
+    @Override
+    public void setStateMouseDragMode(boolean b) {
+        this.mouseDragMode = b;
+
+        if (b) {
+            setMoveCursor();
+        } else {
+            resetCursor();
+        }
+    }
+
+    /**
+     * Changes the Cursor to the "moveCursor".
+     */
+    private void setMoveCursor() {
+        Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+        setCursor(moveCursor);
+    }
+
+    /**
+     * Resets the Cursor to "Normal".
+     */
+    private void resetCursor() {
+        setCursor(null);
+    }
+
+    @Override
+    public Point getInitialDraggedFrom() {
+        return this.initialDraggedFrom;
+    }
+
+    @Override
+    public void setInitialDraggedFrom(Point p) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("setInitialDraggedFrom", p);
+        }
+
+        this.initialDraggedFrom = p;
+    }
+
+    @Override
+    public Point getMouseDraggedFrom() {
+        return this.mouseDraggedFrom;
+    }
+
+    @Override
+    public void setMouseDraggedFrom(Point p) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("setMouseDraggedFrom", p);
+        }
+
+        this.mouseDraggedFrom = p;
+    }
+
+    @Override
+    public Point getMouseDraggedTo() {
+        return this.mouseDraggedTo;
+    }
+
+    @Override
+    public void setMouseDraggedTo(Point p) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("setMouseDraggedTo", p);
+        }
+
+        this.mouseDraggedTo = p;
+    }
+
+    @Override
     public void resetState() {
         resetMouseOperations();
         resetKeyboardModifiers();
@@ -521,9 +519,9 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * Resets old mouse operations.
      */
     private void resetMouseOperations() {
-        this.lastMouseEvent = EMouseEvent.NONE;
+        // this.lastMouseEvent = EMouseEvent.NONE;
         this.mousePressedLocation = null;
-        this.mouseIsDragging = false;
+        this.mouseDragMode = false;
         this.initialDraggedFrom = null;
         this.mouseDraggedFrom = null;
         this.mouseDraggedTo = null;
@@ -531,11 +529,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     private void resetKeyboardModifiers() {
         this.ctrlKey_pressed = false;
-        this.altKey_pressed = false;
-    }
-
-    private void resetCursor() {
-        setCursor(null); // "Normal" cursor
     }
 
     @Override
@@ -557,11 +550,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     public int getZValue(IGuiElement element) {
         return myGuiModel.getZValue(element);
     }
-
-    // @Override
-    // public void setPopupMenuActive(boolean active) {
-    // this.popupMenuActive = active;
-    // }
 
     @Override
     public void setPopupMenuLocation(Point p) {
@@ -599,15 +587,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     /*
      * Other public methods
      */
-
-    // /**
-    // * Returns true if this draw panel is currently showing a popup menu.
-    // *
-    // * @return True if a popup menu is active; otherwise false
-    // */
-    // public boolean getPopupMenuActive() {
-    // return this.popupMenuActive;
-    // }
 
     /*
      * Menu commands (for menu bar or popup menus)

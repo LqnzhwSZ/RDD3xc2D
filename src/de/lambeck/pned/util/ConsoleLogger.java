@@ -46,10 +46,19 @@ public class ConsoleLogger {
     public static void consoleLogMethodCall(String methodName, Object... params) {
         String parameterlist = "";
 
-        for (int i = 0; i < params.length; i++) {
-            if (parameterlist != "")
-                parameterlist = parameterlist + ", ";
-            parameterlist = parameterlist + params[i].toString();
+        if (params == null) {
+            parameterlist = "null";
+        } else {
+            for (int i = 0; i < params.length; i++) {
+                if (parameterlist != "")
+                    parameterlist = parameterlist + ", ";
+
+                if (params[i] == null) {
+                    parameterlist = parameterlist + "null";
+                } else {
+                    parameterlist = parameterlist + params[i].toString();
+                }
+            }
         }
 
         String message = methodName + "(" + parameterlist + ")";

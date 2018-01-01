@@ -46,7 +46,7 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * - ExitCode.OPERATION_FAILED: Error: Could not open the file!
      * 
-     * - ExitCode.OPERATION_CANCELLED: Error: Data model not accepted!
+     * - ExitCode.OPERATION_CANCELED: Error: Data model not accepted!
      * 
      * @param pnmlFile
      *            The file to use for read-in.

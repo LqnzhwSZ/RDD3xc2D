@@ -37,16 +37,6 @@ public interface IDrawPanel {
      */
     String getDisplayName();
 
-    // /**
-    // * Returns the size of this draw panel.
-    // *
-    // * Note: Used in {@link ApplicationController} to update the
-    // * {@link StatusBar}.
-    // *
-    // * @return {@link Dimension}
-    // */
-    // Dimension getSize();
-
     /**
      * Returns the preferred size of this draw panel.
      * 
@@ -64,6 +54,84 @@ public interface IDrawPanel {
      *            The area to update; set to null for complete repaint
      */
     void updateDrawing(Rectangle area);
+
+    /**
+     * Returns the location of the mousePressed event stored by
+     * setMousePressedLocation(p).
+     * 
+     * @return A {@link Point}
+     */
+    Point getMousePressedLocation();
+
+    /**
+     * Stores the specified location as last mousePressed event.
+     * 
+     * @param p
+     *            The specified {@link Point}
+     */
+    void setMousePressedLocation(Point p);
+
+    /**
+     * @return The current "mouseDragMode" state
+     */
+    boolean getStateMouseDragMode();
+
+    /**
+     * Callback for the {@link MyMouseAdapter} to set the "mouseDragMode" state
+     * of this {@link IDrawPanel}.
+     * 
+     * @param b
+     *            The new state
+     */
+    void setStateMouseDragMode(boolean b);
+
+    /**
+     * Returns the location from where the current dragging operation has
+     * started.
+     * 
+     * @return A {@link Point}
+     */
+    Point getInitialDraggedFrom();
+
+    /**
+     * Stores where the current dragging operation has started.
+     * 
+     * @param p
+     *            The specified {@link Point}
+     */
+    void setInitialDraggedFrom(Point p);
+
+    /**
+     * Returns the location from where the <B>last step</B> of the current
+     * dragging operation has started.
+     * 
+     * @return A {@link Point}
+     */
+    Point getMouseDraggedFrom();
+
+    /**
+     * Stores where the <B>last step</B> of the current dragging operation has
+     * started.
+     * 
+     * @param p
+     *            The specified {@link Point}
+     */
+    void setMouseDraggedFrom(Point p);
+
+    /**
+     * Returns the target of the current dragging operation.
+     * 
+     * @return A {@link Point}
+     */
+    Point getMouseDraggedTo();
+
+    /**
+     * Stores the target of the current dragging operation.
+     * 
+     * @param p
+     *            The specified {@link Point}
+     */
+    void setMouseDraggedTo(Point p);
 
     /**
      * Resets the state of this {@link DrawPanel} (e.g. Cursor, old mouse
@@ -116,14 +184,6 @@ public interface IDrawPanel {
      */
     int getZValue(IGuiElement element);
 
-    // /**
-    // * Tells the draw panel if there is a popup menu active.
-    // *
-    // * @param b
-    // * The new state of this attribute
-    // */
-    // void setPopupMenuActive(boolean b);
-
     /**
      * Tells the draw panel if there is a popup menu active.
      * 
@@ -134,8 +194,8 @@ public interface IDrawPanel {
     void setPopupMenuLocation(Point p);
 
     /**
-     * Tells the draw panel that the current popup menu was cancelled. (e.g.
-     * with ESC or by clicking at somewhere else on the DrawPanel)
+     * Tells the draw panel that the current popup menu was canceled. (e.g. with
+     * ESC or by clicking at somewhere else on the DrawPanel)
      */
     void popupMenuCanceled();
 

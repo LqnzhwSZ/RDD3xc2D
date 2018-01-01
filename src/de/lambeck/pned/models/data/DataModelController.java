@@ -28,7 +28,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class DataModelController implements IDataModelController {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /**
      * Predefined parameter because only the {@link ValidationController} should
@@ -186,7 +186,7 @@ public class DataModelController implements IDataModelController {
              * Do nothing more here: The ApplicationController will remove all
              * models in his disposeFile() method.
              */
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
         }
 
         /* File import was successful. */

@@ -1,5 +1,7 @@
 package de.lambeck.pned.models.gui;
 
+// TODO This is not in use anymore, remove if we are sure.
+
 /**
  * Events that will be recognized by {@link MyMouseAdapter}.
  * 

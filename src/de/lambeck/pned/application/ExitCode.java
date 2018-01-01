@@ -18,6 +18,6 @@ public class ExitCode {
     public static final int OPERATION_FAILED = 1;
 
     @SuppressWarnings("javadoc")
-    public static final int OPERATION_CANCELLED = 2;
+    public static final int OPERATION_CANCELED = 2;
 
 }

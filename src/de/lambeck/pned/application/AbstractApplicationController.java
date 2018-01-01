@@ -87,15 +87,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
         this.mainFrame = frame;
         this.i18n = i18n;
         this.statusBar = stBar;
-
-        // addAllActionsToHashMaps();
     }
-
-    // /**
-    // * Adds all Actions which are known to the application controller to the
-    // * Hashmap.
-    // */
-    // protected abstract void addAllActionsToHashMaps();
 
     /**
      * Getter for allowedToClose
