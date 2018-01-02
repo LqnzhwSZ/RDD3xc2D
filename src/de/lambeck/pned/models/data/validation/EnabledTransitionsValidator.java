@@ -26,8 +26,6 @@ import de.lambeck.pned.models.data.IDataModelController;
  */
 public class EnabledTransitionsValidator extends AbstractValidator {
 
-    // private static boolean debug = false;
-
     /**
      * A {@link List} of all {@link IDataElement} in the model; Gets data in
      * getDataFromModel(IDataModel dataModel).

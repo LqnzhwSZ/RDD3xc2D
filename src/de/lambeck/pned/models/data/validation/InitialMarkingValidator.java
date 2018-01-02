@@ -20,8 +20,6 @@ import de.lambeck.pned.models.data.IDataModelController;
  */
 public class InitialMarkingValidator extends AbstractValidator {
 
-    // private static boolean debug = false;
-
     /** The start place of the model (if unambiguous) */
     private DataPlace myStartPlace = null;
 

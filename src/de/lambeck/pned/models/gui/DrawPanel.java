@@ -211,6 +211,8 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         if (debug) {
             System.out.println("DrawPanel created, name: " + getModelName());
         }
+
+        debug = appController.getShowDebugMessages();
     }
 
     /*

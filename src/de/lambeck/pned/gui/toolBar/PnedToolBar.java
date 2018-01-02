@@ -7,6 +7,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JToolBar;
 
 import de.lambeck.pned.application.ApplicationController;
+import de.lambeck.pned.gui.settings.SizeSlider;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -33,6 +34,8 @@ public class PnedToolBar extends AbstractPnedToolBar {
     /** A tool bar "button" */
     private AbstractAction stopSimulationAction;
 
+    // private JCheckBox debugCheckBox;
+
     /**
      * Constructs the ToolBar with a reference to the application controller.
      * 
@@ -45,7 +48,7 @@ public class PnedToolBar extends AbstractPnedToolBar {
      */
     @SuppressWarnings("hiding")
     public PnedToolBar(ApplicationController controller, I18NManager i18n, Map<String, AbstractAction> allActions) {
-        super(controller, orientation, allActions);
+        super(controller, i18n, orientation, allActions);
 
         String text = i18n.getNameOnly("WorkflowNet");
         this.setName(text);
@@ -61,6 +64,9 @@ public class PnedToolBar extends AbstractPnedToolBar {
          * width of the main frame.
          */
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        /* Add the debug check box. */
+        // addDebugCheckBox();
     }
 
     @Override
@@ -86,6 +92,40 @@ public class PnedToolBar extends AbstractPnedToolBar {
 
         stopSimulationAction = allActions.get("StopSimulation");
         add(stopSimulationAction);
+
+        addSeparator();
+
+        String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
+        SizeSlider sizeSlider = new SizeSlider(sizeSliderName, appController);
+        add(sizeSlider);
     }
+
+    // private void addDebugCheckBox() {
+    // debugCheckBox = new JCheckBox("Debug messages in console");
+    // debugCheckBox.setSelected(appController.getShowDebugMessages());
+    // debugCheckBox.addItemListener(new ItemListener() {
+    //
+    // @Override
+    // public void itemStateChanged(ItemEvent e) {
+    // boolean b = false;
+    //
+    // int state = e.getStateChange();
+    // switch (state) {
+    // case ItemEvent.SELECTED:
+    // b = true;
+    // break;
+    // case ItemEvent.DESELECTED:
+    // b = false;
+    // default:
+    // break;
+    // }
+    //
+    // appController.setShowDebugMessages(b);
+    // }
+    // });
+    //
+    // addSeparator();
+    // add(debugCheckBox);
+    // }
 
 }

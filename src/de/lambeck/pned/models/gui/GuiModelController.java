@@ -104,6 +104,8 @@ public class GuiModelController implements IGuiModelController {
         this.appController = controller;
         this.i18n = i18n;
         this.popupActions = popupActions;
+
+        debug = controller.getShowDebugMessages();
     }
 
     /*

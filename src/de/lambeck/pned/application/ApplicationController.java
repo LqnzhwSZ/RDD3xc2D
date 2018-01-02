@@ -42,6 +42,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class ApplicationController extends AbstractApplicationController {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** The application title to begin with */
@@ -176,11 +177,6 @@ public class ApplicationController extends AbstractApplicationController {
 
         JToolBar toolBar = new PnedToolBar(this, i18n, allActions);
         mainFrame.add(toolBar, BorderLayout.PAGE_START);
-
-        toolBar.addSeparator();
-        String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
-        SizeSlider sizeSlider = new SizeSlider(sizeSliderName, this);
-        toolBar.add(sizeSlider);
 
         mainFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
@@ -1837,6 +1833,23 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         return result;
+    }
+
+    /**
+     * @return Show debug messages?
+     */
+    public boolean getShowDebugMessages() {
+        return ApplicationController.debug;
+    }
+
+    /**
+     * Sets the "show debug messages" state.
+     * 
+     * @param b
+     *            True = show debug messages, false = Do not show debug messages
+     */
+    public void setShowDebugMessages(boolean b) {
+        ApplicationController.debug = b;
     }
 
     /*

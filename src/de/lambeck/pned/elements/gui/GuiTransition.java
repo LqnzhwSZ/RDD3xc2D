@@ -93,9 +93,16 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         /* Create a copy of the Graphics instance. */
         Graphics2D g2copy = (Graphics2D) g2.create();
 
+        /* Draw most severe states first! */
+
         if (!this.isSafe()) {
-            g2copy.setColor(ECustomColor.DARK_RED.getColor());
             g2copy.setColor(Color.RED);
+            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            return;
+        }
+
+        if (this.unreachable) {
+            /* -> Color set in GuiNode */
             g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
             return;
         }
@@ -104,8 +111,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
             g2copy.setColor(ECustomColor.PALE_GREEN.getColor());
             g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
         } else {
-            // TODO Reset to white or just nothing?
-            return;
+            // NOP
         }
     }
 
@@ -232,7 +238,8 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
 
     @Override
     public String toString() {
-        String returnString = "GuiTransition [" + super.toString() + ", isEnabled=" + this.isEnabled() + "]";
+        String returnString = "GuiTransition [" + super.toString() + ", isEnabled=" + this.isEnabled() + ", isSafe="
+                + this.isSafe() + "]";
         return returnString;
     }
 

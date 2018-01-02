@@ -40,9 +40,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     protected boolean unreachable = false;
 
-    /*
-     * Info for label position
-     */
+    /* Info for label position */
 
     /**
      * Label offset in x direction (offset from shapeLeftX, "0" means start
@@ -54,9 +52,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     static int labelOffsetY = 15;
 
-    /*
-     * Attributes for optical appearance
-     */
+    /* Attributes for optical appearance */
 
     /** Size of the node */
     static int shapeSize = 50;
@@ -66,9 +62,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /** The font for the label */
     protected final Font labelFont = new Font(null, Font.BOLD, fontSize);
 
-    /*
-     * Bounds of only the shape (ignoring the size of the label)
-     */
+    /* Bounds of only the shape (ignoring the size of the label) */
 
     /** x value for the leftmost point of the shape */
     protected int shapeLeftX;
@@ -77,9 +71,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /** y value for the lowest point of the shape */
     protected int shapeBottomY;
 
-    /*
-     * Bounds including the label (for the "selected marker")
-     */
+    /* Bounds including the label (for the "selected marker") */
 
     /** x value for the leftmost point of the node (including the label) */
     protected int totalLeftX;
@@ -95,9 +87,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     Rectangle lastDrawingArea = null;
 
-    /*
-     * Constructor etc.
-     */
+    /* Constructor */
 
     /**
      * Constructs a node at a given location and in the specified z level
@@ -121,9 +111,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         calculateMyBounds(); // Depend on the other values.
     }
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public String getName() {
@@ -149,9 +137,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         calculateMyBounds();
     }
 
-    /*
-     * Method for interface IGuiElement
-     */
+    /* Method for interface IGuiElement */
 
     @Override
     public Rectangle getLastDrawingArea() {
@@ -184,9 +170,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * their predecessors/successors!
      */
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public int getTotalLeftX() {
@@ -213,9 +197,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         this.unreachable = b;
     }
 
-    /*
-     * Individual methods
-     */
+    /* Individual methods */
 
     /**
      * Determines the coordinates of the label depending on the center of this
@@ -251,23 +233,17 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         }
         drawInterior(g2);
 
-        /*
-         * Draw the shape
-         */
+        /* Draw the shape */
         g2.setColor(Color.BLACK);
         drawShape(g2);
 
-        /*
-         * Draw the label
-         */
+        /* Draw the label */
         String labelText = this.getName();
         Point labelLocation = this.getLabelLocation();
         g2.setFont(labelFont);
         g2.drawString(labelText, labelLocation.x, labelLocation.y);
 
-        /*
-         * Test: show boundaries and zValue
-         */
+        /* Test: show boundaries and zValue */
         if (debug) {
             g2.setColor(Color.LIGHT_GRAY);
             g2.drawRect(totalLeftX, totalTopY, totalWidth, totalHeight);
@@ -276,9 +252,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
             g2.drawString(infoText, shapeLeftX + totalWidth - textWidth, shapeTopY + fontSize);
         }
 
-        /*
-         * Show selection
-         */
+        /* Show selection */
         drawSelection(g2);
     }
 
@@ -307,13 +281,11 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     @Override
     public String toString() {
         String returnString = "GuiNode [" + super.toString() + ", name=" + name + ", position=" + shapeCenter.x + ","
-                + shapeCenter.y + "]";
+                + shapeCenter.y + ", unreachable=" + this.unreachable + "]";
         return returnString;
     }
 
-    /*
-     * Private helper methods
-     */
+    /* Private helper methods */
 
     /**
      * Calculates the bounds of the shape including the label and stores the

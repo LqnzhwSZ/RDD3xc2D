@@ -136,6 +136,8 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         this.myGuiController = guiController;
         this.popupActions = popupActions;
         this.myAppController = appController;
+
+        debug = appController.getShowDebugMessages();
     }
 
     /*

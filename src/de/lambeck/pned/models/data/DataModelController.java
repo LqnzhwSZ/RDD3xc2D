@@ -86,6 +86,8 @@ public class DataModelController implements IDataModelController {
     public DataModelController(ApplicationController controller, I18NManager i18n) {
         this.appController = controller;
         this.i18n = i18n;
+
+        debug = controller.getShowDebugMessages();
     }
 
     /*
