@@ -27,7 +27,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 @SuppressWarnings("serial")
 public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuListener {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /** The Map with existing Actions, suitable for this popup menu. */
     protected Map<String, AbstractAction> popupActions;

@@ -156,7 +156,7 @@ public class GuiModelController implements IGuiModelController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param displayName
      *            The title of the tab (= the file name)
      */
@@ -227,7 +227,7 @@ public class GuiModelController implements IGuiModelController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     private void removeDrawPanel(String modelName) {
         if (debug) {
@@ -286,7 +286,7 @@ public class GuiModelController implements IGuiModelController {
      *            The model as {@link IModelRename}
      * @param newModelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param newDisplayName
      *            The title of the tab (= the file name)
      */
@@ -302,7 +302,7 @@ public class GuiModelController implements IGuiModelController {
      *            The draw panel as {@link IModelRename}
      * @param newModelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param newDisplayName
      *            The title of the tab (= the file name)
      */
@@ -2165,10 +2165,67 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public void setGuiTransitionEnabledState(String modelName, String transitionId) {
+    public void resetAllGuiTransitionsSafeState(String modelName) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiTransitionEnabledState", modelName,
-                    transitionId);
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiTransitionsSafeState", modelName);
+        }
+
+        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        if (guiModel == null)
+            return;
+
+        /* List for the drawing areas we are going to change. */
+        List<Rectangle> drawingAreas = new LinkedList<Rectangle>();
+
+        /* Reset "safe" state on all GUI transitions. */
+        for (IGuiElement guiElement : guiModel.getElements()) {
+            if (guiElement instanceof IGuiTransition) {
+                IGuiTransition guiTransition = (IGuiTransition) guiElement;
+                guiTransition.setSafe(true); // Assume "safe" after reset
+
+                Rectangle rect = guiTransition.getLastDrawingArea();
+                drawingAreas.add(rect);
+            }
+        }
+
+        /* Repaint */
+        updateDrawing(drawingAreas);
+    }
+
+    @Override
+    public void setGuiTransitionUnsafe(String modelName, String transitionId) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiTransitionUnsafe", modelName, transitionId);
+        }
+
+        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        if (guiModel == null)
+            return;
+
+        /* Rectangle for the drawing area we are going to change. */
+        Rectangle drawingArea = new Rectangle();
+
+        /* Set "enabled" state on the specified GUI transition. */
+        for (IGuiElement guiElement : guiModel.getElements()) {
+            if (guiElement instanceof IGuiTransition) {
+                IGuiTransition guiTransition = (IGuiTransition) guiElement;
+                String id = guiTransition.getId();
+                if (id == transitionId) {
+                    guiTransition.setSafe(false);
+                    drawingArea = guiTransition.getLastDrawingArea();
+                    break;
+                }
+            }
+        }
+
+        /* Repaint this transition */
+        updateDrawing(drawingArea);
+    }
+
+    @Override
+    public void setGuiTransitionEnabled(String modelName, String transitionId) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiTransitionEnabled", modelName, transitionId);
         }
 
         IGuiModel guiModel = getGuiModelForValidation(modelName);
@@ -2186,6 +2243,7 @@ public class GuiModelController implements IGuiModelController {
                 if (id == transitionId) {
                     guiTransition.setEnabled(true);
                     drawingArea = guiTransition.getLastDrawingArea();
+                    break;
                 }
             }
         }

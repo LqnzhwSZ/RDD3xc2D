@@ -2166,6 +2166,32 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
+     * Handles the {@link IDataModelController} request to reset the "safe"
+     * state on all transitions in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    public void resetAllGuiTransitionsSafeState(String modelName) {
+        guiModelController.resetAllGuiTransitionsSafeState(modelName);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to set the "safe" state
+     * on the specified transition in the specified GUI model to false.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    public void setGuiTransitionUnsafe(String modelName, String transitionId) {
+        guiModelController.setGuiTransitionUnsafe(modelName, transitionId);
+    }
+
+    /**
      * Handles the {@link IDataModelController} request to set the "enabled"
      * state on the specified transition in the specified GUI model.
      * 
@@ -2175,8 +2201,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param transitionId
      *            The id of the {@link IGuiTransition}
      */
-    public void setGuiTransitionEnabledState(String modelName, String transitionId) {
-        guiModelController.setGuiTransitionEnabledState(modelName, transitionId);
+    public void setGuiTransitionEnabled(String modelName, String transitionId) {
+        guiModelController.setGuiTransitionEnabled(modelName, transitionId);
     }
 
     /**

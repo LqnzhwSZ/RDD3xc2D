@@ -66,7 +66,7 @@ public class GuiModel implements IGuiModel, IModelRename {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param displayName
      *            The name of the tab (the file name only)
      * @param controller
@@ -521,6 +521,9 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     private void consoleLogSelection() {
+        if (!debug)
+            return;
+
         if (selected.size() == 0) {
             System.out.println("No selection");
         } else {

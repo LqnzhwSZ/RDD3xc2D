@@ -15,7 +15,7 @@ import de.lambeck.pned.models.data.IDataModelController;
 public interface IDataTransition extends ITransition, IDataNode {
 
     /**
-     * Resets the enabled state of this transition.<BR>
+     * Resets the "enabled" <B>and the "safe"</B> state of this transition.<BR>
      * <BR>
      * Note: No Setter because "enabled" = true will be determined by method
      * checkEnabled().
@@ -37,8 +37,10 @@ public interface IDataTransition extends ITransition, IDataNode {
      * while the transition in the GUI model has a Setter for this state.
      * 
      * @return True = transition enabled, false = transition disabled
+     * @throws IllegalStateException
+     *             If this transition is not safe
      */
-    boolean checkEnabled();
+    boolean checkEnabled() throws IllegalStateException;
 
     /**
      * Returns a {@link List} of places ({@link DataPlace}) before the previous

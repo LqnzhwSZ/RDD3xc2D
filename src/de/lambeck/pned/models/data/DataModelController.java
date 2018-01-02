@@ -221,7 +221,7 @@ public class DataModelController implements IDataModelController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return The {@link IValidationMsgPanel}
      */
     private IValidationMsgPanel addValidationMessagePanel(String modelName) {
@@ -275,7 +275,7 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Checks which errors have occurred and returns if we can accept this input
-     * from the pnml file as {@link DataModel}.
+     * from the PNML file as {@link DataModel}.
      * 
      * @param returnValue
      *            The exit code of the parser
@@ -381,7 +381,7 @@ public class DataModelController implements IDataModelController {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     private void removeValidationMessagePanel(String modelName) {
         if (debug) {
@@ -427,7 +427,7 @@ public class DataModelController implements IDataModelController {
      *            The model as {@link IModelRename}
      * @param newModelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param newDisplayName
      *            The title of the tab (= the file name)
      */
@@ -444,7 +444,7 @@ public class DataModelController implements IDataModelController {
      *            The validation message panel to rename
      * @param newModelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     private void setValidationMessagePanelNames(IValidationMsgPanel validationMessagePanel, String newModelName) {
         validationMessagePanel.setModelName(newModelName);
@@ -871,6 +871,7 @@ public class DataModelController implements IDataModelController {
 
         /* Pass the info to the GUI model controller. */
         appController.resetAllGuiTransitionsEnabledState(modelName);
+        appController.resetAllGuiTransitionsSafeState(modelName);
     }
 
     /**
@@ -900,16 +901,27 @@ public class DataModelController implements IDataModelController {
     }
 
     @Override
-    public void setGuiTransitionEnabledState(String modelName, String transitionId) {
+    public void setGuiTransitionUnsafe(String modelName, String transitionId) {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DataModelController.setGuiTransitionEnabledState", modelName,
-                    transitionId);
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setGuiTransitionUnsafe", modelName, transitionId);
         }
 
         /*
          * Nothing to do here. Only the IGuiTransition needs this information.
          */
-        appController.setGuiTransitionEnabledState(modelName, transitionId);
+        appController.setGuiTransitionUnsafe(modelName, transitionId);
+    }
+
+    @Override
+    public void setGuiTransitionEnabled(String modelName, String transitionId) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.setGuiTransitionEnabled", modelName, transitionId);
+        }
+
+        /*
+         * Nothing to do here. Only the IGuiTransition needs this information.
+         */
+        appController.setGuiTransitionEnabled(modelName, transitionId);
     }
 
     @Override

@@ -12,14 +12,25 @@ import de.lambeck.pned.models.gui.IGuiModel;
 public interface IGuiTransition extends ITransition, IGuiNode {
 
     /**
-     * Sets the enabled attribute of this transition.<BR>
+     * Sets the "enabled" attribute of this transition.<BR>
      * <BR>
      * Note: The transition in the GUI model has a Setter for this state, while
      * the transition in the Data model determines its state by itself.
      * 
      * @param newState
-     *            The new enabled state
+     *            The new "enabled" state
      */
     void setEnabled(boolean newState);
+
+    /**
+     * Sets the "safe" attribute of this transition.<BR>
+     * <BR>
+     * Note: The transition in the GUI model has a Setter for this state, while
+     * the transition in the Data model determines its state by itself.
+     * 
+     * @param newState
+     *            The new "safe" state
+     */
+    void setSafe(boolean newState);
 
 }

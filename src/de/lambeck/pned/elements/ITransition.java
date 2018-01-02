@@ -25,4 +25,13 @@ public interface ITransition extends INode {
      * model has a Setter for this state.
      */
 
+    /**
+     * A transition is safe if:<BR>
+     * - Output places have no token<BR>
+     * - Only output places that are input places as well have a token.
+     * 
+     * @return The "safe" state of this transition.
+     */
+    boolean isSafe();
+
 }

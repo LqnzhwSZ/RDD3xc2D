@@ -104,7 +104,8 @@ public class InitialMarkingValidator extends AbstractValidator {
      * Checks abort condition 2: Model already classified as invalid?
      */
     private boolean checkAbortCondition2() {
-        EValidationResultSeverity currentResultsSeverity = this.myValidationController.getCurrentValidationStatus();
+        EValidationResultSeverity currentResultsSeverity = this.myValidationController
+                .getCurrentValidationStatus(myDataModelName);
 
         int current = currentResultsSeverity.toInt();
         int critical = EValidationResultSeverity.CRITICAL.toInt();

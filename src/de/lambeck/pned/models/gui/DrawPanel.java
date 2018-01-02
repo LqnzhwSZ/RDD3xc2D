@@ -128,7 +128,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param displayName
      *            The name of the tab (the file name only)
      * @param appController
