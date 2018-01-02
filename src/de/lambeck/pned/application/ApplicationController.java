@@ -247,9 +247,7 @@ public class ApplicationController extends AbstractApplicationController {
         validationController.addValidator(enabledTransitionsValidator, enabledTransitionsValidatorName);
     }
 
-    /*
-     * Helper methods
-     */
+    /* Helper methods */
 
     /**
      * Returns a size for the main frame depending on the size of the screen and
@@ -303,9 +301,7 @@ public class ApplicationController extends AbstractApplicationController {
         inputMap.put(ctrlShiftTab, "navigatePrevious");
     }
 
-    /*
-     * Methods for super class AbstractApplicationController
-     */
+    /* Methods for super class AbstractApplicationController */
 
     /**
      * Asks the data model controller for it's list of models that have been
@@ -326,9 +322,7 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @Override
     public void windowClosing(WindowEvent e) {
-        /*
-         * Close all unmodified files immediately.
-         */
+        /* Close all unmodified files immediately. */
         closeUnmodifiedFiles();
 
         /*
@@ -346,9 +340,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (close)
             closeApplication();
 
-        /*
-         * Ask the user to save all modified models to a file.
-         */
+        /* Ask the user to save all modified models to a file. */
         int answer = askSaveModifiedModelsBeforeExit();
         if (debug) {
             System.out.println("AppController.windowClosing(), askSaveModifiedModelsBeforeExit(), answer: " + answer);
@@ -392,9 +384,7 @@ public class ApplicationController extends AbstractApplicationController {
         System.exit(0);
     }
 
-    /*
-     * Method for the ComponentResizeListener
-     */
+    /* Method for the ComponentResizeListener */
 
     /**
      * Callback for the ComponentResizeListener
@@ -420,9 +410,7 @@ public class ApplicationController extends AbstractApplicationController {
         }
     }
 
-    /*
-     * Methods for the TabListener
-     */
+    /* Methods for the TabListener */
 
     /**
      * Adds the file name to the title of the main frame.
@@ -468,18 +456,14 @@ public class ApplicationController extends AbstractApplicationController {
         //
         // this.activeFile = drawPanel.getModelName();
 
-        /*
-         * Easier with the full path name as tool tip on the tabs!
-         */
+        /* Easier with the full path name as tool tip on the tabs! */
         if (tabIndex < 0) {
             this.activeFile = null;
         } else {
             this.activeFile = tabbedPane.getToolTipTextAt(tabIndex);
         }
 
-        /*
-         * Update the current models/draw panels of data and GUI controller.
-         */
+        /* Update the current models/draw panels of data and GUI controller. */
         if (activeFile != null) {
             IDataModel newActiveDataModel = dataModelController.getDataModel(activeFile);
             if (newActiveDataModel == null) {
@@ -500,9 +484,7 @@ public class ApplicationController extends AbstractApplicationController {
             guiModelController.setCurrentDrawPanel(newActiveDrawPanel);
         }
 
-        /*
-         * Update the status bar
-         */
+        /* Update the status bar */
         updateDrawPanelSizeInfo();
 
         if (debug) {
@@ -526,9 +508,7 @@ public class ApplicationController extends AbstractApplicationController {
         setActiveFile(tabIndex);
     }
 
-    /*
-     * Implemented menu commands for the Actions
-     */
+    /* Implemented menu commands for the Actions */
 
     /**
      * Callback for {@link FileNewAction}, creates a new file.
@@ -813,23 +793,17 @@ public class ApplicationController extends AbstractApplicationController {
         guiModelController.changeShapeSize(size);
     }
 
-    /*
-     * End of menu commands for the Actions
-     */
+    /* End of menu commands for the Actions */
 
     /**
      * Adds a new (non-existing) file.
      */
     private void addNewEmptyFile() {
-        /*
-         * Get the next new file name
-         */
+        /* Get the next new file name */
         currNewFileIndex++;
         String fileName = i18n.getNameOnly("FileNew") + currNewFileIndex;
 
-        /*
-         * Add a tab with empty models and empty draw panel.
-         */
+        /* Add a tab with empty models and empty draw panel. */
         String displayName = fileName; // Only for a new file!
         addEmptyTab(fileName, displayName);
     }
@@ -848,9 +822,7 @@ public class ApplicationController extends AbstractApplicationController {
      *            The title of the tab (= the file name)
      */
     private void addEmptyTab(String fullName, String displayName) {
-        /*
-         * Create empty models.
-         */
+        /* Create empty models. */
         dataModelController.addDataModel(fullName, displayName);
         guiModelController.addGuiModel(fullName, displayName);
 
@@ -866,9 +838,7 @@ public class ApplicationController extends AbstractApplicationController {
          */
         IValidationMsgPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(fullName);
 
-        /*
-         * Add the draw panel to a scroll pane on a new tab.
-         */
+        /* Add the draw panel to a scroll pane on a new tab. */
         addTabForDrawPanel(drawPanel, validationMessagesPanel, fullName, displayName);
     }
 
@@ -880,9 +850,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @see {@link FileOpenAction}
      */
     private void addNewModelFromFile(File pnmlFile) {
-        /*
-         * Get the (unique) canonical path name of the specified file.
-         */
+        /* Get the (unique) canonical path name of the specified file. */
         String canonicalPath = FSInfo.getCanonicalPath(pnmlFile);
         if (canonicalPath == null) {
             String errMessage = i18n.getMessage("errFileOpen");
@@ -892,9 +860,7 @@ public class ApplicationController extends AbstractApplicationController {
             return;
         }
 
-        /*
-         * Get the file name of the specified file.
-         */
+        /* Get the file name of the specified file. */
         String displayName = FSInfo.getFileName(pnmlFile);
 
         /*
@@ -942,9 +908,7 @@ public class ApplicationController extends AbstractApplicationController {
         dataModelController.resetModifiedDataModel(canonicalPath);
         guiModelController.resetModifiedGuiModel(canonicalPath);
 
-        /*
-         * Add a tab for this file (with the draw panel)
-         */
+        /* Add a tab for this file (with the draw panel) */
         DrawPanel drawPanel = (DrawPanel) guiModelController.getDrawPanel(canonicalPath);
 
         /*
@@ -1062,9 +1026,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "closeFile", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        /*
-         * Close the file immediately, if not modified
-         */
+        /* Close the file immediately, if not modified */
         boolean modified = isFileModified(modelName);
 
         if (!modified) {
@@ -1115,17 +1077,13 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "closeFile", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        /*
-         * Close the file immediately, if saveChanges is false.
-         */
+        /* Close the file immediately, if saveChanges is false. */
         if (!saveChanges) {
             disposeFile(modelName);
             return ExitCode.OPERATION_SUCCESSFUL;
         }
 
-        /*
-         * Close the file immediately, if not modified.
-         */
+        /* Close the file immediately, if not modified. */
         boolean modified = isFileModified(modelName);
 
         if (!modified) {
@@ -1174,9 +1132,8 @@ public class ApplicationController extends AbstractApplicationController {
             return false;
 
         boolean dataModelModified = dataModelController.isModifiedDataModel(modelName);
-        /*
-         * Check only the data model. It should hold all persistent info.
-         */
+
+        /* Check only the data model. It should hold all persistent info. */
         // boolean guiModelModified =
         // guiModelController.isModifiedGuiModel(modelName);
 
@@ -1196,9 +1153,7 @@ public class ApplicationController extends AbstractApplicationController {
     private void disposeFile(String modelName) {
         if (isParamUndefined(modelName, "disposeFile", "modelName"))
             return;
-        /*
-         * Remove the specified tab.
-         */
+        /* Remove the specified tab. */
         int index = getTabIndexForFile(modelName);
         // if (index == -1)
         // return;
@@ -1221,20 +1176,14 @@ public class ApplicationController extends AbstractApplicationController {
          * appController.setActiveFile(tabIndex).
          */
 
-        /*
-         * Dispose data model and GUI model (+ draw panel)
-         */
+        /* Dispose data model and GUI model (+ draw panel) */
         dataModelController.removeDataModel(modelName);
         guiModelController.removeGuiModel(modelName);
 
-        /*
-         * Remove the path name from the list of open files
-         */
+        /* Remove the path name from the list of open files */
         fileList.remove(modelName);
 
-        /*
-         * Update the status bar
-         */
+        /* Update the status bar */
         updateDrawPanelSizeInfo();
     }
 
@@ -1270,9 +1219,7 @@ public class ApplicationController extends AbstractApplicationController {
         return answer;
     }
 
-    /*
-     * Saving file(s)
-     */
+    /* Saving file(s) */
 
     /**
      * Invokes saveFile(modelName) with the active file.
@@ -1309,9 +1256,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "saveFile", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        /*
-         * Save the file immediately, if it is an existing file.
-         */
+        /* Save the file immediately, if it is an existing file. */
         boolean isFSFile = FSInfo.isFileSystemFile(modelName);
 
         if (isFSFile) {
@@ -1319,12 +1264,14 @@ public class ApplicationController extends AbstractApplicationController {
             return result;
         }
 
-        /*
-         * Ask for a file name.
-         */
-        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame);
+        /* Ask for a file name. */
+        File initialFolder = getCurrentDirectory("saveFile");
+        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
         if (saveAsFullName == null)
             return ExitCode.OPERATION_CANCELED;
+
+        /* Store the current directory! */
+        setCurrentDirectory(saveAsFullName);
 
         int result = saveToFile(modelName, saveAsFullName, true);
         return result;
@@ -1357,9 +1304,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         int result = -1;
 
-        /*
-         * Do we have to display an overwrite warning?
-         */
+        /* Do we have to display an overwrite warning? */
         if (modelName.equals(saveAsFullName))
             displayAlerts = false; // We just save the open file.
         if (!FSInfo.isFileSystemFile(saveAsFullName))
@@ -1379,18 +1324,18 @@ public class ApplicationController extends AbstractApplicationController {
                 return ExitCode.OPERATION_FAILED;
         }
 
-        /*
-         * Do we have to ask for a file name?
-         */
+        /* Do we have to ask for a file name? */
         if (saveAsFullName == null || saveAsFullName == "") {
-            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame);
+            File initialFolder = getCurrentDirectory("saveFile");
+            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
             if (saveAsFullName == null)
                 return ExitCode.OPERATION_CANCELED;
+
+            /* Store the current directory! */
+            setCurrentDirectory(saveAsFullName);
         }
 
-        /*
-         * Is the target file write-protected?
-         */
+        /* Is the target file write-protected? */
         boolean writeProtected = FSInfo.isWriteProtectedFile(saveAsFullName);
         if (writeProtected) {
             String title = modelName;
@@ -1402,9 +1347,7 @@ public class ApplicationController extends AbstractApplicationController {
             return ExitCode.OPERATION_FAILED;
         }
 
-        /*
-         * We save the data model
-         */
+        /* We save the data model */
         IDataModel modifiedDataModel = dataModelController.getDataModel(modelName);
         if (debug) {
             System.out.println("modifiedDataModel.getModelName(): " + modifiedDataModel.getModelName());
@@ -1573,9 +1516,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         int result = saveToFile(modelName, saveAsFullName, true);
 
-        /*
-         * Update the name of the models etc.
-         */
+        /* Update the name of the models etc. */
         if (result == 0)
             renameModels(modelName, saveAsFullName);
 
@@ -1621,30 +1562,22 @@ public class ApplicationController extends AbstractApplicationController {
     private void updateTabInfo(String oldModelName, String newModelName, String displayName) {
         int tabIndex = getTabIndexForFile(oldModelName);
         if (tabIndex == -1) {
-            /*
-             * tabIndex should never be -1 because we renamed an open file!
-             */
+            /* tabIndex should never be -1 because we renamed an open file! */
             System.err.println("Could not find the tab to rename after SaveAs.");
             return;
         }
 
-        /*
-         * Rename tab (and tool tip).
-         */
+        /* Rename tab (and tool tip). */
         // tabbedPane.getTabComponentAt(tabIndex).setName(displayName);
         tabbedPane.setTitleAt(tabIndex, displayName);
         tabbedPane.setToolTipTextAt(tabIndex, newModelName);
 
-        /*
-         * Update references
-         */
+        /* Update references */
         setActiveFile(tabIndex);
         setFilenameOnTitle(displayName);
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Checks whether there is at least 1 file open or not.
@@ -1731,9 +1664,7 @@ public class ApplicationController extends AbstractApplicationController {
         // modelName + "!");
         // }
 
-        /*
-         * Easier with the full path name as tool tip on the tabs!
-         */
+        /* Easier with the full path name as tool tip on the tabs! */
         for (int i = 0; i < tabbedPane.getTabCount(); i++) {
             String nextToolTip = tabbedPane.getToolTipTextAt(i);
             if (nextToolTip.equals(modelName)) {
@@ -1789,9 +1720,7 @@ public class ApplicationController extends AbstractApplicationController {
                 System.out.println("AppController.askSaveModifiedModelsBeforeExit: " + file);
             }
 
-            /*
-             * Activate the according tab before asking the user to save!
-             */
+            /* Activate the according tab before asking the user to save! */
             activateTabForFile(file);
 
             /*
@@ -1813,22 +1742,16 @@ public class ApplicationController extends AbstractApplicationController {
             if (answer == JOptionPane.NO_OPTION) {
                 disposeFile(file);
                 // return ExitCode.OPERATION_FAILED;
-                /*
-                 * No problem, continue with the next file.
-                 */
+                /* No problem, continue with the next file. */
             }
 
             if (answer == JOptionPane.YES_OPTION) {
-                /*
-                 * Try to save the file.
-                 */
+                /* Try to save the file. */
                 int savedReturnValue = saveFile(file);
                 if (savedReturnValue != ExitCode.OPERATION_SUCCESSFUL)
                     return savedReturnValue;
 
-                /*
-                 * OK, continue with the next file.
-                 */
+                /* OK, continue with the next file. */
             }
         }
 
@@ -1852,9 +1775,7 @@ public class ApplicationController extends AbstractApplicationController {
         ApplicationController.debug = b;
     }
 
-    /*
-     * Callbacks for updates between data model controller and GUI controller
-     */
+    /* Callbacks for updates between data model and GUI controller */
 
     /**
      * Callback for the data model controller to get the GUI controller up to
@@ -1948,13 +1869,9 @@ public class ApplicationController extends AbstractApplicationController {
         dataModelController.addArcToCurrentDataModel(id, sourceId, targetId);
     }
 
-    /*
-     * Modify methods for elements
-     */
+    /* Modify methods for elements */
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     /**
      * Removes all selected elements from the GUI model.
@@ -2015,9 +1932,7 @@ public class ApplicationController extends AbstractApplicationController {
         dataModelController.moveNode(nodeId, newPosition);
     }
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     /**
      * Handles the {@link IDataModelController} request to reset all start

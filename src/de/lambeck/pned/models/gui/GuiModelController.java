@@ -728,16 +728,18 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        /*
-         * OK, we have exactly 1 node and can ask for a new name.
-         */
-        // IGuiNode selectedNode = (IGuiNode) selectedElement;
+        /* OK, we have exactly 1 node and can ask for a new name. */
         String newName = askUserForNewName();
-
         if (newName == null)
             return; // User canceled the operation
 
-        /* We have a new name. */
+        /*
+         * We do not know whether the new name will cause the drawing area to
+         * increase or shrink. To avoid artifacts, we store both values: the old
+         * and the new drawing area after renaming.
+         */
+        Rectangle oldArea = selectedNode.getLastDrawingArea();
+
         selectedNode.setName(newName);
         currentModel.setModified(true);
 
@@ -746,8 +748,9 @@ public class GuiModelController implements IGuiModelController {
         appController.guiNodeRenamed(nodeId, newName);
 
         /* Update the drawing! */
-        Rectangle area = selectedNode.getLastDrawingArea();
-        updateDrawing(area);
+        Rectangle newArea = selectedNode.getLastDrawingArea();
+        updateDrawing(oldArea);
+        updateDrawing(newArea);
     }
 
     @Override

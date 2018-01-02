@@ -50,7 +50,7 @@ public class GuiPlaceArcAnchorTest extends JPanel {
         // element.paintElement(g);
         // }
 
-        GuiPlace place = new GuiPlace("1", "Stelle 1", new Point(300, 300), 0, EPlaceToken.ZERO, 100);
+        GuiPlace place = new GuiPlace("1", "Stelle 1", new Point(300, 300), 0, EPlaceToken.ZERO);
 
         /*
          * Change size for testing!

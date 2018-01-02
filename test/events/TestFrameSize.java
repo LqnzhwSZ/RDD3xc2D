@@ -6,12 +6,14 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+// import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
+//import javax.swing.JSplitPane;
 
+@SuppressWarnings({ "javadoc", "serial" })
 public class TestFrameSize extends JFrame {
 
+    @SuppressWarnings("unused")
     public TestFrameSize() throws HeadlessException {
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);

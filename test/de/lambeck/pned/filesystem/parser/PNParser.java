@@ -3,6 +3,7 @@ package de.lambeck.pned.filesystem.parser;
 import java.io.File;
 import java.util.List;
 
+import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.filesystem.IPNFileHandler;
 import de.lambeck.pned.filesystem.PNFileHandler;
@@ -32,6 +33,7 @@ public class PNParser implements IPNParser, IInfo_Status {
         this.dataModelController = controller;
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void parseFromFile(File file, IDataModel model) {
         if (debug) {
@@ -140,9 +142,15 @@ public class PNParser implements IPNParser, IInfo_Status {
 
     }
 
-    @Override
+    @SuppressWarnings("javadoc")
     public void setInfo_Status(String s) {
-        dataModelController.setInfo_Status(s);
+        dataModelController.setInfo_Status(s, EStatusMessageLevel.INFO);
+    }
+
+    @Override
+    public void setInfo_Status(String s, EStatusMessageLevel level) {
+        // TODO Auto-generated method stub
+
     }
 
 }

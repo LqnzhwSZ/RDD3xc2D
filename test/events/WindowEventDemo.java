@@ -41,6 +41,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+@SuppressWarnings({ "javadoc", "serial" })
 public class WindowEventDemo extends JFrame implements WindowListener, WindowFocusListener, WindowStateListener {
     static final String newline = System.getProperty("line.separator");
     static final String space = "    ";
@@ -68,6 +69,7 @@ public class WindowEventDemo extends JFrame implements WindowListener, WindowFoc
         // Schedule a job for the event dispatch thread:
         // creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 createAndShowGUI();
             }
@@ -131,13 +133,17 @@ public class WindowEventDemo extends JFrame implements WindowListener, WindowFoc
         }
     }
 
+    @Override
     public void windowClosing(WindowEvent e) {
         displayMessage("WindowListener method called: windowClosing.");
         // A pause so user can see the message before
         // the window actually closes.
         ActionListener task = new ActionListener() {
+            @SuppressWarnings("unused")
             boolean alreadyDisposed = false;
 
+            @SuppressWarnings("hiding")
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (frame.isDisplayable()) {
                     alreadyDisposed = true;
@@ -164,39 +170,48 @@ public class WindowEventDemo extends JFrame implements WindowListener, WindowFoc
         timer.start();
     }
 
+    @Override
     public void windowClosed(WindowEvent e) {
         // This will only be seen on standard output.
         displayMessage("WindowListener method called: windowClosed.");
     }
 
+    @Override
     public void windowOpened(WindowEvent e) {
         displayMessage("WindowListener method called: windowOpened.");
     }
 
+    @Override
     public void windowIconified(WindowEvent e) {
         displayMessage("WindowListener method called: windowIconified.");
     }
 
+    @Override
     public void windowDeiconified(WindowEvent e) {
         displayMessage("WindowListener method called: windowDeiconified.");
     }
 
+    @Override
     public void windowActivated(WindowEvent e) {
         displayMessage("WindowListener method called: windowActivated.");
     }
 
+    @Override
     public void windowDeactivated(WindowEvent e) {
         displayMessage("WindowListener method called: windowDeactivated.");
     }
 
+    @Override
     public void windowGainedFocus(WindowEvent e) {
         displayMessage("WindowFocusListener method called: windowGainedFocus.");
     }
 
+    @Override
     public void windowLostFocus(WindowEvent e) {
         displayMessage("WindowFocusListener method called: windowLostFocus.");
     }
 
+    @Override
     public void windowStateChanged(WindowEvent e) {
         displayStateMessage("WindowStateListener method called: windowStateChanged.", e);
     }

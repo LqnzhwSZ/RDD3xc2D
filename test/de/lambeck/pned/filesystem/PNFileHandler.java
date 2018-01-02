@@ -14,6 +14,7 @@ public class PNFileHandler implements IPNFileHandler {
 
     private static boolean debug = true;
 
+    @SuppressWarnings("javadoc")
     public PNFileHandler() {
         // Empty
     }

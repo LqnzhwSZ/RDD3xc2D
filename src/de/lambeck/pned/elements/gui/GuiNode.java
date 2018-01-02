@@ -296,9 +296,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         this.shapeTopY = this.shapeCenter.y - (shapeSize / 2);
         this.shapeBottomY = this.shapeCenter.y + (shapeSize / 2);
 
-        /*
-         * label size and position influences the boundaries!
-         */
+        /* label size and position influences the boundaries! */
         String labelText = this.getName();
         Rectangle2D labelTextRect = getTextBounds(labelText, this.labelFont);
 
@@ -322,9 +320,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         int labelTextBottomY = (int) labelTextRect.getMaxY();
         this.totalHeight = Math.max(shapeSize, shapeSize + labelOffsetY + labelTextBottomY);
 
-        /*
-         * Store my drawing area for the next repaint.
-         */
+        /* Store my drawing area for the next repaint. */
         int x = getTotalLeftX();
         int y = getTotalTopY();
         int width = getTotalWidth();
@@ -390,6 +386,30 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         ConsoleLogger.logIfDebug(debug, message);
         message = "GuiNode, getTextBounds(), rect.getMaxY(): " + rect2d.getMaxY();
         ConsoleLogger.logIfDebug(debug, message);
+
+        /*
+         * This gives us still the wrong size: For example 93.34 for
+         * "wwwwwwwwww" instead of the real approximately 100!?
+         */
+        // System.err.println(rect2d);
+
+        /* We add something to all sides */
+
+        // TODO Get rid of this ugly "trick" as soon as possible possible!!!
+
+        int x = (int) rect2d.getMinX();
+        int y = (int) rect2d.getMinY();
+        int w = (int) rect2d.getWidth();
+        int h = (int) rect2d.getHeight();
+
+        x = x - 1;
+        y = y - 1;
+        w = (int) (w * 1.1);
+        h = (int) (h * 1.1);
+
+        Rectangle bigger = new Rectangle(x, y, w, h);
+        rect2d = bigger;
+        // System.err.println(rect2d);
 
         return rect2d;
     }

@@ -48,7 +48,7 @@ public class GuiTransitionArcAnchorTest extends JPanel {
         // element.paintElement(g);
         // }
 
-        GuiTransition transition = new GuiTransition("1", "Transition 1", new Point(300, 300), 0, 150);
+        GuiTransition transition = new GuiTransition("1", "Transition 1", new Point(300, 300), 0);
 
         /*
          * Change size for testing!

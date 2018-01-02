@@ -111,7 +111,9 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
             g2copy.setColor(ECustomColor.PALE_GREEN.getColor());
             g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
         } else {
-            // NOP
+            /* -> Color set in GuiNode */
+            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            return;
         }
     }
 
