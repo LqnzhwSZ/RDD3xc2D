@@ -151,7 +151,7 @@ public class EnabledTransitionsValidator extends AbstractValidator {
             // NOP: Depends on the transition
         }
         if (numberOfTokens > 1 && tokenOnEndPlace) {
-            reportValidationDeadlock();
+            reportValidationFirstTokenOnEndPlace();
             return;
         }
         if (numberOfTokens > 1 && !tokenOnEndPlace) {
@@ -328,18 +328,40 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         validationMessages.add(vMessage);
     }
 
+    /**
+     * Adds an error message for a deadlock.
+     */
     private void reportValidationDeadlock() {
         String message = i18n.getMessage("warningValidationDeadlock");
         IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
         validationMessages.add(vMessage);
     }
 
+    /**
+     * Adds an error message for tokens that cannot reach the end place because
+     * the end place already has a token.
+     */
+    private void reportValidationFirstTokenOnEndPlace() {
+        String message = i18n.getMessage("warningValidationFirstTokenOnEndPlace");
+        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds an info message for a model without transitions.
+     */
     private void reportValidationNoTransitionsFound() {
         String message = i18n.getMessage("warningValidationNoTransitionsFound");
         IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
         validationMessages.add(vMessage);
     }
 
+    /**
+     * Adds an error message for a model with a unsafe transition.
+     * 
+     * @param unsafeTransition
+     *            The unsafe transition as {@link IDataTransition}
+     */
     private void reportValidationTransitionUnsafe(IDataTransition unsafeTransition) {
         String message = i18n.getMessage("warningValidationTransitionUnsafe");
 
@@ -350,11 +372,18 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         validationMessages.add(vMessage);
     }
 
+    /**
+     * Reports the regular end marking (both: to the validation controller and
+     * to the user).
+     */
     private void reportEndMarkingReached() {
         reportValidationSuccessful();
         showEndMarkingMessage();
     }
 
+    /**
+     * Shows a modal message box for the regular end marking.
+     */
     private void showEndMarkingMessage() {
         String title = i18n.getNameOnly("RegularEndmarking");
         String infoMessage = i18n.getMessage("infoValidationSimulationFinished");
