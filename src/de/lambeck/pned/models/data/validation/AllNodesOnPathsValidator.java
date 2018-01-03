@@ -158,10 +158,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         if (unambiguousStartPlace != null) {
             this.myStartPlace = unambiguousStartPlace;
         } else {
-            String message = i18n.getMessage("warningValidatorNoUnambiguousStartPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoUnambiguousStartPlace();
             result = false;
         }
 
@@ -169,10 +166,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         if (unambiguousEndPlace != null) {
             this.myEndPlace = unambiguousEndPlace;
         } else {
-            String message = i18n.getMessage("warningValidatorNoUnambiguousEndPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoUnambiguousEndPlace();
             result = false;
         }
 
@@ -316,6 +310,38 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
     /* Messages */
 
     /**
+     * Adds a critical message to indicate that there is no unambiguous start
+     * place.
+     */
+    protected void messageCriticalNoUnambiguousStartPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoUnambiguousStartPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there is no unambiguous end
+     * place.
+     */
+    protected void messageCriticalNoUnambiguousEndPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoUnambiguousEndPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
      * Adds an {@link IValidationMsg} with the number of unreachable nodes and
      * status "CRITICAL" to the messages list.
      * 
@@ -324,9 +350,15 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      *            start place
      */
     private void reportFailed_NoPathFromStartPlace(int number) {
-        String message = i18n.getMessage("warningValidatorNoPathFromStartPlace");
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoPathFromStartPlace");
         message = message.replace("%number%", Integer.toString(number));
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
@@ -339,9 +371,15 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      *            end place
      */
     private void reportFailed_NoPathToEndPlace(int number) {
-        String message = i18n.getMessage("warningValidatorNoPathToEndPlace");
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoPathToEndPlace");
         message = message.replace("%number%", Integer.toString(number));
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 

@@ -77,10 +77,7 @@ public class EndPlacesValidator extends AbstractValidator {
      */
     private boolean evaluateNoPlaces(List<String> endPlaces) {
         if (endPlaces == null) {
-            String message = i18n.getMessage("warningValidatorNoPlaces");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoPlaces();
             return true;
         }
         return false;
@@ -95,10 +92,7 @@ public class EndPlacesValidator extends AbstractValidator {
      */
     private boolean evaluateNoEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() == 0) {
-            String message = i18n.getMessage("warningValidatorNoEndPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoEndPlace();
             return true;
         }
         return false;
@@ -121,10 +115,7 @@ public class EndPlacesValidator extends AbstractValidator {
             }
 
             /* Validation message */
-            String message = i18n.getMessage("warningValidatorTooManyEndPlaces");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalTooManyEndPlaces();
             return true;
         }
         return false;
@@ -139,6 +130,53 @@ public class EndPlacesValidator extends AbstractValidator {
      */
     private void highlightTheEndPlace(String placeId) {
         myDataModelController.setDataEndPlace(myDataModelName, placeId, true);
+    }
+
+    /* Messages */
+
+    /**
+     * Adds a critical message to indicate that there are no places.
+     */
+    protected void messageCriticalNoPlaces() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoPlaces");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there is no end place.
+     */
+    protected void messageCriticalNoEndPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoEndPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there are too many end places.
+     */
+    protected void messageCriticalTooManyEndPlaces() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorTooManyEndPlaces");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
     }
 
     /* Private helpers */

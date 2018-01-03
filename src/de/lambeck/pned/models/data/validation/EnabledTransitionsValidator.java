@@ -15,6 +15,7 @@ import de.lambeck.pned.elements.gui.IGuiTransition;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Checks which transitions are enabled or not and detects unsafe transitions.
@@ -24,6 +25,9 @@ import de.lambeck.pned.models.data.IDataModelController;
  *
  */
 public class EnabledTransitionsValidator extends AbstractValidator {
+
+    /** Show debug messages? */
+    private static boolean debug = false;
 
     /**
      * A {@link List} of all {@link IDataElement} in the model; Gets data in
@@ -133,8 +137,10 @@ public class EnabledTransitionsValidator extends AbstractValidator {
 
         int enabledDataTransitionsCount = getEnabledDataTransitionsCount();
         if (enabledDataTransitionsCount == -2) {
-            /* The model is not safe! */
-            return;
+            /* Unsafe transition found! */
+
+            /* Continue: only severity level WARNING */
+
         }
 
         /* Check 2...5 */
@@ -146,8 +152,11 @@ public class EnabledTransitionsValidator extends AbstractValidator {
             // NOP: Depends on the transition
         }
         if (numberOfTokens > 1 && tokenOnEndPlace) {
+            /* Token can not reach the end place. */
             reportValidationFirstTokenOnEndPlace();
-            return;
+
+            /* Continue: only severity level WARNING */
+
         }
         if (numberOfTokens > 1 && !tokenOnEndPlace) {
             // NOP: Depends on the transitions
@@ -167,7 +176,10 @@ public class EnabledTransitionsValidator extends AbstractValidator {
 
         /* Success - modal info message for end marking */
         if (tokenOnEndPlace) {
-            reportEndMarkingReached();
+            if (enabledDataTransitionsCount == 0) {
+                /* Only 1 token and this is on the end place. */
+                reportEndMarkingReached();
+            }
         } else {
             reportValidationSuccessful();
         }
@@ -188,8 +200,9 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     }
 
     /**
-     * Remove the "enabled" state from all {@link IGuiTransition} to avoid wrong
-     * GUI display (before we check whether to quit if the model is invalid!).
+     * Removes the "enabled" state from all {@link IGuiTransition} to avoid
+     * wrong GUI display (before we check whether to quit if the model is
+     * invalid!).
      */
     private void removeExistingEnabledStates() {
         myDataModelController.resetAllDataTransitionsEnabledState(myDataModelName);
@@ -236,9 +249,13 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      * {@link IDataModel} and returns the counter of "enabled" states.
      * 
      * @return The number of enabled transitions, -1 if this model does not
-     *         contain transitions, -2 if this model is not safe
+     *         contain transitions
      */
     private int getEnabledDataTransitionsCount() {
+        /*
+         * (Removed return value: -2 if this model is not safe)
+         */
+
         /* Get all transitions. */
         if (this.allDataTransitions.size() == 0) {
             /* Should not happen, must have been detected before. */
@@ -259,7 +276,9 @@ public class EnabledTransitionsValidator extends AbstractValidator {
                 String transitionId = dataTransition.getId();
                 myDataModelController.setGuiTransitionUnsafe(myDataModelName, transitionId);
 
-                return -2;
+                // return -2;
+
+                /* Continue: unsafe transition == severity level WARNING */
             }
 
             if (enabled) {
@@ -298,31 +317,51 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     /* Messages */
 
     /**
-     * Adds an error message to indicate that the token count on the end place
+     * Adds a critical message to indicate that the token count on the end place
      * could not be checked and the validation has stopped.
      */
     private void reportValidationTokenOnEndPlaceFailed() {
-        String message = i18n.getMessage("warningValidationTokenOnEndPlaceFailed");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidationTokenOnEndPlaceFailed");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
     /**
-     * Adds an error message for a deadlock.
+     * Adds a critical message for a deadlock.
      */
     private void reportValidationDeadlock() {
-        String message = i18n.getMessage("warningValidationDeadlock");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidationDeadlock");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
     /**
-     * Adds an error message for tokens that cannot reach the end place because
+     * Adds a warning message for tokens that cannot reach the end place because
      * the end place already has a token.
      */
     private void reportValidationFirstTokenOnEndPlace() {
-        String message = i18n.getMessage("warningValidationFirstTokenOnEndPlace");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("warningValidationFirstTokenOnEndPlace");
+        // IValidationMsg vMessage = new ValidationMsg(myDataModel, message,
+        // EValidationResultSeverity.CRITICAL);
+        severity = EValidationResultSeverity.WARNING;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
@@ -330,25 +369,37 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      * Adds an info message for a model without transitions.
      */
     private void reportValidationNoTransitionsFound() {
-        String message = i18n.getMessage("warningValidationNoTransitionsFound");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("infoValidationNoTransitionsFound");
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
     /**
-     * Adds an error message for a model with a unsafe transition.
+     * Adds a warning message for a model with an unsafe transition.
      * 
      * @param unsafeTransition
      *            The unsafe transition as {@link IDataTransition}
      */
     private void reportValidationTransitionUnsafe(IDataTransition unsafeTransition) {
-        String message = i18n.getMessage("warningValidationTransitionUnsafe");
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
 
+        message = i18n.getMessage("warningValidationTransitionUnsafe");
         String transitionId = unsafeTransition.getId();
         message = message.replace("%id%", transitionId);
+        severity = EValidationResultSeverity.WARNING;
 
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
+
+        ConsoleLogger.logIfDebug(debug, vMessage.toString());
     }
 
     /**

@@ -17,7 +17,8 @@ public enum EValidationResultSeverity {
      */
     DEBUG(1),
     /**
-     * Warning: The workflow net is technically valid, but might be not optimal.
+     * Warning: The workflow net is technically valid, but might have problem
+     * (e.g. situations with unsafe transitions).
      */
     WARNING(2),
     /**

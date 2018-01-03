@@ -46,13 +46,6 @@ public class ValidationController extends Thread implements IValidationControlle
      */
     private Map<String, IValidator> validatorMap = new LinkedHashMap<String, IValidator>();
 
-    // /**
-    // * Stores the highest previous {@link EValidationResultSeverity} for the
-    // * current set of validations (for the current model).
-    // */
-    // private EValidationResultSeverity currentValidationStatus =
-    // EValidationResultSeverity.INFO;
-
     /**
      * A Map to store the highest previous {@link EValidationResultSeverity} for
      * the current set of validations and the specified model.
@@ -245,7 +238,6 @@ public class ValidationController extends Thread implements IValidationControlle
     private void resetMsgPanelAndValidationStatus(IValidationMsgPanel msgPanel) {
         msgPanel.reset();
         msgPanel.setBgColor(EValidationColor.PENDING);
-        // this.currentValidationStatus = EValidationResultSeverity.INFO;
         String modelName = msgPanel.getModelName();
         this.currentValidationStatus.put(modelName, EValidationResultSeverity.INFO);
     }
@@ -293,9 +285,13 @@ public class ValidationController extends Thread implements IValidationControlle
         }
 
         EValidationResultSeverity currentSeverity = message.getSeverity();
-        // storeMaxSeverityLevel(currentSeverity);
         String modelName = msgPanel.getModelName();
         storeMaxSeverityLevel(modelName, currentSeverity);
+
+        if (currentSeverity == EValidationResultSeverity.WARNING) {
+            isModelValid = false; // But continue with more messages and tests
+            msgPanel.setBgColor(EValidationColor.PENDING);
+        }
 
         if (currentSeverity == EValidationResultSeverity.CRITICAL) {
             isModelValid = false; // But continue with more messages and tests
@@ -316,9 +312,6 @@ public class ValidationController extends Thread implements IValidationControlle
      *            validator
      */
     private void storeMaxSeverityLevel(String modelName, EValidationResultSeverity nextSeverity) {
-        // if (this.currentValidationStatus.toInt() < nextSeverity.toInt()) {
-        // this.currentValidationStatus = nextSeverity;
-        // }
         int currentMaxStatus = this.currentValidationStatus.get(modelName).toInt();
         if (currentMaxStatus < nextSeverity.toInt()) {
             this.currentValidationStatus.put(modelName, nextSeverity);

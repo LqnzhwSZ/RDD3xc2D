@@ -137,10 +137,13 @@ public abstract class AbstractValidator implements IValidator {
      */
     protected void addValidatorInfo() {
         String message;
+        EValidationResultSeverity severity;
         IValidationMsg vMessage;
 
         message = i18n.getMessage(this.validatorInfoString);
-        vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
@@ -153,8 +156,14 @@ public abstract class AbstractValidator implements IValidator {
      * {@link EValidationResultSeverity} anyways.
      */
     protected void infoIgnoredForInvalidModel() {
-        String message = i18n.getMessage("infoIgnoredForInvalidModel");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("infoIgnoredForInvalidModel");
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
@@ -163,9 +172,16 @@ public abstract class AbstractValidator implements IValidator {
      * list.
      */
     protected void reportValidationSuccessful() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
         DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
-        String message = ZonedDateTime.now().format(fmt);
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+
+        message = ZonedDateTime.now().format(fmt);
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 

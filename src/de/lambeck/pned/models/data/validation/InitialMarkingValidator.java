@@ -130,10 +130,7 @@ public class InitialMarkingValidator extends AbstractValidator {
         if (unambiguousStartPlace != null) {
             this.myStartPlace = unambiguousStartPlace;
         } else {
-            String message = i18n.getMessage("warningValidatorNoUnambiguousStartPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoUnambiguousStartPlace();
             result = false;
         }
 
@@ -163,8 +160,30 @@ public class InitialMarkingValidator extends AbstractValidator {
      * initial check of a model.
      */
     private void infoIgnoredForInitialCheck() {
-        String message = i18n.getMessage("infoValidatorIgnoredForInitialCheck");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("infoValidatorIgnoredForInitialCheck");
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there is no unambiguous start
+     * place.
+     */
+    protected void messageCriticalNoUnambiguousStartPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoUnambiguousStartPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
