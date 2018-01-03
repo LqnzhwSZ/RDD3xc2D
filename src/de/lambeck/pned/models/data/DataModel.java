@@ -21,6 +21,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class DataModel implements IDataModel, IModelRename {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /**
@@ -83,13 +84,9 @@ public class DataModel implements IDataModel, IModelRename {
         }
     }
 
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
-    /*
-     * Interface IModel (+ IModelRename)
-     */
+    /* Interface IModel (+ IModelRename) */
 
     @Override
     public String getModelName() {
@@ -161,13 +158,9 @@ public class DataModel implements IDataModel, IModelRename {
         this.modelValid = b;
     }
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     @Override
     public void addPlace(String id, EPlaceToken initialTokens, Point position) {
@@ -181,9 +174,7 @@ public class DataModel implements IDataModel, IModelRename {
 
         DataPlace newPlace = new DataPlace(id, name, position, initialTokens);
 
-        /*
-         * Add the place to the model
-         */
+        /* Add the place to the model. */
         try {
             addElement(newPlace);
         } catch (PNDuplicateAddedException e) {
@@ -213,9 +204,7 @@ public class DataModel implements IDataModel, IModelRename {
         DataTransition newTransition = new DataTransition(id, name, position);
         newTransition.setName(name);
 
-        /*
-         * Add the transition to the model
-         */
+        /* Add the transition to the model. */
         try {
             addElement(newTransition);
         } catch (PNDuplicateAddedException e) {
@@ -242,9 +231,7 @@ public class DataModel implements IDataModel, IModelRename {
         IDataNode target = null;
         IDataArc newArc = null;
 
-        /*
-         * Get source and target objects
-         */
+        /* Get source and target objects. */
         List<IDataElement> currentElements = getElements();
         for (IDataElement element : currentElements) {
             String elementId = element.getId();
@@ -282,9 +269,7 @@ public class DataModel implements IDataModel, IModelRename {
         } catch (PNElementException e) {
             // e.printStackTrace();
 
-            /*
-             * Show an error message
-             */
+            /* Show an error message. */
             String title = "Arc, id = " + id;
             // String errorMessage = e.getMessage();
             String errorMessage = "DataModel, addArc: " + e.getMessage();
@@ -294,9 +279,7 @@ public class DataModel implements IDataModel, IModelRename {
             return;
         }
 
-        /*
-         * Add the arc to the model
-         */
+        /* Add the arc to the model. */
         try {
             addElement(newArc);
         } catch (PNDuplicateAddedException e) {
@@ -318,15 +301,15 @@ public class DataModel implements IDataModel, IModelRename {
      * 
      * @param newElement
      *            The new element
+     * @throws PNDuplicateAddedException
+     *             If the element already exists
      */
     private void addElement(IDataElement newElement) throws PNDuplicateAddedException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").addElement", newElement.getId());
         }
 
-        /*
-         * Prevent duplicate IDs.
-         */
+        /* Prevent duplicate IDs. */
         for (IDataElement test : elements) {
             if (test == newElement) {
                 String errMessage = "Duplicate of: " + test.toString();
@@ -365,15 +348,11 @@ public class DataModel implements IDataModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").addArcToAffectedNodes", arc.getId());
         }
 
-        /*
-         * Get the IDs of the necessary predecessor and successor.
-         */
+        /* Get the IDs of the necessary predecessor and successor. */
         String sourceId = arc.getSourceId();
         String targetId = arc.getTargetId();
 
-        /*
-         * Get source and target node.
-         */
+        /* Get source and target node. */
         IDataElement sourceElement = getElementById(sourceId);
         if (!(sourceElement instanceof IDataNode)) {
             String errMessage = "Source is not a node!: " + sourceId;
@@ -390,9 +369,7 @@ public class DataModel implements IDataModel, IModelRename {
         }
         IDataNode succ = (IDataNode) targetElement;
 
-        /*
-         * Add the specified arc to the predecessors successor list.
-         */
+        /* Add the specified arc to the predecessors successor list. */
         try {
             pred.addSucc(arc);
         } catch (PNDuplicateAddedException e) {
@@ -401,9 +378,7 @@ public class DataModel implements IDataModel, IModelRename {
             System.err.println(e.getMessage());
         }
 
-        /*
-         * ...and to the successors predecessor list.
-         */
+        /* ...and to the successors predecessor list. */
         try {
             succ.addPred(arc);
         } catch (PNDuplicateAddedException e) {
@@ -413,9 +388,7 @@ public class DataModel implements IDataModel, IModelRename {
         }
     }
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     @Override
     public void removeElement(String id) throws NoSuchElementException {
@@ -423,9 +396,7 @@ public class DataModel implements IDataModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").removeElement", id);
         }
 
-        /*
-         * Find the element.
-         */
+        /* Find the element. */
         IDataElement removeElement = null;
         for (IDataElement test : elements) {
             if (test.getId() == id) {
@@ -471,9 +442,7 @@ public class DataModel implements IDataModel, IModelRename {
                     arc.getId());
         }
 
-        /*
-         * Remove the specified arc from all predecessors and successors.
-         */
+        /* Remove the specified arc from all predecessors and successors. */
         for (IDataElement element : elements) {
             if (element instanceof IDataNode) {
                 IDataNode node = (IDataNode) element;
@@ -481,13 +450,13 @@ public class DataModel implements IDataModel, IModelRename {
                 try {
                     node.removeSucc(arc);
                 } catch (NoSuchElementException ignore) {
-                    // Do nothing
+                    // NOP
                 }
 
                 try {
                     node.removePred(arc);
                 } catch (NoSuchElementException ignore) {
-                    // Do nothing
+                    // NOP
                 }
             }
         }
@@ -580,9 +549,7 @@ public class DataModel implements IDataModel, IModelRename {
         elements.clear();
     }
 
-    /*
-     * Interface IDataModel
-     */
+    /* Interface IDataModel */
 
     @Override
     public List<IDataElement> getElements() {

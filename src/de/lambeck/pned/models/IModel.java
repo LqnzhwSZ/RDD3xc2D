@@ -13,9 +13,7 @@ import de.lambeck.pned.elements.EPlaceToken;
  */
 public interface IModel {
 
-    /*
-     * Setter and Getter
-     */
+    /* Getter and Setter */
 
     /**
      * Returns the full name of this model. This should be the canonical
@@ -25,9 +23,7 @@ public interface IModel {
      */
     String getModelName();
 
-    /*
-     * setModelName(String s) is part of interface IModelRename!
-     */
+    /* setModelName(String s) is part of interface IModelRename! */
     // void setModelName(String s);
 
     /**
@@ -39,9 +35,7 @@ public interface IModel {
      */
     String getDisplayName();
 
-    /*
-     * setDisplayName(String s) is part of interface IModelRename!
-     */
+    /* setDisplayName(String s) is part of interface IModelRename! */
     // void setDisplayName(String s);
 
     /**
@@ -64,13 +58,9 @@ public interface IModel {
      */
     void setModified(boolean b);
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     /**
      * Adds a place to this model.
@@ -153,9 +143,7 @@ public interface IModel {
      */
     void addArc(String id, String sourceId, String targetId);
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     /**
      * Removes the specified element from this model.

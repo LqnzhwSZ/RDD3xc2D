@@ -19,9 +19,7 @@ import de.lambeck.pned.models.IModel;
  */
 public interface IGuiModel extends IModel {
 
-    /*
-     * Setter and Getter
-     */
+    /* Getter and Setter */
 
     /**
      * Returns a list with all elements in this model.
@@ -119,9 +117,7 @@ public interface IGuiModel extends IModel {
      */
     int getIncrMaxZ();
 
-    /*
-     * Sorting (for proper display on the draw panel)
-     */
+    /* Sorting (for proper display on the draw panel) */
 
     /**
      * Sorts the List of elements with ascending z values (Height level).
@@ -134,9 +130,7 @@ public interface IGuiModel extends IModel {
      */
     void sortSelectedElements();
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
     /**
      * Sets the selection to only 1 {@link IGuiElement}.
@@ -162,9 +156,7 @@ public interface IGuiModel extends IModel {
      */
     void clearSelection();
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     /**
      * Handles the {@link IGuiModelController} request to update the start place

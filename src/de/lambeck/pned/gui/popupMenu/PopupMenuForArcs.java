@@ -22,9 +22,14 @@ import de.lambeck.pned.util.ConsoleLogger;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -3772324440085239499L;
+
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** The Map with existing Actions, suitable for this popup menu. */

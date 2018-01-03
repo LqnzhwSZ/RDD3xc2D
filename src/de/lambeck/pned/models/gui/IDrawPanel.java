@@ -134,6 +134,30 @@ public interface IDrawPanel {
     void setMouseDraggedTo(Point p);
 
     /**
+     * Updates the mouse position info on the status bar.
+     * 
+     * @param pos
+     *            The new mouse position as {@link Point}
+     */
+    void updateMousePos(Point pos);
+
+    /**
+     * Returns the state of the CTRL key on this {@link IDrawPanel}.
+     * 
+     * @return True = CTRL pressed, false = CTRL not pressed
+     */
+    boolean getCtrlKeyPressed();
+
+    /**
+     * Sets the tool tip text for the current mouse position on this
+     * {@link DrawPanel}.
+     * 
+     * @param text
+     *            The tool tip text
+     */
+    void setToolTipText(String text);
+
+    /**
      * Resets the state of this {@link DrawPanel} (e.g. Cursor, old mouse
      * operations interrupted by tab switching etc.)
      * 

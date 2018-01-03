@@ -34,7 +34,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
      */
     protected boolean allowedToClose = true;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n = null;
 
     /** Reference to the applications status bar */
@@ -77,7 +77,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
      * @param frame
      *            The main frame (window) of the application
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param stBar
      *            The status bar (of this application)
      */

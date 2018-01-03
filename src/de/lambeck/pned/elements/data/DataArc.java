@@ -10,7 +10,9 @@ import de.lambeck.pned.exceptions.PNElementException;
  */
 public class DataArc extends DataElement implements IDataArc {
 
+    /** The predecessor - the node that is the source of this arc */
     private IDataNode pred;
+    /** The successor - the node that is the target of this arc */
     private IDataNode succ;
 
     /**
@@ -25,14 +27,13 @@ public class DataArc extends DataElement implements IDataArc {
      * @param target
      *            The target id
      * @throws PNElementException
+     *             For an invalid combination of source and target
      */
     @SuppressWarnings("hiding")
     public DataArc(String id, IDataNode source, IDataNode target) throws PNElementException {
         super(id);
 
-        /*
-         * Check for different types of elements
-         */
+        /* Check for different types of elements */
         if (!isValidConnection(source, target))
             throw new PNElementException("Invalid combination of source and target for Arc");
 
@@ -78,9 +79,7 @@ public class DataArc extends DataElement implements IDataArc {
         return 1; // 0 or 1
     }
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     @Override
     public String getSourceId() {

@@ -34,16 +34,23 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class StatusBar extends JPanel
         implements IInfo_MousePos, IInfo_SelectionRangeSize, IInfo_DrawingAreaSize, IInfo_Status {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = 9204640154804915399L;
+
+    /** Specifies the sub folder for the images in the resource package. */
     private final static String imagesSubFolder = "images/";
+
+    /** Specifies the size of icons. */
     private final static EIconSize imagesSize = EIconSize.NONE; // No different
                                                                 // sizes
                                                                 // available
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
     /** JLabel for the current mouse position */
@@ -59,11 +66,11 @@ public class StatusBar extends JPanel
     private static int borderOffset = 5;
 
     /**
-     * Constructor for a status bar with a reference to an i18n manager.
-     * (Internationalized strings are used for tool tips.)
+     * Constructor for a status bar with reference to an localized strings
+     * manager. (Localized strings are used for tool tips.)
      * 
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public StatusBar(I18NManager i18n) {
@@ -165,9 +172,10 @@ public class StatusBar extends JPanel
     }
 
     /**
-     * Sets the font of the specified label to pain text.
+     * Sets the font of the specified {@link JLabel} to pain text.
      * 
      * @param label
+     *            The specified label
      */
     private void setPlainFont(JLabel label) {
         Font labelFont = label.getFont();
@@ -218,7 +226,7 @@ public class StatusBar extends JPanel
      * status bar (which represent "pixel information" like mouse position) by
      * assuming very large 4-digit values.
      * 
-     * @return
+     * @return The preferred width
      */
     private int getPreferredWidthForPixelLabels() {
         Font font = mousePos.getFont();

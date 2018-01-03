@@ -109,6 +109,7 @@ public interface IGuiModelController
      * {@link GuiModelController}.
      * 
      * @param model
+     *            The specified {@link IGuiModel}
      */
     void setCurrentModel(IGuiModel model);
 
@@ -135,6 +136,7 @@ public interface IGuiModelController
      * the {@link GuiModelController}.
      * 
      * @param drawPanel
+     *            The specified {@link IDrawPanel}
      */
     void setCurrentDrawPanel(IDrawPanel drawPanel);
 
@@ -151,9 +153,7 @@ public interface IGuiModelController
      * updates between data and GUI model controller)...
      */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     /**
      * Adds a place to the current GUI model.
@@ -249,9 +249,7 @@ public interface IGuiModelController
      */
     void resetStateAddingNewArc();
 
-    /*
-     * Modify elements
-     */
+    /* Modify elements */
 
     /**
      * Returns the selectable element at the specified Point. Returns the one
@@ -293,9 +291,7 @@ public interface IGuiModelController
      */
     void updateDrawing(Rectangle area);
 
-    /*
-     * Remove elements
-     */
+    /* Remove elements */
 
     /**
      * Callback for the {@link EditDeleteAction} in the
@@ -319,11 +315,7 @@ public interface IGuiModelController
      */
     void clearCurrentGuiModel();
 
-    // void clearCurrentGuiModel();
-
-    /*
-     * Mouse events
-     */
+    /* Mouse events */
 
     /**
      * Callback for the {@link DrawPanel}.
@@ -361,23 +353,13 @@ public interface IGuiModelController
      */
     void mouseDragged(int distance_x, int distance_y);
 
-    // /**
-    // * Callback for the {@link DrawPanel}. Informs the
-    // * {@link GuiModelController} that the dragging has finished and that the
-    // * {@link DataModelController} needs an update for the position of all
-    // * dragged nodes.
-    // */
-    // void mouseDragging_Finished();
-
     /**
      * Handles the {@link MyMouseAdapter} request to update the positions of the
      * nodes in the data model after mouse dragging.
      */
     void updateDataNodePositions();
 
-    /*
-     * Keyboard events
-     */
+    /* Keyboard events */
 
     /**
      * Callback for the {@link DrawPanel}.
@@ -440,9 +422,7 @@ public interface IGuiModelController
      */
     void changeShapeSize(int size);
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     /**
      * Handles the {@link ApplicationController} request to reset all start

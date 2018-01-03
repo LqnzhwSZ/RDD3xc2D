@@ -12,30 +12,22 @@ import de.lambeck.pned.models.gui.DrawPanel;
  */
 public abstract class GuiElement implements IGuiElement {
 
-    /*
-     * Attributes for interface IGuiElement
-     */
+    /* Attributes for interface IGuiElement */
 
-    /** The id of this element */
+    /** The ID of this element (Must not be empty!) */
     protected String id = "";
 
-    /*
-     * Attributes for interface IHasZValue
-     */
+    /* Attributes for interface IHasZValue */
 
     /** The z value ("height level") of this shape in the {@link DrawPanel} */
     protected int zValue;
 
-    /*
-     * Attributes for interface ISelectable
-     */
+    /* Attributes for interface ISelectable */
 
     /** Stores if this element was selected in the GUI */
     protected boolean selected = false;
 
-    /*
-     * Optical appearance
-     */
+    /* Optical appearance */
 
     /** The standard line width */
     protected int stdLineWidth = 1;
@@ -43,35 +35,35 @@ public abstract class GuiElement implements IGuiElement {
     /** The standard line color */
     protected Color stdLineColor = Color.BLACK;
 
+    /* Constructor */
+
     /**
+     * Constructs this element with the specified ID and z value (height level).
      * 
      * @param id
      *            The id of this element
      * @param zValue
-     *            The height level
+     *            The height level (Must not be empty!)
      */
     @SuppressWarnings("hiding")
     public GuiElement(String id, int zValue) {
+        if (id == null || id == "")
+            System.err.println("Invalid empty ID!");
+
         this.id = id;
         setZValue(zValue);
     }
 
-    /*
-     * Getter
-     */
+    /* Getter and Setter */
 
-    /*
-     * Methods for interface IGuiElement
-     */
+    /* Methods for interface IGuiElement */
 
     @Override
     public String getId() {
         return this.id;
     }
 
-    /*
-     * Methods for interface IHasZValue
-     */
+    /* Methods for interface IHasZValue */
 
     @Override
     public int getZValue() {
@@ -83,9 +75,7 @@ public abstract class GuiElement implements IGuiElement {
         this.zValue = newZValue;
     }
 
-    /*
-     * Methods for interface ISelectable
-     */
+    /* Methods for interface ISelectable */
 
     @Override
     public boolean isSelected() {

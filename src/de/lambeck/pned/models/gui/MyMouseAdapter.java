@@ -59,7 +59,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  * - Primary mouse button:
  *   - Clicked:
  *     - Selects a single element (node or arc).
- *       -> e.g. for "delete element"
+ *       -&gt; e.g. for "delete element"
  *     - Clears selection if outside of the current selection.
  *   - Clicked + CTRL:
  *     - Toggles selection of the current element.
@@ -67,12 +67,12 @@ import de.lambeck.pned.util.ConsoleLogger;
  * 
  * - Secondary mouse button:
  *   - At a node:
- *     - Show popup menu (nodes only -> "change z value", "add arc"...)
+ *     - Show popup menu (nodes only -&gt; "change z value", "add arc"...)
  *   - At empty space:
  *     - Show popup for creation of new nodes.
  * 
  * Actions for mouse motion events:
- * - Primary mouse button held down for > 0.5 seconds:
+ * - Primary mouse button held down for more than 0.5 seconds:
  *   - At a node:
  *     - Dragging
  * 
@@ -90,12 +90,17 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
+    /**
+     * The time delay (in milliseconds) before we switch to dragging mode if the
+     * user keeps holding the left mouse key down.
+     */
     private static final int DRAGGING_WAIT_TIME = 500;
 
     /** Reference to the {@link DrawPanel} */
-    private DrawPanel myDrawPanel = null;
+    private IDrawPanel myDrawPanel = null;
 
     /** Reference to the {@link IGuiModelController} */
     private IGuiModelController myGuiController = null;
@@ -111,9 +116,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     /** Measures how long the mouse was pressed. (for dragging) */
     private java.util.Timer timer;
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
      * Constructs this mouse adapter for the specified draw panel, with a
@@ -130,7 +133,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
      *            The {@link ApplicationController}
      */
     @SuppressWarnings("hiding")
-    public MyMouseAdapter(DrawPanel drawPanel, IGuiModelController guiController,
+    public MyMouseAdapter(IDrawPanel drawPanel, IGuiModelController guiController,
             Map<String, AbstractAction> popupActions, ApplicationController appController) {
         this.myDrawPanel = drawPanel;
         this.myGuiController = guiController;
@@ -140,9 +143,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         debug = appController.getShowDebugMessages();
     }
 
-    /*
-     * MouseAdapter methods
-     */
+    /* MouseAdapter methods */
 
     @Override
     public void mousePressed(MouseEvent e) {
@@ -336,7 +337,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             // TODO Double click for "FireTransition"?
 
             /* Check which action is required. */
-            boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
+            boolean ctrlKey_pressed = myDrawPanel.getCtrlKeyPressed();
 
             /*
              * Pass both locations (mousePressed and current) to the GUI
@@ -390,9 +391,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
     }
 
-    /*
-     * Interface PopupMenuListener
-     */
+    /* Interface PopupMenuListener */
 
     @Override
     public void popupMenuCanceled(PopupMenuEvent arg0) {
@@ -412,9 +411,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         ConsoleLogger.logIfDebug(debug, "popupMenuWillBecomeVisible()");
     }
 
-    /*
-     * Methods for mouseMove
-     */
+    /* Methods for mouseMove */
 
     /**
      * Shows the ID and the name of an {@link IGuiNode} in a tool tip on
@@ -465,9 +462,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         return nodeInfo;
     }
 
-    /*
-     * Methods for popup menus
-     */
+    /* Methods for popup menus */
 
     /**
      * Shows the suitable popup if the MouseEvent is a PopupTrigger.
@@ -553,13 +548,13 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         }
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Returns the element at the current location of the DrawPanel.
      * 
+     * @param mouseLocation
+     *            The specified mouse location as {@link Point}
      * @return An {@link IGuiElement}
      */
     private IGuiElement getElement(Point mouseLocation) {
@@ -618,24 +613,5 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
         return o.getClass().getSimpleName();
     }
-
-    // /**
-    // * Sets "ignoreNextMouseClicked" to true if the last mouse event has
-    // * canceled a popup menu. (This mouse event should not result in any other
-    // * reaction.)
-    // *
-    // * Note: "popupMenuCanceled" is set to true in the popupMenuCanceled()
-    // * method for Interface PopupMenuListener.
-    // */
-    // private void decideToIgnoreEvent() {
-    // ConsoleLogger.logIfDebug(debug, "decideToIgnoreEvent()");
-    //
-    // if (this.popupMenuCanceled == true) {
-    // ConsoleLogger.logIfDebug(debug, "popupMenuCanceled was canceled.");
-    // this.popupMenuCanceled = false;
-    // ConsoleLogger.logIfDebug(debug, "Ignore the next mouseClicked event.");
-    // this.ignoreNextMouseClicked = true;
-    // }
-    // }
 
 }

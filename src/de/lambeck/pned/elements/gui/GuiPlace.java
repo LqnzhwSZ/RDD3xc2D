@@ -18,13 +18,16 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiPlace extends GuiNode implements IGuiPlace {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** The size of the token circle relative to the shape size */
     private final static int tokensSizePercentage = 33;
 
+    /** Border color of the start place (or start place candidates) */
     private final static Color startPlaceCircleColor = ECustomColor.DARK_GREEN.getColor();
 
+    /** Border color of the end place (or end place candidates) */
     private final static Color endPlaceCircleColor = ECustomColor.FIREBRICK.getColor();
 
     /** The tokens of this place */
@@ -37,8 +40,8 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     private boolean isStartPlace = false;
 
     /**
-     * Stores whether this place is a start place candidate if there is more
-     * than 1 place without input arcs in this workflow net.
+     * Stores whether this place is a start place candidate (if there is more
+     * than 1 place without input arcs in this workflow net).
      */
     private boolean isStartPlaceCandidate = false;
 
@@ -49,14 +52,12 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     private boolean isEndPlace = false;
 
     /**
-     * Stores whether this place is an end place candidate if there is more than
-     * 1 place without output arcs in this workflow net.
+     * Stores whether this place is an end place candidate (if there is more
+     * than 1 place without output arcs in this workflow net).
      */
     private boolean isEndPlaceCandidate = false;
 
-    /*
-     * Constructor etc.
-     */
+    /* Constructor etc. */
 
     /**
      * Constructs a Place at a given location and in the specified z order
@@ -79,13 +80,9 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         this.tokens = initialTokens;
     }
 
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
-    /*
-     * Methods for interface IGuiPlace
-     */
+    /* Methods for interface IGuiPlace */
 
     @Override
     public EPlaceToken getTokensCount() {
@@ -133,9 +130,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         this.isEndPlaceCandidate = b;
     }
 
-    /*
-     * Methods for interface IGuiElement
-     */
+    /* Methods for interface IGuiElement */
 
     @Override
     public void paintElement(Graphics g) {
@@ -218,9 +213,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         return (new Ellipse2D.Double(x, y, w, h).contains(p));
     }
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public Point getArcAnchor(Point target) {
@@ -253,9 +246,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         return returnString;
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * @return True = This is a start or end place (candidate).

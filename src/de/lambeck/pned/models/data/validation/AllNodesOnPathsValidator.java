@@ -12,13 +12,15 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Checks if all nodes are on a path between the start place and the end place.
+ * Checks that all nodes are on a path between the start place and the end
+ * place. To be used in combination with the {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class AllNodesOnPathsValidator extends AbstractValidator {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** The start place of the model (if unambiguous) */
@@ -63,9 +65,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      */
     private List<IDataNode> noPathToEndNode = new ArrayList<IDataNode>();
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
      * @param validationController
@@ -73,7 +73,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public AllNodesOnPathsValidator(IValidationController validationController,
@@ -82,9 +82,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         this.validatorInfoString = "infoAllNodesOnPathsValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -94,9 +92,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
 
         addValidatorInfo();
 
-        /*
-         * Check condition 1: exactly 1 start and end place
-         */
+        /* Check condition 1: exactly 1 start and end place */
         if (!evaluateStartAndEndPlace())
             return;
 
@@ -107,27 +103,21 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         initializeLists();
         resetPrevUnreachableHighlighting();
 
-        /*
-         * Check condition 2: all nodes reachable from the start place?
-         */
+        /* Check condition 2: all nodes reachable from the start place? */
         traverseAllNodesForward(myStartPlace);
         highlightUnreachableNodes(noPathFromStartNode);
         int noPathFromStart = noPathFromStartNode.size();
         if (noPathFromStart > 0)
             reportFailed_NoPathFromStartPlace(noPathFromStart);
 
-        /*
-         * Check condition 3: all nodes can reach the end place?
-         */
+        /* Check condition 3: all nodes can reach the end place? */
         traverseAllNodesBackward(myEndPlace);
         highlightUnreachableNodes(noPathToEndNode);
         int noPathToEnd = noPathToEndNode.size();
         if (noPathToEnd > 0)
             reportFailed_NoPathToEndPlace(noPathToEnd);
 
-        /*
-         * Evaluate result of test 2 and 3
-         */
+        /* Evaluate result of test 2 and 3 */
         int unreachableNodesCount = noPathFromStart + noPathToEnd;
         if (unreachableNodesCount > 0)
             return;
@@ -149,9 +139,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         this.allElements = new ArrayList<IDataElement>(modelElements);
     }
 
-    /*
-     * For check 1
-     */
+    /* For check 1 */
 
     /**
      * Stores the (unique) start and end place in the local attributes
@@ -191,9 +179,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         return result;
     }
 
-    /*
-     * For check 2 and 3
-     */
+    /* For check 2 and 3 */
 
     /**
      * Initializes the Lists and Maps to add/remove nodes during validation.
@@ -327,9 +313,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         }
     }
 
-    /*
-     * Messages
-     */
+    /* Messages */
 
     /**
      * Adds an {@link IValidationMsg} with the number of unreachable nodes and
@@ -361,9 +345,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         validationMessages.add(vMessage);
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Determines the unambiguous start place of the Petri net.

@@ -6,8 +6,12 @@ package de.lambeck.pned.exceptions;
  * @author Thomas Lambeck, 4128320
  * 
  */
-@SuppressWarnings("serial")
 public class PNElementException extends Exception {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = 8006448432604300388L;
 
     /**
      * @param message

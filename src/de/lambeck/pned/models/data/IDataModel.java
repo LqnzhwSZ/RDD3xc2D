@@ -16,9 +16,7 @@ import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
  */
 public interface IDataModel extends IModel {
 
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
     /**
      * Adds parameter "revalidate" to setModified(boolean b) in {@link IModel}
@@ -115,8 +113,6 @@ public interface IDataModel extends IModel {
      */
     void setModelValidity(boolean b);
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
 }

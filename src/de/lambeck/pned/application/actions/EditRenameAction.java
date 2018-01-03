@@ -12,8 +12,12 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class EditRenameAction extends AbstractPNAction {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -8721934953230654516L;
 
     /**
      * Creates the EditRenameAction without additional parameters.
@@ -21,7 +25,7 @@ public class EditRenameAction extends AbstractPNAction {
      * @param controller
      *            The application controller
      * @param i18nController
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     public EditRenameAction(ApplicationController controller, I18NManager i18nController) {
         super(controller, i18nController);

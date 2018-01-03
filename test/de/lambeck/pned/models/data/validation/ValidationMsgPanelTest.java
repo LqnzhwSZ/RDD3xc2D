@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 @SuppressWarnings("javadoc")
-public class ValidationMessagesPanelTest {
+public class ValidationMsgPanelTest {
 
     /**
      * Create the GUI and show it. For thread safety, this method should be
@@ -18,15 +18,11 @@ public class ValidationMessagesPanelTest {
         JFrame frame = new JFrame("ValidationMessagesAreaTest");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        /*
-         * Add the validation info panel
-         */
+        /* Add the validation info panel */
         IValidationMsgPanel area = new ValidationMsgPanel("modelName", "displayName");
         frame.add((Component) area);
 
-        /*
-         * Add some text
-         */
+        /* Add some text */
         area.addMessage("Das ist ein Test.");
         area.addMessage("Zeile 2");
         area.addMessage("Zeile 3");
@@ -53,9 +49,7 @@ public class ValidationMessagesPanelTest {
         area.addMessage("Zeile 24");
         area.addMessage("Zeile 25");
 
-        /*
-         * Attributes
-         */
+        /* Attributes */
         area.setBgColor(EValidationColor.PENDING);
 
         // Display the window.

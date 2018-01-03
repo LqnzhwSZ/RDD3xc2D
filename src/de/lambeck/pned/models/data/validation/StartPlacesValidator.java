@@ -10,16 +10,15 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Checks the number of start places in a workflow net.
+ * Checks the number of start places in a workflow net. To be used in
+ * combination with the {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class StartPlacesValidator extends AbstractValidator {
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
      * @param validationController
@@ -27,7 +26,7 @@ public class StartPlacesValidator extends AbstractValidator {
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public StartPlacesValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -36,9 +35,7 @@ public class StartPlacesValidator extends AbstractValidator {
         this.validatorInfoString = "infoStartPlacesValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -76,6 +73,7 @@ public class StartPlacesValidator extends AbstractValidator {
      * 
      * @param startPlaces
      *            The {@link List} of start places
+     * @return True = no place, false = at least 1 place
      */
     private boolean evaluateNoPlaces(List<String> startPlaces) {
         if (startPlaces == null) {
@@ -93,6 +91,7 @@ public class StartPlacesValidator extends AbstractValidator {
      * 
      * @param startPlaces
      *            The {@link List} of start places
+     * @return True = no start place, false = at least 1 start place
      */
     private boolean evaluateNoStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() == 0) {
@@ -112,6 +111,7 @@ public class StartPlacesValidator extends AbstractValidator {
      * 
      * @param startPlaces
      *            The {@link List} of start places
+     * @return True = too many start places, false = start places count is OK
      */
     private boolean evaluateTooManyStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() > 1) {
@@ -141,9 +141,7 @@ public class StartPlacesValidator extends AbstractValidator {
         myDataModelController.setDataStartPlace(myDataModelName, placeId, true);
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Generates a {@link List} of start places of the Petri net.

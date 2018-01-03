@@ -13,17 +13,19 @@ import de.lambeck.pned.exceptions.PNElementException;
  */
 public class GuiArc extends GuiElement implements IGuiArc {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
+    /** The predecessor - the node that is the source of this arc */
     private IGuiNode pred;
+    /** The successor - the node that is the target of this arc */
     private IGuiNode succ;
 
-    /*
-     * Attributes for optical appearance
-     */
+    /* Attributes for optical appearance */
 
+    /** The thickness of the arc (the line of the arrow) */
     static int arrowLineThickness = 1;
-    /** Size of the arrow */
+    /** Size of the arrow tip */
     static int arrowTipLength = 10;
 
     /**
@@ -45,14 +47,13 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * @param target
      *            The target id
      * @throws PNElementException
+     *             For an invalid combination of source and target
      */
     @SuppressWarnings("hiding")
     public GuiArc(String id, int zValue, IGuiNode source, IGuiNode target) throws PNElementException {
         super(id, zValue);
 
-        /*
-         * Check for different types of elements
-         */
+        /* Check for different types of elements */
         if (!isValidConnection(source, target))
             throw new PNElementException("Invalid combination of source and target for Arc");
 
@@ -91,15 +92,14 @@ public class GuiArc extends GuiElement implements IGuiArc {
         return place & transition;
     }
 
-    /*
-     * Method for interface IGuiElement
-     */
+    /* Method for interface IGuiElement */
 
     /**
      * Changes the size of all shapes (static attribute). Calculates a smaller
      * value to make arcs smaller than the nodes!
      * 
      * @param size
+     *            The new size
      */
     public static void changeShapeSize(int size) {
         GuiArc.arrowTipLength = (int) (size * 0.2); // Smaller than the nodes!
@@ -186,6 +186,12 @@ public class GuiArc extends GuiElement implements IGuiArc {
     // g.fillPolygon(xpoints, ypoints, 3);
     // }
 
+    /**
+     * Activates anti-aliasing for the specified {@link Graphics2D} context.
+     * 
+     * @param g2
+     *            The specified {@link Graphics2D} context
+     */
     private void activateAntialiasing(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
@@ -250,18 +256,53 @@ public class GuiArc extends GuiElement implements IGuiArc {
         g2.drawOval(endAnchor.x - 5, endAnchor.y - 5, 10, 10);
     }
 
+    /**
+     * Draws the line of the arrow from and to the anchors on two
+     * {@link IGuiNode}.<BR>
+     * <BR>
+     * Note: {@link IGuiNode} provide their anchor for a specified direction via
+     * Getter method.
+     * 
+     * @param g2
+     *            The {@link Graphics2D} context
+     * @param startAnchor
+     *            The location of the anchor at the source node as {@link Point}
+     * @param endAnchor
+     *            The location of the anchor at the target node as {@link Point}
+     */
     private void drawArrowLine(Graphics2D g2, Point startAnchor, Point endAnchor) {
         g2.setStroke(new BasicStroke(arrowLineThickness));
         Line2D line = getArrowLine(startAnchor, endAnchor);
         g2.draw(line);
     }
 
+    /**
+     * Returns the line of the arrow for use in drawArrowLine() and contains().
+     * 
+     * @param startAnchor
+     *            The location of the anchor at the source node as {@link Point}
+     * @param endAnchor
+     *            The location of the anchor at the target node as {@link Point}
+     * @return A {@link Line2D.Double}
+     */
     private Line2D.Double getArrowLine(Point startAnchor, Point endAnchor) {
         Line2D.Double line = new Line2D.Double(startAnchor, endAnchor);
-        // TODO Make the line thicker to be able to click at it?
         return line;
     }
 
+    /**
+     * Draws the tip of the arrow.<BR>
+     * <BR>
+     * Note: {@link IGuiNode} provide their anchor for a specified direction via
+     * Getter method.
+     * 
+     * @param g2
+     *            The {@link Graphics2D} context
+     * @param startAnchor
+     *            The location of the anchor at the source node as {@link Point}
+     * @param endAnchor
+     *            The location of the anchor at the target node as {@link Point}
+     */
     private void drawArrowTip(Graphics2D g2, Point startAnchor, Point endAnchor) {
         Polygon arrowHead = getArrowHead(startAnchor, endAnchor);
         g2.fillPolygon(arrowHead);
@@ -342,7 +383,9 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * @param g2
      *            The Graphics2D object
      * @param startAnchor
+     *            The Location where the arc starts as {@link Point}
      * @param endAnchor
+     *            The Location where the arc ends as {@link Point}
      */
     private void drawSelection(Graphics2D g2, Point startAnchor, Point endAnchor) {
 
@@ -416,9 +459,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
         if (arrowHead.contains(p))
             return true;
 
-        /*
-         * Mouse click at the line?
-         */
+        /* Mouse click at the line? */
         Line2D line = getArrowLine(startAnchor, endAnchor);
 
         // if (line.contains(p)) return true;
@@ -445,9 +486,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
         return false;
     }
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and setter */
 
     // @Override
     // public Rectangle getApproxDrawArea() {
@@ -516,10 +555,12 @@ public class GuiArc extends GuiElement implements IGuiArc {
         return returnString;
     }
 
+    /**
+     * Calculates the bounds of the shape (using predecessor and successor) and
+     * stores the result in the attributes.
+     */
     private void calculateMyBounds() {
-        /*
-         * Take the area of pred and succ to calculate the area of the arc.
-         */
+        /* Take the area of pred and succ to calculate the area of the arc. */
         IGuiNode elem1 = null;
         IGuiNode elem2 = null;
         try {

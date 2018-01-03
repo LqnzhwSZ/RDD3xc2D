@@ -20,10 +20,16 @@ import de.lambeck.pned.i18n.I18NManager;
  */
 public class Main {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
+    /** The initial title of the application */
     private static String initialTitle = "Petri net Editor - Thomas Lambeck, MatrNr. 4128320";
+
+    /** The minimum size of the main application window */
     private static Dimension minSize = new Dimension(400, 300);
+
+    /** The current Locale (language) from the command line parameters */
     private static Locale currentLocale;
 
     /**
@@ -92,14 +98,10 @@ public class Main {
      *            Language code and country code for the GUI
      */
     public static void main(String[] args) {
-        /*
-         * Determine the Locale from the first two parameters.
-         */
+        /* Determine the Locale from the first two parameters. */
         currentLocale = getLocale(args);
 
-        /*
-         * Test: Simulate different start parameters
-         */
+        /* Test: Simulate different start parameters */
         // currentLocale = new Locale("en", "GB");
 
         if (debug) {

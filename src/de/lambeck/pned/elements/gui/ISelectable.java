@@ -16,9 +16,10 @@ public interface ISelectable {
     boolean isSelected();
 
     /**
-     * Sets the selected state of this node.
+     * Sets the "selected" state of this node.
      * 
      * @param selected
+     *            The new state
      */
     void setSelected(boolean selected);
 

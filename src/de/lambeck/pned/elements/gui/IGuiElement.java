@@ -35,16 +35,6 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
      */
     boolean contains(Point p);
 
-    // /**
-    // * Returns the area that is used when this element is painted.
-    // *
-    // * Note: This should be an exact value for nodes (places and transitions).
-    // * But only an approximation for arcs.
-    // *
-    // * @return The area in which the element is painted
-    // */
-    // Rectangle getApproxDrawArea();
-
     /**
      * Returns the drawing area used during last invocation of paintElement.
      * 

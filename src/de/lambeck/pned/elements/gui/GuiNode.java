@@ -5,6 +5,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.util.ConsoleLogger;
@@ -17,6 +18,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public abstract class GuiNode extends GuiElement implements IGuiNode {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /*
@@ -24,15 +26,16 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * repainting of former backgrounds.)
      */
 
-    /** The name of this node */
+    /** The name of this node (might be empty) */
     protected String name;
 
-    /** List of predecessors (arcs) */
+    /** The {@link List} of predecessors - the incoming {@link IGuiArc} */
     protected ArrayList<IGuiArc> predElems = new ArrayList<IGuiArc>();
-    /** List of successors (arcs) */
+    /** The {@link List} of successors - the outgoing {@link IGuiArc} */
     protected ArrayList<IGuiArc> succElems = new ArrayList<IGuiArc>();
+
     /** The center of the shape (ignoring the size of the label) */
-    protected Point shapeCenter = null; // The center of the shape
+    protected Point shapeCenter = null;
 
     /**
      * This nodes "unreachable" status: True = unreachable; False = can be
@@ -148,7 +151,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * Returns the size of all shapes (static attribute).
      * 
      * Note: Used for placing new nodes inside of the visible area (left and top
-     * border > 0).
+     * border &gt; 0).
      * 
      * @return The current shape size
      */
@@ -160,6 +163,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * Changes the size of all shapes (static attribute).
      * 
      * @param size
+     *            The new size
      */
     public static void changeShapeSize(int size) {
         GuiPlace.shapeSize = size;
@@ -256,12 +260,32 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         drawSelection(g2);
     }
 
+    /**
+     * Activates anti-aliasing for the specified {@link Graphics2D} context.
+     * 
+     * @param g2
+     *            The specified {@link Graphics2D} context
+     */
     private void activateAntialiasing(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 
+    /**
+     * Draws the interior of this {@link GuiNode}. Abstract because different
+     * types of nodes have a different look.
+     * 
+     * @param g2
+     *            The specified {@link Graphics2D} context
+     */
     abstract void drawInterior(Graphics2D g2);
 
+    /**
+     * Draws the shape of this {@link GuiNode}. Abstract because different types
+     * of nodes have a different look.
+     * 
+     * @param g2
+     *            The specified {@link Graphics2D} context
+     */
     abstract void drawShape(Graphics2D g2);
 
     /**
@@ -289,7 +313,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
 
     /**
      * Calculates the bounds of the shape including the label and stores the
-     * results in the attributes.
+     * result in the attributes.
      */
     protected void calculateMyBounds() {
         this.shapeLeftX = this.shapeCenter.x - (shapeSize / 2);
@@ -354,7 +378,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      *            The text
      * @param font
      *            The font of the specified text
-     * @return
+     * @return A {@link Rectangle2D}
      */
     private Rectangle2D getTextBounds(String text, Font font) {
         AffineTransform tx = new AffineTransform();

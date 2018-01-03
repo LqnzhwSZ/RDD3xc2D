@@ -15,13 +15,17 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public abstract class AbstractPnedToolBar extends JToolBar {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -2715550245931539015L;
 
     /** The application controller (has to handle the commands) */
     protected ApplicationController appController = null;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n = null;
 
     /** The Map with existing Actions, suitable for tool bars. */
@@ -33,7 +37,7 @@ public abstract class AbstractPnedToolBar extends JToolBar {
      * @param controller
      *            The application controller
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param orientation
      *            The initial orientation
      * @param allActions

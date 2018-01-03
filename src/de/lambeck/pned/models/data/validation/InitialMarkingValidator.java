@@ -13,7 +13,8 @@ import de.lambeck.pned.models.data.IDataModelController;
 /**
  * Sets the initial marking (token on the start place) if the model was modified
  * but leaves an existing initial marking from a PNML file unchanged in case of
- * the first validation of the model.
+ * the first validation of the model. To be used in combination with the
+ * {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -23,9 +24,7 @@ public class InitialMarkingValidator extends AbstractValidator {
     /** The start place of the model (if unambiguous) */
     private DataPlace myStartPlace = null;
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
      * 
@@ -34,7 +33,7 @@ public class InitialMarkingValidator extends AbstractValidator {
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public InitialMarkingValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -43,9 +42,7 @@ public class InitialMarkingValidator extends AbstractValidator {
         this.validatorInfoString = "infoInitialMarkingValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -73,12 +70,12 @@ public class InitialMarkingValidator extends AbstractValidator {
         reportValidationSuccessful();
     }
 
-    /*
-     * Abort conditions
-     */
+    /* Abort conditions */
 
     /**
      * Checks abort condition 1: Model with tokens just loaded from a PNML file?
+     * 
+     * @return True = ignore this validation, false = run this validation
      */
     private boolean checkAbortCondition1() {
         if (this.isInitialModelCheck) {
@@ -92,7 +89,7 @@ public class InitialMarkingValidator extends AbstractValidator {
     }
 
     /**
-     * Removes the token from all {@link IDataPlace}.
+     * Removes the token from all {@link DataPlace}.
      */
     private void removeExistingMarking() {
         myDataModelController.removeAllDataTokens(myDataModelName);
@@ -100,6 +97,8 @@ public class InitialMarkingValidator extends AbstractValidator {
 
     /**
      * Checks abort condition 2: Model already classified as invalid?
+     * 
+     * @return true = result is critical, false = result is not critical
      */
     private boolean checkAbortCondition2() {
         EValidationResultSeverity currentResultsSeverity = this.myValidationController
@@ -141,6 +140,13 @@ public class InitialMarkingValidator extends AbstractValidator {
         return result;
     }
 
+    /**
+     * Informs the {@link IDataModelController} to add a token to the specified
+     * start place.
+     * 
+     * @param startPlace
+     *            The specified [{@link DataPlace}
+     */
     private void setInitialMarking(DataPlace startPlace) {
         String placeId = startPlace.getId();
 
@@ -150,9 +156,7 @@ public class InitialMarkingValidator extends AbstractValidator {
         myDataModelController.addDataToken(myDataModelName, placesWithToken);
     }
 
-    /*
-     * Messages
-     */
+    /* Messages */
 
     /**
      * Adds an info message to indicate that this validation is ignored for the
@@ -164,23 +168,7 @@ public class InitialMarkingValidator extends AbstractValidator {
         validationMessages.add(vMessage);
     }
 
-    /**
-     * Adds an info message to indicate that this validation is stopped for an
-     * invalid model.
-     * 
-     * Note: This message is an "INFO" message because the
-     * {@link ValidationController} stores only the highest
-     * {@link EValidationResultSeverity} anyways.
-     */
-    private void infoIgnoredForInvalidModel() {
-        String message = i18n.getMessage("infoIgnoredForInvalidModel");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
-        validationMessages.add(vMessage);
-    }
-
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Determines the number of tokens in a {@link IDataModel}.

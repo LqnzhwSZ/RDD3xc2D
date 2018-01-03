@@ -26,6 +26,7 @@ import javax.swing.ImageIcon;
  */
 public class ImageIconCreator {
 
+    /** The base folder containing all (different kinds of) resources */
     private final static String imagesBasePath = "/de/lambeck/pned/resources";
 
     /**

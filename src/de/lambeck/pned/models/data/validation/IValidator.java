@@ -32,7 +32,8 @@ public interface IValidator {
     boolean hasMoreMessages();
 
     /**
-     * Returns the next message of this validator.
+     * Returns the next {@link IValidationMsg} from the list of messages that
+     * this {@link IValidator} has produced.
      * 
      * @return The next {@link IValidationMsg}
      */

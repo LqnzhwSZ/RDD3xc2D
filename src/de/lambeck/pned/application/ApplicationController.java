@@ -136,7 +136,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param frame
      *            The main frame (window) of the application
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param stBar
      *            The status bar (of this application)
      */
@@ -206,7 +206,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Adds all necessary controllers.
      * 
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     private void addControllers(I18NManager i18n) {
@@ -224,7 +224,7 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link ValidationController}.
      * 
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     private void addValidators(I18NManager i18n) {
@@ -843,11 +843,10 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds the specified existing file.
+     * Adds the specified existing file selected by {@link FileOpenAction}.
      * 
      * @param pnmlFile
      *            The {@link File} chosen by the user
-     * @see {@link FileOpenAction}
      */
     private void addNewModelFromFile(File pnmlFile) {
         /* Get the (unique) canonical path name of the specified file. */
@@ -936,7 +935,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param displayName
      *            The title of the tab (= the file name)
      */
-    private void addTabForDrawPanel(DrawPanel drawPanel, IValidationMsgPanel validationMessagesPanel, String fullName,
+    private void addTabForDrawPanel(DrawPanel drawPanel, IValidationMsgPanel validationMsgPanel, String fullName,
             String displayName) {
         /*
          * Add the path to the list of files. Use the (unique) canonical path
@@ -956,7 +955,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         JPanel documentPanel = new JPanel(new BorderLayout());
         documentPanel.add(scrollPanel, BorderLayout.CENTER);
-        documentPanel.add((Component) validationMessagesPanel, BorderLayout.EAST);
+        documentPanel.add((Component) validationMsgPanel, BorderLayout.EAST);
 
         // this.tabbedPane.addTab(displayName, null, scrollPanel, fullName);
         this.tabbedPane.addTab(displayName, null, documentPanel, fullName);
@@ -1248,8 +1247,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
-     * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELED if
-     *         the user didn't chose a file name for a new file; otherwise
+     * @return Exit code of saveToExistingFile(), OPERATION_CANCELED if the user
+     *         didn't chose a file name for a new file; otherwise
      *         UNEXPECTED_ERROR
      */
     private int saveFile(String modelName) {
@@ -1471,6 +1470,8 @@ public class ApplicationController extends AbstractApplicationController {
     /**
      * Invokes saveFileAs(modelName, pnmlFile) with the active file.
      * 
+     * @param pnmlFile
+     *            The specified {@link File}
      * @return Exit code is the exit code of {@link saveFileAs}; otherwise
      *         UNEXPECTED_ERROR
      */
@@ -1507,8 +1508,8 @@ public class ApplicationController extends AbstractApplicationController {
      *            name of the PNML file represented by this model.)
      * @param saveAsFullName
      *            The full path name of the file to be written
-     * @return Exit code is the exit code of {@link saveToExistingFile};
-     *         otherwise UNEXPECTED_ERROR
+     * @return Exit code is the exit code of saveToExistingFile(); otherwise
+     *         UNEXPECTED_ERROR
      */
     private int saveFileAs(String modelName, String saveAsFullName) {
         if (isParamUndefined(modelName, "saveFileAs", "modelName"))
@@ -1779,12 +1780,16 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the data model controller to get the GUI controller up to
-     * date.
+     * date after adding a {@link DataPlace}.
      * 
      * @param id
+     *            The ID of the added place
      * @param name
+     *            The name of the added place
      * @param initialTokens
+     *            The initial tokens count of the added place
      * @param position
+     *            The position of the added place
      */
     public void placeAddedToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (!importingFromPnml)
@@ -1795,12 +1800,16 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the GUI controller to get the data model controller up to
-     * date.
+     * date after adding a {@link IGuiPlace}.
      * 
      * @param id
+     *            The ID of the added place
      * @param name
+     *            The name of the added place
      * @param initialTokens
+     *            The initial tokens count of the added place
      * @param position
+     *            The position of the added place
      */
     public void placeAddedToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (importingFromPnml)
@@ -1811,11 +1820,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the data model controller to get the GUI controller up to
-     * date.
+     * date after adding a {@link IDataTransition}.
      * 
      * @param id
+     *            The ID of the added transition
      * @param name
+     *            The name of the added transition
      * @param position
+     *            The position of the added transition
      */
     public void transitionAddedToCurrentDataModel(String id, String name, Point position) {
         if (!importingFromPnml)
@@ -1826,11 +1838,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the GUI controller to get the data model controller up to
-     * date.
+     * date after adding a {@link IGuiTransition}.
      * 
      * @param id
+     *            The ID of the added transition
      * @param name
+     *            The name of the added transition
      * @param position
+     *            The position of the added transition
      */
     public void transitionAddedToCurrentGuiModel(String id, String name, Point position) {
         if (importingFromPnml)
@@ -1841,11 +1856,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the data model controller to get the GUI controller up to
-     * date.
+     * date after adding a {@link IDataArc}.
      * 
      * @param id
+     *            The ID of the added arc
      * @param sourceId
+     *            The source ID for the added arc
      * @param targetId
+     *            The target ID for the added arc
      */
     public void arcAddedToCurrentDataModel(String id, String sourceId, String targetId) {
         if (!importingFromPnml)
@@ -1856,11 +1874,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the GUI controller to get the data model controller up to
-     * date.
+     * date after adding a {@link IGuiArc}.
      * 
      * @param id
+     *            The ID of the added arc
      * @param sourceId
+     *            The source ID for the added arc
      * @param targetId
+     *            The target ID for the added arc
      */
     public void arcAddedToCurrentGuiModel(String id, String sourceId, String targetId) {
         if (importingFromPnml)

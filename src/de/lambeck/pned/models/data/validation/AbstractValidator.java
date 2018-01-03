@@ -11,7 +11,8 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Abstract validator for {@link IDataModel}.
+ * Abstract validator for {@link IDataModel} to be used in combination with the
+ * {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -35,7 +36,7 @@ public abstract class AbstractValidator implements IValidator {
      */
     protected IDataModelController myDataModelController = null;
 
-    /** The source object for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
     /** The {@link IDataModel} to check */
@@ -53,11 +54,13 @@ public abstract class AbstractValidator implements IValidator {
      */
     protected String myDataModelName = null;
 
+    /**
+     * The {@link List} of {@link ValidationMsg} produced by this
+     * {@link IValidator}
+     */
     protected List<IValidationMsg> validationMessages = new ArrayList<IValidationMsg>();
 
-    /*
-     * Constructors
-     */
+    /* Constructors */
 
     /**
      * Constructs a stand-alone validator without a reference to the
@@ -77,7 +80,7 @@ public abstract class AbstractValidator implements IValidator {
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public AbstractValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -88,9 +91,7 @@ public abstract class AbstractValidator implements IValidator {
         this.i18n = i18n;
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -111,9 +112,7 @@ public abstract class AbstractValidator implements IValidator {
         this.myDataModelName = dataModel.getModelName();
     }
 
-    /*
-     * Return methods
-     */
+    /* Return methods */
 
     @Override
     public boolean hasMoreMessages() {
@@ -131,9 +130,7 @@ public abstract class AbstractValidator implements IValidator {
         return nextMessage;
     }
 
-    /*
-     * Standard messages
-     */
+    /* Standard messages */
 
     /**
      * Adds an info message with ID and purpose of this validator.
@@ -144,6 +141,20 @@ public abstract class AbstractValidator implements IValidator {
 
         message = i18n.getMessage(this.validatorInfoString);
         vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds an info message to indicate that this validation is stopped for an
+     * invalid model.
+     * 
+     * Note: This message is an "INFO" message because the
+     * {@link ValidationController} stores only the highest
+     * {@link EValidationResultSeverity} anyways.
+     */
+    protected void infoIgnoredForInvalidModel() {
+        String message = i18n.getMessage("infoIgnoredForInvalidModel");
+        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
         validationMessages.add(vMessage);
     }
 

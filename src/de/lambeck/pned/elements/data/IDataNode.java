@@ -20,10 +20,12 @@ public interface IDataNode extends IDataElement, INode {
      */
 
     /**
-     * Adds an arc to the list of predecessors (incoming).
+     * Adds an {@link IDataArc} to the list of predecessors (incoming).
      * 
      * @param newArc
+     *            The specified {@link IDataArc}
      * @throws PNDuplicateAddedException
+     *             If this arc already exists
      */
     void addPred(IDataArc newArc) throws PNDuplicateAddedException;
 
@@ -31,7 +33,9 @@ public interface IDataNode extends IDataElement, INode {
      * Adds an arc to the list of successors (outgoing).
      * 
      * @param newArc
+     *            The specified {@link IDataArc}
      * @throws PNDuplicateAddedException
+     *             If this arc already exists
      */
     void addSucc(IDataArc newArc) throws PNDuplicateAddedException;
 
@@ -39,7 +43,9 @@ public interface IDataNode extends IDataElement, INode {
      * Removes the specified arc from the list of predecessors.
      * 
      * @param arc
+     *            The specified {@link IDataArc}
      * @throws NoSuchElementException
+     *             If this arc does not exist
      */
     void removePred(IDataArc arc) throws NoSuchElementException;
 
@@ -47,7 +53,9 @@ public interface IDataNode extends IDataElement, INode {
      * Removes the specified arc from the list of successors.
      * 
      * @param arc
+     *            The specified {@link IDataArc}
      * @throws NoSuchElementException
+     *             If this arc does not exist
      */
     void removeSucc(IDataArc arc) throws NoSuchElementException;
 
@@ -55,7 +63,7 @@ public interface IDataNode extends IDataElement, INode {
      * This method returns a list of all predecessors of the node. If the node
      * has no predecessors, the method returns null.
      * 
-     * @return List of all predecessors
+     * @return A {@link List} of all predecessors
      */
     List<IDataArc> getPredElems();
 
@@ -63,7 +71,7 @@ public interface IDataNode extends IDataElement, INode {
      * This method returns a list of all successors of the node. If the node has
      * no successors, the method returns null.
      * 
-     * @return List of all successors
+     * @return A {@link List} of all successors
      */
     List<IDataArc> getSuccElems();
 
@@ -72,7 +80,7 @@ public interface IDataNode extends IDataElement, INode {
      * arc.
      * 
      * @param arc
-     *            The specified arc
+     *            The specified {@link IDataArc}
      * @return True if arc is in the predecessor list; otherwise false
      */
     boolean predListContains(IDataArc arc);
@@ -81,7 +89,7 @@ public interface IDataNode extends IDataElement, INode {
      * Returns true if this nodes list of successors contains the specified arc.
      * 
      * @param arc
-     *            The specified arc
+     *            The specified {@link IDataArc}
      * @return True if arc is in the successor list; otherwise false
      */
     boolean succListContains(IDataArc arc);

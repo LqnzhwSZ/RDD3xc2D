@@ -122,6 +122,7 @@ public interface IDataModelController extends IInfo_Status {
      * {@link DataModelController}.
      * 
      * @param model
+     *            The specified {@link IDataModel}
      */
     void setCurrentModel(IDataModel model);
 
@@ -151,9 +152,7 @@ public interface IDataModelController extends IInfo_Status {
      * updates between data and GUI model controller)
      */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     /**
      * Adds a place to the current data model.
@@ -237,9 +236,7 @@ public interface IDataModelController extends IInfo_Status {
      */
     void addArcToCurrentDataModel(String id, String sourceId, String targetId);
 
-    /*
-     * Modify methods for elements
-     */
+    /* Modify methods for elements */
 
     /**
      * Handles the application controllers request to rename a node in the data
@@ -252,9 +249,7 @@ public interface IDataModelController extends IInfo_Status {
      */
     void renameNode(String nodeId, String newName);
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     /**
      * Handles the application controllers info to remove an element from the
@@ -280,9 +275,7 @@ public interface IDataModelController extends IInfo_Status {
      */
     void clearCurrentDataModel();
 
-    /*
-     * Mouse events in the GUI
-     */
+    /* Mouse events in the GUI */
 
     /**
      * Handles the application controllers request to update the position of a
@@ -295,9 +288,7 @@ public interface IDataModelController extends IInfo_Status {
      */
     void moveNode(String nodeId, Point newPosition);
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     /**
      * Callback for the {@link StartPlacesValidator} to reset all start places.

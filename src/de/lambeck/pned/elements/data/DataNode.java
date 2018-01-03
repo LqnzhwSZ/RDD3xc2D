@@ -15,14 +15,18 @@ import de.lambeck.pned.exceptions.PNDuplicateAddedException;
  */
 public abstract class DataNode extends DataElement implements IDataNode {
 
-    /*
-     * Attributes for interface IDataNode
-     */
+    /* Attributes for interface IDataNode */
+
+    /** The name of this node (might be empty) */
     protected String name = "";
 
+    /** The {@link List} of predecessors - the incoming {@link IDataArc} */
     protected List<IDataArc> predElems = new ArrayList<IDataArc>();
+    /** The {@link List} of successors - the outgoing {@link IDataArc} */
     protected List<IDataArc> succElems = new ArrayList<IDataArc>();
-    protected Point position = null; // The center of the node
+
+    /** The center of this node */
+    protected Point position = null;
 
     /**
      * Constructs a node with the specified id.
@@ -43,9 +47,7 @@ public abstract class DataNode extends DataElement implements IDataNode {
         setName(name);
     }
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and setter */
 
     @Override
     public String getName() {
@@ -81,9 +83,7 @@ public abstract class DataNode extends DataElement implements IDataNode {
         return this.succElems.size(); // 0..n
     }
 
-    /*
-     * Adding and removal of elements
-     */
+    /* Adding and removal of elements */
 
     @Override
     public void addPred(IDataArc newArc) throws PNDuplicateAddedException {

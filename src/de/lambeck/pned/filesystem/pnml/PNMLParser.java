@@ -23,6 +23,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class PNMLParser {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /**

@@ -87,10 +87,23 @@ public enum ECustomColor {
      */
     F2F2F2(242, 242, 242);
 
+    /** The red component */
     private final int red;
+    /** The green component */
     private final int green;
+    /** The blue component */
     private final int blue;
 
+    /**
+     * Constructor with parameters for the 3 color components.
+     * 
+     * @param r
+     *            the red component
+     * @param g
+     *            the green component
+     * @param b
+     *            the blue component
+     */
     private ECustomColor(final int r, final int g, final int b) {
         this.red = r;
         this.green = g;

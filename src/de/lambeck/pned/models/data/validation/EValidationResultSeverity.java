@@ -1,7 +1,8 @@
 package de.lambeck.pned.models.data.validation;
 
 /**
- * Enum for the severity of problems in a workflow net.
+ * Enum for the severity (importance) of messages for/problems in a workflow
+ * net.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -24,8 +25,15 @@ public enum EValidationResultSeverity {
      */
     CRITICAL(3);
 
+    /** The int value of this enum element for comparisons */
     private int value;
 
+    /**
+     * Constructs this enum element with a specified int value.
+     * 
+     * @param initValue
+     *            The int value for this enum element
+     */
     private EValidationResultSeverity(final int initValue) {
         this.value = initValue;
     }

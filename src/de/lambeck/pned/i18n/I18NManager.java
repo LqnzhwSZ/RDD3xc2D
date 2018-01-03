@@ -5,17 +5,29 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * Implements a manager for internationalized ("i18n") Strings.
+ * This manager for "internationalized" ("i18n") Strings provides localized
+ * messages and names.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class I18NManager {
 
+    /** The location of the properties files with the translations */
     private static String baseName = "de.lambeck.pned.resources";
+
+    /** Stores the specified Locale (language). */
     private Locale currentLocale; // For error messages
 
+    /** The resources for messages */
     private ResourceBundle messages;
+
+    /**
+     * The resources for names
+     * 
+     * Note: Names may contain mnemonic markers like for an example "&amp;Edit"
+     * which specify which accelerator (hot key) can be used for a command.
+     */
     private ResourceBundle names;
 
     /**
@@ -38,8 +50,8 @@ public class I18NManager {
     /**
      * Reports if there are missing Bundles for the specified language.
      * 
-     * @param locale
-     *            The current locale
+     * @param expected
+     *            The expected {@link Locale}
      */
     private void reportMissingBundleFiles(Locale expected) {
         Locale foundLocale;
@@ -61,8 +73,8 @@ public class I18NManager {
      * Calls getString() with the resource bundle for messages and forwards the
      * result.
      * 
-     * Note: In opposition to (button) names is a "&" within a message not a
-     * "mnemonic marker" but just a part of the text.
+     * Note: In opposition to (button) names is an "&amp;" within a message not
+     * a "mnemonic marker" but just a part of the text.
      * 
      * @param key
      *            The given key
@@ -105,7 +117,7 @@ public class I18NManager {
      * Calls getMnemonicString() with the resource bundle for names (buttons
      * names etc.) and forwards the result.
      * 
-     * Note: (button) names can contain an "&" as "mnemonic marker".
+     * Note: (button) names can contain an "&amp;" as "mnemonic marker".
      * 
      * @param key
      *            The given key
@@ -126,7 +138,7 @@ public class I18NManager {
      * names etc.) and forwards only the name.
      * 
      * Note: Using getMnemonicString() removes the "mnemonic marker" from the
-     * name. Example "&File" => "File"
+     * name. Example "&amp;File" =&gt; "File"
      * 
      * @param key
      *            The given key
@@ -142,8 +154,8 @@ public class I18NManager {
     }
 
     /**
-     * Gets the string and the mnemonic (after the char "&") for the given key
-     * from the specified resource bundle.
+     * Gets the string and the mnemonic (after the char "&amp;") for the given
+     * key from the specified resource bundle.
      * 
      * Note: The mnemonic is a String (like "A"), not a KeyEvent (like
      * KeyEvent.VK_A). Convert the mnemonic into an int for use in a
@@ -178,9 +190,7 @@ public class I18NManager {
             return mnemonicString;
         }
 
-        /*
-         * String found, try to get the mnemonic (after the char "&").
-         */
+        /* String found, try to get the mnemonic (after the char "&"). */
         int length = i18nString.length();
         if (length == 0) {
             errorMsgWrongKey("Empty value for key", key, bundle);
@@ -223,10 +233,26 @@ public class I18NManager {
         return simpleName;
     }
 
+    /**
+     * Reports an empty key in a resource file.
+     * 
+     * @param errMsg
+     *            The message to show
+     */
     private void errorMsgMissingKey(String errMsg) {
         System.err.println(errMsg);
     }
 
+    /**
+     * Reports a missing key in a resource file.
+     * 
+     * @param errMsg
+     *            The message to show
+     * @param key
+     *            The demanded key
+     * @param bundle
+     *            The {@link ResourceBundle} that was specified for this key
+     */
     private void errorMsgWrongKey(String errMsg, String key, ResourceBundle bundle) {
         String simpleName = getSimpleResourceName(bundle);
         System.err.println(simpleName + "(" + currentLocale + "): " + errMsg + ": " + key);

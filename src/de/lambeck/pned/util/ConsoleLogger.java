@@ -35,13 +35,15 @@ public class ConsoleLogger {
 
     /**
      * Prints the specified method call to the standard output (stdout) in a
-     * more human readable form.
+     * more human readable form.<BR>
+     * <BR>
+     * All parameters will be printed using their own .toString() method.
      * 
      * @param methodName
-     *            The specified method
+     *            The name of the method that was called
      * @param params
      *            Variable parameter list (varargs) for the parameters of the
-     *            method call; all printed with their own .toString() method
+     *            method call
      */
     public static void consoleLogMethodCall(String methodName, Object... params) {
         String parameterlist = "";

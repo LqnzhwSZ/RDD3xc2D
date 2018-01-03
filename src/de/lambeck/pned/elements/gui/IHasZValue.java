@@ -19,6 +19,7 @@ public interface IHasZValue {
      * Setter for the z level of this node.
      * 
      * @param newZValue
+     *            The new z value
      */
     void setZValue(int newZValue);
 

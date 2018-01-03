@@ -15,11 +15,17 @@ import javax.swing.JTextArea;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = 693771918983409951L;
+
+    /** The number of rows - defines the height of the panel */
     private final int ROWS = 0;
-    private final int COLUMNS = 30; // Defines the width
+    /** The number of columns - defines the width of the panel */
+    private final int COLUMNS = 30;
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -36,11 +42,6 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
      */
     private final Color startBackground = EValidationColor.EMPTY.getColor();
 
-    // /**
-    // * The background color for the current validation result
-    // */
-    // private Color currentBackground = Color.WHITE;
-
     /**
      * The text content of the text area
      */
@@ -49,6 +50,7 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
 
     // StyledDocument styledDoc;
 
+    /** A line break for Strings */
     String newline = "\n";
 
     /**
@@ -78,16 +80,12 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
         // infoScrollPane.setBorder(BorderFactory.createEtchedBorder());
         infoScrollPane.setBorder(BorderFactory.createTitledBorder(title));
 
-        /*
-         * Add the components.
-         */
+        /* Add the components. */
         setLayout(new BorderLayout());
         add(infoScrollPane, BorderLayout.CENTER);
     }
 
-    /*
-     * Setter and Getter
-     */
+    /* Getter and Setter */
 
     @Override
     public String getModelName() {
@@ -139,7 +137,6 @@ public class ValidationMsgPanel extends JPanel implements IValidationMsgPanel {
     public void setBgColor(EValidationColor c) {
         Color color = c.getColor();
         this.textArea.setBackground(color);
-        // this.currentBackground = color;
     }
 
 }

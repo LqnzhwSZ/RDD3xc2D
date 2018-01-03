@@ -16,9 +16,14 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class PnedToolBar extends AbstractPnedToolBar {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -7139317989133379455L;
+
+    /** Defines the orientation of this tool bar. */
     private static int orientation = JToolBar.HORIZONTAL;
 
     /** A tool bar "button" */
@@ -42,7 +47,7 @@ public class PnedToolBar extends AbstractPnedToolBar {
      * @param controller
      *            The application controller
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param allActions
      *            List of Actions
      */

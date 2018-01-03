@@ -28,12 +28,15 @@ import de.lambeck.pned.i18n.MnemonicString;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public abstract class AbstractPNAction extends AbstractAction {
 
-    /*
-     * docs.oracle.com: By default, this method returns Event.CTRL_MASK
+    /**
+     * Generated serial version ID
      */
+    private static final long serialVersionUID = -429915254478923591L;
+
+    /** The accelerator key for menu shortcuts */
+    /* docs.oracle.com: By default, this method returns Event.CTRL_MASK */
     protected static final int SHORTCUT_KEY_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     /** Variable icon size, but equal for all menu/tool bar items */
@@ -57,7 +60,7 @@ public abstract class AbstractPNAction extends AbstractAction {
     /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n = null;
 
     /**
@@ -67,7 +70,7 @@ public abstract class AbstractPNAction extends AbstractAction {
      * @param controller
      *            The application controller
      * @param i18nController
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     public AbstractPNAction(ApplicationController controller, I18NManager i18nController) {
         super();

@@ -22,6 +22,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class ValidationController extends Thread implements IValidationController {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /**
@@ -36,6 +37,7 @@ public class ValidationController extends Thread implements IValidationControlle
      */
     private IDataModelController myDataModelController = null;
 
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
     /**
@@ -69,7 +71,7 @@ public class ValidationController extends Thread implements IValidationControlle
      * @param dataModelController
      *            The data model controller
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public ValidationController(IDataModelController dataModelController, I18NManager i18n) {
@@ -306,6 +308,9 @@ public class ValidationController extends Thread implements IValidationControlle
     /**
      * Stores the current severity level if higher than the previous.
      * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
      * @param nextSeverity
      *            the severity level of the last message from the current
      *            validator

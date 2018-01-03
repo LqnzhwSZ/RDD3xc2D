@@ -10,16 +10,15 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Checks the number of end places in a workflow net.
+ * Checks the number of end places in a workflow net. To be used in combination
+ * with the {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class EndPlacesValidator extends AbstractValidator {
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
      * @param validationController
@@ -27,7 +26,7 @@ public class EndPlacesValidator extends AbstractValidator {
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public EndPlacesValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -36,9 +35,7 @@ public class EndPlacesValidator extends AbstractValidator {
         this.validatorInfoString = "infoEndPlacesValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -72,10 +69,11 @@ public class EndPlacesValidator extends AbstractValidator {
     }
 
     /**
-     * Returns true if the model has no places.
+     * /** Returns true if the model has no places.
      * 
      * @param endPlaces
      *            The {@link List} of end places
+     * @return True = no place, false = at least 1 place
      */
     private boolean evaluateNoPlaces(List<String> endPlaces) {
         if (endPlaces == null) {
@@ -93,6 +91,7 @@ public class EndPlacesValidator extends AbstractValidator {
      * 
      * @param endPlaces
      *            The {@link List} of end places
+     * @return True = no end place, false = at least 1 end place
      */
     private boolean evaluateNoEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() == 0) {
@@ -112,6 +111,7 @@ public class EndPlacesValidator extends AbstractValidator {
      * 
      * @param endPlaces
      *            The {@link List} of end places
+     * @return True = too many end places, false = end places count is OK
      */
     private boolean evaluateTooManyEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() > 1) {
@@ -141,9 +141,7 @@ public class EndPlacesValidator extends AbstractValidator {
         myDataModelController.setDataEndPlace(myDataModelName, placeId, true);
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Generates a {@link List} of end places of the Petri net.

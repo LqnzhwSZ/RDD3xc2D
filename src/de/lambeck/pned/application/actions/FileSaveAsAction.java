@@ -9,6 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.sun.xml.internal.ws.api.Component;
+
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.i18n.I18NManager;
 
@@ -21,12 +23,20 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class FileSaveAsAction extends AbstractPNAction {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -1904549335042924049L;
+
+    /** The parent {@link Component} to center the dialog */
     protected JFrame parentComponent;
 
+    /** The {@link JFileChooser} that is used to look for a file name. */
     private JFileChooser fileChooser = new JFileChooser();
+
+    /** The suffix for the files (automatically appended if missing) */
     private String suffix = ".pnml";
 
     /**
@@ -35,7 +45,7 @@ public class FileSaveAsAction extends AbstractPNAction {
      * @param controller
      *            The application controller
      * @param i18nController
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param parent
      *            The parent component (should be the main application window)
      */
