@@ -32,10 +32,10 @@ public interface IGuiModelController
      * Adds a GUI model for a non-existing file.
      * 
      * Note: This is intended to be used to add new models which are not coming
-     * from a pnml file (e.g. "Untitled1", "Untitled2"... or "New1", "New2"...)
+     * from a PNML file (e.g. "Untitled1", "Untitled2"... or "New1", "New2"...)
      * 
      * @param modelName
-     *            The full path name of the pnml file
+     *            The full path name of the PNML file
      * @param displayName
      *            The title of the tab (= the file name)
      */
@@ -46,7 +46,7 @@ public interface IGuiModelController
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return True if the model has been modified; otherwise false
      */
     boolean isModifiedGuiModel(String modelName);
@@ -54,12 +54,12 @@ public interface IGuiModelController
     /**
      * Resets the "modified" state of the specified model.
      * 
-     * Note: Use this method after loading a pnml file because the model has not
-     * been changed by the user after adding elements from the pnml file only.
+     * Note: Use this method after loading a PNML file because the model has not
+     * been changed by the user after adding elements from the PNML file only.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     void resetModifiedGuiModel(String modelName);
 
@@ -68,7 +68,7 @@ public interface IGuiModelController
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      */
     void removeGuiModel(String modelName);
 
@@ -80,7 +80,7 @@ public interface IGuiModelController
      *            The {@link IGuiModel}
      * @param newModelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param newDisplayName
      *            The title of the tab (= the file name)
      */
@@ -91,7 +91,7 @@ public interface IGuiModelController
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return The specified GUI model
      */
     IGuiModel getGuiModel(String modelName);
@@ -117,7 +117,7 @@ public interface IGuiModelController
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return The draw panel
      */
     IDrawPanel getDrawPanel(String modelName);
@@ -158,7 +158,7 @@ public interface IGuiModelController
     /**
      * Adds a place to the current GUI model.
      * 
-     * Intended use: adding a place after reading from a pnml file because these
+     * Intended use: adding a place after reading from a PNML file because these
      * places may have a name.
      * 
      * @param id
@@ -175,7 +175,7 @@ public interface IGuiModelController
     /**
      * Adds a transition to the current GUI model.
      * 
-     * Intended use: adding a transition after reading from a pnml file because
+     * Intended use: adding a transition after reading from a PNML file because
      * these transitions may have a name.
      * 
      * @param id
@@ -191,7 +191,7 @@ public interface IGuiModelController
      * Adds an arc to the current GUI model.
      * 
      * Note: This method should be the same for GUI events and reading from a
-     * pnml file because arcs will have all 3 attributes in either cases.
+     * PNML file because arcs will have all 3 attributes in either cases.
      * 
      * @param id
      *            The id of the arc
@@ -582,6 +582,28 @@ public interface IGuiModelController
     void resetAllGuiTransitionsEnabledState(String modelName);
 
     /**
+     * Handles the {@link ApplicationController} request to reset the "safe"
+     * state on all transitions in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    void resetAllGuiTransitionsSafeState(String modelName);
+
+    /**
+     * Handles the {@link ApplicationController} request to set the "safe" state
+     * on the specified transition in the specified GUI model to false.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    void setGuiTransitionUnsafe(String modelName, String transitionId);
+
+    /**
      * Handles the {@link ApplicationController} request to set the "enabled"
      * state on the specified transition in the specified GUI model.
      * 
@@ -591,7 +613,7 @@ public interface IGuiModelController
      * @param transitionId
      *            The id of the {@link IGuiTransition}
      */
-    void setGuiTransitionEnabledState(String modelName, String transitionId);
+    void setGuiTransitionEnabled(String modelName, String transitionId);
 
     /**
      * Callback to fire the transition at the popup menu location.<BR>
@@ -602,5 +624,15 @@ public interface IGuiModelController
      * only to the GUI controller.
      */
     void fireGuiTransition();
+
+    /**
+     * @return the minimum z value from the current {@link IGuiModel}
+     */
+    int getCurrentMinZValue();
+
+    /**
+     * @return the maximum z value from the current {@link IGuiModel}
+     */
+    int getCurrentMaxZValue();
 
 }

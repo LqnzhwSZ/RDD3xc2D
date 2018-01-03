@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
+import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -12,6 +13,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.elements.gui.IGuiArc;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
@@ -70,7 +72,9 @@ import de.lambeck.pned.util.ConsoleLogger;
  *     - Show popup for creation of new nodes.
  * 
  * Actions for mouse motion events:
- * - Primary mouse button + ALT : -> Dragging
+ * - Primary mouse button held down for > 0.5 seconds:
+ *   - At a node:
+ *     - Dragging
  * 
  * @formatter:on
  * 
@@ -88,6 +92,8 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
     private static boolean debug = false;
 
+    private static final int DRAGGING_WAIT_TIME = 500;
+
     /** Reference to the {@link DrawPanel} */
     private DrawPanel myDrawPanel = null;
 
@@ -99,17 +105,15 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
      */
     protected Map<String, AbstractAction> popupActions;
 
-    // /** Stores if we are showing a popup menu now. */
-    // boolean popupMenuActive = false;
+    /** Reference to the {@link ApplicationController} */
+    protected ApplicationController myAppController = null;
 
-    // /** Stores if the last mouse event has canceled a popup menu. */
-    // boolean popupMenuCanceled = false;
+    /** Measures how long the mouse was pressed. (for dragging) */
+    private java.util.Timer timer;
 
-    // /**
-    // * Stores if the want to ignore the next mouseClicked event (because it
-    // * canceled a popup menu).
-    // */
-    // boolean ignoreNextMouseClicked = false;
+    /*
+     * Constructor
+     */
 
     /**
      * Constructs this mouse adapter for the specified draw panel, with a
@@ -122,13 +126,18 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
      *            The {@link IGuiModelController}
      * @param popupActions
      *            The {@link Map} of {@link AbstractAction} for the popup menus
+     * @param appController
+     *            The {@link ApplicationController}
      */
     @SuppressWarnings("hiding")
     public MyMouseAdapter(DrawPanel drawPanel, IGuiModelController guiController,
-            Map<String, AbstractAction> popupActions) {
+            Map<String, AbstractAction> popupActions, ApplicationController appController) {
         this.myDrawPanel = drawPanel;
         this.myGuiController = guiController;
         this.popupActions = popupActions;
+        this.myAppController = appController;
+
+        debug = appController.getShowDebugMessages();
     }
 
     /*
@@ -143,18 +152,35 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
         if (SwingUtilities.isRightMouseButton(e)) {
             ConsoleLogger.logIfDebug(debug, "Right mouse button");
-            showPopupIfPopupTrigger(e);
+            showPopupIfPopupTrigger(e); // Linux
 
         } else {
             /* Store the location of the mousePressed event. */
-            myDrawPanel.mousePressedLocation = e.getPoint();
+            myDrawPanel.setMousePressedLocation(e.getPoint());
 
             if (debug) {
-                int x = myDrawPanel.mousePressedLocation.x;
-                int y = myDrawPanel.mousePressedLocation.y;
-                String message = "mousePressed at: " + x + "," + y;
+                Point p = myDrawPanel.getMousePressedLocation();
+                String message = "mousePressed at: " + p.x + "," + p.y;
                 ConsoleLogger.logAlways(message);
             }
+
+            /*
+             * Start the mouse pressed timer to activate dragging after a delay
+             * of 0.5 seconds. (Timer will be canceled in mouseReleased.)
+             */
+            if (timer == null) {
+                timer = new java.util.Timer();
+                String message = "New Timer scheduled.";
+                ConsoleLogger.logIfDebug(debug, message);
+            }
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    myDrawPanel.setStateMouseDragMode(true);
+                    String message = "Timer has activated dragging on the draw panel.";
+                    ConsoleLogger.logIfDebug(debug, message);
+                }
+            }, DRAGGING_WAIT_TIME);
 
         }
 
@@ -166,32 +192,42 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mouseDragged", e);
         }
 
-        /* We drag only if it is allowed. */
-        boolean altKey_pressed = myDrawPanel.altKey_pressed;
-        if (!altKey_pressed)
+        /* We drag only in the drag mode. */
+        boolean dragMode = myDrawPanel.getStateMouseDragMode();
+        String message = "mouseDragMode: " + dragMode;
+        ConsoleLogger.logIfDebug(debug, message);
+        if (!dragMode)
             return;
 
-        myDrawPanel.mouseIsDragging = true;
-
         /* Store the initial start and current dragging locations. */
-        if (myDrawPanel.initialDraggedFrom == null)
-            myDrawPanel.initialDraggedFrom = myDrawPanel.mousePressedLocation;
-        if (myDrawPanel.mouseDraggedFrom == null)
-            myDrawPanel.mouseDraggedFrom = myDrawPanel.mousePressedLocation;
-        myDrawPanel.mouseDraggedTo = e.getPoint();
+        Point mousePressedLocation = myDrawPanel.getMousePressedLocation();
+        Point initialDraggedFrom = myDrawPanel.getInitialDraggedFrom();
+        Point mouseDraggedFrom = myDrawPanel.getMouseDraggedFrom();
+
+        if (initialDraggedFrom == null) {
+            initialDraggedFrom = mousePressedLocation;
+            myDrawPanel.setInitialDraggedFrom(initialDraggedFrom);
+        }
+        if (mouseDraggedFrom == null) {
+            mouseDraggedFrom = mousePressedLocation;
+            myDrawPanel.setMouseDraggedFrom(mouseDraggedFrom);
+        }
+
+        Point mouseDraggedTo = e.getPoint();
+        myDrawPanel.setMouseDraggedTo(mouseDraggedTo);
 
         /* Inform the GUI controller that dragging has happened. */
-        int distance_x = myDrawPanel.mouseDraggedTo.x - myDrawPanel.mouseDraggedFrom.x;
-        int distance_y = myDrawPanel.mouseDraggedTo.y - myDrawPanel.mouseDraggedFrom.y;
+        int distance_x = mouseDraggedTo.x - mouseDraggedFrom.x;
+        int distance_y = mouseDraggedTo.y - mouseDraggedFrom.y;
         if (debug) {
-            String message = "mouseDragged: " + distance_x + ", " + distance_y;
+            message = "mouseDragged: " + distance_x + ", " + distance_y;
             ConsoleLogger.logAlways(message);
         }
 
         myGuiController.mouseDragged(distance_x, distance_y);
 
         /* New "start" in case there is another dragging step following. */
-        myDrawPanel.mouseDraggedFrom = myDrawPanel.mouseDraggedTo;
+        myDrawPanel.setMouseDraggedFrom(mouseDraggedTo);
 
     }
 
@@ -201,115 +237,38 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mouseReleased", e);
         }
 
+        /*
+         * Cancel the mouse pressed timer. And if we were in "drag mode":
+         * deactivate it and set dragOperationCompleted = true!
+         */
+        boolean dragOperationCompleted = false;
+        {
+            if (timer != null) {
+                timer.cancel();
+                timer = null;
+                String message = "Timer has been canceled.";
+                ConsoleLogger.logIfDebug(debug, message);
+
+                boolean dragging = myDrawPanel.getStateMouseDragMode();
+                if (dragging) {
+                    myDrawPanel.setStateMouseDragMode(false);
+                    dragOperationCompleted = true;
+                    message = "Dragging canceled/completed.";
+                    ConsoleLogger.logIfDebug(debug, message);
+                }
+            }
+        }
+
         if (SwingUtilities.isRightMouseButton(e)) {
             ConsoleLogger.logIfDebug(debug, "Right mouse button");
-            showPopupIfPopupTrigger(e);
+            showPopupIfPopupTrigger(e); // Windows
 
         } else {
-            // /*
-            // * We have left a popup menu with the mousePressed before?
-            // */
-            // if (this.popupMenuLeftWithMousePress == true) {
-            // if (debug) {
-            // System.out.println("Reset this.popupMenuLeftWithMousePress =
-            // false");
-            // }
-            // this.popupMenuLeftWithMousePress = false;
-            // return;
-            // }
+            /* Were we in drag mode? */
+            if (!dragOperationCompleted) {
+                /* This is the mouseReleased event prior to mouseClicked. */
 
-            /*
-             * Is the mouse dragging?
-             */
-            if (!myDrawPanel.mouseIsDragging) {
-                /*
-                 * This is the mouseReleased event prior to mouseClicked.
-                 */
-
-                /*
-                 * Check which action is required.
-                 */
-                boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
-                boolean altKey_pressed = myDrawPanel.altKey_pressed;
-
-                /*
-                 * Pass both locations (mousePressed and current) to the GUI
-                 * controller so that the GUI controller can check if both are
-                 * on the same element.
-                 * 
-                 * Otherwise, this might be an unintended mouseClicked event.
-                 */
-                if (!ctrlKey_pressed && !altKey_pressed) {
-                    Point p = myDrawPanel.mousePressedLocation;
-                    if (p == null) {
-                        System.err.println("MyMouseAdapter.mouseReleased(): mousePressedLocation == null");
-                        return;
-                    }
-                    myGuiController.mouseClick_Occurred(p, e);
-
-                    if (debug) {
-                        System.out.println("mouseReleased event used.");
-                    }
-
-                } else if (ctrlKey_pressed && !altKey_pressed) {
-                    Point p = myDrawPanel.mousePressedLocation;
-                    if (p == null) {
-                        System.err.println("MyMouseAdapter.mouseReleased(): mousePressedLocation == null");
-                        return;
-                    }
-                    myGuiController.mouseClick_WithCtrl_Occurred(p, e);
-
-                    if (debug) {
-                        System.out.println("mouseReleased event used.");
-                    }
-
-                } else if (!ctrlKey_pressed && altKey_pressed) {
-                    // NOP
-                    ConsoleLogger.logIfDebug(debug, "mouseReleased event not used.");
-
-                    // System.err.println("Unexpected mouse event at: " +
-                    // e.getPoint());
-                    // System.err.println("ctrlKey_pressed: " +
-                    // ctrlKey_pressed);
-                    // System.err.println("altKey_pressed: " + altKey_pressed);
-
-                    // /*
-                    // * -> Thread issue with the values of ctrlKey_pressed,
-                    // * altKey_pressed?
-                    // */
-
-                } else {
-                    // NOP
-                    ConsoleLogger.logIfDebug(debug, "mouseReleased event not used.");
-
-                    // System.err.println("Unexpected mouse event at: " +
-                    // e.getPoint());
-                    // System.err.println("ctrlKey_pressed: " +
-                    // ctrlKey_pressed);
-                    // System.err.println("altKey_pressed: " + altKey_pressed);
-
-                    // /*
-                    // * Thread issue with the values of ctrlKey_pressed,
-                    // * altKey_pressed?
-                    // */
-
-                }
-
-                // /*
-                // * TODO Always reset CTRL and ALT from here too to avoid these
-                // * unexpected mouse events! (A thread issue???)
-                // */
-
-                // if (!e.isControlDown()) {
-                // System.err.println("MyMouseAdapter.mouseReleased(), calling
-                // myDrawPanel.ctrl_released_Action_occurred()");
-                // myDrawPanel.ctrl_released_Action_occurred();
-                // }
-                // if (!e.isAltDown()) {
-                // System.err.println("MyMouseAdapter.mouseReleased(), calling
-                // myDrawPanel.alt_released_Action_occurred()");
-                // myDrawPanel.alt_released_Action_occurred();
-                // }
+                /* -> Everything handled in mouseClicked() */
 
             } else {
                 /*
@@ -319,15 +278,16 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
                 if (debug) {
                     /* Calculate the complete way the mouse has traveled. */
-                    int distance_x = e.getPoint().x - myDrawPanel.initialDraggedFrom.x;
-                    int distance_y = e.getPoint().y - myDrawPanel.initialDraggedFrom.y;
+                    Point p = myDrawPanel.getInitialDraggedFrom();
+                    int distance_x = e.getPoint().x - p.x;
+                    int distance_y = e.getPoint().y - p.y;
                     String message = "Mouse traveled: " + distance_x + "," + distance_y;
                     ConsoleLogger.logAlways(message);
                 }
 
                 /*
                  * Inform the application controller to update the position of
-                 * all dragged nodes in the data model.
+                 * all dragged nodes in the data model as well!
                  */
                 myGuiController.updateDataNodePositions();
 
@@ -340,14 +300,10 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
         }
 
-        /* Reset mouse locations. */
-        myDrawPanel.mousePressedLocation = null;
-
-        myDrawPanel.mouseIsDragging = false;
-
-        myDrawPanel.initialDraggedFrom = null;
-        myDrawPanel.mouseDraggedFrom = null;
-        myDrawPanel.mouseDraggedTo = null;
+        /* Reset some mouse locations. */
+        myDrawPanel.setInitialDraggedFrom(null);
+        myDrawPanel.setMouseDraggedFrom(null);
+        myDrawPanel.setMouseDraggedTo(null);
 
     }
 
@@ -364,7 +320,12 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         } else {
             /*
              * Ignore if this mouseClicked event has canceled the last popup
-             * menu.
+             * menu?
+             * 
+             * -> Different behavior between Linux and Windows!
+             * 
+             * (mouseClicked event canceling a popup is ignored under Linux, but
+             * recognized as mouseClicked under Windows.)
              */
             // if (this.ignoreNextMouseClicked == true) {
             // debugLog("Ignoring this mouseClicked event.");
@@ -372,16 +333,50 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             // return;
             // }
 
+            // TODO Double click for "FireTransition"?
+
+            /* Check which action is required. */
+            boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
+
             /*
-             * -> Different behavior between Linux and Windows!
+             * Pass both locations (mousePressed and current) to the GUI
+             * controller so that the GUI controller can check if both are on
+             * the same element.
              * 
-             * (mouseClicked event canceling a popup is ignored under Linux, but
-             * recognized as mouseClicked under Windows.)
+             * Otherwise, this might be an unintended mouseClicked event.
              */
 
-            handleMouseClicked(e);
+            // TODO Different positions impossible now since we moved this code
+            // to mouseClicked()?
+
+            // TODO Safe to ignore mousePressedLocation now?
+
+            Point p = myDrawPanel.getMousePressedLocation();
+            if (p == null) {
+                System.err.println("MyMouseAdapter.mouseClicked(): mousePressedLocation == null");
+                return;
+            }
+
+            if (!ctrlKey_pressed) {
+                myGuiController.mouseClick_Occurred(p, e);
+
+                if (debug) {
+                    System.out.println("mouseClicked event used.");
+                }
+
+            } else if (ctrlKey_pressed) {
+                myGuiController.mouseClick_WithCtrl_Occurred(p, e);
+
+                if (debug) {
+                    System.out.println("mouseClicked event used.");
+                }
+
+            }
 
         }
+
+        /* Reset mouse location. */
+        myDrawPanel.setMousePressedLocation(null);
 
     }
 
@@ -415,120 +410,6 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     @Override
     public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
         ConsoleLogger.logIfDebug(debug, "popupMenuWillBecomeVisible()");
-    }
-
-    /*
-     * Methods for mouseClicked
-     */
-
-    /*
-     * Update comment?
-     */
-
-    /**
-     * Checks if the mouse event requires any action in the the GUI.
-     * 
-     * @param e
-     *            The mouse event
-     */
-    private void handleMouseClicked(MouseEvent e) {
-        if (debug) {
-            ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.handleMouseClicked", e);
-        }
-
-        /*
-         * TODO Always check CTRL and ALT from here too to avoid those
-         * Unexpected mouse event! (A thread issue???)
-         */
-        // if (!e.isControlDown()) {
-        // System.out.println("MyMouseAdapter.handleMousePressed(), calling
-        // myDrawPanel.ctrl_released_Action_occurred()");
-        // myDrawPanel.ctrl_released_Action_occurred();
-        // }
-        // if (!e.isAltDown()) {
-        // System.out.println("MyMouseAdapter.handleMousePressed(), calling
-        // myDrawPanel.alt_released_Action_occurred()");
-        // myDrawPanel.alt_released_Action_occurred();
-        // }
-
-        /*
-         * We "leave" a popup menu with a new mouse event on the DrawPanel?
-         */
-
-        // if (myDrawPanel.getPopupMenuActive()) {
-        // myDrawPanel.setPopupMenuActive(false);
-        // System.out.println("Popup menu left.");
-        // return; // Do nothing more!
-        // }
-
-        // if (myDrawPanel.getPopupMenuLocation() != null) {
-        // myDrawPanel.setPopupMenuLocation(null);
-        // System.out.println("Popup menu left.");
-        // if (debug) {
-        // System.out.println("Set this.popupMenuLeftWithMousePress = true");
-        // }
-        // this.popupMenuLeftWithMousePress = true;
-        // return; // Do nothing more!
-        // }
-
-        // /* Store the location of the mousePressed event. */
-        // myDrawPanel.mousePressedLocation = e.getPoint();
-        // if (debug) {
-        // System.out.println("mousePressed at: " +
-        // myDrawPanel.mousePressedLocation.x + ","
-        // + myDrawPanel.mousePressedLocation.y);
-        // }
-
-        boolean ctrlKey_pressed = myDrawPanel.ctrlKey_pressed;
-        boolean altKey_pressed = myDrawPanel.altKey_pressed;
-        MyMouseEvent event;
-
-        /*
-         * Only left mouse button pressed?
-         * 
-         * -> Select a single element.
-         */
-        if (!ctrlKey_pressed && !altKey_pressed) {
-            // myGuiController.mouseClick_Occurred(e);
-            event = MyMouseEvent.MOUSE_PRESSED;
-            myDrawPanel.lastMouseEvent = event;
-            if (debug)
-                System.out.println(event.getValue());
-            return;
-        }
-
-        /*
-         * Left mouse button pressed + CTRL?
-         * 
-         * -> Toggle selection.
-         */
-        if (ctrlKey_pressed && !altKey_pressed) {
-            // myGuiController.mouseClick_WithCtrl_Occurred(e);
-            event = MyMouseEvent.MOUSE_PRESSED_CTRL;
-            myDrawPanel.lastMouseEvent = event;
-            if (debug)
-                System.out.println(event.getValue());
-            return;
-        }
-
-        /*
-         * Left mouse button pressed + ALT?
-         * 
-         * -> We want to allow dragging.
-         */
-        if (altKey_pressed && !ctrlKey_pressed) {
-            // myGuiController.mouseClick_WithAlt_Occurred(e);
-            event = MyMouseEvent.MOUSE_PRESSED_ALT;
-            myDrawPanel.lastMouseEvent = event;
-            if (debug)
-                System.out.println(event.getValue());
-
-            /*
-             * TODO Allow every mouse location or only over nodes?
-             */
-
-            return;
-        }
     }
 
     /*
@@ -614,7 +495,8 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             popupMenu.show(invoker, x, y);
 
         } else {
-            ConsoleLogger.logIfDebug(debug, "PopupMenuManager: no popup trigger");
+            // ConsoleLogger.logIfDebug(debug, "PopupMenuManager: no popup
+            // trigger");
         }
     }
 
@@ -647,11 +529,15 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         }
 
         /*
-         * All of them: element, node and arc, might be null!
+         * All of them: element, node and arc, might be null here!
+         * 
+         * But we need the info anyways because we have to update the enabled
+         * state of the "z level" Actions ("ElementToTheForeground" ...).
          */
+        myAppController.updateZValueActions(element);
 
+        /* Decide which popup to show */
         String simpleClassName = getSimpleClassName(element);
-
         switch (simpleClassName) {
         case "GuiPlace":
             return new PopupMenuForPlaces(myDrawPanel, node, popupActions);

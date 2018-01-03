@@ -101,7 +101,7 @@ public class FileSaveAsAction extends AbstractPNAction {
             return;
 
         } else {
-            // System.out.println("SaveAs command cancelled by user.");
+            // System.out.println("SaveAs command canceled by user.");
         }
     }
 }

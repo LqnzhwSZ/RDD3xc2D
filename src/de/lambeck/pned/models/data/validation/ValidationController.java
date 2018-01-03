@@ -1,6 +1,7 @@
 package de.lambeck.pned.models.data.validation;
 
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,11 +44,20 @@ public class ValidationController extends Thread implements IValidationControlle
      */
     private Map<String, IValidator> validatorMap = new LinkedHashMap<String, IValidator>();
 
+    // /**
+    // * Stores the highest previous {@link EValidationResultSeverity} for the
+    // * current set of validations (for the current model).
+    // */
+    // private EValidationResultSeverity currentValidationStatus =
+    // EValidationResultSeverity.INFO;
+
     /**
-     * Stores the highest previous {@link EValidationResultSeverity} for the
-     * current set of validations (for the current model).
+     * A Map to store the highest previous {@link EValidationResultSeverity} for
+     * the current set of validations and the specified model.
+     * 
+     * Note: This is necessary because the user can switch between files!
      */
-    private EValidationResultSeverity currentValidationStatus = EValidationResultSeverity.INFO;
+    private Map<String, EValidationResultSeverity> currentValidationStatus = new HashMap<String, EValidationResultSeverity>();
 
     /* Constructor */
 
@@ -97,8 +107,9 @@ public class ValidationController extends Thread implements IValidationControlle
     }
 
     @Override
-    public EValidationResultSeverity getCurrentValidationStatus() {
-        return this.currentValidationStatus;
+    public EValidationResultSeverity getCurrentValidationStatus(String modelName) {
+        // return this.currentValidationStatus;
+        return this.currentValidationStatus.get(modelName);
     }
 
     @Override
@@ -108,6 +119,28 @@ public class ValidationController extends Thread implements IValidationControlle
             if (key == validatorName) {
                 IValidator validator = entry.getValue();
                 validator.startValidation(dataModel, false);
+
+                /* Get the message panel. */
+                IValidationMsgPanel msgPanel = getMsgPanel(dataModel);
+                if (msgPanel == null) {
+                    /*
+                     * This should never happen because we should be within a
+                     * simulation now. Which means that there must be a current
+                     * model (and therefore draw and message panels as well).
+                     */
+                    String errMsg = "ValidationController, cannot start validation: ";
+                    errMsg = errMsg + "no message panel for model '" + dataModel.getModelName() + "'";
+                    System.err.println(errMsg);
+
+                    return;
+                }
+
+                /*
+                 * Pass the results to the message panel, but ignore return
+                 * values because "real" validation would be recognized by
+                 * "modelChecked = false" in the run() method.
+                 */
+                getValidatorMessages(true, msgPanel, validator);
             }
         }
     }
@@ -159,17 +192,7 @@ public class ValidationController extends Thread implements IValidationControlle
                 validator.startValidation(dataModel, isInitialModelCheck);
 
                 /* Get all messages from the current validator. */
-                while ((this.getState() != Thread.State.TERMINATED) && (validator.hasMoreMessages())) {
-                    IValidationMsg message = validator.nextMessage();
-
-                    isModelValid = handleMessage(isModelValid, msgPanel, message);
-
-                    Thread.yield();
-
-                    if (this.getState() == Thread.State.TERMINATED) {
-                        break;
-                    }
-                }
+                isModelValid = getValidatorMessages(isModelValid, msgPanel, validator);
                 msgPanel.addMessage("");
 
                 /*
@@ -220,7 +243,35 @@ public class ValidationController extends Thread implements IValidationControlle
     private void resetMsgPanelAndValidationStatus(IValidationMsgPanel msgPanel) {
         msgPanel.reset();
         msgPanel.setBgColor(EValidationColor.PENDING);
-        this.currentValidationStatus = EValidationResultSeverity.INFO;
+        // this.currentValidationStatus = EValidationResultSeverity.INFO;
+        String modelName = msgPanel.getModelName();
+        this.currentValidationStatus.put(modelName, EValidationResultSeverity.INFO);
+    }
+
+    /**
+     * Handles all messages from the specified validator.
+     * 
+     * @param isModelValid
+     *            Current model "validity" state
+     * @param msgPanel
+     *            The {@link IValidationMsgPanel}
+     * @param validator
+     *            The {@link IValidator}
+     * @return The new "validity" state
+     */
+    private boolean getValidatorMessages(boolean isModelValid, IValidationMsgPanel msgPanel, IValidator validator) {
+        while ((this.getState() != Thread.State.TERMINATED) && (validator.hasMoreMessages())) {
+            IValidationMsg message = validator.nextMessage();
+
+            isModelValid = handleMessage(isModelValid, msgPanel, message);
+
+            Thread.yield();
+
+            if (this.getState() == Thread.State.TERMINATED) {
+                break;
+            }
+        }
+        return isModelValid;
     }
 
     /**
@@ -240,7 +291,9 @@ public class ValidationController extends Thread implements IValidationControlle
         }
 
         EValidationResultSeverity currentSeverity = message.getSeverity();
-        storeMaxSeverityLevel(currentSeverity);
+        // storeMaxSeverityLevel(currentSeverity);
+        String modelName = msgPanel.getModelName();
+        storeMaxSeverityLevel(modelName, currentSeverity);
 
         if (currentSeverity == EValidationResultSeverity.CRITICAL) {
             isModelValid = false; // But continue with more messages and tests
@@ -257,9 +310,13 @@ public class ValidationController extends Thread implements IValidationControlle
      *            the severity level of the last message from the current
      *            validator
      */
-    private void storeMaxSeverityLevel(EValidationResultSeverity nextSeverity) {
-        if (this.currentValidationStatus.toInt() < nextSeverity.toInt()) {
-            this.currentValidationStatus = nextSeverity;
+    private void storeMaxSeverityLevel(String modelName, EValidationResultSeverity nextSeverity) {
+        // if (this.currentValidationStatus.toInt() < nextSeverity.toInt()) {
+        // this.currentValidationStatus = nextSeverity;
+        // }
+        int currentMaxStatus = this.currentValidationStatus.get(modelName).toInt();
+        if (currentMaxStatus < nextSeverity.toInt()) {
+            this.currentValidationStatus.put(modelName, nextSeverity);
         }
     }
 

@@ -46,7 +46,7 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * - ExitCode.OPERATION_FAILED: Error: Could not open the file!
      * 
-     * - ExitCode.OPERATION_CANCELLED: Error: Data model not accepted!
+     * - ExitCode.OPERATION_CANCELED: Error: Data model not accepted!
      * 
      * @param pnmlFile
      *            The file to use for read-in.
@@ -425,6 +425,19 @@ public interface IDataModelController extends IInfo_Status {
     void resetAllDataTransitionsEnabledState(String modelName);
 
     /**
+     * Callback for the {@link EnabledTransitionsValidator} to set the "safe"
+     * state for the specified {@link IGuiTransition} in the specified
+     * {@link IGuiModel} to false.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    void setGuiTransitionUnsafe(String modelName, String transitionId);
+
+    /**
      * Callback for the {@link EnabledTransitionsValidator} to set the "enabled"
      * state for the specified {@link IGuiTransition} in the specified
      * {@link IGuiModel}.
@@ -435,7 +448,7 @@ public interface IDataModelController extends IInfo_Status {
      * @param transitionId
      *            The id of the {@link IGuiTransition}
      */
-    void setGuiTransitionEnabledState(String modelName, String transitionId);
+    void setGuiTransitionEnabled(String modelName, String transitionId);
 
     /**
      * Handles the {@link ApplicationController} request to fire a
@@ -447,5 +460,10 @@ public interface IDataModelController extends IInfo_Status {
      *            The id of the {@link IDataTransition}
      */
     void fireDataTransition(String transitionId);
+
+    /**
+     * Resets the current state of tokens and enabled transitions.
+     */
+    void stopSimulation();
 
 }

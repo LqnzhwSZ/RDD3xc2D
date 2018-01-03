@@ -13,8 +13,6 @@ import de.lambeck.pned.gui.icon.ImageIconCreator;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.i18n.MnemonicString;
 
-// TODO Actions not new ...Action for each menu!
-
 /**
  * Abstract class for implementation of Actions for the Petri net editor.
  * 
@@ -38,24 +36,28 @@ public abstract class AbstractPNAction extends AbstractAction {
      */
     protected static final int SHORTCUT_KEY_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
-    /*
-     * Variable icon size, but equal for all buttons, menu items etc.
-     */
+    /** Variable icon size, but equal for all menu/tool bar items */
     protected static EIconSize imagesSize = EIconSize.MEDIUM;
 
     /*
      * Customizing attributes for different buttons, menu items etc.
      */
+
+    /** The internal name of this Action */
     protected String internalName = "";
+    /** The path to the icon */
     protected String iconPath = "";
+    /** The name of the icon */
     protected String iconName = "";
+    /** keyCode for the KeyStroke used as the accelerator for the action */
     protected int keyEvent = 0;
+    /** modifiers for the KeyStroke used as the accelerator for the action */
     protected int actionEvent = 0;
 
-    /*
-     * References for all buttons, menu items etc.
-     */
+    /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
+
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n = null;
 
     /**

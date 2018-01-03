@@ -40,9 +40,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     protected boolean unreachable = false;
 
-    /*
-     * Info for label position
-     */
+    /* Info for label position */
 
     /**
      * Label offset in x direction (offset from shapeLeftX, "0" means start
@@ -54,9 +52,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     static int labelOffsetY = 15;
 
-    /*
-     * Attributes for optical appearance
-     */
+    /* Attributes for optical appearance */
 
     /** Size of the node */
     static int shapeSize = 50;
@@ -66,9 +62,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /** The font for the label */
     protected final Font labelFont = new Font(null, Font.BOLD, fontSize);
 
-    /*
-     * Bounds of only the shape (ignoring the size of the label)
-     */
+    /* Bounds of only the shape (ignoring the size of the label) */
 
     /** x value for the leftmost point of the shape */
     protected int shapeLeftX;
@@ -77,9 +71,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     /** y value for the lowest point of the shape */
     protected int shapeBottomY;
 
-    /*
-     * Bounds including the label (for the "selected marker")
-     */
+    /* Bounds including the label (for the "selected marker") */
 
     /** x value for the leftmost point of the node (including the label) */
     protected int totalLeftX;
@@ -95,9 +87,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      */
     Rectangle lastDrawingArea = null;
 
-    /*
-     * Constructor etc.
-     */
+    /* Constructor */
 
     /**
      * Constructs a node at a given location and in the specified z level
@@ -121,9 +111,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         calculateMyBounds(); // Depend on the other values.
     }
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public String getName() {
@@ -149,9 +137,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         calculateMyBounds();
     }
 
-    /*
-     * Method for interface IGuiElement
-     */
+    /* Method for interface IGuiElement */
 
     @Override
     public Rectangle getLastDrawingArea() {
@@ -184,9 +170,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
      * their predecessors/successors!
      */
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public int getTotalLeftX() {
@@ -213,9 +197,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         this.unreachable = b;
     }
 
-    /*
-     * Individual methods
-     */
+    /* Individual methods */
 
     /**
      * Determines the coordinates of the label depending on the center of this
@@ -251,15 +233,11 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         }
         drawInterior(g2);
 
-        /*
-         * Draw the shape
-         */
+        /* Draw the shape */
         g2.setColor(Color.BLACK);
         drawShape(g2);
 
-        /*
-         * Draw the label
-         */
+        /* Draw the label */
         String labelText = this.getName();
         Point labelLocation = this.getLabelLocation();
         labelLocation.setLocation(labelLocation.getX()*this.zoom, labelLocation.getY()*this.zoom);
@@ -268,9 +246,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         g2.setFont(zoomedFont);
         g2.drawString(labelText, labelLocation.x, labelLocation.y);
 
-        /*
-         * Test: show boundaries and zValue
-         */
+        /* Test: show boundaries and zValue */
         if (debug) {
             g2.setColor(Color.LIGHT_GRAY);
             int x = new Double(new Double(totalLeftX)*this.zoom).intValue();
@@ -283,9 +259,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
             g2.drawString(infoText, x + w - textWidth, y + zoomedFont.getSize());
         }
 
-        /*
-         * Show selection
-         */
+        /* Show selection */
         drawSelection(g2);
     }
 
@@ -318,13 +292,11 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     @Override
     public String toString() {
         String returnString = "GuiNode [" + super.toString() + ", name=" + name + ", position=" + shapeCenter.x + ","
-                + shapeCenter.y + "]";
+                + shapeCenter.y + ", unreachable=" + this.unreachable + "]";
         return returnString;
     }
 
-    /*
-     * Private helper methods
-     */
+    /* Private helper methods */
 
     /**
      * Calculates the bounds of the shape including the label and stores the
@@ -335,9 +307,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         this.shapeTopY = this.shapeCenter.y - (shapeSize / 2);
         this.shapeBottomY = this.shapeCenter.y + (shapeSize / 2);
 
-        /*
-         * label size and position influences the boundaries!
-         */
+        /* label size and position influences the boundaries! */
         String labelText = this.getName();
         Rectangle2D labelTextRect = getTextBounds(labelText, this.labelFont);
 
@@ -361,9 +331,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         int labelTextBottomY = (int) labelTextRect.getMaxY();
         this.totalHeight = Math.max(shapeSize, shapeSize + labelOffsetY + labelTextBottomY);
 
-        /*
-         * Store my drawing area for the next repaint.
-         */
+        /* Store my drawing area for the next repaint. */
         int x = getTotalLeftX();
         int y = getTotalTopY();
         int width = getTotalWidth();
@@ -430,6 +398,30 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         ConsoleLogger.logIfDebug(debug, message);
         message = "GuiNode, getTextBounds(), rect.getMaxY(): " + rect2d.getMaxY();
         ConsoleLogger.logIfDebug(debug, message);
+
+        /*
+         * This gives us still the wrong size: For example 93.34 for
+         * "wwwwwwwwww" instead of the real approximately 100!?
+         */
+        // System.err.println(rect2d);
+
+        /* We add something to all sides */
+
+        // TODO Get rid of this ugly "trick" as soon as possible possible!!!
+
+        int x = (int) rect2d.getMinX();
+        int y = (int) rect2d.getMinY();
+        int w = (int) rect2d.getWidth();
+        int h = (int) rect2d.getHeight();
+
+        x = x - 1;
+        y = y - 1;
+        w = (int) (w * 1.1);
+        h = (int) (h * 1.1);
+
+        Rectangle bigger = new Rectangle(x, y, w, h);
+        rect2d = bigger;
+        // System.err.println(rect2d);
 
         return rect2d;
     }

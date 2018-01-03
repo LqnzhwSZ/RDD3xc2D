@@ -1,11 +1,12 @@
 package de.lambeck.pned.gui.menuBar;
 
+import java.util.Map;
+
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
-import de.lambeck.pned.application.ApplicationController;
-import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -25,11 +26,33 @@ import de.lambeck.pned.i18n.I18NManager;
 @SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
 
+    /** This is the Component to position some dialogs (e.g. FileOpen). */
     protected JFrame parentComponent;
-    protected ApplicationController appController = null;
-    protected I18NManager i18n;
 
+    /** The Map with existing Actions, suitable for this menu bar. */
+    protected Map<String, AbstractAction> allActions;
+
+    /** The class that creates the menu items. */
     MenuCreator itemCreator;
+
+    /** A menu bar "button" */
+    private AbstractAction fileNewAction;
+    /** A menu bar "button" */
+    private AbstractAction fileOpenAction;
+    /** A menu bar "button" */
+    private AbstractAction fileCloseAction;
+    /** A menu bar "button" */
+    private AbstractAction fileSaveAction;
+    /** A menu bar "button" */
+    private AbstractAction fileSaveAsAction;
+    /** A menu bar "button" */
+    private AbstractAction appExitAction;
+    /** A menu bar "button" */
+    private AbstractAction editRenameAction;
+    /** A menu bar "button" */
+    private AbstractAction editDeleteAction;
+    /** A menu bar "button" */
+    private AbstractAction stopSimulationAction;
 
     /**
      * Constructs the MenuBar with a parent component and a reference to the
@@ -37,17 +60,16 @@ public class MenuBar extends JMenuBar {
      * 
      * @param parent
      *            The parent component (should be the main application window)
-     * @param controller
-     *            The application controller
      * @param i18n
      *            The source object for I18N strings
+     * @param allActions
+     *            List of Actions
      */
     @SuppressWarnings("hiding")
-    public MenuBar(JFrame parent, ApplicationController controller, I18NManager i18n) {
+    public MenuBar(JFrame parent, I18NManager i18n, Map<String, AbstractAction> allActions) {
         super();
         this.parentComponent = parent;
-        this.appController = controller;
-        this.i18n = i18n;
+        this.allActions = allActions;
 
         itemCreator = new MenuCreator(i18n);
         createMenus();
@@ -64,9 +86,6 @@ public class MenuBar extends JMenuBar {
 
         menu = createEditMenu();
         add(menu);
-
-        // menu = createViewMenu();
-        // add(menu);
     }
 
     /**
@@ -77,26 +96,31 @@ public class MenuBar extends JMenuBar {
     private JMenu createFileMenu() {
         JMenu fileMenu;
 
-        /*
-         * Create the menu
-         */
+        /* Create the menu. */
         fileMenu = itemCreator.getMenu("File", "FileMenuDescription");
 
-        /*
-         * Create the menu items
-         */
-        fileMenu.add(new FileNewAction(appController, i18n));
-        fileMenu.add(new FileOpenAction(appController, i18n, parentComponent));
-        fileMenu.add(new FileCloseAction(appController, i18n));
+        /* Create the menu items. */
+        fileNewAction = allActions.get("FileNew");
+        fileMenu.add(fileNewAction);
+
+        fileOpenAction = allActions.get("FileOpen...");
+        fileMenu.add(fileOpenAction);
+
+        fileCloseAction = allActions.get("FileClose");
+        fileMenu.add(fileCloseAction);
 
         fileMenu.addSeparator();
 
-        fileMenu.add(new FileSaveAction(appController, i18n));
-        fileMenu.add(new FileSaveAsAction(appController, i18n, parentComponent));
+        fileSaveAction = allActions.get("FileSave");
+        fileMenu.add(fileSaveAction);
+
+        fileSaveAsAction = allActions.get("FileSaveAs...");
+        fileMenu.add(fileSaveAsAction);
 
         fileMenu.addSeparator();
 
-        fileMenu.add(new AppExitAction(appController, i18n));
+        appExitAction = allActions.get("AppExit");
+        fileMenu.add(appExitAction);
 
         return fileMenu;
     }
@@ -109,16 +133,20 @@ public class MenuBar extends JMenuBar {
     private JMenu createEditMenu() {
         JMenu editMenu;
 
-        /*
-         * Create the menu
-         */
+        /* Create the menu. */
         editMenu = itemCreator.getMenu("Edit", "EditMenuDescription");
 
-        /*
-         * Create the menu items
-         */
-        editMenu.add(new EditRenameAction(appController, i18n));
-        editMenu.add(new EditDeleteAction(appController, i18n));
+        /* Create the menu items. */
+        editRenameAction = allActions.get("EditRename...");
+        editMenu.add(editRenameAction);
+
+        editDeleteAction = allActions.get("EditDelete");
+        editMenu.add(editDeleteAction);
+
+        editMenu.addSeparator();
+
+        stopSimulationAction = allActions.get("StopSimulation");
+        editMenu.add(stopSimulationAction);
 
         return editMenu;
     }

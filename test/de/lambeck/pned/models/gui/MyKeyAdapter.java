@@ -27,6 +27,7 @@ public class MyKeyAdapter extends KeyAdapter {
 
     private static boolean debug = true;
 
+    @SuppressWarnings("unused")
     private DrawPanel myDrawPanel = null;
 
     /**
@@ -48,7 +49,7 @@ public class MyKeyAdapter extends KeyAdapter {
             if (debug) {
                 System.out.println("ALT pressed: We allow dragging...");
             }
-            myDrawPanel.altKey_pressed = true;
+            // myDrawPanel.altKey_pressed = true;
         }
     }
 
@@ -61,7 +62,7 @@ public class MyKeyAdapter extends KeyAdapter {
             if (debug) {
                 System.out.println("ALT released: We quit dragging.");
             }
-            myDrawPanel.altKey_pressed = false;
+            // myDrawPanel.altKey_pressed = false;
         }
     }
 

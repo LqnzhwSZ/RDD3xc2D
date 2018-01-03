@@ -6,28 +6,30 @@ import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
- * Implements the Action for "FireTransition".
+ * Implements the Action for "StopSimulation".
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 @SuppressWarnings("serial")
-public class FireTransitionAction extends AbstractPNAction {
+public class StopSimulationAction extends AbstractPNAction {
 
     /**
-     * Creates the FireTransitionActionAction without additional parameters.
+     * Creates the StopSimulationAction without additional parameters.
      * 
      * @param controller
      *            The application controller
      * @param i18nController
      *            The source object for I18N strings
      */
-    public FireTransitionAction(ApplicationController controller, I18NManager i18nController) {
+    public StopSimulationAction(ApplicationController controller, I18NManager i18nController) {
         super(controller, i18nController);
 
-        internalName = "FireTransition";
+        internalName = "StopSimulation";
+        // iconPath = "icons/tango";
+        // iconName = "Dialog-STOP.svg.png";
         iconPath = "icons/gnome";
-        iconName = "Gnome-media-playback-start.svg.png";
+        iconName = "Gnome-media-playback-stop.svg.png";
         // No shortcut at all
         keyEvent = 0;
         actionEvent = 0;
@@ -37,6 +39,6 @@ public class FireTransitionAction extends AbstractPNAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        appController.menuCmd_FireTransition();
+        appController.menuCmd_StopSimulation();
     }
 }

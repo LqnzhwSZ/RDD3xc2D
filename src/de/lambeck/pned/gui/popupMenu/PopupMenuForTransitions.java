@@ -27,30 +27,32 @@ import de.lambeck.pned.util.ConsoleLogger;
 @SuppressWarnings("serial")
 public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuListener {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
+    /** The Map with existing Actions, suitable for this popup menu. */
     protected Map<String, AbstractAction> popupActions;
 
-    /**
-     * Source of the popup trigger
-     */
+    /** Source of the popup trigger */
     private IDrawPanel myDrawPanel = null;
 
-    /**
-     * Local reference to the current node
-     */
+    /** Local reference to the current node */
     private IGuiNode node;
 
-    /**
-     * The "buttons" of the popup menu
-     */
+    /** A popup menu "button" */
     private AbstractAction selectAction;
+    /** A popup menu "button" */
     private AbstractAction fireTransition;
+    /** A popup menu "button" */
     private AbstractAction toForegroundAction;
+    /** A popup menu "button" */
     private AbstractAction oneLayerUpAction;
+    /** A popup menu "button" */
     private AbstractAction oneLayerDownAction;
+    /** A popup menu "button" */
     private AbstractAction toBackgroundAction;
+    /** A popup menu "button" */
     private AbstractAction newArcFromHereAction;
+    /** A popup menu "button" */
     private AbstractAction newArcToHereAction;
 
     /**
@@ -130,10 +132,9 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
         oneLayerDownAction.setEnabled(currZ != minZ);
         toBackgroundAction.setEnabled(currZ != minZ);
 
-        /* Check if we are adding a new arc (of proper type). */
-        boolean enableNewArcFromHereAction = getEnableNewArcFromHere();
-        newArcFromHereAction.setEnabled(enableNewArcFromHereAction);
+        newArcFromHereAction.setEnabled(true);
 
+        /* Check if we are adding a new arc (of proper type). */
         boolean enableNewArcToHereAction = getEnableNewArcToHere();
         newArcToHereAction.setEnabled(enableNewArcToHereAction);
     }
@@ -151,15 +152,12 @@ public class PopupMenuForTransitions extends JPopupMenu implements PopupMenuList
         return result;
     }
 
-    private boolean getEnableNewArcFromHere() {
-        boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
-
-        if (addingNewArc)
-            return false;
-
-        return true;
-    }
-
+    /**
+     * Checks the type of node that is stored as source for the next arc.
+     * 
+     * @return True = enabled (source for the next arc is a place), false =
+     *         disabled
+     */
     private boolean getEnableNewArcToHere() {
         boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
         ENodeType sourceForNewArc = myDrawPanel.getSourceForNewArcType();

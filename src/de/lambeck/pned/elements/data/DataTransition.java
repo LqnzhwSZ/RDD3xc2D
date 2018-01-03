@@ -15,8 +15,11 @@ import de.lambeck.pned.exceptions.PNElementException;
  */
 public class DataTransition extends DataNode implements IDataTransition {
 
-    /** The enabled state of this transition */
+    /** The "enabled" state of this transition */
     private boolean enabled = false;
+
+    /** The "safe" state of this transition */
+    private boolean safe = true; // Assume "safe" from the start
 
     /*
      * Constructor
@@ -49,12 +52,18 @@ public class DataTransition extends DataNode implements IDataTransition {
     }
 
     @Override
-    public void resetEnabled() {
-        this.enabled = false;
+    public boolean isSafe() {
+        return this.safe;
     }
 
     @Override
-    public boolean checkEnabled() {
+    public void resetEnabled() {
+        this.enabled = false;
+        this.safe = true; // Assume "safe" after reset
+    }
+
+    @Override
+    public boolean checkEnabled() throws IllegalStateException {
         this.enabled = false;
 
         List<DataPlace> inputPlaces = getPredPlaces();
@@ -81,9 +90,11 @@ public class DataTransition extends DataNode implements IDataTransition {
                 if (!inputPlaces.contains(outputPlace)) {
                     /*
                      * Failed condition 4: Only output places that are input
-                     * places as well have a token.
+                     * places as well have a token. (We throw an Exception
+                     * because a simple "false" would not be clear enough!)
                      */
-                    return false;
+                    String message = "Output place with a token";
+                    throw new IllegalStateException(message);
                 }
             }
         }

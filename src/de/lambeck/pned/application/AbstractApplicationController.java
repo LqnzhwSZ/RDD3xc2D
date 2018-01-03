@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
+import de.lambeck.pned.application.actions.IActionManager;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.i18n.I18NManager;
@@ -41,6 +42,9 @@ public abstract class AbstractApplicationController extends WindowAdapter
 
     /** Reference to the applications menu bar */
     protected MenuBar menuBar = null;
+
+    /** Reference to the {@link IActionManager} */
+    protected IActionManager actionManager;
 
     /**
      * Lists of Action objects for menu bar and tool bar
@@ -83,15 +87,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
         this.mainFrame = frame;
         this.i18n = i18n;
         this.statusBar = stBar;
-
-        addAllActionsToHashMaps();
     }
-
-    /**
-     * Adds all Actions which are known to the application controller to the
-     * Hashmap.
-     */
-    protected abstract void addAllActionsToHashMaps();
 
     /**
      * Getter for allowedToClose

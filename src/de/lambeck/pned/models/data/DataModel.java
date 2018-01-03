@@ -64,11 +64,11 @@ public class DataModel implements IDataModel, IModelRename {
     /**
      * Constructs the date model with a specified name.
      * 
-     * Intended use: name == path of the pnml file
+     * Intended use: name == path of the PNML file
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @param displayName
      *            The name of the tab (the file name only)
      */

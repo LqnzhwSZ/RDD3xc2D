@@ -30,6 +30,7 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.models.data.validation.*;
 import de.lambeck.pned.models.gui.*;
+import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Extends the abstract application controller. Observes the application (e.g.
@@ -41,6 +42,7 @@ import de.lambeck.pned.models.gui.*;
  */
 public class ApplicationController extends AbstractApplicationController {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** The application title to begin with */
@@ -151,7 +153,7 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.addWindowListener(this);
         mainFrame.addWindowStateListener(this);
 
-        /* Add controllers for data models, GUI models and validation */
+        /* Add controllers */
         addControllers(i18n);
 
         /* Add validators to the validation controller. */
@@ -170,9 +172,10 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.setContentPane(contentPane);
 
         /* Add menu, tool and status bar. */
-        MenuBar menuBar = new MenuBar(frame, this, i18n);
-        JToolBar toolBarElements = new PnedToolBar(this, i18n);
+        MenuBar menuBar = new MenuBar(frame, i18n, allActions);
+        mainFrame.setJMenuBar(menuBar);
 
+/*
         toolBarElements.addSeparator();
         String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
         toolBarElements.add(new SizeSlider(sizeSliderName, this));
@@ -181,6 +184,9 @@ public class ApplicationController extends AbstractApplicationController {
         
         mainFrame.setJMenuBar(menuBar);
         mainFrame.add(toolBarElements, BorderLayout.PAGE_START);
+*/
+        JToolBar toolBar = new PnedToolBar(this, i18n, allActions);
+        mainFrame.add(toolBar, BorderLayout.PAGE_START);
         mainFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         /* Additional settings */
@@ -213,6 +219,10 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @SuppressWarnings("hiding")
     private void addControllers(I18NManager i18n) {
+        this.actionManager = new ActionManager(this, i18n, mainFrame);
+        this.allActions = this.actionManager.getAllActions();
+        this.popupActions = this.actionManager.getPopupActions();
+
         this.dataModelController = new DataModelController(this, i18n);
         this.guiModelController = new GuiModelController(this, i18n, this.popupActions);
         this.validationController = new ValidationController(this.dataModelController, i18n);
@@ -246,9 +256,7 @@ public class ApplicationController extends AbstractApplicationController {
         validationController.addValidator(enabledTransitionsValidator, enabledTransitionsValidatorName);
     }
 
-    /*
-     * Helper methods
-     */
+    /* Helper methods */
 
     /**
      * Returns a size for the main frame depending on the size of the screen and
@@ -302,46 +310,7 @@ public class ApplicationController extends AbstractApplicationController {
         inputMap.put(ctrlShiftTab, "navigatePrevious");
     }
 
-    /*
-     * Methods for super class AbstractApplicationController
-     */
-
-    @Override
-    protected void addAllActionsToHashMaps() {
-        // Menu "File"
-        allActions.put("FileNew", new FileNewAction(this, i18n));
-        allActions.put("FileOpen...", new FileNewAction(this, i18n));
-        allActions.put("FileClose", new FileNewAction(this, i18n));
-        allActions.put("FileSave", new FileNewAction(this, i18n));
-        allActions.put("FileSaveAs...", new FileNewAction(this, i18n));
-        allActions.put("AppExit", new FileNewAction(this, i18n));
-
-        // Menu "Edit"
-        allActions.put("EditRename...", new FileNewAction(this, i18n));
-        allActions.put("EditDelete", new FileNewAction(this, i18n));
-
-        // Tool bar "Elements"
-        allActions.put("ElementToTheForeground", new FileNewAction(this, i18n));
-        allActions.put("ElementOneLayerUp", new FileNewAction(this, i18n));
-        allActions.put("ElementOneLayerDown", new FileNewAction(this, i18n));
-        allActions.put("ElementToTheBackground", new FileNewAction(this, i18n));
-
-        // Popup menu "Elements"
-        popupActions.put("FireTransition", new FireTransitionAction(this, i18n));
-
-        popupActions.put("ElementSelect", new ElementSelectAction(this, i18n));
-        popupActions.put("ElementToTheForeground", new ElementToTheForegroundAction(this, i18n));
-        popupActions.put("ElementOneLayerUp", new ElementOneLayerUpAction(this, i18n));
-        popupActions.put("ElementOneLayerDown", new ElementOneLayerDownAction(this, i18n));
-        popupActions.put("ElementToTheBackground", new ElementToTheBackgroundAction(this, i18n));
-
-        popupActions.put("NewArcFromHere", new NewArcFromHereAction(this, i18n));
-        popupActions.put("NewArcToHere", new NewArcToHereAction(this, i18n));
-
-        // Popup menu "Empty area"
-        popupActions.put("NewPlace", new NewPlaceAction(this, i18n));
-        popupActions.put("NewTransition", new NewTransitionAction(this, i18n));
-    }
+    /* Methods for super class AbstractApplicationController */
 
     /**
      * Asks the data model controller for it's list of models that have been
@@ -362,9 +331,7 @@ public class ApplicationController extends AbstractApplicationController {
      */
     @Override
     public void windowClosing(WindowEvent e) {
-        /*
-         * Close all unmodified files immediately.
-         */
+        /* Close all unmodified files immediately. */
         closeUnmodifiedFiles();
 
         /*
@@ -382,15 +349,13 @@ public class ApplicationController extends AbstractApplicationController {
         if (close)
             closeApplication();
 
-        /*
-         * Ask the user to save all modified models to a file.
-         */
+        /* Ask the user to save all modified models to a file. */
         int answer = askSaveModifiedModelsBeforeExit();
         if (debug) {
             System.out.println("AppController.windowClosing(), askSaveModifiedModelsBeforeExit(), answer: " + answer);
         }
 
-        if (answer == ExitCode.OPERATION_CANCELLED)
+        if (answer == ExitCode.OPERATION_CANCELED)
             return;
         if (answer == ExitCode.OPERATION_FAILED)
             return;
@@ -413,9 +378,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Updates the attribute allowedToClose.
      */
     private void updateAllowedToClose() {
-        /*
-         * Check if it's safe to close the application.
-         */
+        /* Check if it's safe to close the application. */
         updateModifiedDataModelsList();
         int allModifiedDataModelsCount = modifiedDataModels.size();
         this.allowedToClose = (allModifiedDataModelsCount == 0);
@@ -430,9 +393,7 @@ public class ApplicationController extends AbstractApplicationController {
         System.exit(0);
     }
 
-    /*
-     * Method for the ComponentResizeListener
-     */
+    /* Method for the ComponentResizeListener */
 
     /**
      * Callback for the ComponentResizeListener
@@ -458,9 +419,7 @@ public class ApplicationController extends AbstractApplicationController {
         }
     }
 
-    /*
-     * Methods for the TabListener
-     */
+    /* Methods for the TabListener */
 
     /**
      * Adds the file name to the title of the main frame.
@@ -506,18 +465,14 @@ public class ApplicationController extends AbstractApplicationController {
         //
         // this.activeFile = drawPanel.getModelName();
 
-        /*
-         * Easier with the full path name as tool tip on the tabs!
-         */
+        /* Easier with the full path name as tool tip on the tabs! */
         if (tabIndex < 0) {
             this.activeFile = null;
         } else {
             this.activeFile = tabbedPane.getToolTipTextAt(tabIndex);
         }
 
-        /*
-         * Update the current models/draw panels of data and GUI controller.
-         */
+        /* Update the current models/draw panels of data and GUI controller. */
         if (activeFile != null) {
             IDataModel newActiveDataModel = dataModelController.getDataModel(activeFile);
             if (newActiveDataModel == null) {
@@ -538,9 +493,7 @@ public class ApplicationController extends AbstractApplicationController {
             guiModelController.setCurrentDrawPanel(newActiveDrawPanel);
         }
 
-        /*
-         * Update the status bar
-         */
+        /* Update the status bar */
         updateDrawPanelSizeInfo();
 
         if (debug) {
@@ -564,9 +517,7 @@ public class ApplicationController extends AbstractApplicationController {
         setActiveFile(tabIndex);
     }
 
-    /*
-     * Implemented menu commands for the Actions
-     */
+    /* Implemented menu commands for the Actions */
 
     /**
      * Callback for {@link FileNewAction}, creates a new file.
@@ -671,6 +622,9 @@ public class ApplicationController extends AbstractApplicationController {
      * Petri net.
      */
     public void menuCmd_EditRename() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: EditRename...";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -685,6 +639,9 @@ public class ApplicationController extends AbstractApplicationController {
      * Petri net.
      */
     public void menuCmd_EditDelete() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: EditDelete";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -698,12 +655,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Callback for {@link ElementSelectAction}, selects the current element.
      */
     public void menuCmd_ElementSelect() {
-        if (debug) {
-            String testMsg = "Menu command: ElementSelect";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
+        /* Called only from popup menus */
         guiModelController.selectElementAtPopupMenu();
     }
 
@@ -712,6 +664,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} to the foreground.
      */
     public void menuCmd_ElementToTheForeground() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementToTheForeground";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -726,6 +681,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} to the foreground.
      */
     public void menuCmd_ElementToTheBackground() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementToTheBackground";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -740,6 +698,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} 1 layer up.
      */
     public void menuCmd_ElementOneLayerUp() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementOneLayerUp";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -754,6 +715,9 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link IGuiElement} 1 layer down.
      */
     public void menuCmd_ElementOneLayerDown() {
+        if (!isFileOpen())
+            return;
+
         if (debug) {
             String testMsg = "Menu command: ElementOneLayerDown";
             setInfo_Status(testMsg, EStatusMessageLevel.INFO);
@@ -768,12 +732,7 @@ public class ApplicationController extends AbstractApplicationController {
      * the current {@link IGuiModel}.
      */
     public void menuCmd_NewPlace() {
-        if (debug) {
-            String testMsg = "Menu command: NewPlace";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
+        /* Called only from popup menus */
         guiModelController.createNewPlaceInCurrentGuiModel();
     }
 
@@ -782,12 +741,7 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link GuiTransition} in the current {@link IGuiModel}.
      */
     public void menuCmd_NewTransition() {
-        if (debug) {
-            String testMsg = "Menu command: NewTransition";
-            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
-            System.out.println(testMsg);
-        }
-
+        /* Called only from popup menus */
         guiModelController.createNewTransitionInCurrentGuiModel();
     }
 
@@ -796,6 +750,7 @@ public class ApplicationController extends AbstractApplicationController {
      * source of the new {@link IGuiArc} in the current {@link IGuiModel}.
      */
     public void menuCmd_NewArcFromHere() {
+        /* Called only from popup menus */
         guiModelController.setSourceNodeForNewArc();
     }
 
@@ -804,18 +759,35 @@ public class ApplicationController extends AbstractApplicationController {
      * of the new {@link IGuiArc} in the current {@link IGuiModel}.
      */
     public void menuCmd_NewArcToHere() {
+        /* Called only from popup menus */
         guiModelController.setTargetNodeForNewArc();
     }
 
     /**
      * Callback for {@link FireTransitionAction} in
      * {@link PopupMenuForTransitions}, fires the transition at the popup
-     * location.<BR>
-     * <BR>
-     * Note: This method should only be invokable from .
+     * location.
      */
     public void menuCmd_FireTransition() {
+        /* Called only from popup menus */
         guiModelController.fireGuiTransition();
+    }
+
+    /**
+     * Callback for {@link StopSimulationAction}, resets the current state of
+     * tokens and enabled transitions.
+     */
+    public void menuCmd_StopSimulation() {
+        if (!isFileOpen())
+            return;
+
+        if (debug) {
+            String testMsg = "Menu command: StopSimulation";
+            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
+            System.out.println(testMsg);
+        }
+
+        dataModelController.stopSimulation();
     }
 
     /**
@@ -826,26 +798,21 @@ public class ApplicationController extends AbstractApplicationController {
      *            The new size
      */
     public void changeShapeSize(int size) {
+        /* Changes a general setting for all {@link IGuiNode} */
         guiModelController.changeShapeSize(size);
     }
 
-    /*
-     * End of menu commands for the Actions
-     */
+    /* End of menu commands for the Actions */
 
     /**
      * Adds a new (non-existing) file.
      */
     private void addNewEmptyFile() {
-        /*
-         * Get the next new file name
-         */
+        /* Get the next new file name */
         currNewFileIndex++;
         String fileName = i18n.getNameOnly("FileNew") + currNewFileIndex;
 
-        /*
-         * Add a tab with empty models and empty draw panel.
-         */
+        /* Add a tab with empty models and empty draw panel. */
         String displayName = fileName; // Only for a new file!
         addEmptyTab(fileName, displayName);
     }
@@ -864,9 +831,7 @@ public class ApplicationController extends AbstractApplicationController {
      *            The title of the tab (= the file name)
      */
     private void addEmptyTab(String fullName, String displayName) {
-        /*
-         * Create empty models.
-         */
+        /* Create empty models. */
         dataModelController.addDataModel(fullName, displayName);
         guiModelController.addGuiModel(fullName, displayName);
 
@@ -882,9 +847,7 @@ public class ApplicationController extends AbstractApplicationController {
          */
         IValidationMsgPanel validationMessagesPanel = dataModelController.getValidationMessagePanel(fullName);
 
-        /*
-         * Add the draw panel to a scroll pane on a new tab.
-         */
+        /* Add the draw panel to a scroll pane on a new tab. */
         addTabForDrawPanel(drawPanel, validationMessagesPanel, fullName, displayName);
     }
 
@@ -896,9 +859,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @see {@link FileOpenAction}
      */
     private void addNewModelFromFile(File pnmlFile) {
-        /*
-         * Get the (unique) canonical path name of the specified file.
-         */
+        /* Get the (unique) canonical path name of the specified file. */
         String canonicalPath = FSInfo.getCanonicalPath(pnmlFile);
         if (canonicalPath == null) {
             String errMessage = i18n.getMessage("errFileOpen");
@@ -908,9 +869,7 @@ public class ApplicationController extends AbstractApplicationController {
             return;
         }
 
-        /*
-         * Get the file name of the specified file.
-         */
+        /* Get the file name of the specified file. */
         String displayName = FSInfo.getFileName(pnmlFile);
 
         /*
@@ -929,9 +888,7 @@ public class ApplicationController extends AbstractApplicationController {
         importingFromPnml = false;
 
         if (returnValue != ExitCode.OPERATION_SUCCESSFUL) {
-            /*
-             * Show an error message
-             */
+            /* Show an error message. */
             String title = displayName;
             String errorMessage = i18n.getMessage("errFileNotAccepted") + canonicalPath;
             System.err.println(errorMessage);
@@ -960,9 +917,7 @@ public class ApplicationController extends AbstractApplicationController {
         dataModelController.resetModifiedDataModel(canonicalPath);
         guiModelController.resetModifiedGuiModel(canonicalPath);
 
-        /*
-         * Add a tab for this file (with the draw panel)
-         */
+        /* Add a tab for this file (with the draw panel) */
         DrawPanel drawPanel = (DrawPanel) guiModelController.getDrawPanel(canonicalPath);
 
         /*
@@ -1080,9 +1035,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "closeFile", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        /*
-         * Close the file immediately, if not modified
-         */
+        /* Close the file immediately, if not modified */
         boolean modified = isFileModified(modelName);
 
         if (!modified) {
@@ -1099,7 +1052,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         switch (answer) {
         case JOptionPane.CANCEL_OPTION:
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
 
         case JOptionPane.NO_OPTION:
             disposeFile(modelName);
@@ -1133,17 +1086,13 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "closeFile", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        /*
-         * Close the file immediately, if saveChanges is false.
-         */
+        /* Close the file immediately, if saveChanges is false. */
         if (!saveChanges) {
             disposeFile(modelName);
             return ExitCode.OPERATION_SUCCESSFUL;
         }
 
-        /*
-         * Close the file immediately, if not modified.
-         */
+        /* Close the file immediately, if not modified. */
         boolean modified = isFileModified(modelName);
 
         if (!modified) {
@@ -1192,9 +1141,8 @@ public class ApplicationController extends AbstractApplicationController {
             return false;
 
         boolean dataModelModified = dataModelController.isModifiedDataModel(modelName);
-        /*
-         * Check only the data model. It should hold all persistent info.
-         */
+
+        /* Check only the data model. It should hold all persistent info. */
         // boolean guiModelModified =
         // guiModelController.isModifiedGuiModel(modelName);
 
@@ -1214,9 +1162,7 @@ public class ApplicationController extends AbstractApplicationController {
     private void disposeFile(String modelName) {
         if (isParamUndefined(modelName, "disposeFile", "modelName"))
             return;
-        /*
-         * Remove the specified tab.
-         */
+        /* Remove the specified tab. */
         int index = getTabIndexForFile(modelName);
         // if (index == -1)
         // return;
@@ -1239,20 +1185,14 @@ public class ApplicationController extends AbstractApplicationController {
          * appController.setActiveFile(tabIndex).
          */
 
-        /*
-         * Dispose data model and GUI model (+ draw panel)
-         */
+        /* Dispose data model and GUI model (+ draw panel) */
         dataModelController.removeDataModel(modelName);
         guiModelController.removeGuiModel(modelName);
 
-        /*
-         * Remove the path name from the list of open files
-         */
+        /* Remove the path name from the list of open files */
         fileList.remove(modelName);
 
-        /*
-         * Update the status bar
-         */
+        /* Update the status bar */
         updateDrawPanelSizeInfo();
     }
 
@@ -1284,13 +1224,11 @@ public class ApplicationController extends AbstractApplicationController {
         Toolkit.getDefaultToolkit().beep();
         int answer = JOptionPane.showConfirmDialog(mainFrame, question, title, messageType);
         if (answer == -1)
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
         return answer;
     }
 
-    /*
-     * Saving file(s)
-     */
+    /* Saving file(s) */
 
     /**
      * Invokes saveFile(modelName) with the active file.
@@ -1319,7 +1257,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
-     * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELLED if
+     * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELED if
      *         the user didn't chose a file name for a new file; otherwise
      *         UNEXPECTED_ERROR
      */
@@ -1327,9 +1265,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "saveFile", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        /*
-         * Save the file immediately, if it is an existing file.
-         */
+        /* Save the file immediately, if it is an existing file. */
         boolean isFSFile = FSInfo.isFileSystemFile(modelName);
 
         if (isFSFile) {
@@ -1337,12 +1273,14 @@ public class ApplicationController extends AbstractApplicationController {
             return result;
         }
 
-        /*
-         * Ask for a file name.
-         */
-        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame);
+        /* Ask for a file name. */
+        File initialFolder = getCurrentDirectory("saveFile");
+        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
         if (saveAsFullName == null)
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
+
+        /* Store the current directory! */
+        setCurrentDirectory(saveAsFullName);
 
         int result = saveToFile(modelName, saveAsFullName, true);
         return result;
@@ -1364,8 +1302,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param displayAlerts
      *            Show an alert if a file already exists?
      * @return Exit code OPERATION_SUCCESSFUL if the file was saved,
-     *         OPERATION_FAILED if the file was not saved, OPERATION_CANCELLED
-     *         if the user cancelled the operation; otherwise UNEXPECTED_ERROR
+     *         OPERATION_FAILED if the file was not saved, OPERATION_CANCELED if
+     *         the user canceled the operation; otherwise UNEXPECTED_ERROR
      */
     private int saveToFile(String modelName, String saveAsFullName, boolean displayAlerts) {
         if (isParamUndefined(modelName, "saveToExistingFile", "modelName"))
@@ -1375,9 +1313,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         int result = -1;
 
-        /*
-         * Do we have to display an overwrite warning?
-         */
+        /* Do we have to display an overwrite warning? */
         if (modelName.equals(saveAsFullName))
             displayAlerts = false; // We just save the open file.
         if (!FSInfo.isFileSystemFile(saveAsFullName))
@@ -1392,23 +1328,23 @@ public class ApplicationController extends AbstractApplicationController {
             int answer = JOptionPane.showConfirmDialog(mainFrame, question, title, messageType);
 
             if (answer == JOptionPane.CANCEL_OPTION)
-                return ExitCode.OPERATION_CANCELLED;
+                return ExitCode.OPERATION_CANCELED;
             if (answer == JOptionPane.NO_OPTION)
                 return ExitCode.OPERATION_FAILED;
         }
 
-        /*
-         * Do we have to ask for a file name?
-         */
+        /* Do we have to ask for a file name? */
         if (saveAsFullName == null || saveAsFullName == "") {
-            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame);
+            File initialFolder = getCurrentDirectory("saveFile");
+            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
             if (saveAsFullName == null)
-                return ExitCode.OPERATION_CANCELLED;
+                return ExitCode.OPERATION_CANCELED;
+
+            /* Store the current directory! */
+            setCurrentDirectory(saveAsFullName);
         }
 
-        /*
-         * Is the target file write-protected?
-         */
+        /* Is the target file write-protected? */
         boolean writeProtected = FSInfo.isWriteProtectedFile(saveAsFullName);
         if (writeProtected) {
             String title = modelName;
@@ -1420,9 +1356,7 @@ public class ApplicationController extends AbstractApplicationController {
             return ExitCode.OPERATION_FAILED;
         }
 
-        /*
-         * We save the data model
-         */
+        /* We save the data model */
         IDataModel modifiedDataModel = dataModelController.getDataModel(modelName);
         if (debug) {
             System.out.println("modifiedDataModel.getModelName(): " + modifiedDataModel.getModelName());
@@ -1436,12 +1370,12 @@ public class ApplicationController extends AbstractApplicationController {
         case ExitCode.OPERATION_SUCCESSFUL:
             return ExitCode.OPERATION_SUCCESSFUL;
         case ExitCode.OPERATION_FAILED:
-        case ExitCode.OPERATION_CANCELLED:
+        case ExitCode.OPERATION_CANCELED:
             return ExitCode.OPERATION_FAILED;
         default:
             System.err.println(
                     "Unexpected return value from writeToPnmlFile(modifiedDataModel, saveAsFullName): " + result);
-            return ExitCode.OPERATION_CANCELLED;
+            return ExitCode.OPERATION_CANCELED;
         }
     }
 
@@ -1591,9 +1525,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         int result = saveToFile(modelName, saveAsFullName, true);
 
-        /*
-         * Update the name of the models etc.
-         */
+        /* Update the name of the models etc. */
         if (result == 0)
             renameModels(modelName, saveAsFullName);
 
@@ -1639,30 +1571,36 @@ public class ApplicationController extends AbstractApplicationController {
     private void updateTabInfo(String oldModelName, String newModelName, String displayName) {
         int tabIndex = getTabIndexForFile(oldModelName);
         if (tabIndex == -1) {
-            /*
-             * tabIndex should never be -1 because we renamed an open file!
-             */
+            /* tabIndex should never be -1 because we renamed an open file! */
             System.err.println("Could not find the tab to rename after SaveAs.");
             return;
         }
 
-        /*
-         * Rename tab (and tool tip).
-         */
+        /* Rename tab (and tool tip). */
         // tabbedPane.getTabComponentAt(tabIndex).setName(displayName);
         tabbedPane.setTitleAt(tabIndex, displayName);
         tabbedPane.setToolTipTextAt(tabIndex, newModelName);
 
-        /*
-         * Update references
-         */
+        /* Update references */
         setActiveFile(tabIndex);
         setFilenameOnTitle(displayName);
     }
 
-    /*
-     * Helpers
+    /* Private helpers */
+
+    /**
+     * Checks whether there is at least 1 file open or not.
+     * 
+     * @return True = At least one open file, false = no open files
      */
+    private boolean isFileOpen() {
+        if (this.activeFile == null || this.activeFile == "") {
+            ConsoleLogger.logIfDebug(debug, "No file open.");
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Checks if the specified file is already open.
@@ -1735,9 +1673,7 @@ public class ApplicationController extends AbstractApplicationController {
         // modelName + "!");
         // }
 
-        /*
-         * Easier with the full path name as tool tip on the tabs!
-         */
+        /* Easier with the full path name as tool tip on the tabs! */
         for (int i = 0; i < tabbedPane.getTabCount(); i++) {
             String nextToolTip = tabbedPane.getToolTipTextAt(i);
             if (nextToolTip.equals(modelName)) {
@@ -1778,8 +1714,8 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @return Exit code OPERATION_SUCCESSFUL if all modified file were saved,
      *         OPERATION_FAILED if at least one file was not saved,
-     *         OPERATION_CANCELLED if the user cancelled the operation;
-     *         otherwise UNEXPECTED_ERROR
+     *         OPERATION_CANCELED if the user canceled the operation; otherwise
+     *         UNEXPECTED_ERROR
      */
     private int askSaveModifiedModelsBeforeExit() {
         int result = ExitCode.UNEXPECTED_ERROR;
@@ -1793,9 +1729,7 @@ public class ApplicationController extends AbstractApplicationController {
                 System.out.println("AppController.askSaveModifiedModelsBeforeExit: " + file);
             }
 
-            /*
-             * Activate the according tab before asking the user to save!
-             */
+            /* Activate the according tab before asking the user to save! */
             activateTabForFile(file);
 
             /*
@@ -1812,36 +1746,45 @@ public class ApplicationController extends AbstractApplicationController {
             }
 
             if (answer == JOptionPane.CANCEL_OPTION)
-                return ExitCode.OPERATION_CANCELLED;
+                return ExitCode.OPERATION_CANCELED;
 
             if (answer == JOptionPane.NO_OPTION) {
                 disposeFile(file);
                 // return ExitCode.OPERATION_FAILED;
-                /*
-                 * No problem, continue with the next file.
-                 */
+                /* No problem, continue with the next file. */
             }
 
             if (answer == JOptionPane.YES_OPTION) {
-                /*
-                 * Try to save the file.
-                 */
+                /* Try to save the file. */
                 int savedReturnValue = saveFile(file);
                 if (savedReturnValue != ExitCode.OPERATION_SUCCESSFUL)
                     return savedReturnValue;
 
-                /*
-                 * OK, continue with the next file.
-                 */
+                /* OK, continue with the next file. */
             }
         }
 
         return result;
     }
 
-    /*
-     * Callbacks for updates between data model controller and GUI controller
+    /**
+     * @return Show debug messages?
      */
+    public boolean getShowDebugMessages() {
+        return ApplicationController.debug;
+    }
+
+    /**
+     * Sets the "show debug messages" state.
+     * 
+     * @param b
+     *            True = show debug messages, false = Do not show debug messages
+     */
+    public void setShowDebugMessages(boolean b) {
+        ApplicationController.debug = b;
+    }
+
+    /* Callbacks for updates between data model and GUI controller */
 
     /**
      * Callback for the data model controller to get the GUI controller up to
@@ -1935,13 +1878,9 @@ public class ApplicationController extends AbstractApplicationController {
         dataModelController.addArcToCurrentDataModel(id, sourceId, targetId);
     }
 
-    /*
-     * Modify methods for elements
-     */
+    /* Modify methods for elements */
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     /**
      * Removes all selected elements from the GUI model.
@@ -2002,9 +1941,7 @@ public class ApplicationController extends AbstractApplicationController {
         dataModelController.moveNode(nodeId, newPosition);
     }
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     /**
      * Handles the {@link IDataModelController} request to reset all start
@@ -2166,6 +2103,32 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
+     * Handles the {@link IDataModelController} request to reset the "safe"
+     * state on all transitions in the specified GUI model.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    public void resetAllGuiTransitionsSafeState(String modelName) {
+        guiModelController.resetAllGuiTransitionsSafeState(modelName);
+    }
+
+    /**
+     * Handles the {@link IDataModelController} request to set the "safe" state
+     * on the specified transition in the specified GUI model to false.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     * @param transitionId
+     *            The id of the {@link IGuiTransition}
+     */
+    public void setGuiTransitionUnsafe(String modelName, String transitionId) {
+        guiModelController.setGuiTransitionUnsafe(modelName, transitionId);
+    }
+
+    /**
      * Handles the {@link IDataModelController} request to set the "enabled"
      * state on the specified transition in the specified GUI model.
      * 
@@ -2175,8 +2138,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param transitionId
      *            The id of the {@link IGuiTransition}
      */
-    public void setGuiTransitionEnabledState(String modelName, String transitionId) {
-        guiModelController.setGuiTransitionEnabledState(modelName, transitionId);
+    public void setGuiTransitionEnabled(String modelName, String transitionId) {
+        guiModelController.setGuiTransitionEnabled(modelName, transitionId);
     }
 
     /**
@@ -2202,6 +2165,39 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void requestIndividualValidation(String validatorName, IDataModel dataModel) {
         validationController.requestIndividualValidation(validatorName, dataModel);
+    }
+
+    /**
+     * Passes the request to update the "enabled" state of
+     * {@link AbstractAction} to the {@link IActionManager}. That refers to
+     * Actions which depend on the currently selected element or the element at
+     * the popup menu location.
+     * 
+     * @param element
+     *            The {@link IGuiElement} that is currently selected or at the
+     *            popup menu location, or null = no element selected and no
+     *            element at the popup menu location
+     */
+    public void updateZValueActions(IGuiElement element) {
+        actionManager.updateZValueActions(element);
+    }
+
+    /**
+     * Callback for the {@link IActionManager}
+     * 
+     * @return the minimum z value from the current {@link IGuiModel}
+     */
+    public int getCurrentMinZValue() {
+        return guiModelController.getCurrentMinZValue();
+    }
+
+    /**
+     * Callback for the {@link IActionManager}
+     * 
+     * @return the maximum z value from the current {@link IGuiModel}
+     */
+    public int getCurrentMaxZValue() {
+        return guiModelController.getCurrentMaxZValue();
     }
 
 }

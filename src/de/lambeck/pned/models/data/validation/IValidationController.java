@@ -24,14 +24,17 @@ public interface IValidationController {
 
     /**
      * Returns the highest previous {@link EValidationResultSeverity} for the
-     * current set of validations (for the current model).
+     * current set of validations and the specified model.
      * 
      * Note: this is intended to be used by some {@link IValidator} to decide
      * whether to skip some checks or not.
      * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
      * @return {@link EValidationResultSeverity}
      */
-    EValidationResultSeverity getCurrentValidationStatus();
+    EValidationResultSeverity getCurrentValidationStatus(String modelName);
 
     /**
      * Request to the {@link IValidationController} thread to run the specified

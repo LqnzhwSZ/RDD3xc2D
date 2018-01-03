@@ -1,11 +1,13 @@
 package de.lambeck.pned.gui.toolBar;
 
 import java.awt.FlowLayout;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.JToolBar;
 
 import de.lambeck.pned.application.ApplicationController;
-import de.lambeck.pned.application.actions.*;
+import de.lambeck.pned.gui.settings.SizeSlider;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -19,6 +21,21 @@ public class PnedToolBar extends AbstractPnedToolBar {
 
     private static int orientation = JToolBar.HORIZONTAL;
 
+    /** A tool bar "button" */
+    private AbstractAction toForegroundAction;
+    /** A tool bar "button" */
+    private AbstractAction oneLayerUpAction;
+    /** A tool bar "button" */
+    private AbstractAction oneLayerDownAction;
+    /** A tool bar "button" */
+    private AbstractAction toBackgroundAction;
+    /** A tool bar "button" */
+    private AbstractAction editDeleteAction;
+    /** A tool bar "button" */
+    private AbstractAction stopSimulationAction;
+
+    // private JCheckBox debugCheckBox;
+
     /**
      * Constructs the ToolBar with a reference to the application controller.
      * 
@@ -26,12 +43,14 @@ public class PnedToolBar extends AbstractPnedToolBar {
      *            The application controller
      * @param i18n
      *            The source object for I18N strings
+     * @param allActions
+     *            List of Actions
      */
     @SuppressWarnings("hiding")
-    public PnedToolBar(ApplicationController controller, I18NManager i18n) {
-        super(controller, orientation, i18n);
+    public PnedToolBar(ApplicationController controller, I18NManager i18n, Map<String, AbstractAction> allActions) {
+        super(controller, i18n, orientation, allActions);
 
-        String text = i18n.getNameOnly("Elements");
+        String text = i18n.getNameOnly("WorkflowNet");
         this.setName(text);
 
         /*
@@ -45,18 +64,68 @@ public class PnedToolBar extends AbstractPnedToolBar {
          * width of the main frame.
          */
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        /* Add the debug check box. */
+        // addDebugCheckBox();
     }
 
     @Override
     protected void createButtons() {
-        add(new ElementToTheForegroundAction(appController, i18n));
-        add(new ElementOneLayerUpAction(appController, i18n));
-        add(new ElementOneLayerDownAction(appController, i18n));
-        add(new ElementToTheBackgroundAction(appController, i18n));
+        toForegroundAction = allActions.get("ElementToTheForeground");
+        add(toForegroundAction);
+
+        oneLayerUpAction = allActions.get("ElementOneLayerUp");
+        add(oneLayerUpAction);
+
+        oneLayerDownAction = allActions.get("ElementOneLayerDown");
+        add(oneLayerDownAction);
+
+        toBackgroundAction = allActions.get("ElementToTheBackground");
+        add(toBackgroundAction);
 
         addSeparator();
 
-        add(new EditDeleteAction(appController, i18n));
+        editDeleteAction = allActions.get("EditDelete");
+        add(editDeleteAction);
+
+        addSeparator();
+
+        stopSimulationAction = allActions.get("StopSimulation");
+        add(stopSimulationAction);
+
+        addSeparator();
+
+        String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
+        SizeSlider sizeSlider = new SizeSlider(sizeSliderName, appController);
+        add(sizeSlider);
     }
+
+    // private void addDebugCheckBox() {
+    // debugCheckBox = new JCheckBox("Debug messages in console");
+    // debugCheckBox.setSelected(appController.getShowDebugMessages());
+    // debugCheckBox.addItemListener(new ItemListener() {
+    //
+    // @Override
+    // public void itemStateChanged(ItemEvent e) {
+    // boolean b = false;
+    //
+    // int state = e.getStateChange();
+    // switch (state) {
+    // case ItemEvent.SELECTED:
+    // b = true;
+    // break;
+    // case ItemEvent.DESELECTED:
+    // b = false;
+    // default:
+    // break;
+    // }
+    //
+    // appController.setShowDebugMessages(b);
+    // }
+    // });
+    //
+    // addSeparator();
+    // add(debugCheckBox);
+    // }
 
 }

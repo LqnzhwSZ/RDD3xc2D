@@ -1,11 +1,11 @@
 package de.lambeck.pned.gui.toolBar;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import java.util.HashMap;
+
+import javax.swing.AbstractAction;
 import javax.swing.JToolBar;
 
 import de.lambeck.pned.application.ApplicationController;
-import de.lambeck.pned.gui.icon.ImageIconCreator;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -29,7 +29,8 @@ public class ToolBarTesting extends AbstractPnedToolBar {
      */
     @SuppressWarnings("hiding")
     public ToolBarTesting(ApplicationController controller, I18NManager i18n) {
-        super(controller, orientation, i18n);
+        // super(controller, orientation, i18n);
+        super(controller, i18n, orientation, new HashMap<String, AbstractAction>());
 
         String text = i18n.getNameOnly("Testing");
         this.setName(text);
@@ -58,13 +59,16 @@ public class ToolBarTesting extends AbstractPnedToolBar {
      * @param iconName
      *            The file name of the icon
      */
+    @SuppressWarnings("unused")
     private void createButton(String actionCommand, String iconSubfolder, String iconName) {
         actionCommand = i18n.getNameOnly(actionCommand);
         String toolTipText = actionCommand;
         String altText = actionCommand;
-        ImageIcon icon = ImageIconCreator.getImageIcon(iconSubfolder, imagesSize.getValue(), iconName, altText);
-        JButton button = ToolBarButtonCreator.getToolbarButton(actionCommand, icon, toolTipText, altText, this);
-        add(button);
+        // ImageIcon icon = ImageIconCreator.getImageIcon(iconSubfolder,
+        // imagesSize.getValue(), iconName, altText);
+        // JButton button = ToolBarButtonCreator.getToolbarButton(actionCommand,
+        // icon, toolTipText, altText, this);
+        // add(button);
     }
 
 }

@@ -13,6 +13,7 @@ import de.lambeck.pned.i18n.MnemonicString;
  */
 public class MenuCreator {
 
+    /** Reference to the manager for I18N strings */
     protected I18NManager i18n;
 
     /**

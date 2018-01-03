@@ -25,58 +25,6 @@ public class FSInfo {
     private final static String suffix = ".pnml";
 
     /**
-     * Self test...
-     * 
-     * Note: getCanonicalPath() can throw an IOException!
-     * 
-     * @param args
-     * @throws IOException
-     */
-    public static void main(String[] args) throws IOException {
-        String test1 = "C:\\TEMP\\tmp123\\..\\";
-        File file1 = new File(test1);
-
-        System.out.println(file1.getPath());
-        System.out.println(file1.getAbsolutePath());
-        System.out.println(file1.getCanonicalPath());
-        System.out.println(getCanonicalPath(file1));
-        System.out.println(getFileName(file1));
-
-        System.out.println();
-
-        String test2 = "C:\\TEMP\\tmp123\\tmp456\\..\\..\\";
-        File file2 = new File(test2);
-
-        System.out.println(file2.getPath());
-        System.out.println(file2.getAbsolutePath());
-        System.out.println(file2.getCanonicalPath());
-        System.out.println(getCanonicalPath(file2));
-
-        System.out.println();
-
-        System.out.println(getCanonicalPath(test1));
-        System.out.println(getCanonicalPath(test2));
-
-        System.out.println();
-
-        String test3 = "C:\\TEMP\\tmp123\\..\\Test.txt";
-        File file3 = new File(test3);
-
-        System.out.println(getFileName(file1));
-        System.out.println(getFileName(file2));
-        System.out.println(getFileName(file3));
-
-        System.out.println();
-
-        System.out.println(getFileName(test3));
-
-        System.out.println();
-
-        String saveAsFullName = getSaveAsFullName(null);
-        System.out.println("saveAsFullName: " + saveAsFullName);
-    }
-
-    /**
      * Determines The canonical (unique) path name of a file which is a unique
      * path. (See: example in the main method)
      * 
@@ -188,13 +136,65 @@ public class FSInfo {
      * user has chosen an existing file.
      * 
      * @param parentComponent
-     *            The parent component (should be the main application window)
+     *            The parent component to center the dialog above. (Should be
+     *            the main application window.)
      * @return The canonical (unique) path name
      */
     public static String getSaveAsFullName(JFrame parentComponent) {
         String canonicalPath = null;
 
         JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Petri net files (*.pnml)", "pnml");
+        fileChooser.setFileFilter(filter);
+
+        do {
+            int returnVal = fileChooser.showSaveDialog(parentComponent);
+            if (returnVal == JFileChooser.CANCEL_OPTION)
+                return null;
+
+            File file = fileChooser.getSelectedFile();
+            canonicalPath = getCanonicalPath(file);
+
+            if (!canonicalPath.endsWith(suffix)) {
+                canonicalPath = canonicalPath + suffix;
+            }
+
+            /*
+             * Overwrite warning?
+             */
+            if (isFileSystemFile(canonicalPath)) {
+                String title = "Overwrite file?";
+                String question = "Overwrite existing file %filename%?".replace("%filename%", canonicalPath);
+                int options = JOptionPane.YES_NO_CANCEL_OPTION;
+
+                int answer = JOptionPane.showConfirmDialog(parentComponent, question, title, options);
+
+                if (answer == JOptionPane.CANCEL_OPTION)
+                    return null;
+                if (answer == JOptionPane.NO_OPTION)
+                    canonicalPath = null;
+            }
+
+        } while (canonicalPath == null);
+
+        return canonicalPath;
+    }
+
+    /**
+     * Adds an additional Parameter initialFolder to getSaveAsFullName(JFrame
+     * parentComponent);
+     * 
+     * @param parentComponent
+     *            The parent component (should be the main application window)
+     * @param initialFolder
+     *            The folder to start with as {@link File}
+     * @return The canonical (unique) path name
+     */
+    public static String getSaveAsFullName(JFrame parentComponent, File initialFolder) {
+        String canonicalPath = null;
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(initialFolder);
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Petri net files (*.pnml)", "pnml");
         fileChooser.setFileFilter(filter);
 

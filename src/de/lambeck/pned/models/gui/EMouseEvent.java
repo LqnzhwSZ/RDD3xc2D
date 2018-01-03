@@ -1,12 +1,14 @@
 package de.lambeck.pned.models.gui;
 
+// TODO This is not in use anymore, remove if we are sure.
+
 /**
  * Events that will be recognized by {@link MyMouseAdapter}.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
-public enum MyMouseEvent {
+public enum EMouseEvent {
     /**
      * No event
      */
@@ -26,7 +28,7 @@ public enum MyMouseEvent {
 
     private String value;
 
-    private MyMouseEvent(final String initValue) {
+    private EMouseEvent(final String initValue) {
         this.value = initValue;
     }
 

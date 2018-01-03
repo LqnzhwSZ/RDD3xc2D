@@ -47,7 +47,8 @@ public class PNMLParser {
         } else {
             // System.out.println("Bitte eine Datei als Parameter angeben!");
             String[] example = { "G:\\Aufgabenstellung\\Beispiele\\Beispiel-03.pnml" };
-            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test - falsche Werte.pnml" };
+            // String[] example = { "G:\\Testdateien\\Fehlertests\\Test -
+            // falsche Werte.pnml" };
             // String[] example = { "G:\\Testdateien\\Test1.pnml" };
             main(example);
         }

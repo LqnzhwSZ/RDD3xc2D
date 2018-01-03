@@ -70,7 +70,7 @@ public class FileOpenAction extends AbstractPNAction {
             appController.menuCmd_FileOpen(file);
 
         } else {
-            // System.out.println("Open command cancelled by user.");
+            // System.out.println("Open command canceled by user.");
         }
     }
 }

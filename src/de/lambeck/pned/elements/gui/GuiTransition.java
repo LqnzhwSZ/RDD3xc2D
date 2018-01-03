@@ -1,9 +1,6 @@
 package de.lambeck.pned.elements.gui;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 
 import de.lambeck.pned.gui.ECustomColor;
 
@@ -18,8 +15,11 @@ import de.lambeck.pned.gui.ECustomColor;
  */
 public class GuiTransition extends GuiNode implements IGuiTransition {
 
-    /** The enabled state of this transition */
+    /** The "enabled" state of this transition */
     private boolean enabled = false;
+
+    /** The "safe" state of this transition */
+    private boolean safe = true; // Assume "safe" from the start
 
     /*
      * Constructor
@@ -67,6 +67,16 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         this.enabled = newState;
     }
 
+    @Override
+    public boolean isSafe() {
+        return this.safe;
+    }
+
+    @Override
+    public void setSafe(boolean newState) {
+        this.safe = newState;
+    }
+
     /*
      * Methods for interface IGuiElement
      */
@@ -79,7 +89,6 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
     @Override
     void drawInterior(Graphics2D g2) {
         drawEnabledState(g2);
-        g2.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
     }
 
     /**
@@ -91,14 +100,29 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
      */
     private void drawEnabledState(Graphics2D g2) {
 
-        // TODO Test
-        // setEnabled(true);
+        /* Create a copy of the Graphics instance. */
+        Graphics2D g2copy = (Graphics2D) g2.create();
+
+        /* Draw most severe states first! */
+
+        if (!this.isSafe()) {
+            g2copy.setColor(Color.RED);
+            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            return;
+        }
+
+        if (this.unreachable) {
+            /* -> Color set in GuiNode */
+            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            return;
+        }
 
         if (this.isEnabled()) {
-            g2.setColor(ECustomColor.PALE_GREEN.getColor());
-            g2.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            g2copy.setColor(ECustomColor.PALE_GREEN.getColor());
+            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
         } else {
-            // TODO Reset to white or just nothing?
+            /* -> Color set in GuiNode */
+            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
             return;
         }
     }
@@ -226,7 +250,8 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
 
     @Override
     public String toString() {
-        String returnString = "GuiTransition [" + super.toString() + ", isEnabled=" + this.isEnabled() + "]";
+        String returnString = "GuiTransition [" + super.toString() + ", isEnabled=" + this.isEnabled() + ", isSafe="
+                + this.isSafe() + "]";
         return returnString;
     }
 

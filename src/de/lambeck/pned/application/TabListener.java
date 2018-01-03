@@ -26,6 +26,8 @@ public class TabListener implements ChangeListener {
     public TabListener(ApplicationController controller) {
         super();
         this.appController = controller;
+
+        debug = controller.getShowDebugMessages();
     }
 
     @Override
