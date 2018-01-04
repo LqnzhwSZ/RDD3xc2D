@@ -471,6 +471,11 @@ public class ApplicationController extends AbstractApplicationController {
             }
             dataModelController.setCurrentModel(newActiveDataModel);
 
+            /*
+             * Validation controller doesn't need an update because he is always
+             * asking for the current model.
+             */
+
             IGuiModel newActiveGuiModel = guiModelController.getGuiModel(activeFile);
             if (newActiveGuiModel == null) {
                 System.err.println("setActiveFile, GuiModel for '" + activeFile + "' does not exist!");
@@ -1525,7 +1530,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Renames the models according to the new file name after SaveAs.
+     * Renames {@link IDataModel} and {@link IGuiModel} according to the new
+     * file name after SaveAs.
      * 
      * @param modelName
      *            The old name of the model (This is intended to be the full
@@ -1550,7 +1556,11 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Renames the tab after SaveAs and updates all references to it.
+     * Updates the references which refer to the name of a file after
+     * SaveAs.<BR>
+     * <BR>
+     * This means the tab for that file in the GUI (with file name and display
+     * name) and the internal list of open files.
      * 
      * @param oldModelName
      *            The old name of the model (This is intended to be the full
@@ -1576,6 +1586,10 @@ public class ApplicationController extends AbstractApplicationController {
         /* Update references */
         setActiveFile(tabIndex);
         setFilenameOnTitle(displayName);
+
+        /* The list of open files */
+        this.fileList.remove(oldModelName);
+        this.fileList.add(newModelName);
     }
 
     /* Private helpers */

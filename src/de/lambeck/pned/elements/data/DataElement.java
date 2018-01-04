@@ -1,7 +1,7 @@
 package de.lambeck.pned.elements.data;
 
 /**
- * Superclass DataElement implements the common members for all nodes.
+ * Superclass DataElement implements the common members for all elements.
  * 
  * @author Thomas Lambeck, 4128320
  *

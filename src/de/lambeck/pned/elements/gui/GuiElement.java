@@ -5,7 +5,7 @@ import java.awt.Color;
 import de.lambeck.pned.models.gui.DrawPanel;
 
 /**
- * Superclass GuiElement implements the common members for all nodes.
+ * Superclass GuiElement implements the common members for all elements.
  * 
  * @author Thomas Lambeck, 4128320
  *
