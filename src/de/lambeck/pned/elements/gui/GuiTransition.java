@@ -99,36 +99,45 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
 
         /* Draw most severe states first! */
 
+        int x = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int y = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int s = this.zoomedIntValue(shapeSize, this.zoom);
         if (!this.isSafe()) {
             g2copy.setColor(Color.RED);
-            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            g2copy.fillRect(x, y, s, s);
             return;
         }
 
         if (this.unreachable) {
             /* -> Color set in GuiNode */
-            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            g2copy.fillRect(x, y, s, s);
             return;
         }
 
         if (this.isEnabled()) {
             g2copy.setColor(ECustomColor.PALE_GREEN.getColor());
-            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            g2copy.fillRect(x, y, s, s);
         } else {
             /* -> Color set in GuiNode */
-            g2copy.fillRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+            g2copy.fillRect(x, y, s, s);
             return;
         }
     }
 
     @Override
     void drawShape(Graphics2D g2) {
-        g2.drawRect(shapeLeftX, shapeTopY, shapeSize, shapeSize);
+        int x = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int y = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int s = this.zoomedIntValue(shapeSize, this.zoom);
+        g2.drawRect(x, y, s, s);
     }
 
     @Override
     public boolean contains(Point p) {
-        return (new Rectangle(shapeLeftX, shapeTopY, shapeSize, shapeSize).contains(p));
+        int x = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int y = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int s = this.zoomedIntValue(shapeSize, this.zoom);
+        return (new Rectangle(x, y, s, s).contains(p));
     }
 
     /* Methods for interface IGuiNode */
@@ -137,10 +146,10 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
     public Point getArcAnchor(Point target) {
         EArcDirection generalArcDirection = EArcDirection.UNDEFINED;
 
-        double target_x = target.getX();
-        double target_y = target.getY();
-        double shape_center_x = this.shapeCenter.getX();
-        double shape_center_y = this.shapeCenter.getY();
+        double target_x = target.getX() * this.zoom;
+        double target_y = target.getY() * this.zoom;
+        double shape_center_x = this.shapeCenter.getX() * this.zoom;
+        double shape_center_y = this.shapeCenter.getY() * this.zoom;
 
         double x_dist = target_x - shape_center_x;
         double y_dist = target_y - shape_center_y;
@@ -190,29 +199,29 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
 
         switch (generalArcDirection) {
         case TOP_LEFT_CORNER:
-            doubleX = shapeLeftX;
-            doubleY = shapeTopY;
+            doubleX = this.zoomedIntValueToDouble(shapeLeftX, this.zoom);
+            doubleY = this.zoomedIntValueToDouble(shapeTopY, this.zoom);
             break;
         case TOP_RIGHT_CORNER:
-            doubleX = shapeLeftX + shapeSize;
-            doubleY = shapeTopY;
+            doubleX = this.zoomedIntValueToDouble(shapeLeftX + shapeSize, this.zoom);
+            doubleY = this.zoomedIntValueToDouble(shapeTopY, this.zoom);
             break;
         case BOTTOM_RIGHT_CORNER:
-            doubleX = shapeLeftX + shapeSize;
-            doubleY = shapeTopY + shapeSize;
+            doubleX = this.zoomedIntValueToDouble(shapeLeftX + shapeSize, this.zoom);
+            doubleY = this.zoomedIntValueToDouble(shapeTopY + shapeSize, this.zoom);
             break;
         case BOTTOM_LEFT_CORNER:
-            doubleX = shapeLeftX;
-            doubleY = shapeTopY + shapeSize;
+            doubleX = this.zoomedIntValueToDouble(shapeLeftX, this.zoom);
+            doubleY = this.zoomedIntValueToDouble(shapeTopY + shapeSize, this.zoom);
             break;
         case LEFT_SIDE:
-            doubleX = shapeLeftX; // The squares left border
-            ratio = Math.abs((shapeSize / 2) / (target_x - shape_center_x));
+            doubleX = this.zoomedIntValueToDouble(shapeLeftX, this.zoom); // The squares left border
+            ratio = Math.abs((this.zoomedIntValue(shapeSize, this.zoom) / 2) / (target_x - shape_center_x));
             doubleY = shape_center_y + (target_y - shape_center_y) * ratio;
             break;
         case TOP:
-            doubleY = shapeTopY; // The squares top border
-            ratio = Math.abs((shapeSize / 2) / (target_y - shape_center_y));
+            doubleY = this.zoomedIntValueToDouble(shapeTopY, this.zoom); // The squares top border
+            ratio = Math.abs((this.zoomedIntValue(shapeSize, this.zoom) / 2) / (target_y - shape_center_y));
             doubleX = shape_center_x + (target_x - shape_center_x) * ratio;
             break;
         case RIGHT_SIDE:
@@ -221,8 +230,8 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
             doubleY = shape_center_y + (target_y - shape_center_y) * ratio;
             break;
         case BOTTOM:
-            doubleY = shapeTopY + shapeSize; // The squares bottom border
-            ratio = Math.abs((shapeSize / 2) / (target_y - shape_center_y));
+            doubleY = this.zoomedIntValueToDouble(shapeTopY + shapeSize, this.zoom); // The squares bottom border
+            ratio = Math.abs((this.zoomedIntValue(shapeSize, this.zoom) / 2) / (target_y - shape_center_y));
             doubleX = shape_center_x + (target_x - shape_center_x) * ratio;
             break;
         default:
@@ -242,5 +251,5 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
                 + this.isSafe() + "]";
         return returnString;
     }
-
+    
 }

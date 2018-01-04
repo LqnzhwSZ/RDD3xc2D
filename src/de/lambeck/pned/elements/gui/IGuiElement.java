@@ -45,4 +45,9 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
     public void setZoom(Double zoom);
 
     public Double getZoom();
+    
+    public int zoomedIntValue(int value, double zoom);
+
+    public double zoomedIntValueToDouble(int value, double zoom);
+
 }

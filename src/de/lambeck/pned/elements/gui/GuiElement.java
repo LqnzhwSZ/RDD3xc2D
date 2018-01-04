@@ -100,4 +100,12 @@ public abstract class GuiElement implements IGuiElement {
 		this.zoom = zoom;
 	}
 
+	public int zoomedIntValue(int value, double zoom) {
+		return new Double(new Integer(value).doubleValue() * zoom).intValue();
+	}
+
+	public double zoomedIntValueToDouble(int value, double zoom) {
+		return new Integer(value).doubleValue() * zoom;
+	}
+
 }
