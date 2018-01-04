@@ -65,9 +65,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
      */
     protected String activeFile = "";
 
-    /**
-     * The last used directory
-     */
+    /** The last used directory */
     protected File currentDirectory;
 
     /**
@@ -179,15 +177,24 @@ public abstract class AbstractApplicationController extends WindowAdapter
             break;
 
         case "FileSaveAsAction":
-            /*
-             * Here: FileSaveAsAction has already checked if activeFile == null.
-             */
+            /* FileSaveAsAction should have checked if activeFile == null. */
+            if (this.activeFile == null) {
+                directory = this.currentDirectory;
+                break;
+            }
 
             directory = new File(this.activeFile).getParentFile();
             /*
              * If directory == null (for a new, still unsaved file) just return
-             * null, the fileChooser will start in "user.home" or similar.
+             * null? (-> fileChooser will start in "user.home" or similar.)
+             * 
+             * -> Not good!
+             * 
+             * For multiple new files the user would be forced to traverse to
+             * his directory again and again! (Better: current directory too)
              */
+            if (directory == null)
+                directory = this.currentDirectory;
 
             break;
 
@@ -215,7 +222,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
      * Sets a new current directory.
      * 
      * @param pathname
-     *            The new current directory as String
+     *            The new current directory as {@link String}
      */
     public void setCurrentDirectory(String pathname) {
         if (pathname == null)

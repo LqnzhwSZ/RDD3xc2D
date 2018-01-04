@@ -1240,6 +1240,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         String modelName = this.activeFile;
         int result = saveFile(modelName);
+
         if (debug) {
             System.out.println("saveActiveFile, result: " + result);
         }
@@ -1247,7 +1248,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Saves the specified file.
+     * Saves the specified file. The user will be asked for a file name if the
+     * file is not a file on the file system.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -1262,25 +1264,31 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Save the file immediately, if it is an existing file. */
         boolean isFSFile = FSInfo.isFileSystemFile(modelName);
-
         if (isFSFile) {
             int result = saveToFile(modelName, modelName, false);
             return result;
         }
 
-        /* Ask for a file name. */
-        // File initialFolder = getCurrentDirectory("saveFile");
-        // String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame,
-        // initialFolder);
+        /* Ask for a (new) file name. */
         String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, this, i18n);
         if (saveAsFullName == null)
             return ExitCode.OPERATION_CANCELED;
 
-        /* Store the current directory! */
+        /* We rename this file! */
+
+        /*
+         * Store the new current directory because the user "was there" with the
+         * FileSave-Dialog.
+         */
         setCurrentDirectory(saveAsFullName);
 
-        // int result = saveToFile(modelName, saveAsFullName, true);
+        /* Try to actually save the file there. */
         int result = saveToFile(modelName, saveAsFullName, false);
+
+        /* Update the name of the models etc. if successful */
+        if (result == ExitCode.OPERATION_SUCCESSFUL)
+            renameModels(modelName, saveAsFullName);
+
         return result;
     }
 
@@ -1528,7 +1536,7 @@ public class ApplicationController extends AbstractApplicationController {
         int result = saveToFile(modelName, saveAsFullName, true);
 
         /* Update the name of the models etc. */
-        if (result == 0)
+        if (result == ExitCode.OPERATION_SUCCESSFUL)
             renameModels(modelName, saveAsFullName);
 
         return result;
