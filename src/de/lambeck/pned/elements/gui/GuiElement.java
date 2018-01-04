@@ -43,7 +43,7 @@ public abstract class GuiElement implements IGuiElement {
     /** The standard line color */
     protected Color stdLineColor = Color.BLACK;
 
-    protected Double zoom = 1D;
+    protected Double zoom = 1.0D;
     
     /**
      * 

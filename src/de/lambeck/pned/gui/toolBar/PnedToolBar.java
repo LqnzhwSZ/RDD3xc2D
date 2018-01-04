@@ -8,6 +8,7 @@ import javax.swing.JToolBar;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.gui.settings.SizeSlider;
+import de.lambeck.pned.gui.settings.ZoomSlider;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -98,6 +99,8 @@ public class PnedToolBar extends AbstractPnedToolBar {
         String sizeSliderName = i18n.getNameOnly("ElementsDisplaySize");
         SizeSlider sizeSlider = new SizeSlider(sizeSliderName, appController);
         add(sizeSlider);
+        addSeparator();
+        add(new ZoomSlider("Zoom", appController));
     }
 
     // private void addDebugCheckBox() {

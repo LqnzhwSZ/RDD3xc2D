@@ -119,12 +119,12 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     private Point popupMenuLocation = null;
 
+    private double zoom = 1.0D;
+    
     /*
      * Constructor etc.
      */
 
-    private Integer zoom = 1;
-    
     /**
      * Constructs the DrawPanel.
      * 
@@ -270,14 +270,16 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         boolean areaChanged = false;
 
         for (IGuiElement element : myGuiModel.getElements()) {
+        	element.setZoom(this.zoom);
             element.paintElement(g);
 
             if (element instanceof IGuiNode) {
                 IGuiNode node = (IGuiNode) element;
-                int x = node.getTotalLeftX();
-                int y = node.getTotalTopY();
-                int width = node.getTotalWidth();
-                int height = node.getTotalHeight();
+                node.setZoom(this.zoom);
+                int x = new Double(new Integer(node.getTotalLeftX()).doubleValue() * this.zoom).intValue();
+                int y = new Double(new Integer(node.getTotalTopY()).doubleValue() * this.zoom).intValue();
+                int width = new Double(new Integer(node.getTotalWidth()).doubleValue() * this.zoom).intValue();
+                int height = new Double(new Integer(node.getTotalHeight()).doubleValue() * this.zoom).intValue();
                 // Rectangle rect = new Rectangle(x, y, width, height);
                 // scrollRectToVisible(rect); Nicht hier, nur beim Einfügen!!!
 
@@ -338,7 +340,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * @param g2
      */
     private void drawGridLines(Graphics2D g2) {
-        final int GRID_STEP = new Double(100 * this.zoom).intValue();
+        final int GRID_STEP = new Double(100.0D * this.zoom).intValue();
         Color gridColor = ECustomColor.SNOW2.getColor();
 
         /*
@@ -350,8 +352,8 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         /*
          * Use the JComponent attributes.
          */
-        int width = new Double(getWidth() * this.zoom).intValue();
-        int height = new Double(getHeight() * this.zoom).intValue();
+        int width = new Double((double)getWidth() * this.zoom).intValue();
+        int height = new Double((double)getHeight() * this.zoom).intValue();
         if (width == 0 || height == 0)
             return;
 
@@ -625,11 +627,11 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         myGuiController.setInfo_Status(s, level);
     }
 
-	public Integer getZoom() {
-		return zoom;
+	public double getZoom() {
+		return this.zoom;
 	}
 
-	public void setZoom(Integer zoom) {
+	public void setZoom(double zoom) {
 		this.zoom = zoom;
 	}
     

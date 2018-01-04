@@ -1542,6 +1542,37 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
+    public void changeZoom(int value) {
+    	
+    	double zoom;
+    	if (value == 0) {
+    		zoom = 1.0D;
+    	} else if (value < 0) {
+    		zoom = 1.0D / new Integer(value*(-1)).doubleValue();
+    	} else {
+    		zoom = 1.0D * new Integer(value).doubleValue();
+    	}
+
+    	for (Map.Entry<String, IGuiModel> e : this.guiModels.entrySet()) {
+    		IGuiModel m = e.getValue();
+    		m.setZoom(zoom);
+    		m.setModified(true);
+    	}
+
+        /*
+         * Update the whole drawing. (All other draw panels should be updated
+         * when switching the tab.)
+         */
+        if (currentDrawPanel != null) {
+        	currentDrawPanel.setZoom(zoom);
+            Dimension area = currentDrawPanel.getPreferredSize();
+            Rectangle rect = new Rectangle(area);
+            updateDrawing(rect);
+        }
+    	
+    }
+    
+    @Override
     public void changeShapeSize(int size) {
         if (size < GuiModelController.MIN_SHAPE_SIZE) {
             System.err.println("Shape size too small: " + size);

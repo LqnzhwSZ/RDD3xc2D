@@ -801,7 +801,19 @@ public class ApplicationController extends AbstractApplicationController {
         /* Changes a general setting for all {@link IGuiNode} */
         guiModelController.changeShapeSize(size);
     }
-
+    
+    /**
+     * Callback for the {@link ZoomSlider} to change the zoom of the elements on
+     * the draw panels.
+     * 
+     * @param size
+     *            The new zoom (-10 ... 10)
+     */
+    public void changeZoom(int zoom) {
+        /* Changes a general setting for all {@link IGuiNode} */
+        guiModelController.changeZoom(zoom);
+    }
+    
     /* End of menu commands for the Actions */
 
     /**

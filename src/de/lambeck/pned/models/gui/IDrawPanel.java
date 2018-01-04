@@ -229,4 +229,9 @@ public interface IDrawPanel {
      */
     ENodeType getSourceForNewArcType();
 
+    public void setZoom(double zoom);
+    public double getZoom();
+
+
+
 }
