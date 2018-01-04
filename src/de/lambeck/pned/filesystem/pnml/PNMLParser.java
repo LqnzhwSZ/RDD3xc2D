@@ -136,12 +136,10 @@ public class PNMLParser {
     /** Stores if the PNML file had invalid values for the current element. */
     private boolean invalidValues = false;
 
-    /**
-     * Return values for the data model controller
-     */
+    /** Return value for the data model controller */
     private int exitCode = EPNMLParserExitCode.ZERO.getValue();
 
-    // TODO Add I18NManager i18n for error messages?
+    // TODO Add I18NManager for localized error messages?
 
     /**
      * Dieser Konstruktor erstellt einen neuen Parser für PNML Dateien, dem die
@@ -405,9 +403,7 @@ public class PNMLParser {
             System.out.println("Stelle mit id " + id + " wurde gefunden.");
         }
 
-        /*
-         * Add data for the next element.
-         */
+        /* Add data for the next element. */
         this.nextElementType = EPNMLElement.PLACE;
         this.nextId = id;
 
@@ -430,9 +426,7 @@ public class PNMLParser {
             System.out.println("Transition mit id " + id + " wurde gefunden.");
         }
 
-        /*
-         * Store data for the next element.
-         */
+        /* Store data for the next element. */
         this.nextElementType = EPNMLElement.TRANSITION;
         this.nextId = id;
 
@@ -458,16 +452,14 @@ public class PNMLParser {
             System.out.println("Kante mit id " + id + " von " + source + " nach " + target + " wurde gefunden.");
         }
 
-        /*
-         * Store data for the next element.
-         */
+        /* Store data for the next element. */
         this.nextElementType = EPNMLElement.ARC;
         this.nextId = id;
         this.nextSourceId = source;
         this.nextTargetId = target;
 
         /*
-         * Note: This arc is complete because arcs have only 1 line in the pnml
+         * Note: This arc is complete because arcs have only 1 line in the PNML
          * file.
          */
         sendElementToController();
@@ -487,9 +479,7 @@ public class PNMLParser {
             System.out.println("Setze den Namen des Elements " + id + " auf " + name);
         }
 
-        /*
-         * Store data for the next element.
-         */
+        /* Store data for the next element. */
         this.nextName = name;
     }
 
@@ -507,9 +497,7 @@ public class PNMLParser {
             System.out.println("Setze die Markierung des Elements " + id + " auf " + marking);
         }
 
-        /*
-         * Store data for the next element.
-         */
+        /* Store data for the next element. */
         switch (marking) {
         case "0":
             this.nextMarking = EPlaceToken.ZERO;
@@ -540,9 +528,7 @@ public class PNMLParser {
             System.out.println("Setze die Position des Elements " + id + " auf (" + x + ", " + y + ")");
         }
 
-        /*
-         * Store data for the next element.
-         */
+        /* Store data for the next element. */
         int xPos = 0;
         int yPos = 0;
         try {
@@ -568,9 +554,7 @@ public class PNMLParser {
             return;
         }
 
-        /*
-         * Assemble the necessary data
-         */
+        /* Assemble the necessary data. */
         String errorMessage = "";
         switch (nextElementType) {
         case PLACE:
@@ -580,7 +564,7 @@ public class PNMLParser {
             }
 
             if (dataModelController == null) {
-                // Nothing (parser test via main method?)
+                /* Nothing (parser test via main method?) */
                 if (debug) {
                     System.out.println("Parser would send a new place to the data model controller.");
                 }
@@ -597,7 +581,7 @@ public class PNMLParser {
             }
 
             if (dataModelController == null) {
-                // Nothing (parser test via main method?)
+                /* Nothing (parser test via main method?) */
                 if (debug) {
                     System.out.println("Parser would send a new transition to the data model controller.");
                 }
@@ -614,7 +598,7 @@ public class PNMLParser {
             }
 
             if (dataModelController == null) {
-                // Nothing (parser test via main method?)
+                /* Nothing (parser test via main method?) */
                 if (debug) {
                     System.out.println("Parser would send a new arc to the data model controller.");
                 }
@@ -633,9 +617,7 @@ public class PNMLParser {
             JOptionPane.showMessageDialog(null, errorMessage, "PNMLParser", JOptionPane.INFORMATION_MESSAGE);
         }
 
-        /*
-         * Reset the "next" values for the next element in the PNML file!
-         */
+        /* Reset the "next" values for the next element in the PNML file! */
         resetNextValues();
     }
 
@@ -645,9 +627,7 @@ public class PNMLParser {
      * @return True if all necessary values are there; otherwise false
      */
     private boolean isCompletePlace() {
-        /*
-         * <Name> == null is OK!
-         */
+        /* <Name> == null is OK! */
         if (nextId != null && nextMarking != null && nextPosition != null)
             return true;
         return false;
@@ -659,9 +639,7 @@ public class PNMLParser {
      * @return True if all necessary values are there; otherwise false
      */
     private boolean isCompleteTransition() {
-        /*
-         * <Name> == null is OK!
-         */
+        /* <Name> == null is OK! */
         if (nextId != null && nextPosition != null)
             return true;
         return false;

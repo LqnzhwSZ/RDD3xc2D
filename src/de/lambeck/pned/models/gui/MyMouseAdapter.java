@@ -51,37 +51,36 @@ import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * {@link MouseAdapter} for the {@link DrawPanel} to select and move nodes and
- * to show popup menus.
- * 
- * @formatter:off
- * 
- * Actions for mouse events:
- * - Primary mouse button:
- *   - Clicked:
- *     - Selects a single element (node or arc).
- *       -&gt; e.g. for "delete element"
- *     - Clears selection if outside of the current selection.
- *   - Clicked + CTRL:
- *     - Toggles selection of the current element.
- *     - Or: Adds more elements to the current selection.
- * 
- * - Secondary mouse button:
- *   - At a node:
- *     - Show popup menu (nodes only -&gt; "change z value", "add arc"...)
- *   - At empty space:
- *     - Show popup for creation of new nodes.
- * 
- * Actions for mouse motion events:
- * - Primary mouse button held down for more than 0.5 seconds:
- *   - At a node:
- *     - Dragging
- * 
- * @formatter:on
- * 
+ * to show popup menus.<BR>
+ * <BR>
+ * Actions for mouse events:<BR>
+ * - Primary mouse button:<BR>
+ * &nbsp;&nbsp;- Clicked:<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Selects a single element (node or arc).<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&gt; e.g. for "delete element"<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Clears selection if outside of the current
+ * selection.<BR>
+ * &nbsp;&nbsp;- Clicked + CTRL:<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Toggles selection of the current element.<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Or: Adds more elements to the current
+ * selection.<BR>
+ * <BR>
+ * - Secondary mouse button:<BR>
+ * &nbsp;&nbsp;- At a node:<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Show popup menu (nodes only -&gt; "change z value",
+ * "add arc"...)<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- At empty space:<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Show popup for creation of new nodes.<BR>
+ * <BR>
+ * Actions for mouse motion events:<BR>
+ * - Primary mouse button held down for more than 0.5 seconds:<BR>
+ * &nbsp;&nbsp;- At a node:<BR>
+ * &nbsp;&nbsp;&nbsp;&nbsp;- Dragging<BR>
+ * <BR>
  * Holds references to its DrawPanel and the GUI model controller to use their
  * methods to decide which popup menu is suitable for the current element.
- * (Depends on the type of element at the location of the popup trigger.)
- * 
+ * (Depends on the type of element at the location of the popup trigger.)<BR>
+ * <BR>
  * See: PopupMenuDemo
  * (https://docs.oracle.com/javase/tutorial/uiswing/components/menu.html)
  * 
@@ -319,23 +318,6 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             return;
 
         } else {
-            /*
-             * Ignore if this mouseClicked event has canceled the last popup
-             * menu?
-             * 
-             * -> Different behavior between Linux and Windows!
-             * 
-             * (mouseClicked event canceling a popup is ignored under Linux, but
-             * recognized as mouseClicked under Windows.)
-             */
-            // if (this.ignoreNextMouseClicked == true) {
-            // debugLog("Ignoring this mouseClicked event.");
-            // this.ignoreNextMouseClicked = false;
-            // return;
-            // }
-
-            // TODO Double click for "FireTransition"?
-
             /* Check which action is required. */
             boolean ctrlKey_pressed = myDrawPanel.getCtrlKeyPressed();
 
@@ -465,8 +447,8 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     /* Methods for popup menus */
 
     /**
-     * Shows the suitable popup if the MouseEvent is a PopupTrigger.
-     * 
+     * Shows the suitable popup if the MouseEvent is a PopupTrigger.<BR>
+     * <BR>
      * Note: Informs the DrawPanel if a popup menu is shown. The DrawPanel can
      * use this information to catch the following event (e.g. "ESC" button or a
      * mouse click) if it is only exiting the popup menu.

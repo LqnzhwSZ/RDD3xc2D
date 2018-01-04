@@ -58,9 +58,7 @@ public class PnedToolBar extends AbstractPnedToolBar {
         String text = i18n.getNameOnly("WorkflowNet");
         this.setName(text);
 
-        /*
-         * Override some tool bar properties?
-         */
+        /* Override some tool bar properties? */
         // this.setFloatable(false);
         // this.setVisible(false);
 

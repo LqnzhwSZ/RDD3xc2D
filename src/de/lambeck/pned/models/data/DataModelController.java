@@ -62,10 +62,10 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Indicates whether we are importing data from a PNML file or not. This is
-     * important to avoid infinite loops when adding elements.
-     * 
-     * (If true: changes to a data model need to be passed to the GUI model. If
-     * false: changes to a GUI model need to be passed to the data model.)
+     * important to avoid infinite loops when adding elements.<BR>
+     * <BR>
+     * If true: changes to a data model need to be passed to the GUI model.<BR>
+     * If false: changes to a GUI model need to be passed to the data model.)
      */
     private boolean importingFromPnml = false;
 
@@ -76,7 +76,7 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Constructs a data model controller with references to the application
-     * controller (the parent) and a manager for i18n strings.
+     * controller (the parent) and a manager for localized strings.
      * 
      * @param controller
      *            The application controller
@@ -867,10 +867,12 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Returns the specified {@link IDataModel} with suppressed error messages
-     * if not found because this error can be expected in rare cases. This
-     * method is part of the validation process. And the ValidationController
-     * thread might slightly lagging behind in terms of the current model (e.g.
-     * if the user has suddenly closed the current file during validation).
+     * if not found because this error can be expected in rare cases.<BR>
+     * <BR>
+     * This method is part of the validation process. And the validation
+     * controller thread might slightly lagging behind in terms of the current
+     * model (e.g. if the user has suddenly closed the current file during
+     * validation).
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path

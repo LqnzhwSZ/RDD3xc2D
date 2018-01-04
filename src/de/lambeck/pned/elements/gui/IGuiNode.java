@@ -18,13 +18,11 @@ public interface IGuiNode extends IGuiElement, INode {
      * their predecessors/successors!
      */
 
-    /*
-     * For the crop area when repainting the draw panel.
-     */
+    /* For the crop area when repainting the draw panel. */
 
     /**
-     * Returns the x value for the left boundary of the surrounding area.
-     * 
+     * Returns the x value for the left boundary of the surrounding area.<BR>
+     * <BR>
      * Note that this may be different from the shapes left boundary because it
      * includes the area of the label.
      * 
@@ -33,8 +31,8 @@ public interface IGuiNode extends IGuiElement, INode {
     int getTotalLeftX();
 
     /**
-     * Returns the y value for the top boundary of the surrounding area.
-     * 
+     * Returns the y value for the top boundary of the surrounding area.<BR>
+     * <BR>
      * Note that this may be different from the shapes top boundary because it
      * includes the area of the label.
      * 
@@ -43,8 +41,8 @@ public interface IGuiNode extends IGuiElement, INode {
     int getTotalTopY();
 
     /**
-     * Returns the width of the surrounding area.
-     * 
+     * Returns the width of the surrounding area.<BR>
+     * <BR>
      * Note that this may be different from the shapes width because it includes
      * the area of the label.
      * 
@@ -53,8 +51,8 @@ public interface IGuiNode extends IGuiElement, INode {
     int getTotalWidth();
 
     /**
-     * Returns the height of the surrounding area.
-     * 
+     * Returns the height of the surrounding area.<BR>
+     * <BR>
      * Note that this may be different from the shapes height because it
      * includes the area of the label.
      * 
@@ -62,9 +60,7 @@ public interface IGuiNode extends IGuiElement, INode {
      */
     int getTotalHeight();
 
-    /*
-     * For the positioning of arcs
-     */
+    /* For the positioning of arcs */
 
     /**
      * This method returns the anchor location for an arc from/towards the node.

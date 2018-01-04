@@ -5,19 +5,18 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 
 /**
- * Creates ImageIcons for menus etc.
- * 
+ * Creates ImageIcons for menus etc.<BR>
+ * <BR>
  * See:
  * https://docs.oracle.com/javase/tutorial/uiswing/examples/components/MenuLookDemoProject/src/components/MenuLookDemo.java
- * 
- * Note:
- * 
+ * <BR>
+ * Note:<BR>
  * Allows easy change of size for all icons in the application by changing the
  * provided parameter px (size in pixel). This is done by adding a prefix like
- * "32px-..." to the name of image files if parameter px was specified.
- * 
- * Example for px = 32: "Gnome-folder.png" means "32px-Gnome-folder.png"
- * 
+ * "32px-..." to the name of image files if parameter px was specified.<BR>
+ * <BR>
+ * Example for px = 32: "Gnome-folder.png" means "32px-Gnome-folder.png"<BR>
+ * <BR>
  * Since px is a parameter, different icon sizes are possible for menu bar, tool
  * bar etc.
  * 
@@ -30,8 +29,8 @@ public class ImageIconCreator {
     private final static String imagesBasePath = "/de/lambeck/pned/resources";
 
     /**
-     * Returns an ImageIcon, or null if subfolder/name was invalid.
-     * 
+     * Returns an ImageIcon, or null if subfolder/name was invalid.<BR>
+     * <BR>
      * Note: Calls getImageIcon(String subfolder, int px, String name, String
      * altText) with an empty altText.
      * 
@@ -81,8 +80,8 @@ public class ImageIconCreator {
     }
 
     /**
-     * Returns an ImageIcon, or null if subfolder/name was invalid.
-     * 
+     * Returns an ImageIcon, or null if subfolder/name was invalid.<BR>
+     * <BR>
      * Note: Calls getScaledImageIcon(String subfolder, String name, int px,
      * String altText) with an empty altText.
      * 

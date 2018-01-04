@@ -25,8 +25,8 @@ import de.lambeck.pned.models.gui.IGuiModel;
 public interface IDataModelController extends IInfo_Status {
 
     /**
-     * Adds a data model for a non-existing file.
-     * 
+     * Adds a data model for a non-existing file.<BR>
+     * <BR>
      * Note: This is intended to be used to add new models which are not coming
      * from a PNML file (e.g. "Untitled1", "Untitled2"... or "New1", "New2"...)
      * 
@@ -38,14 +38,11 @@ public interface IDataModelController extends IInfo_Status {
     void addDataModel(String modelName, String displayName);
 
     /**
-     * Adds a data model for an existing file.
-     * 
-     * Exit codes:
-     * 
-     * - ExitCode.OPERATION_SUCCESSFUL: OK
-     * 
-     * - ExitCode.OPERATION_FAILED: Error: Could not open the file!
-     * 
+     * Adds a data model for an existing file.<BR>
+     * <BR>
+     * Exit codes:<BR>
+     * - ExitCode.OPERATION_SUCCESSFUL: OK<BR>
+     * - ExitCode.OPERATION_FAILED: Error: Could not open the file!<BR>
      * - ExitCode.OPERATION_CANCELED: Error: Data model not accepted!
      * 
      * @param pnmlFile
@@ -65,8 +62,8 @@ public interface IDataModelController extends IInfo_Status {
     boolean isModifiedDataModel(String modelName);
 
     /**
-     * Resets the "modified" state of the specified model.
-     * 
+     * Resets the "modified" state of the specified model.<BR>
+     * <BR>
      * Note: Use this method after loading a PNML file because the model has not
      * been changed by the user after adding elements from the PNML file only.
      * 
@@ -138,8 +135,8 @@ public interface IDataModelController extends IInfo_Status {
 
     /**
      * Returns a list of data models which have been modified and need to be
-     * saved.
-     * 
+     * saved.<BR>
+     * <BR>
      * Note: The model names (String) because they have to match with the names
      * of the open files.
      * 
@@ -155,8 +152,8 @@ public interface IDataModelController extends IInfo_Status {
     /* Add elements */
 
     /**
-     * Adds a place to the current data model.
-     * 
+     * Adds a place to the current data model.<BR>
+     * <BR>
      * Intended use: adding a place after a GUI event when the new place is
      * without a name after creation.
      * 
@@ -170,12 +167,12 @@ public interface IDataModelController extends IInfo_Status {
     void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a place to the current data model.
-     * 
+     * Adds a place to the current data model.<BR>
+     * <BR>
      * Note: Adds an additional parameter name to the other method
      * addPlaceToCurrentModel(String id, EPlaceToken initialTokens, Point
-     * position)
-     * 
+     * position)<BR>
+     * <BR>
      * Intended use: adding a place after reading from a PNML file because these
      * places may have a name.
      * 
@@ -191,8 +188,8 @@ public interface IDataModelController extends IInfo_Status {
     void addPlaceToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a transition to the current data model.
-     * 
+     * Adds a transition to the current data model.<BR>
+     * <BR>
      * Intended use: adding a transition after a GUI event when the new
      * transition is without a name after creation.
      * 
@@ -204,11 +201,11 @@ public interface IDataModelController extends IInfo_Status {
     void addTransitionToCurrentDataModel(String id, Point position);
 
     /**
-     * Adds a transition to the current data model.
-     * 
+     * Adds a transition to the current data model.<BR>
+     * <BR>
      * Note: Adds an additional parameter name to the other method
-     * addTransitionToCurrentModel(String id, Point position)
-     * 
+     * addTransitionToCurrentModel(String id, Point position)<BR>
+     * <BR>
      * Intended use: adding a transition after reading from a PNML file because
      * these transitions may have a name.
      * 
@@ -222,8 +219,8 @@ public interface IDataModelController extends IInfo_Status {
     void addTransitionToCurrentDataModel(String id, String name, Point position);
 
     /**
-     * Adds an arc to the current data model.
-     * 
+     * Adds an arc to the current data model.<BR>
+     * <BR>
      * Note: This method should be the same for GUI events and reading from a
      * PNML file because arcs will have all 3 attributes in either cases.
      * 
@@ -262,7 +259,7 @@ public interface IDataModelController extends IInfo_Status {
 
     /**
      * Removes the specified element from the current data model.
-     *
+     * 
      * @param id
      *            The id of the element
      * @throws NoSuchElementException
@@ -382,8 +379,9 @@ public interface IDataModelController extends IInfo_Status {
     void highlightUnreachableDataNode(String modelName, String nodeId, boolean b);
 
     /**
-     * Removes the token from all {@link DataPlace} in the specified data model.
-     * 
+     * Removes the token from all {@link DataPlace} in the specified data
+     * model.<BR>
+     * <BR>
      * Intended use: After structural changes in the model
      * 
      * @param modelName

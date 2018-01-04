@@ -13,7 +13,7 @@ import de.lambeck.pned.i18n.I18NManager;
 
 /**
  * Application start. Can use the language code and country code specified by
- * parameter 1 and 2 for the GUI. Otherwise standard: English.
+ * parameter 1 and 2 for the GUI. Otherwise standard: German.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -64,28 +64,22 @@ public class Main {
         /* Turn off metal's use of bold fonts */
         UIManager.put("swing.boldMetal", Boolean.FALSE);
 
-        /*
-         * Create and set up the window.
-         */
+        /* Create and set up the window. */
         JFrame frame = new JFrame(initialTitle);
         frame.setMinimumSize(minSize);
 
         /*
-         * Get a few objects (like the i18n manager for i18n strings) that are
+         * Get a few objects (like the manager for localized strings) that are
          * needed for application controller, draw panel etc.
          */
         I18NManager i18n = new I18NManager(locale);
         StatusBar statusBar = new StatusBar(i18n);
 
-        /*
-         * Add the application controller.
-         */
+        /* Add the application controller. */
         @SuppressWarnings("unused")
         ApplicationController appController = new ApplicationController(frame, i18n, statusBar);
 
-        /*
-         * Display the window.
-         */
+        /* Display the window. */
         frame.pack();
         frame.setVisible(true);
     }

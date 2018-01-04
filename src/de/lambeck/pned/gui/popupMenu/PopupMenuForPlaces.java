@@ -15,8 +15,8 @@ import de.lambeck.pned.util.ConsoleLogger;
 
 /**
  * Popup menu for right click at Places on the {@link DrawPanel}. Holds a
- * reference to its DrawPanel to decide which menu items have to be enabled.
- * 
+ * reference to its DrawPanel to decide which menu items have to be enabled.<BR>
+ * <BR>
  * Note: Implements interface PopupMenuListener to call enableMenuItems() in
  * popupMenuWillBecomeVisible().
  * 
@@ -147,9 +147,7 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         return (sourceForNewArc == ENodeType.TRANSITION);
     }
 
-    /*
-     * Methods for interface PopupMenuListener
-     */
+    /* Methods for interface PopupMenuListener */
 
     @Override
     public void popupMenuCanceled(PopupMenuEvent e) {

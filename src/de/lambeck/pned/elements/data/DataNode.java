@@ -29,11 +29,12 @@ public abstract class DataNode extends DataElement implements IDataNode {
     protected Point position = null;
 
     /**
-     * Constructs a node with the specified id.
-     * 
+     * Constructs a node with the specified id.<BR>
+     * <BR>
      * Note: The GUI will pass an id which is a UUID (as String) if the user has
-     * created a node in the GUI. The pnml parser may pass any kind of String.
-     * 
+     * created a node in the GUI. The PNML parser may pass any kind of
+     * String.<BR>
+     * <BR>
      * Note: The id has no Setter because it should never change after creation.
      * 
      * @param id

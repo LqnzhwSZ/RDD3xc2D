@@ -16,20 +16,16 @@ import de.lambeck.pned.gui.icon.ImageIconCreator;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
- * @formatter:off
- * 
- * Implements the status bar for the Petri net editor.
- * 
- * Left side:
- * - 3 fixed-size areas for pre-defined information:
- *   - Mouse position
- *   - Size of the selection range
- *   - Size of the drawing area
- * 
- * Right side:
- * - Variable-length status message area
- * 
- * @formatter:on
+ * Implements the status bar for the Petri net editor.<BR>
+ * <BR>
+ * Left side:<BR>
+ * - 3 fixed-size areas for pre-defined information:<BR>
+ * &nbsp;&nbsp;- Mouse position<BR>
+ * &nbsp;&nbsp;- Size of the selection range<BR>
+ * &nbsp;&nbsp;- Size of the drawing area<BR>
+ * <BR>
+ * Right side:<BR>
+ * - Variable-length status message area<BR>
  * 
  * @author Thomas Lambeck, 4128320
  *

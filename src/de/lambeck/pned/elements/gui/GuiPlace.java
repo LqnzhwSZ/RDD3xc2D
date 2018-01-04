@@ -8,8 +8,8 @@ import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
- * Implements the places for the GUI model of the Petri net.
- * 
+ * Implements the places for the GUI model of the Petri net.<BR>
+ * <BR>
  * This means that they have properties which play a role in the GUI only. (e.g.
  * size of nodes, colors)
  * 
@@ -137,9 +137,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         super.paintElement(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        /*
-         * Draw the token in the center of the place.
-         */
+        /* Draw the token in the center of the place. */
         drawTokens(g2);
 
         /* Highlight if start or end place (candidate). */
@@ -229,11 +227,11 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         double x_offset = x_dist * ratio;
         double y_offset = y_dist * ratio;
 
-        // Convert to coordinates
+        /* Convert to coordinates */
         double x_coord = this.shapeCenter.getX() + x_offset;
         double y_coord = this.shapeCenter.getY() + y_offset;
 
-        // Create and return the Point
+        /* Create and return the Point */
         int intX = (int) Math.round(x_coord);
         int intY = (int) Math.round(y_coord);
         Point anchor = new Point(intX, intY);

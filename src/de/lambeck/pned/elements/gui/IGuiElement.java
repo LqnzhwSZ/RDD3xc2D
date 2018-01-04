@@ -24,8 +24,8 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
     void paintElement(Graphics g);
 
     /**
-     * Checks if a Point is within the shape.
-     * 
+     * Checks if a Point is within the shape.<BR>
+     * <BR>
      * Note that this refers to the shape of this node itself (place,
      * transition) only. It does not take the area of the label into account!
      * 

@@ -71,8 +71,8 @@ public class GuiModelController implements IGuiModelController {
     private List<IGuiNode> movedNodes = new ArrayList<IGuiNode>();
 
     /**
-     * The source node for the new Arc to be added.
-     * 
+     * The source node for the new Arc to be added.<BR>
+     * <BR>
      * Note: The local attribute "addingNewArc" should be true if this attribute
      * is != null.
      */
@@ -92,7 +92,7 @@ public class GuiModelController implements IGuiModelController {
 
     /**
      * Constructs a GUI model controller with references to the application
-     * controller (the parent) and a manager for i18n strings.
+     * controller (the parent) and a manager for localized strings.
      * 
      * @param controller
      *            The application controller
@@ -515,8 +515,8 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Sets the local state "AddingNewArc".
-     * 
+     * Sets the local state "AddingNewArc".<BR>
+     * <BR>
      * Note: This is a private method because it should only be invoked after
      * successfully finishing setSourceNodeForNewArc().
      */
@@ -1061,9 +1061,7 @@ public class GuiModelController implements IGuiModelController {
         if (currentModel == null)
             return;
 
-        /*
-         * Only selected nodes can be dragged (together with ALT).
-         */
+        /* Only selected nodes can be dragged. */
         List<IGuiElement> selectedElements = currentModel.getSelectedElements();
 
         /*
@@ -1148,9 +1146,7 @@ public class GuiModelController implements IGuiModelController {
     public void moveElementToForeground() {
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation != null) {
-            /*
-             * Call via popup menu: there is a location
-             */
+            /* Call via popup menu: there is a location */
             moveElementAtPopupMenuToForeground(popupMenuLocation);
             return;
         }
@@ -2130,10 +2126,12 @@ public class GuiModelController implements IGuiModelController {
 
     /**
      * Returns the specified {@link IGuiModel} with suppressed error messages if
-     * not found because this error can be expected in rare cases. This method
-     * is part of the validation process. And the ValidationController thread
-     * might slightly lagging behind in terms of the current model (e.g. if the
-     * user has suddenly closed the current file during validation).
+     * not found because this error can be expected in rare cases.<BR>
+     * <BR>
+     * This method is part of the validation process. And the validation
+     * controller thread might slightly lagging behind in terms of the current
+     * model (e.g. if the user has suddenly closed the current file during
+     * validation).
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path

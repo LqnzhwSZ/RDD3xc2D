@@ -80,10 +80,10 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Indicates whether we are importing data from a PNML file or not. This is
-     * important to avoid infinite loops when adding elements.
-     * 
-     * (If true: changes to a data model need to be passed to the GUI model. If
-     * false: changes to a GUI model need to be passed to the data model.)
+     * important to avoid infinite loops when adding elements.<BR>
+     * <BR>
+     * If true: changes to a data model need to be passed to the GUI model.<BR>
+     * If false: changes to a GUI model need to be passed to the data model.
      */
     private boolean importingFromPnml = false;
 
@@ -413,8 +413,8 @@ public class ApplicationController extends AbstractApplicationController {
     /* Methods for the TabListener */
 
     /**
-     * Adds the file name to the title of the main frame.
-     * 
+     * Adds the file name to the title of the main frame.<BR>
+     * <BR>
      * Note: This method is visible in this package because the TabListener uses
      * this method!
      * 
@@ -433,8 +433,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for the TabListener
-     * 
+     * Callback for the TabListener<BR>
+     * <BR>
      * Note: This method is visible in this package because the TabListener uses
      * this method!
      * 
@@ -493,11 +493,11 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Determines the active tab "manually" to call setActiveFile(tabIndex).
-     * 
+     * Determines the active tab "manually" to call setActiveFile(tabIndex).<BR>
+     * <BR>
      * Note: This might be necessary in case there is no tab stateChanged event
-     * in the {@link TabListener} even if "current file" is no longer valid.
-     * 
+     * in the {@link TabListener} even if "current file" is no longer valid.<BR>
+     * <BR>
      * Example: If the {@link IDataModelController} discards a corrupted file,
      * all "current models" etc. that were prepared for this file will be reset
      * to null. And because the tab for this file was not displayed yet, the
@@ -524,8 +524,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for {@link FileOpenAction}, opens an existing file.
-     * 
+     * Callback for {@link FileOpenAction}, opens an existing file.<BR>
+     * <BR>
      * Note: This method should be called by the FileOpenAction after getting a
      * file.
      * 
@@ -573,8 +573,8 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for {@link FileSaveAsAction}, saves the model as the specified
-     * file.
-     * 
+     * file.<BR>
+     * <BR>
      * Note: This method should be called by the FileSaveAsAction after getting
      * a file.
      * 
@@ -809,10 +809,10 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds a new Tab with empty data and GUI models.
-     * 
-     * Note: Used by FileNew
-     * 
+     * Adds a new Tab with empty data and GUI models.<BR>
+     * <BR>
+     * Note: Used by FileNew<BR>
+     * <BR>
      * Note: The full path name us used as tool tip for the tab. (This can be
      * used later to determine the current active file.)
      * 
@@ -920,8 +920,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds a new Tab for the specified {@link DrawPanel}.
-     * 
+     * Adds a new Tab for the specified {@link DrawPanel}.<BR>
+     * <BR>
      * Note: The full path name us used as tool tip for the tab. (This can be
      * used later to determine the current active file.)
      * 
@@ -1277,8 +1277,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Saves to the specified file.
-     * 
+     * Saves to the specified file.<BR>
+     * <BR>
      * Known limitation: modelName.equals(saveAsFullName) should be misleading
      * on Linux because this OS can handle case-sensitive file names. But
      * modelName.equalsIgnoreCase(saveAsFullName) cannot be used because Windows

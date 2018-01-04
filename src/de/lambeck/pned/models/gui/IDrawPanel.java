@@ -29,8 +29,8 @@ public interface IDrawPanel {
     String getModelName();
 
     /**
-     * Returns the display name of this draw panel.
-     * 
+     * Returns the display name of this draw panel.<BR>
+     * <BR>
      * Intended use: name of the tab
      * 
      * @return The display name
@@ -38,8 +38,8 @@ public interface IDrawPanel {
     String getDisplayName();
 
     /**
-     * Returns the preferred size of this draw panel.
-     * 
+     * Returns the preferred size of this draw panel.<BR>
+     * <BR>
      * Note: Used in {@link ApplicationController} to update the
      * {@link StatusBar}.
      * 
@@ -72,6 +72,8 @@ public interface IDrawPanel {
     void setMousePressedLocation(Point p);
 
     /**
+     * Returns whether the mouse is in drag mode or not.
+     * 
      * @return The current "mouseDragMode" state
      */
     boolean getStateMouseDragMode();
@@ -159,8 +161,8 @@ public interface IDrawPanel {
 
     /**
      * Resets the state of this {@link DrawPanel} (e.g. Cursor, old mouse
-     * operations interrupted by tab switching etc.)
-     * 
+     * operations interrupted by tab switching etc.)<BR>
+     * <BR>
      * Note: Otherwise, a draw panel with the "moveCursor" could be left via tab
      * switch using the mouse. And when the user re-enters this tab, there would
      * still be the moveCursor active even without pressing ALT on the keyboard!
@@ -169,8 +171,8 @@ public interface IDrawPanel {
 
     /**
      * Handles the request of the {@link MouseAdapter} to check if an element
-     * can be selected. (squares, circles and arrows)
-     * 
+     * can be selected. (squares, circles and arrows)<BR>
+     * <BR>
      * Passes this request to the GUI controller.
      * 
      * @param element
@@ -181,8 +183,8 @@ public interface IDrawPanel {
 
     /**
      * Returns the minimum Z value for all elements in this draw panels GUI
-     * model.
-     * 
+     * model.<BR>
+     * <BR>
      * Note: Intended to be used for putting an element to the background.
      * 
      * @return The minimum z value
@@ -191,8 +193,8 @@ public interface IDrawPanel {
 
     /**
      * Returns the maximum Z value for all elements in this draw panels GUI
-     * model.
-     * 
+     * model.<BR>
+     * <BR>
      * Note: Intended to be used for putting an element to the foreground.
      * 
      * @return The maximum z value
@@ -200,7 +202,7 @@ public interface IDrawPanel {
     int getMaxZValue();
 
     /**
-     * Returns the z value of an element
+     * Returns the z value of an element.
      * 
      * @param element
      *            The current element

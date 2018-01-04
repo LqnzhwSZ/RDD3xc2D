@@ -50,6 +50,8 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     /* Constructor */
 
     /**
+     * Constructs this validator with references to the necessary controllers.
+     * 
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
@@ -209,6 +211,8 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     }
 
     /**
+     * Determines the number of tokens in this validators data model.
+     * 
      * @return the total number of tokens in the model
      */
     private int getNumberOfTokens() {
@@ -223,6 +227,8 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     }
 
     /**
+     * Checks whether there is a token on the end place or not.
+     * 
      * @return True = token on end place, false = no token on end place
      * @throws NoSuchElementException
      *             If end place was not found
@@ -252,9 +258,7 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      *         contain transitions
      */
     private int getEnabledDataTransitionsCount() {
-        /*
-         * (Removed return value: -2 if this model is not safe)
-         */
+        /* (Removed return value: -2 if this model is not safe) */
 
         /* Get all transitions. */
         if (this.allDataTransitions.size() == 0) {
@@ -424,6 +428,8 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     /* Private helpers */
 
     /**
+     * Determines the number of transitions in this validators data model.
+     * 
      * @return the number of transitions in the model
      */
     private int getNumberOfTransitions() {

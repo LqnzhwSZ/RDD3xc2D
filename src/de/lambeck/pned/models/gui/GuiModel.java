@@ -223,9 +223,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.sortElements");
         }
 
-        /*
-         * Sort (see: https://stackoverflow.com/a/2784576)
-         */
+        /* Sort (see: https://stackoverflow.com/a/2784576) */
         Collections.sort(elements, new Comparator<IGuiElement>() {
             @Override
             public int compare(IGuiElement element1, IGuiElement element2) {
@@ -246,9 +244,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.sortSelectedElements");
         }
 
-        /*
-         * Sort (see: https://stackoverflow.com/a/2784576)
-         */
+        /* Sort (see: https://stackoverflow.com/a/2784576) */
         Collections.sort(selected, new Comparator<IGuiElement>() {
             @Override
             public int compare(IGuiElement element1, IGuiElement element2) {

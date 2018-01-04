@@ -10,14 +10,10 @@ import javax.swing.JMenuBar;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
- * Implements the menu bar for the Petri net editor.
- * 
- * Note:
- * 
- * Holds references to
- * 
- * - A parent component (to position dialogs)
- * 
+ * Implements the menu bar for the Petri net editor.<BR>
+ * <BR>
+ * Note: Holds references to:<BR>
+ * - A parent component (to position dialogs)<BR>
  * - The application controller (to pass this reference to action objects)
  * 
  * @author Thomas Lambeck, 4128320

@@ -148,8 +148,8 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     }
 
     /**
-     * Returns the size of all shapes (static attribute).
-     * 
+     * Returns the size of all shapes (static attribute).<BR>
+     * <BR>
      * Note: Used for placing new nodes inside of the visible area (left and top
      * border &gt; 0).
      * 
@@ -387,9 +387,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         String message = "text: " + text;
         ConsoleLogger.logIfDebug(debug, message);
 
-        /*
-         * https://stackoverflow.com/a/14832962/5944475
-         */
+        /* https://stackoverflow.com/a/14832962/5944475 */
         // int textwidth = (int) (font.getStringBounds(text, frc).getWidth());
         // System.out.println("getTextBounds, textwidth: " + textwidth);
         // int textheight = (int)(font.getStringBounds(text, frc).getHeight());

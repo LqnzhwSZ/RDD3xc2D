@@ -21,6 +21,8 @@ public class StartPlacesValidator extends AbstractValidator {
     /* Constructor */
 
     /**
+     * Constructs this validator with references to the necessary controllers.
+     * 
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController

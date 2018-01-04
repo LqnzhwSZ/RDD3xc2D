@@ -68,6 +68,8 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
     /* Constructor */
 
     /**
+     * Constructs this validator with references to the necessary controllers.
+     * 
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
@@ -176,8 +178,8 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
     /* For check 2 and 3 */
 
     /**
-     * Initializes the Lists and Maps to add/remove nodes during validation.
-     * 
+     * Initializes the Lists and Maps to add/remove nodes during validation.<BR>
+     * <BR>
      * Note: Every time this validator is called to validate another model,
      * these lists need to be "reset".
      */

@@ -63,8 +63,8 @@ public class DataModel implements IDataModel, IModelRename {
     private boolean modelValid = false;
 
     /**
-     * Constructs the date model with a specified name.
-     * 
+     * Constructs the date model with a specified name.<BR>
+     * <BR>
      * Intended use: name == path of the PNML file
      * 
      * @param modelName
@@ -335,8 +335,8 @@ public class DataModel implements IDataModel, IModelRename {
 
     /**
      * Adds the specified {@link DataArc} to the predecessor and successor list
-     * of the affected nodes!
-     * 
+     * of the affected nodes!<BR>
+     * <BR>
      * Note: A DataArc is specified by the own ID and the IDs of predecessor and
      * successor.
      * 
@@ -428,8 +428,8 @@ public class DataModel implements IDataModel, IModelRename {
 
     /**
      * Removes the specified {@link DataArc} from the predecessor and successor
-     * list of all nodes!
-     * 
+     * list of all nodes!<BR>
+     * <BR>
      * Note: A DataArc is specified by the own ID and the IDs of predecessor and
      * successor.
      * 

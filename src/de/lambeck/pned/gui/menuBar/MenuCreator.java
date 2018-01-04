@@ -29,8 +29,8 @@ public class MenuCreator {
     }
 
     /**
-     * Creates a menu.
-     * 
+     * Creates a menu.<BR>
+     * <BR>
      * Note: the mnemonic comes from the value in the properties (the "&amp;" in
      * the value).
      * 

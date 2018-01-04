@@ -16,9 +16,8 @@ public class DataArc extends DataElement implements IDataArc {
     private IDataNode succ;
 
     /**
-     * Constructor with parameters for target and source
-     * 
-     * Makes sure that the arc always connects a place and a transition.
+     * Constructor with parameters for target and source. Makes sure that the
+     * arc always connects a place and a transition.
      * 
      * @param id
      *            The id of this Arc

@@ -34,9 +34,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
     Rectangle lastDrawingArea = null;
 
     /**
-     * Constructor with parameters for target and source
-     * 
-     * Makes sure that the arc always connects a place and a transition.
+     * Constructor with parameters for target and source. Makes sure that the
+     * arc always connects a place and a transition.
      * 
      * @param id
      *            The id of this Arc
@@ -128,14 +127,10 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
         drawArrowTip(g2, startAnchor, endAnchor);
 
-        /*
-         * Indicate selection
-         */
+        /* Indicate selection */
         drawSelection(g2, startAnchor, endAnchor);
 
-        /*
-         * Store the used drawing area.
-         */
+        /* Store the used drawing area. */
         calculateMyBounds();
     }
 
@@ -310,8 +305,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
     /**
      * Returns an arrow head for an arrow that is specified by start point and
-     * end point.
-     * 
+     * end point.<BR>
+     * <BR>
      * Note: Start point (source) and end point (target) need to be determined
      * by predecessor and successor ({@link GuiPlace} or {@link GuiTransition}
      * respectively).
@@ -452,9 +447,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
         Point startAnchor = getStartAnchor();
         Point endAnchor = getEndAnchor();
 
-        /*
-         * Mouse click at the arrow head?
-         */
+        /* Mouse click at the arrow head? */
         Polygon arrowHead = getArrowHead(startAnchor, endAnchor);
         if (arrowHead.contains(p))
             return true;

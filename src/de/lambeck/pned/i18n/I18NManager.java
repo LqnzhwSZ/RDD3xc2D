@@ -5,8 +5,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * This manager for "internationalized" ("i18n") Strings provides localized
- * messages and names.
+ * This "internationalized" ("i18n") Strings manager provides localized messages
+ * and names.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -23,8 +23,8 @@ public class I18NManager {
     private ResourceBundle messages;
 
     /**
-     * The resources for names
-     * 
+     * The resources for names<BR>
+     * <BR>
      * Note: Names may contain mnemonic markers like for an example "&amp;Edit"
      * which specify which accelerator (hot key) can be used for a command.
      */
@@ -71,8 +71,8 @@ public class I18NManager {
 
     /**
      * Calls getString() with the resource bundle for messages and forwards the
-     * result.
-     * 
+     * result.<BR>
+     * <BR>
      * Note: In opposition to (button) names is an "&amp;" within a message not
      * a "mnemonic marker" but just a part of the text.
      * 
@@ -115,8 +115,8 @@ public class I18NManager {
 
     /**
      * Calls getMnemonicString() with the resource bundle for names (buttons
-     * names etc.) and forwards the result.
-     * 
+     * names etc.) and forwards the result.<BR>
+     * <BR>
      * Note: (button) names can contain an "&amp;" as "mnemonic marker".
      * 
      * @param key
@@ -135,8 +135,8 @@ public class I18NManager {
 
     /**
      * Calls getMnemonicString() with the resource bundle for names (buttons
-     * names etc.) and forwards only the name.
-     * 
+     * names etc.) and forwards only the name.<BR>
+     * <BR>
      * Note: Using getMnemonicString() removes the "mnemonic marker" from the
      * name. Example "&amp;File" =&gt; "File"
      * 
@@ -155,8 +155,8 @@ public class I18NManager {
 
     /**
      * Gets the string and the mnemonic (after the char "&amp;") for the given
-     * key from the specified resource bundle.
-     * 
+     * key from the specified resource bundle.<BR>
+     * <BR>
      * Note: The mnemonic is a String (like "A"), not a KeyEvent (like
      * KeyEvent.VK_A). Convert the mnemonic into an int for use in a
      * setMnemonic() method!

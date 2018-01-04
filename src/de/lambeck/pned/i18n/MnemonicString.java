@@ -67,8 +67,8 @@ public class MnemonicString {
     }
 
     /**
-     * Setter for the mnemonic ("part 2" of the object)
-     * 
+     * Setter for the mnemonic ("part 2" of the object)<BR>
+     * <BR>
      * Note: this method determines the mnemonic from a string and uses
      * setMnemonic(int i) to set the attribute.
      * 

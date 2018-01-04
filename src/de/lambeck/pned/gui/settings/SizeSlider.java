@@ -17,11 +17,10 @@ import de.lambeck.pned.application.ApplicationController;
 
 /**
  * Implements a Slider for the size of elements on the draw panels. This slider
- * is intended to be added to the tool bar.
- * 
+ * is intended to be added to the tool bar.<BR>
+ * <BR>
  * Note: Holds a reference to the application controller which has to pass
- * changes to the GUI model controller.
- * 
+ * changes to the GUI model controller.<BR>
  * (Based on Oracles "SliderDemo".)
  * 
  * @author Thomas Lambeck, 4128320

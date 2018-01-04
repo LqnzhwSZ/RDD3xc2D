@@ -58,8 +58,8 @@ public abstract class AbstractApplicationController extends WindowAdapter
 
     /**
      * This attribute holds the full path name of the file represented by the
-     * active tab.
-     * 
+     * active tab.<BR>
+     * <BR>
      * Note: This attribute is updated whenever the TabListener detects a new
      * tab selection. The TabListener invokes setActiveFile(index).
      */
@@ -109,9 +109,7 @@ public abstract class AbstractApplicationController extends WindowAdapter
     @Override
     public abstract void windowClosing(WindowEvent e);
 
-    /*
-     * Method for implemented interfaces (status bar)
-     */
+    /* Method for implemented interfaces (status bar) */
 
     @Override
     public void setInfo_MousePos(Point p) {
@@ -149,13 +147,11 @@ public abstract class AbstractApplicationController extends WindowAdapter
         statusBar.setInfo_DrawingAreaSize(width, height);
     }
 
-    /*
-     * Directories for file operations
-     */
+    /* Directories for file operations */
 
     /**
-     * Getter for activeFile.
-     * 
+     * Getter for activeFile.<BR>
+     * <BR>
      * Note: FileSaveAsAction should check this to make sure that there is a
      * file to save.
      * 

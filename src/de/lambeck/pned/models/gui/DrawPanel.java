@@ -17,23 +17,10 @@ import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
- * The draw panel for one Petri net. Holds a reference to the 
- * status bar so that the draw panel can show status messages etc.
- * 
- * @formatter:off
- * Actions for mouse events: See MyMouseAdapter
- * 
- * Actions for key(board) events:
- * - F2 :
- *   - With only 1 selected element:
- *     -&gt; Rename
- * - DEL: Delete selected elements
- * 
- * Removed:
- * - ESC: clear selection (in conflict with the popupMenuCanceled 
- *        methods in the popup menus)
- * 
- * @formatter:on
+ * The draw panel for one Petri net. Holds a reference to the status bar so that
+ * the draw panel can show status messages etc.<BR>
+ * <BR>
+ * Actions for mouse events: See {@link MyMouseAdapter}
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -272,9 +259,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                 // Rectangle rect = new Rectangle(x, y, width, height);
                 // scrollRectToVisible(rect); Nicht hier, nur beim Einfügen!!!
 
-                /*
-                 * Update the draw panels graphicsArea
-                 */
+                /* Update the draw panels graphicsArea. */
                 int this_width = (x + width + 5);
                 if (this_width > graphicsArea.width) {
                     graphicsArea.width = this_width;
@@ -301,9 +286,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
 
         if (debug) {
-            /*
-             * Indicate the graphics area.
-             */
+            /* Indicate the graphics area. */
             g2.setColor(Color.LIGHT_GRAY);
             g2.drawRect(0, 0, graphicsArea.width, graphicsArea.height);
         }
@@ -333,15 +316,11 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         final int GRID_STEP = 100;
         Color gridColor = ECustomColor.SNOW2.getColor();
 
-        /*
-         * Nothing painted yet -> graphicsArea is empty!
-         */
+        /* Nothing painted yet -> graphicsArea is empty! */
         // int width = this.graphicsArea.width;
         // int height = this.graphicsArea.height;
 
-        /*
-         * Use the JComponent attributes.
-         */
+        /* Use the JComponent attributes. */
         int width = getWidth();
         int height = getHeight();
         if (width == 0 || height == 0)
@@ -349,16 +328,12 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
         g2.setColor(gridColor);
 
-        /*
-         * Horizontal grid lines
-         */
+        /* Horizontal grid lines */
         for (int i = 99; i <= height; i += GRID_STEP) {
             g2.drawLine(0, i, width, i);
         }
 
-        /*
-         * Vertical grid lines
-         */
+        /* Vertical grid lines */
         for (int i = 99; i <= width; i += GRID_STEP) {
             g2.drawLine(i, 0, i, height);
         }

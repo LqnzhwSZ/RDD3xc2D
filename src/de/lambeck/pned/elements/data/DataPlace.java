@@ -36,9 +36,7 @@ public class DataPlace extends DataNode implements IPlace {
         this.tokens = initialTokens;
     }
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     @Override
     public EPlaceToken getTokensCount() {

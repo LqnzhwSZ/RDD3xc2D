@@ -29,8 +29,8 @@ public interface IGuiModelController
         extends IInfo_MousePos, IInfo_SelectionRangeSize, IInfo_DrawingAreaSize, IInfo_Status {
 
     /**
-     * Adds a GUI model for a non-existing file.
-     * 
+     * Adds a GUI model for a non-existing file.<BR>
+     * <BR>
      * Note: This is intended to be used to add new models which are not coming
      * from a PNML file (e.g. "Untitled1", "Untitled2"... or "New1", "New2"...)
      * 
@@ -52,8 +52,8 @@ public interface IGuiModelController
     boolean isModifiedGuiModel(String modelName);
 
     /**
-     * Resets the "modified" state of the specified model.
-     * 
+     * Resets the "modified" state of the specified model.<BR>
+     * <BR>
      * Note: Use this method after loading a PNML file because the model has not
      * been changed by the user after adding elements from the PNML file only.
      * 
@@ -156,8 +156,8 @@ public interface IGuiModelController
     /* Add elements */
 
     /**
-     * Adds a place to the current GUI model.
-     * 
+     * Adds a place to the current GUI model.<BR>
+     * <BR>
      * Intended use: adding a place after reading from a PNML file because these
      * places may have a name.
      * 
@@ -173,8 +173,8 @@ public interface IGuiModelController
     void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a transition to the current GUI model.
-     * 
+     * Adds a transition to the current GUI model.<BR>
+     * <BR>
      * Intended use: adding a transition after reading from a PNML file because
      * these transitions may have a name.
      * 
@@ -188,8 +188,8 @@ public interface IGuiModelController
     void addTransitionToCurrentGuiModel(String id, String name, Point position);
 
     /**
-     * Adds an arc to the current GUI model.
-     * 
+     * Adds an arc to the current GUI model.<BR>
+     * <BR>
      * Note: This method should be the same for GUI events and reading from a
      * PNML file because arcs will have all 3 attributes in either cases.
      * 
@@ -253,10 +253,10 @@ public interface IGuiModelController
 
     /**
      * Returns the selectable element at the specified Point. Returns the one
-     * with the highest z-value if there is more than 1 at this location.
-     * 
-     * Note: This means any element, not only nodes!
-     * 
+     * with the highest z-value if there is more than 1 at this location.<BR>
+     * <BR>
+     * Note: This means any element, not only nodes!<BR>
+     * <BR>
      * Note: Not private to grant access to class PopupMenuManager
      * 
      * @param p
@@ -318,8 +318,8 @@ public interface IGuiModelController
     /* Mouse events */
 
     /**
-     * Callback for the {@link DrawPanel}.
-     * 
+     * Callback for the {@link DrawPanel}.<BR>
+     * <BR>
      * Note: Rejects a mouseClicked event (as unintended) if mousePressed was on
      * a different element than mouseReleased.
      * 
@@ -331,8 +331,8 @@ public interface IGuiModelController
     void mouseClick_Occurred(Point mousePressedLocation, MouseEvent e);
 
     /**
-     * Callback for the {@link DrawPanel}.
-     * 
+     * Callback for the {@link DrawPanel}.<BR>
+     * <BR>
      * Note: Rejects a mouseClicked event (as unintended) if mousePressed was on
      * a different element than mouseReleased.
      * 
@@ -367,16 +367,16 @@ public interface IGuiModelController
     void keyEvent_Escape_Occurred();
 
     /**
-     * Callback for the KeyBinding event in the {@link DrawPanel}.
-     * 
+     * Callback for the KeyBinding event in the {@link DrawPanel}.<BR>
+     * <BR>
      * Note: Invokes removeSelectedGuiElements()
      */
     void keyEvent_Delete_Occurred();
 
     /**
      * Callback for {@link EditRenameAction} and the KeyBindings in
-     * {@link DrawPanel}.
-     * 
+     * {@link DrawPanel}.<BR>
+     * <BR>
      * Note: Invokes renameSelectedGuiElements()
      */
     void keyEvent_F2_Occurred();

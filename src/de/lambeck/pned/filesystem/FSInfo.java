@@ -10,8 +10,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Class for conversion of path names (e.g. into canonical path names) and
- * checks if files exist.
- * 
+ * checks if files exist.<BR>
+ * <BR>
  * Note: canonical path names are unique and thus we can use them as identifiers
  * for the open files and models. (See:
  * https://docs.oracle.com/javase/8/docs/api/java/io/File.html#getCanonicalPath--)
@@ -91,7 +91,7 @@ public class FSInfo {
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return True if the file exists; otherwise false
      */
     public static boolean isFileSystemFile(String modelName) {
@@ -119,7 +119,7 @@ public class FSInfo {
      * 
      * @param fullName
      *            The name of the model (This is intended to be the full path
-     *            name of the pnml file represented by this model.)
+     *            name of the PNML file represented by this model.)
      * @return True if the file is write-protected; otherwise false
      */
     public static boolean isWriteProtectedFile(String fullName) {
@@ -159,9 +159,7 @@ public class FSInfo {
                 canonicalPath = canonicalPath + suffix;
             }
 
-            /*
-             * Overwrite warning?
-             */
+            /* Overwrite warning? */
             if (isFileSystemFile(canonicalPath)) {
                 String title = "Overwrite file?";
                 String question = "Overwrite existing file %filename%?".replace("%filename%", canonicalPath);
@@ -210,9 +208,7 @@ public class FSInfo {
                 canonicalPath = canonicalPath + suffix;
             }
 
-            /*
-             * Overwrite warning?
-             */
+            /* Overwrite warning? */
             if (isFileSystemFile(canonicalPath)) {
                 String title = "Overwrite file?";
                 String question = "Overwrite existing file %filename%?".replace("%filename%", canonicalPath);
