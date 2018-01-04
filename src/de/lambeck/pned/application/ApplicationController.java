@@ -1269,15 +1269,18 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         /* Ask for a file name. */
-        File initialFolder = getCurrentDirectory("saveFile");
-        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
+        // File initialFolder = getCurrentDirectory("saveFile");
+        // String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame,
+        // initialFolder);
+        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, this, i18n);
         if (saveAsFullName == null)
             return ExitCode.OPERATION_CANCELED;
 
         /* Store the current directory! */
         setCurrentDirectory(saveAsFullName);
 
-        int result = saveToFile(modelName, saveAsFullName, true);
+        // int result = saveToFile(modelName, saveAsFullName, true);
+        int result = saveToFile(modelName, saveAsFullName, false);
         return result;
     }
 
@@ -1330,8 +1333,10 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Do we have to ask for a file name? */
         if (saveAsFullName == null || saveAsFullName == "") {
-            File initialFolder = getCurrentDirectory("saveFile");
-            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
+            // File initialFolder = getCurrentDirectory("saveFile");
+            // saveAsFullName = FSInfo.getSaveAsFullName(mainFrame,
+            // initialFolder);
+            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, this, i18n);
             if (saveAsFullName == null)
                 return ExitCode.OPERATION_CANCELED;
 
