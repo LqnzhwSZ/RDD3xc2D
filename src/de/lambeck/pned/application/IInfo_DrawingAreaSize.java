@@ -13,9 +13,9 @@ public interface IInfo_DrawingAreaSize {
      * Sets the current size of the drawing area.
      * 
      * @param width
-     *            The current width; set to <0 if draw panel is null
+     *            The current width; set to &lt;0 if draw panel is null
      * @param height
-     *            The current height; set to <0 if draw panel is null
+     *            The current height; set to &lt;0 if draw panel is null
      */
     void setInfo_DrawingAreaSize(int width, int height);
 

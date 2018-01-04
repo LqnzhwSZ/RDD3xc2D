@@ -1,8 +1,14 @@
 package de.lambeck.pned.gui.settings;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.metal.MetalSliderUI;
@@ -11,18 +17,21 @@ import de.lambeck.pned.application.ApplicationController;
 
 /**
  * Implements a Slider for the size of elements on the draw panels. This slider
- * is intended to be added to the tool bar.
- * 
+ * is intended to be added to the tool bar.<BR>
+ * <BR>
  * Note: Holds a reference to the application controller which has to pass
- * changes to the GUI model controller.
- * 
+ * changes to the GUI model controller.<BR>
  * (Based on Oracles "SliderDemo".)
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings({ "serial" })
 public class SizeSlider extends JPanel implements ChangeListener {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = 9037749792815202561L;
 
     /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
@@ -43,10 +52,10 @@ public class SizeSlider extends JPanel implements ChangeListener {
     private static final int WANTED_HEIGHT = 41;
 
     /** The slider for size adjustment. */
-    JSlider shapeSizeSlider;
+    private JSlider shapeSizeSlider;
 
     /** The label to display the current value (when testing). */
-    JLabel sizeLabel;
+    private JLabel sizeLabel;
 
     /**
      * Constructs the slider with a specified title and a reference to the
@@ -160,42 +169,14 @@ public class SizeSlider extends JPanel implements ChangeListener {
         sizeLabel.setText("" + size);
     }
 
-    /** Update the label to display the current size. */
+    /**
+     * Update the label to display the current size.
+     * 
+     * @param size
+     *            the new size
+     */
     protected void updateSize(int size) {
         sizeLabel.setText("" + size);
     }
 
-    /**
-     * Create the GUI and show it. For thread safety, this method should be
-     * invoked from the event-dispatching thread.
-     */
-    private static void createAndShowGUI() {
-        JFrame frame = new JFrame("SliderDemo");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        SizeSlider slider = new SizeSlider("Shape size", null);
-
-        frame.add(slider, BorderLayout.CENTER);
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    /**
-     * Self test
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        /* Turn off metal's use of bold fonts */
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
-
-        // Schedule a job for the event-dispatching thread:
-        // creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                createAndShowGUI();
-            }
-        });
-    }
 }

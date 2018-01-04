@@ -28,6 +28,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class DataModelController implements IDataModelController {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /**
@@ -39,7 +40,7 @@ public class DataModelController implements IDataModelController {
     /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n = null;
 
     /**
@@ -61,10 +62,10 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Indicates whether we are importing data from a PNML file or not. This is
-     * important to avoid infinite loops when adding elements.
-     * 
-     * (If true: changes to a data model need to be passed to the GUI model. If
-     * false: changes to a GUI model need to be passed to the data model.)
+     * important to avoid infinite loops when adding elements.<BR>
+     * <BR>
+     * If true: changes to a data model need to be passed to the GUI model.<BR>
+     * If false: changes to a GUI model need to be passed to the data model.)
      */
     private boolean importingFromPnml = false;
 
@@ -75,12 +76,12 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Constructs a data model controller with references to the application
-     * controller (the parent) and a manager for i18n strings.
+     * controller (the parent) and a manager for localized strings.
      * 
      * @param controller
      *            The application controller
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public DataModelController(ApplicationController controller, I18NManager i18n) {
@@ -90,9 +91,7 @@ public class DataModelController implements IDataModelController {
         debug = controller.getShowDebugMessages();
     }
 
-    /*
-     * Methods for implemented interfaces
-     */
+    /* Methods for implemented interfaces */
 
     @Override
     public void setInfo_Status(String s, EStatusMessageLevel level) {
@@ -504,9 +503,7 @@ public class DataModelController implements IDataModelController {
      * updates between data and GUI model controller)
      */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     @Override
     public void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position) {
@@ -565,9 +562,7 @@ public class DataModelController implements IDataModelController {
             appController.arcAddedToCurrentDataModel(id, sourceId, targetId);
     }
 
-    /*
-     * Modify methods for elements
-     */
+    /* Modify methods for elements */
 
     @Override
     public void renameNode(String nodeId, String newName) {
@@ -599,9 +594,7 @@ public class DataModelController implements IDataModelController {
          */
     }
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     @Override
     public void removeDataElement(String elementId) {
@@ -668,9 +661,7 @@ public class DataModelController implements IDataModelController {
         currentModel.setModified(true, true);
     }
 
-    /*
-     * Mouse events in the GUI
-     */
+    /* Mouse events in the GUI */
 
     @Override
     public void moveNode(String nodeId, Point newPosition) {
@@ -706,9 +697,7 @@ public class DataModelController implements IDataModelController {
          */
     }
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     @Override
     public void resetAllDataStartPlaces(String modelName) {
@@ -878,10 +867,12 @@ public class DataModelController implements IDataModelController {
 
     /**
      * Returns the specified {@link IDataModel} with suppressed error messages
-     * if not found because this error can be expected in rare cases. This
-     * method is part of the validation process. And the ValidationController
-     * thread might slightly lagging behind in terms of the current model (e.g.
-     * if the user has suddenly closed the current file during validation).
+     * if not found because this error can be expected in rare cases.<BR>
+     * <BR>
+     * This method is part of the validation process. And the validation
+     * controller thread might slightly lagging behind in terms of the current
+     * model (e.g. if the user has suddenly closed the current file during
+     * validation).
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -1036,7 +1027,7 @@ public class DataModelController implements IDataModelController {
      *            The {@link DataPlace} to add the token to
      * @param tokensAdded
      *            Counter for added tokens
-     * @param placesWithRemovedToken
+     * @param placesWithAddedToken
      *            List with the ID of all processed places
      */
     private void addToken(DataPlace dataPlace, int tokensAdded, List<String> placesWithAddedToken) {

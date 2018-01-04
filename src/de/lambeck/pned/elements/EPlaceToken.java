@@ -1,7 +1,7 @@
 package de.lambeck.pned.elements;
 
 /**
- * Possible tokens for places. (0 or 1 for a Workflow net)
+ * Possible tokens count for places. (0 or 1 for a Workflow net)
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -16,8 +16,15 @@ public enum EPlaceToken {
      */
     ONE(1);
 
+    /** The int value of this enum element for comparisons */
     private int value;
 
+    /**
+     * Constructs this enum element with a specified int value.
+     * 
+     * @param initValue
+     *            The int value for this enum element
+     */
     private EPlaceToken(final int initValue) {
         this.value = initValue;
     }

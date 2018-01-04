@@ -11,8 +11,8 @@ interface IModelRename {
 
     /**
      * Sets the name of this model. (Use this method to rename this model in
-     * case the user has saved the model under a new file name.)
-     * 
+     * case the user has saved the model under a new file name.)<BR>
+     * <BR>
      * Note: This is in a non-public interface because the model controller has
      * to keep his list of models up to date!
      *
@@ -23,8 +23,8 @@ interface IModelRename {
 
     /**
      * Sets the display name of this model. (Use this method to rename this
-     * model in case the user has saved the model under a new file name.)
-     * 
+     * model in case the user has saved the model under a new file name.)<BR>
+     * <BR>
      * Intended use: name of the tab
      * 
      * @param s

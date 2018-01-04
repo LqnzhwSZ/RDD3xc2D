@@ -26,8 +26,15 @@ public enum EMouseEvent {
      */
     MOUSE_PRESSED_ALT("Left mouse button pressed + ALT");
 
+    /** The {@link String} value of this enum element */
     private String value;
 
+    /**
+     * Constructs this enum element with a specified String value.
+     * 
+     * @param initValue
+     *            The {@link String} value for this enum element
+     */
     private EMouseEvent(final String initValue) {
         this.value = initValue;
     }

@@ -20,8 +20,15 @@ public enum EStatusMessageLevel {
      */
     ERROR(2);
 
+    /** The int value of this enum element for comparisons */
     private int value;
 
+    /**
+     * Constructs this enum element with a specified int value.
+     * 
+     * @param initValue
+     *            The int value for this enum element
+     */
     private EStatusMessageLevel(final int initValue) {
         this.value = initValue;
     }

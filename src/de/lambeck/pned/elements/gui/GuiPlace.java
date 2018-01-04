@@ -8,8 +8,8 @@ import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
- * Implements the places for the GUI model of the Petri net.
- * 
+ * Implements the places for the GUI model of the Petri net.<BR>
+ * <BR>
  * This means that they have properties which play a role in the GUI only. (e.g.
  * size of nodes, colors)
  * 
@@ -18,13 +18,16 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiPlace extends GuiNode implements IGuiPlace {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** The size of the token circle relative to the shape size */
     private final static int tokensSizePercentage = 33;
 
+    /** Border color of the start place (or start place candidates) */
     private final static Color startPlaceCircleColor = ECustomColor.DARK_GREEN.getColor();
 
+    /** Border color of the end place (or end place candidates) */
     private final static Color endPlaceCircleColor = ECustomColor.FIREBRICK.getColor();
 
     /** The tokens of this place */
@@ -37,8 +40,8 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     private boolean isStartPlace = false;
 
     /**
-     * Stores whether this place is a start place candidate if there is more
-     * than 1 place without input arcs in this workflow net.
+     * Stores whether this place is a start place candidate (if there is more
+     * than 1 place without input arcs in this workflow net).
      */
     private boolean isStartPlaceCandidate = false;
 
@@ -49,14 +52,12 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     private boolean isEndPlace = false;
 
     /**
-     * Stores whether this place is an end place candidate if there is more than
-     * 1 place without output arcs in this workflow net.
+     * Stores whether this place is an end place candidate (if there is more
+     * than 1 place without output arcs in this workflow net).
      */
     private boolean isEndPlaceCandidate = false;
 
-    /*
-     * Constructor etc.
-     */
+    /* Constructor etc. */
 
     /**
      * Constructs a Place at a given location and in the specified z order
@@ -79,9 +80,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         this.tokens = initialTokens;
     }
 
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
     @Override
     public Double getZoom() {
@@ -92,10 +91,8 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     public void setZoom(Double zoom) {
     	this.zoom = zoom;
     }
-    
-    /*
-     * Methods for interface IGuiPlace
-     */
+
+    /* Methods for interface IGuiPlace */
 
     @Override
     public EPlaceToken getTokensCount() {
@@ -143,18 +140,14 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         this.isEndPlaceCandidate = b;
     }
 
-    /*
-     * Methods for interface IGuiElement
-     */
+    /* Methods for interface IGuiElement */
 
     @Override
     public void paintElement(Graphics g) {
         super.paintElement(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        /*
-         * Draw the token in the center of the place.
-         */
+        /* Draw the token in the center of the place. */
         drawTokens(g2);
 
         /* Highlight if start or end place (candidate). */
@@ -238,9 +231,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         return (new Ellipse2D.Double(x, y, w, h).contains(p));
     }
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public Point getArcAnchor(Point target) {
@@ -256,11 +247,11 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         double x_offset = x_dist * ratio;
         double y_offset = y_dist * ratio;
 
-        // Convert to coordinates
+        /* Convert to coordinates */
         double x_coord = this.shapeCenter.getX() + x_offset;
         double y_coord = this.shapeCenter.getY() + y_offset;
 
-        // Create and return the Point
+		/* Create and return the Point */
         int intX = (int) Math.round(x_coord * this.zoom);
         int intY = (int) Math.round(y_coord * this.zoom);
         Point anchor = new Point(intX, intY);
@@ -273,9 +264,7 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         return returnString;
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * @return True = This is a start or end place (candidate).

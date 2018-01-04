@@ -379,9 +379,7 @@ public final class PNMLWriter {
         return result;
     }
 
-    /**
-     * Inserts a new line for better readability for humans.
-     */
+    /** Inserts a new line for better readability for humans. */
     private void newLine() {
         try {
             xmlWriter.writeCharacters(System.getProperty("line.separator"));

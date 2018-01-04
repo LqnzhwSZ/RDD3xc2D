@@ -1,7 +1,7 @@
 package de.lambeck.pned.filesystem.pnml;
 
 /**
- * Possible exit codes for the pnml parser.
+ * Possible exit codes for the {@link PNMLParser}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -32,8 +32,15 @@ public enum EPNMLParserExitCode {
      */
     FLAG_ERROR_READING_FILE(16);
 
+    /** The int value of this enum element for comparisons */
     private int value;
 
+    /**
+     * Constructs this enum element with a specified int value.
+     * 
+     * @param initValue
+     *            The int value for this enum element
+     */
     private EPNMLParserExitCode(final int initValue) {
         this.value = initValue;
     }

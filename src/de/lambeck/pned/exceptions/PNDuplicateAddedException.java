@@ -7,8 +7,12 @@ package de.lambeck.pned.exceptions;
  * @author Thomas Lambeck, 4128320
  * 
  */
-@SuppressWarnings("serial")
 public class PNDuplicateAddedException extends Exception {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -354979179841429255L;
 
     /**
      * Exception without parameters

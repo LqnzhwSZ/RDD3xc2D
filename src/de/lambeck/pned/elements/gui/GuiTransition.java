@@ -5,8 +5,8 @@ import java.awt.*;
 import de.lambeck.pned.gui.ECustomColor;
 
 /**
- * Implements the transitions for the GUI model of the Petri net.
- * 
+ * Implements the transitions for the GUI model of the Petri net.<BR>
+ * <BR>
  * This means that they have properties which play a role in the GUI only. (e.g.
  * size of nodes, colors)
  * 
@@ -21,9 +21,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
     /** The "safe" state of this transition */
     private boolean safe = true; // Assume "safe" from the start
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
      * Constructs a Transition at a given location and in the specified z order
@@ -43,9 +41,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         super(id, name, p, zOrder);
     }
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     @Override
     public Double getZoom() {
@@ -77,9 +73,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         this.safe = newState;
     }
 
-    /*
-     * Methods for interface IGuiElement
-     */
+    /* Methods for interface IGuiElement */
 
     @Override
     public void paintElement(Graphics g) {
@@ -137,9 +131,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         return (new Rectangle(shapeLeftX, shapeTopY, shapeSize, shapeSize).contains(p));
     }
 
-    /*
-     * Methods for interface IGuiNode
-     */
+    /* Methods for interface IGuiNode */
 
     @Override
     public Point getArcAnchor(Point target) {
@@ -156,9 +148,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         double abs_x_dist = Math.abs(target_x - shape_center_x);
         double abs_y_dist = Math.abs(target_y - shape_center_y);
 
-        /*
-         * Determine the general direction
-         */
+        /* Determine the general direction */
         if (Math.abs(x_dist) == Math.abs(y_dist)) {
             // System.out.println("Der Pfeil verläuft genau diagonal...");
             if (target_x < shape_center_x && target_y < shape_center_y) {
@@ -195,9 +185,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
             return null;
         }
 
-        /*
-         * Calculate the anchor point
-         */
+        /* Calculate the anchor point. */
         double doubleX = 0, doubleY = 0, ratio = 0;
 
         switch (generalArcDirection) {
@@ -241,7 +229,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
             break;
         }
 
-        // Create and return the Point
+        /* Create and return the Point */
         int intX = (int) Math.round(doubleX);
         int intY = (int) Math.round(doubleY);
         Point anchor = new Point(intX, intY);
@@ -254,9 +242,5 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
                 + this.isSafe() + "]";
         return returnString;
     }
-
-    /*
-     * Private helper methods
-     */
 
 }

@@ -9,9 +9,7 @@ package de.lambeck.pned.models.data.validation;
  */
 public interface IValidationMsgPanel {
 
-    /*
-     * Setter and Getter
-     */
+    /* Getter and Setter */
 
     /**
      * Returns the full name of this {@link ValidationMsgPanel}. This should be
@@ -31,9 +29,7 @@ public interface IValidationMsgPanel {
      */
     void setModelName(String s);
 
-    /*
-     * Methods for the content
-     */
+    /* Methods for the content */
 
     /**
      * Removes all validation messages and resets the background color.

@@ -27,6 +27,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiModelController implements IGuiModelController {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** Minimum shape size for setter */
@@ -35,9 +36,10 @@ public class GuiModelController implements IGuiModelController {
     /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
+    /** The {@link Map} with possible {@link AbstractAction} in popup menus */
     protected Map<String, AbstractAction> popupActions;
 
     /**
@@ -69,9 +71,10 @@ public class GuiModelController implements IGuiModelController {
     private List<IGuiNode> movedNodes = new ArrayList<IGuiNode>();
 
     /**
-     * The source node for the new Arc to be added.
-     * 
-     * Note: Attribute {@link addingNewArc} should be true if this is != null.
+     * The source node for the new Arc to be added.<BR>
+     * <BR>
+     * Note: The local attribute "addingNewArc" should be true if this attribute
+     * is != null.
      */
     private IGuiNode sourceNodeForNewArc = null;
 
@@ -89,12 +92,12 @@ public class GuiModelController implements IGuiModelController {
 
     /**
      * Constructs a GUI model controller with references to the application
-     * controller (the parent) and a manager for i18n strings.
+     * controller (the parent) and a manager for localized strings.
      * 
      * @param controller
      *            The application controller
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param popupActions
      *            List of Actions
      */
@@ -108,9 +111,7 @@ public class GuiModelController implements IGuiModelController {
         debug = controller.getShowDebugMessages();
     }
 
-    /*
-     * Methods for implemented interfaces
-     */
+    /* Methods for implemented interfaces */
 
     @Override
     public void setInfo_MousePos(Point p) {
@@ -132,9 +133,7 @@ public class GuiModelController implements IGuiModelController {
         appController.setInfo_Status(s, level);
     }
 
-    /*
-     * Methods for open files
-     */
+    /* Methods for open files */
 
     @Override
     public void addGuiModel(String modelName, String displayName) {
@@ -300,7 +299,7 @@ public class GuiModelController implements IGuiModelController {
     /**
      * Uses interface {@link IModelRename} to rename the draw panel.
      * 
-     * @param model
+     * @param drawPanel
      *            The draw panel as {@link IModelRename}
      * @param newModelName
      *            The name of the model (This is intended to be the full path
@@ -385,9 +384,7 @@ public class GuiModelController implements IGuiModelController {
      * updates between data and GUI model controller)
      */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     @Override
     public void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
@@ -518,8 +515,8 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Sets the local state "AddingNewArc".
-     * 
+     * Sets the local state "AddingNewArc".<BR>
+     * <BR>
      * Note: This is a private method because it should only be invoked after
      * successfully finishing setSourceNodeForNewArc().
      */
@@ -658,9 +655,7 @@ public class GuiModelController implements IGuiModelController {
         this.stateAddingNewArc = false;
     }
 
-    /*
-     * Modify methods for elements
-     */
+    /* Modify methods for elements */
 
     @Override
     public IGuiElement getSelectableElementAtLocation(Point p) {
@@ -758,9 +753,7 @@ public class GuiModelController implements IGuiModelController {
         currentDrawPanel.updateDrawing(area);
     }
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     @Override
     public void removeSelectedGuiElements() {
@@ -838,9 +831,7 @@ public class GuiModelController implements IGuiModelController {
         currentModel.setModified(true);
     }
 
-    /*
-     * Mouse events
-     */
+    /* Mouse events */
 
     @Override
     public void mouseClick_Occurred(Point mousePressedLocation, MouseEvent e) {
@@ -1070,9 +1061,7 @@ public class GuiModelController implements IGuiModelController {
         if (currentModel == null)
             return;
 
-        /*
-         * Only selected nodes can be dragged (together with ALT).
-         */
+        /* Only selected nodes can be dragged. */
         List<IGuiElement> selectedElements = currentModel.getSelectedElements();
 
         /*
@@ -1091,9 +1080,7 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
-    /*
-     * Keyboard events
-     */
+    /* Keyboard events */
 
     @Override
     public void keyEvent_Escape_Occurred() {
@@ -1159,9 +1146,7 @@ public class GuiModelController implements IGuiModelController {
     public void moveElementToForeground() {
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation != null) {
-            /*
-             * Call via popup menu: there is a location
-             */
+            /* Call via popup menu: there is a location */
             moveElementAtPopupMenuToForeground(popupMenuLocation);
             return;
         }
@@ -1594,9 +1579,7 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
-    /*
-     * Private helper methods
-     */
+    /* Private helper methods */
 
     /**
      * Invokes updateDrawing(Rectangle area) for all specified areas.
@@ -1611,7 +1594,7 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Invokes updateDrawing(Rectangle area) for no area -> everything.
+     * Invokes updateDrawing(Rectangle area) for no area (everything).
      */
     private void updateDrawing() {
         Rectangle area = null;
@@ -1825,11 +1808,11 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Returns a list of all arcs that are adjacent to the nodes in the
-     * specified list.
+     * Returns a {@link List} of all {@link IGuiArc} that are adjacent to the
+     * specified {@link IGuiNode}.
      * 
-     * @param nodes
-     *            The list of nodes
+     * @param node
+     *            The specified {@link IGuiNode}
      * @return A {@link List} of {@link IGuiArc} of all adjacent arcs
      */
     private List<IGuiArc> getAdjacentArcs(IGuiNode node) {
@@ -1924,9 +1907,7 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     @Override
     public void resetAllGuiStartPlaces(String modelName) {
@@ -2176,10 +2157,12 @@ public class GuiModelController implements IGuiModelController {
 
     /**
      * Returns the specified {@link IGuiModel} with suppressed error messages if
-     * not found because this error can be expected in rare cases. This method
-     * is part of the validation process. And the ValidationController thread
-     * might slightly lagging behind in terms of the current model (e.g. if the
-     * user has suddenly closed the current file during validation).
+     * not found because this error can be expected in rare cases.<BR>
+     * <BR>
+     * This method is part of the validation process. And the validation
+     * controller thread might slightly lagging behind in terms of the current
+     * model (e.g. if the user has suddenly closed the current file during
+     * validation).
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path

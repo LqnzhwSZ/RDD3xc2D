@@ -8,16 +8,24 @@ package de.lambeck.pned.application;
  */
 public class ExitCode {
 
-    @SuppressWarnings("javadoc")
+    /**
+     * An unexpected error has happened.
+     */
     public static final int UNEXPECTED_ERROR = -1;
 
-    @SuppressWarnings("javadoc")
+    /**
+     * The operation was successful.
+     */
     public static final int OPERATION_SUCCESSFUL = 0;
 
-    @SuppressWarnings("javadoc")
+    /**
+     * The operation failed.
+     */
     public static final int OPERATION_FAILED = 1;
 
-    @SuppressWarnings("javadoc")
+    /**
+     * The user has canceled the operation.
+     */
     public static final int OPERATION_CANCELED = 2;
 
 }

@@ -10,21 +10,21 @@ import javax.swing.JMenuBar;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
- * Implements the menu bar for the Petri net editor.
- * 
- * Note:
- * 
- * Holds references to
- * 
- * - A parent component (to position dialogs)
- * 
+ * Implements the menu bar for the Petri net editor.<BR>
+ * <BR>
+ * Note: Holds references to:<BR>
+ * - A parent component (to position dialogs)<BR>
  * - The application controller (to pass this reference to action objects)
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = 5144651256205243783L;
 
     /** This is the Component to position some dialogs (e.g. FileOpen). */
     protected JFrame parentComponent;
@@ -61,7 +61,7 @@ public class MenuBar extends JMenuBar {
      * @param parent
      *            The parent component (should be the main application window)
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param allActions
      *            List of Actions
      */

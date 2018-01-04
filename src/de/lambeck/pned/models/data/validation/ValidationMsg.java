@@ -10,33 +10,14 @@ import de.lambeck.pned.models.data.IDataModel;
  */
 public class ValidationMsg implements IValidationMsg {
 
-    private String modelId;
+    /** This should be the canonical (unique) path name of the file. */
+    private String modelName;
 
-    // private String nodeId;
-
+    /** The message (e.g. problem description) */
     private String message;
 
+    /** The severity (importance) of the message/problem */
     private EValidationResultSeverity severity;
-
-    // /**
-    // * Constructs a new validation message for an {@link AbstractValidator}.
-    // *
-    // * @param model
-    // * The {@link IDataModel}
-    // * @param node
-    // * @param message
-    // * The message {@link String}
-    // * @param severity
-    // * The severity of the found Problem ({@link EValidationResultSeverity})
-    // */
-    // @SuppressWarnings("hiding")
-    // public ValidationMessage(IDataModel model, IDataElement node, String
-    // message, EValidationResultSeverity severity) {
-    // this.modelId = model.getModelName();
-    // this.nodeId = node.getId();
-    // this.message = message;
-    // this.severity = severity;
-    // }
 
     /**
      * Constructs a new validation message for an {@link AbstractValidator}.
@@ -51,20 +32,14 @@ public class ValidationMsg implements IValidationMsg {
      */
     @SuppressWarnings("hiding")
     public ValidationMsg(IDataModel model, String message, EValidationResultSeverity severity) {
-        this.modelId = model.getModelName();
+        this.modelName = model.getModelName();
         this.message = message;
         this.severity = severity;
     }
 
-    // @Override
-    // public String toString() {
-    // return String.format("Model ID '%s' Node ID '%s': %s", this.modelId,
-    // this.nodeId, this.message);
-    // }
-
     @Override
     public String toString() {
-        return String.format("Model ID '%s': %s", this.modelId, this.message);
+        return String.format("Model '%s': %s, severity: %s", this.modelName, this.message, this.severity);
     }
 
     @Override
@@ -73,14 +48,9 @@ public class ValidationMsg implements IValidationMsg {
     }
 
     @Override
-    public String getModelId() {
-        return this.modelId;
+    public String getModelName() {
+        return this.modelName;
     }
-
-    // @Override
-    // public String getNodeId() {
-    // return this.nodeId;
-    // }
 
     @Override
     public EValidationResultSeverity getSeverity() {

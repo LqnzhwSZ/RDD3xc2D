@@ -16,17 +16,15 @@ import java.awt.event.ComponentEvent;
  */
 public class ComponentResizeListener extends ComponentAdapter {
 
-    /*
-     * The application controller
-     */
+    /** Reference to the {@link ApplicationController} */
     private ApplicationController appController = null;
 
     /**
      * Constructs the ComponentResizeListener with a reference to the
-     * application controller.
+     * {@link ApplicationController}.
      * 
      * @param controller
-     *            The application controller
+     *            The {@link ApplicationController}
      */
     public ComponentResizeListener(ApplicationController controller) {
         super();

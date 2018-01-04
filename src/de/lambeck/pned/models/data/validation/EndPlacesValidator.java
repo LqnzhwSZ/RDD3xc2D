@@ -10,24 +10,25 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Checks the number of end places in a workflow net.
+ * Checks the number of end places in a workflow net. To be used in combination
+ * with the {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class EndPlacesValidator extends AbstractValidator {
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
+     * Constructs this validator with references to the necessary controllers.
+     * 
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public EndPlacesValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -36,9 +37,7 @@ public class EndPlacesValidator extends AbstractValidator {
         this.validatorInfoString = "infoEndPlacesValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -72,17 +71,15 @@ public class EndPlacesValidator extends AbstractValidator {
     }
 
     /**
-     * Returns true if the model has no places.
+     * /** Returns true if the model has no places.
      * 
      * @param endPlaces
      *            The {@link List} of end places
+     * @return True = no place, false = at least 1 place
      */
     private boolean evaluateNoPlaces(List<String> endPlaces) {
         if (endPlaces == null) {
-            String message = i18n.getMessage("warningValidatorNoPlaces");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoPlaces();
             return true;
         }
         return false;
@@ -93,13 +90,11 @@ public class EndPlacesValidator extends AbstractValidator {
      * 
      * @param endPlaces
      *            The {@link List} of end places
+     * @return True = no end place, false = at least 1 end place
      */
     private boolean evaluateNoEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() == 0) {
-            String message = i18n.getMessage("warningValidatorNoEndPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoEndPlace();
             return true;
         }
         return false;
@@ -112,6 +107,7 @@ public class EndPlacesValidator extends AbstractValidator {
      * 
      * @param endPlaces
      *            The {@link List} of end places
+     * @return True = too many end places, false = end places count is OK
      */
     private boolean evaluateTooManyEndPlaces(List<String> endPlaces) {
         if (endPlaces.size() > 1) {
@@ -121,10 +117,7 @@ public class EndPlacesValidator extends AbstractValidator {
             }
 
             /* Validation message */
-            String message = i18n.getMessage("warningValidatorTooManyEndPlaces");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalTooManyEndPlaces();
             return true;
         }
         return false;
@@ -141,9 +134,54 @@ public class EndPlacesValidator extends AbstractValidator {
         myDataModelController.setDataEndPlace(myDataModelName, placeId, true);
     }
 
-    /*
-     * Private helpers
+    /* Messages */
+
+    /**
+     * Adds a critical message to indicate that there are no places.
      */
+    protected void messageCriticalNoPlaces() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoPlaces");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there is no end place.
+     */
+    protected void messageCriticalNoEndPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoEndPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there are too many end places.
+     */
+    protected void messageCriticalTooManyEndPlaces() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorTooManyEndPlaces");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /* Private helpers */
 
     /**
      * Generates a {@link List} of end places of the Petri net.

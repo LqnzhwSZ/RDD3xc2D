@@ -12,9 +12,7 @@ import de.lambeck.pned.models.data.IDataModel;
  */
 public interface IDataArc extends IDataElement, IArc {
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     /*
      * Keine Knoten von Kanten entfernen! Kanten immer gleich löschen!

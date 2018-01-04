@@ -24,7 +24,7 @@ public class ActionManager implements IActionManager {
     /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n = null;
 
     /** Lists of Action objects for menu bar and tool bar */
@@ -37,29 +37,48 @@ public class ActionManager implements IActionManager {
      * All Actions
      */
 
+    /** The {@link FileNewAction} */
     AbstractAction fileNewAction;
+    /** The {@link FileOpenAction} */
     AbstractAction fileOpenAction;
+    /** The {@link FileCloseAction} */
     AbstractAction fileCloseAction;
+    /** The {@link FileSaveAction} */
     AbstractAction fileSaveAction;
+    /** The {@link FileSaveAsAction} */
     AbstractAction fileSaveAsAction;
+    /** The {@link AppExitAction} */
     AbstractAction appExitAction;
 
+    /** The {@link EditRenameAction} */
     AbstractAction editRenameAction;
+    /** The {@link EditDeleteAction} */
     AbstractAction editDeleteAction;
 
+    /** The {@link ElementToTheForegroundAction} */
     AbstractAction toForegroundAction;
+    /** The {@link ElementOneLayerUpAction} */
     AbstractAction oneLayerUpAction;
+    /** The {@link ElementOneLayerDownAction} */
     AbstractAction oneLayerDownAction;
+    /** The {@link ElementToTheBackgroundAction} */
     AbstractAction toBackgroundAction;
 
+    /** The {@link ElementSelectAction} */
     AbstractAction elementSelectAction;
+    /** The {@link FireTransitionAction} */
     AbstractAction fireTransitionAction;
+    /** The {@link StopSimulationAction} */
     AbstractAction stopSimulationAction;
 
+    /** The {@link NewArcFromHereAction} */
     AbstractAction newArcFromHereAction;
+    /** The {@link NewArcToHereAction} */
     AbstractAction newArcToHereAction;
 
+    /** The {@link NewPlaceAction} */
     AbstractAction newPlaceAction;
+    /** The {@link NewTransitionAction} */
     AbstractAction newTransitionAction;
 
     /*

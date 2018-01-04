@@ -9,7 +9,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.sun.xml.internal.ws.api.Component;
+
 import de.lambeck.pned.application.ApplicationController;
+import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -21,13 +24,21 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class FileSaveAsAction extends AbstractPNAction {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -1904549335042924049L;
+
+    /** The parent {@link Component} to center the dialog */
     protected JFrame parentComponent;
 
+    /** The {@link JFileChooser} that is used to look for a file name. */
     private JFileChooser fileChooser = new JFileChooser();
-    private String suffix = ".pnml";
+
+//    /** The suffix for the files (automatically appended if missing) */
+//    private String suffix = ".pnml";
 
     /**
      * Creates the FileSaveAsAction with an additional parent component.
@@ -35,7 +46,7 @@ public class FileSaveAsAction extends AbstractPNAction {
      * @param controller
      *            The application controller
      * @param i18nController
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param parent
      *            The parent component (should be the main application window)
      */
@@ -64,44 +75,53 @@ public class FileSaveAsAction extends AbstractPNAction {
         if (appController.getActiveFile() == null)
             return; // No file to save.
 
-        File lastPath = appController.getCurrentDirectory("FileSaveAsAction");
-        fileChooser.setCurrentDirectory(lastPath);
-        /*
-         * If lastPath == null (for a new, still unsaved file) the fileChooser
-         * will start in "user.home" or similar.
-         */
+//        File lastPath = appController.getCurrentDirectory("FileSaveAsAction");
+//        fileChooser.setCurrentDirectory(lastPath);
+//        /*
+//         * If lastPath == null (for a new, still unsaved file) the fileChooser
+//         * will start in "user.home" or similar.
+//         */
+//
+//        int returnVal = fileChooser.showSaveDialog(parentComponent);
+//
+//        if (returnVal != JFileChooser.APPROVE_OPTION) {
+//            /* Cancelled by user */
+//            return;
+//        }
+//
+//        File file = fileChooser.getSelectedFile();
+//
+//        if (!file.getAbsolutePath().endsWith(suffix)) {
+//            file = new File(file + suffix);
+//        }
 
-        int returnVal = fileChooser.showSaveDialog(parentComponent);
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-
-            if (!file.getAbsolutePath().endsWith(suffix)) {
-                file = new File(file + suffix);
-            }
-
-            // appController.setCurrentDirectory(file);
-            appController.setCurrentDirectory(file.getParent());
-
-            if (!file.exists()) {
-                appController.menuCmd_FileSaveAs(file);
-                return;
-            } else if (file.canWrite()) {
-                appController.menuCmd_FileSaveAs(file);
-                return;
-            }
-
-            String title = i18n.getNameOnly("WriteProtectedFile");
-            String message = i18n.getMessage("errFileWriteProtected");
-            message = message.replace("%fullName%", file.getName());
-
-            int options = JOptionPane.OK_OPTION;
-
-            JOptionPane.showMessageDialog(parentComponent, message, title, options);
+        String fileSaveAsName = FSInfo.getSaveAsFullName(parentComponent, appController, i18n);
+        if (fileSaveAsName == null) {
+            /* Cancelled by user */
             return;
-
-        } else {
-            // System.out.println("SaveAs command canceled by user.");
         }
+
+        File file = FSInfo.getFile(fileSaveAsName);
+
+        // appController.setCurrentDirectory(file);
+        appController.setCurrentDirectory(file.getParent());
+
+        if (!file.exists()) {
+            appController.menuCmd_FileSaveAs(file);
+            return;
+        } else if (file.canWrite()) {
+            appController.menuCmd_FileSaveAs(file);
+            return;
+        }
+
+        String title = i18n.getNameOnly("WriteProtectedFile");
+        String message = i18n.getMessage("errFileWriteProtected");
+        message = message.replace("%fullName%", file.getName());
+
+        int options = JOptionPane.OK_OPTION;
+
+        JOptionPane.showMessageDialog(parentComponent, message, title, options);
+        return;
+
     }
 }

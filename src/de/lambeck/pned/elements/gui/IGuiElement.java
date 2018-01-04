@@ -24,8 +24,8 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
     void paintElement(Graphics g);
 
     /**
-     * Checks if a Point is within the shape.
-     * 
+     * Checks if a Point is within the shape.<BR>
+     * <BR>
      * Note that this refers to the shape of this node itself (place,
      * transition) only. It does not take the area of the label into account!
      * 
@@ -34,16 +34,6 @@ public interface IGuiElement extends IElement, IHasZValue, ISelectable {
      * @return true if the Point is within the shape
      */
     boolean contains(Point p);
-
-    // /**
-    // * Returns the area that is used when this element is painted.
-    // *
-    // * Note: This should be an exact value for nodes (places and transitions).
-    // * But only an approximation for arcs.
-    // *
-    // * @return The area in which the element is painted
-    // */
-    // Rectangle getApproxDrawArea();
 
     /**
      * Returns the drawing area used during last invocation of paintElement.

@@ -1,7 +1,7 @@
 package de.lambeck.pned.filesystem.pnml;
 
 /**
- * Allowed types of elements for read-in.
+ * Allowed types of elements for read-in with the {@link PNMLParser}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -20,8 +20,15 @@ public enum EPNMLElement {
      */
     ARC("Arc");
 
+    /** The {@link String} value of this enum element */
     private String value;
 
+    /**
+     * Constructs this enum element with a specified String value.
+     * 
+     * @param initValue
+     *            The {@link String} value for this enum element
+     */
     private EPNMLElement(final String initValue) {
         this.value = initValue;
     }

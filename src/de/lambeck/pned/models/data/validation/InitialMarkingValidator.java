@@ -13,7 +13,8 @@ import de.lambeck.pned.models.data.IDataModelController;
 /**
  * Sets the initial marking (token on the start place) if the model was modified
  * but leaves an existing initial marking from a PNML file unchanged in case of
- * the first validation of the model.
+ * the first validation of the model. To be used in combination with the
+ * {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -23,18 +24,17 @@ public class InitialMarkingValidator extends AbstractValidator {
     /** The start place of the model (if unambiguous) */
     private DataPlace myStartPlace = null;
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
+     * Constructs this validator with references to the necessary controllers.
      * 
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public InitialMarkingValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -43,9 +43,7 @@ public class InitialMarkingValidator extends AbstractValidator {
         this.validatorInfoString = "infoInitialMarkingValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -73,12 +71,12 @@ public class InitialMarkingValidator extends AbstractValidator {
         reportValidationSuccessful();
     }
 
-    /*
-     * Abort conditions
-     */
+    /* Abort conditions */
 
     /**
      * Checks abort condition 1: Model with tokens just loaded from a PNML file?
+     * 
+     * @return True = ignore this validation, false = run this validation
      */
     private boolean checkAbortCondition1() {
         if (this.isInitialModelCheck) {
@@ -92,7 +90,7 @@ public class InitialMarkingValidator extends AbstractValidator {
     }
 
     /**
-     * Removes the token from all {@link IDataPlace}.
+     * Removes the token from all {@link DataPlace}.
      */
     private void removeExistingMarking() {
         myDataModelController.removeAllDataTokens(myDataModelName);
@@ -100,6 +98,8 @@ public class InitialMarkingValidator extends AbstractValidator {
 
     /**
      * Checks abort condition 2: Model already classified as invalid?
+     * 
+     * @return true = result is critical, false = result is not critical
      */
     private boolean checkAbortCondition2() {
         EValidationResultSeverity currentResultsSeverity = this.myValidationController
@@ -131,16 +131,20 @@ public class InitialMarkingValidator extends AbstractValidator {
         if (unambiguousStartPlace != null) {
             this.myStartPlace = unambiguousStartPlace;
         } else {
-            String message = i18n.getMessage("warningValidatorNoUnambiguousStartPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoUnambiguousStartPlace();
             result = false;
         }
 
         return result;
     }
 
+    /**
+     * Informs the {@link IDataModelController} to add a token to the specified
+     * start place.
+     * 
+     * @param startPlace
+     *            The specified [{@link DataPlace}
+     */
     private void setInitialMarking(DataPlace startPlace) {
         String placeId = startPlace.getId();
 
@@ -150,37 +154,41 @@ public class InitialMarkingValidator extends AbstractValidator {
         myDataModelController.addDataToken(myDataModelName, placesWithToken);
     }
 
-    /*
-     * Messages
-     */
+    /* Messages */
 
     /**
      * Adds an info message to indicate that this validation is ignored for the
      * initial check of a model.
      */
     private void infoIgnoredForInitialCheck() {
-        String message = i18n.getMessage("infoValidatorIgnoredForInitialCheck");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("infoValidatorIgnoredForInitialCheck");
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
     /**
-     * Adds an info message to indicate that this validation is stopped for an
-     * invalid model.
-     * 
-     * Note: This message is an "INFO" message because the
-     * {@link ValidationController} stores only the highest
-     * {@link EValidationResultSeverity} anyways.
+     * Adds a critical message to indicate that there is no unambiguous start
+     * place.
      */
-    private void infoIgnoredForInvalidModel() {
-        String message = i18n.getMessage("infoIgnoredForInvalidModel");
-        IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
+    protected void messageCriticalNoUnambiguousStartPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoUnambiguousStartPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
         validationMessages.add(vMessage);
     }
 
-    /*
-     * Private helpers
-     */
+    /* Private helpers */
 
     /**
      * Determines the number of tokens in a {@link IDataModel}.

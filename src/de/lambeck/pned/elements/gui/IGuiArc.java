@@ -12,9 +12,7 @@ import de.lambeck.pned.models.gui.IGuiModel;
  */
 public interface IGuiArc extends IGuiElement, IArc {
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     /*
      * Keine Knoten von Kanten entfernen! Kanten immer gleich löschen!

@@ -13,9 +13,7 @@ import de.lambeck.pned.elements.EPlaceToken;
  */
 public interface IModel {
 
-    /*
-     * Setter and Getter
-     */
+    /* Getter and Setter */
 
     /**
      * Returns the full name of this model. This should be the canonical
@@ -25,23 +23,19 @@ public interface IModel {
      */
     String getModelName();
 
-    /*
-     * setModelName(String s) is part of interface IModelRename!
-     */
+    /* setModelName(String s) is part of interface IModelRename! */
     // void setModelName(String s);
 
     /**
-     * Returns the display name of this model.
-     * 
+     * Returns the display name of this model.<BR>
+     * <BR>
      * Intended use: name of the tab
      * 
      * @return The display name
      */
     String getDisplayName();
 
-    /*
-     * setDisplayName(String s) is part of interface IModelRename!
-     */
+    /* setDisplayName(String s) is part of interface IModelRename! */
     // void setDisplayName(String s);
 
     /**
@@ -53,8 +47,8 @@ public interface IModel {
 
     /**
      * Sets the "modified" attribute of this model. Use this method when
-     * changing persistent data (e.g. name and position of nodes).
-     * 
+     * changing persistent data (e.g. name and position of nodes).<BR>
+     * <BR>
      * Note: It should also be used by the model controller to reset the
      * "modified" attribute after loading a PNML file. Otherwise: The model
      * would be marked as "modified" before the user has modified anything.
@@ -64,17 +58,13 @@ public interface IModel {
      */
     void setModified(boolean b);
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
-    /*
-     * Add elements
-     */
+    /* Add elements */
 
     /**
-     * Adds a place to this model.
-     * 
+     * Adds a place to this model.<BR>
+     * <BR>
      * Intended use: adding a place after a GUI event when the new place is
      * without a name after creation.
      * 
@@ -88,11 +78,11 @@ public interface IModel {
     void addPlace(String id, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a place to this model.
-     * 
+     * Adds a place to this model.<BR>
+     * <BR>
      * Note: Adds an additional parameter name to the other method
-     * addPlace(String id, EPlaceTokens initialTokens, Point position)
-     * 
+     * addPlace(String id, EPlaceTokens initialTokens, Point position)<BR>
+     * <BR>
      * Intended use: adding a place after reading from a PNML file because these
      * places may have a name.
      * 
@@ -108,8 +98,8 @@ public interface IModel {
     void addPlace(String id, String name, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a transition to this model.
-     * 
+     * Adds a transition to this model.<BR>
+     * <BR>
      * Intended use: adding a transition after a GUI event when the new
      * transition is without a name after creation.
      * 
@@ -121,11 +111,11 @@ public interface IModel {
     void addTransition(String id, Point position);
 
     /**
-     * Adds a transition to this model.
-     * 
+     * Adds a transition to this model.<BR>
+     * <BR>
      * Note: Adds an additional parameter name to the other method
-     * addTransition(String id, Point position)
-     * 
+     * addTransition(String id, Point position)<BR>
+     * <BR>
      * Intended use: adding a transition after reading from a PNML file because
      * these transitions may have a name.
      * 
@@ -139,8 +129,8 @@ public interface IModel {
     void addTransition(String id, String name, Point position);
 
     /**
-     * Adds an arc to this model.
-     * 
+     * Adds an arc to this model.<BR>
+     * <BR>
      * Note: This method should be the same for GUI events and reading from a
      * PNML file because arcs will have all 3 attributes in both cases.
      * 
@@ -153,9 +143,7 @@ public interface IModel {
      */
     void addArc(String id, String sourceId, String targetId);
 
-    /*
-     * Remove methods for elements
-     */
+    /* Remove methods for elements */
 
     /**
      * Removes the specified element from this model.

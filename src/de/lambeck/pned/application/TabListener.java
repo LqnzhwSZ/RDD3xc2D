@@ -13,8 +13,10 @@ import javax.swing.event.ChangeListener;
  */
 public class TabListener implements ChangeListener {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
+    /** Reference to the {@link ApplicationController} */
     protected ApplicationController appController = null;
 
     /**

@@ -80,10 +80,10 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Indicates whether we are importing data from a PNML file or not. This is
-     * important to avoid infinite loops when adding elements.
-     * 
-     * (If true: changes to a data model need to be passed to the GUI model. If
-     * false: changes to a GUI model need to be passed to the data model.)
+     * important to avoid infinite loops when adding elements.<BR>
+     * <BR>
+     * If true: changes to a data model need to be passed to the GUI model.<BR>
+     * If false: changes to a GUI model need to be passed to the data model.
      */
     private boolean importingFromPnml = false;
 
@@ -136,7 +136,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param frame
      *            The main frame (window) of the application
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      * @param stBar
      *            The status bar (of this application)
      */
@@ -215,7 +215,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Adds all necessary controllers.
      * 
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     private void addControllers(I18NManager i18n) {
@@ -233,7 +233,7 @@ public class ApplicationController extends AbstractApplicationController {
      * {@link ValidationController}.
      * 
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     private void addValidators(I18NManager i18n) {
@@ -422,8 +422,8 @@ public class ApplicationController extends AbstractApplicationController {
     /* Methods for the TabListener */
 
     /**
-     * Adds the file name to the title of the main frame.
-     * 
+     * Adds the file name to the title of the main frame.<BR>
+     * <BR>
      * Note: This method is visible in this package because the TabListener uses
      * this method!
      * 
@@ -442,8 +442,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for the TabListener
-     * 
+     * Callback for the TabListener<BR>
+     * <BR>
      * Note: This method is visible in this package because the TabListener uses
      * this method!
      * 
@@ -480,6 +480,11 @@ public class ApplicationController extends AbstractApplicationController {
             }
             dataModelController.setCurrentModel(newActiveDataModel);
 
+            /*
+             * Validation controller doesn't need an update because he is always
+             * asking for the current model.
+             */
+
             IGuiModel newActiveGuiModel = guiModelController.getGuiModel(activeFile);
             if (newActiveGuiModel == null) {
                 System.err.println("setActiveFile, GuiModel for '" + activeFile + "' does not exist!");
@@ -502,11 +507,11 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Determines the active tab "manually" to call setActiveFile(tabIndex).
-     * 
+     * Determines the active tab "manually" to call setActiveFile(tabIndex).<BR>
+     * <BR>
      * Note: This might be necessary in case there is no tab stateChanged event
-     * in the {@link TabListener} even if "current file" is no longer valid.
-     * 
+     * in the {@link TabListener} even if "current file" is no longer valid.<BR>
+     * <BR>
      * Example: If the {@link IDataModelController} discards a corrupted file,
      * all "current models" etc. that were prepared for this file will be reset
      * to null. And because the tab for this file was not displayed yet, the
@@ -533,8 +538,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for {@link FileOpenAction}, opens an existing file.
-     * 
+     * Callback for {@link FileOpenAction}, opens an existing file.<BR>
+     * <BR>
      * Note: This method should be called by the FileOpenAction after getting a
      * file.
      * 
@@ -582,8 +587,8 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for {@link FileSaveAsAction}, saves the model as the specified
-     * file.
-     * 
+     * file.<BR>
+     * <BR>
      * Note: This method should be called by the FileSaveAsAction after getting
      * a file.
      * 
@@ -830,10 +835,10 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds a new Tab with empty data and GUI models.
-     * 
-     * Note: Used by FileNew
-     * 
+     * Adds a new Tab with empty data and GUI models.<BR>
+     * <BR>
+     * Note: Used by FileNew<BR>
+     * <BR>
      * Note: The full path name us used as tool tip for the tab. (This can be
      * used later to determine the current active file.)
      * 
@@ -864,11 +869,10 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds the specified existing file.
+     * Adds the specified existing file selected by {@link FileOpenAction}.
      * 
      * @param pnmlFile
      *            The {@link File} chosen by the user
-     * @see {@link FileOpenAction}
      */
     private void addNewModelFromFile(File pnmlFile) {
         /* Get the (unique) canonical path name of the specified file. */
@@ -942,8 +946,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Adds a new Tab for the specified {@link DrawPanel}.
-     * 
+     * Adds a new Tab for the specified {@link DrawPanel}.<BR>
+     * <BR>
      * Note: The full path name us used as tool tip for the tab. (This can be
      * used later to determine the current active file.)
      * 
@@ -957,7 +961,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param displayName
      *            The title of the tab (= the file name)
      */
-    private void addTabForDrawPanel(DrawPanel drawPanel, IValidationMsgPanel validationMessagesPanel, String fullName,
+    private void addTabForDrawPanel(DrawPanel drawPanel, IValidationMsgPanel validationMsgPanel, String fullName,
             String displayName) {
         /*
          * Add the path to the list of files. Use the (unique) canonical path
@@ -977,7 +981,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         JPanel documentPanel = new JPanel(new BorderLayout());
         documentPanel.add(scrollPanel, BorderLayout.CENTER);
-        documentPanel.add((Component) validationMessagesPanel, BorderLayout.EAST);
+        documentPanel.add((Component) validationMsgPanel, BorderLayout.EAST);
 
         // this.tabbedPane.addTab(displayName, null, scrollPanel, fullName);
         this.tabbedPane.addTab(displayName, null, documentPanel, fullName);
@@ -1269,8 +1273,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
-     * @return Exit code of {@link saveToExistingFile}, OPERATION_CANCELED if
-     *         the user didn't chose a file name for a new file; otherwise
+     * @return Exit code of saveToExistingFile(), OPERATION_CANCELED if the user
+     *         didn't chose a file name for a new file; otherwise
      *         UNEXPECTED_ERROR
      */
     private int saveFile(String modelName) {
@@ -1286,21 +1290,24 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         /* Ask for a file name. */
-        File initialFolder = getCurrentDirectory("saveFile");
-        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
+        // File initialFolder = getCurrentDirectory("saveFile");
+        // String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame,
+        // initialFolder);
+        String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, this, i18n);
         if (saveAsFullName == null)
             return ExitCode.OPERATION_CANCELED;
 
         /* Store the current directory! */
         setCurrentDirectory(saveAsFullName);
 
-        int result = saveToFile(modelName, saveAsFullName, true);
+        // int result = saveToFile(modelName, saveAsFullName, true);
+        int result = saveToFile(modelName, saveAsFullName, false);
         return result;
     }
 
     /**
-     * Saves to the specified file.
-     * 
+     * Saves to the specified file.<BR>
+     * <BR>
      * Known limitation: modelName.equals(saveAsFullName) should be misleading
      * on Linux because this OS can handle case-sensitive file names. But
      * modelName.equalsIgnoreCase(saveAsFullName) cannot be used because Windows
@@ -1347,8 +1354,10 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Do we have to ask for a file name? */
         if (saveAsFullName == null || saveAsFullName == "") {
-            File initialFolder = getCurrentDirectory("saveFile");
-            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, initialFolder);
+            // File initialFolder = getCurrentDirectory("saveFile");
+            // saveAsFullName = FSInfo.getSaveAsFullName(mainFrame,
+            // initialFolder);
+            saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, this, i18n);
             if (saveAsFullName == null)
                 return ExitCode.OPERATION_CANCELED;
 
@@ -1492,6 +1501,8 @@ public class ApplicationController extends AbstractApplicationController {
     /**
      * Invokes saveFileAs(modelName, pnmlFile) with the active file.
      * 
+     * @param pnmlFile
+     *            The specified {@link File}
      * @return Exit code is the exit code of {@link saveFileAs}; otherwise
      *         UNEXPECTED_ERROR
      */
@@ -1528,8 +1539,8 @@ public class ApplicationController extends AbstractApplicationController {
      *            name of the PNML file represented by this model.)
      * @param saveAsFullName
      *            The full path name of the file to be written
-     * @return Exit code is the exit code of {@link saveToExistingFile};
-     *         otherwise UNEXPECTED_ERROR
+     * @return Exit code is the exit code of saveToExistingFile(); otherwise
+     *         UNEXPECTED_ERROR
      */
     private int saveFileAs(String modelName, String saveAsFullName) {
         if (isParamUndefined(modelName, "saveFileAs", "modelName"))
@@ -1545,7 +1556,8 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Renames the models according to the new file name after SaveAs.
+     * Renames {@link IDataModel} and {@link IGuiModel} according to the new
+     * file name after SaveAs.
      * 
      * @param modelName
      *            The old name of the model (This is intended to be the full
@@ -1570,7 +1582,11 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Renames the tab after SaveAs and updates all references to it.
+     * Updates the references which refer to the name of a file after
+     * SaveAs.<BR>
+     * <BR>
+     * This means the tab for that file in the GUI (with file name and display
+     * name) and the internal list of open files.
      * 
      * @param oldModelName
      *            The old name of the model (This is intended to be the full
@@ -1596,6 +1612,10 @@ public class ApplicationController extends AbstractApplicationController {
         /* Update references */
         setActiveFile(tabIndex);
         setFilenameOnTitle(displayName);
+
+        /* The list of open files */
+        this.fileList.remove(oldModelName);
+        this.fileList.add(newModelName);
     }
 
     /* Private helpers */
@@ -1800,12 +1820,16 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the data model controller to get the GUI controller up to
-     * date.
+     * date after adding a {@link DataPlace}.
      * 
      * @param id
+     *            The ID of the added place
      * @param name
+     *            The name of the added place
      * @param initialTokens
+     *            The initial tokens count of the added place
      * @param position
+     *            The position of the added place
      */
     public void placeAddedToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (!importingFromPnml)
@@ -1816,12 +1840,16 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the GUI controller to get the data model controller up to
-     * date.
+     * date after adding a {@link IGuiPlace}.
      * 
      * @param id
+     *            The ID of the added place
      * @param name
+     *            The name of the added place
      * @param initialTokens
+     *            The initial tokens count of the added place
      * @param position
+     *            The position of the added place
      */
     public void placeAddedToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (importingFromPnml)
@@ -1832,11 +1860,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the data model controller to get the GUI controller up to
-     * date.
+     * date after adding a {@link IDataTransition}.
      * 
      * @param id
+     *            The ID of the added transition
      * @param name
+     *            The name of the added transition
      * @param position
+     *            The position of the added transition
      */
     public void transitionAddedToCurrentDataModel(String id, String name, Point position) {
         if (!importingFromPnml)
@@ -1847,11 +1878,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the GUI controller to get the data model controller up to
-     * date.
+     * date after adding a {@link IGuiTransition}.
      * 
      * @param id
+     *            The ID of the added transition
      * @param name
+     *            The name of the added transition
      * @param position
+     *            The position of the added transition
      */
     public void transitionAddedToCurrentGuiModel(String id, String name, Point position) {
         if (importingFromPnml)
@@ -1862,11 +1896,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the data model controller to get the GUI controller up to
-     * date.
+     * date after adding a {@link IDataArc}.
      * 
      * @param id
+     *            The ID of the added arc
      * @param sourceId
+     *            The source ID for the added arc
      * @param targetId
+     *            The target ID for the added arc
      */
     public void arcAddedToCurrentDataModel(String id, String sourceId, String targetId) {
         if (!importingFromPnml)
@@ -1877,11 +1914,14 @@ public class ApplicationController extends AbstractApplicationController {
 
     /**
      * Callback for the GUI controller to get the data model controller up to
-     * date.
+     * date after adding a {@link IGuiArc}.
      * 
      * @param id
+     *            The ID of the added arc
      * @param sourceId
+     *            The source ID for the added arc
      * @param targetId
+     *            The target ID for the added arc
      */
     public void arcAddedToCurrentGuiModel(String id, String sourceId, String targetId) {
         if (importingFromPnml)

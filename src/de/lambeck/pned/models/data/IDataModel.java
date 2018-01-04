@@ -16,15 +16,13 @@ import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
  */
 public interface IDataModel extends IModel {
 
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
     /**
      * Adds parameter "revalidate" to setModified(boolean b) in {@link IModel}
      * because not all changes to the model change the structure of the workflow
-     * net. (e.g. renaming a node)
-     * 
+     * net. (e.g. renaming a node)<BR>
+     * <BR>
      * Note: Use this method in the {@link IDataModelController} only because
      * some changes in the data model (e.g. firing a transition) must leave the
      * validation unchanged (because validators may reset the marking of the
@@ -67,8 +65,8 @@ public interface IDataModel extends IModel {
 
     /**
      * This function indicates whether the next validation of this model is the
-     * initial validation after reading from a PNML file.
-     * 
+     * initial validation after reading from a PNML file.<BR>
+     * <BR>
      * Note: This function is necessary for the {@link InitialMarkingValidator}
      * to allow to decide whether to reset the marking or not.
      * 
@@ -79,11 +77,12 @@ public interface IDataModel extends IModel {
 
     /**
      * The check state indicates, whether the model needs checking or not. This
-     * method will set this state. The {@link IDataModelController} has to
-     * invoke this method whenever changes to this data model change the
-     * structure of the Petri net. (Not simple changes like moving or renaming
-     * nodes.)
-     * 
+     * method will set this state.<BR>
+     * <BR>
+     * The {@link IDataModelController} has to invoke this method whenever
+     * changes to this data model change the structure of the Petri net. (Not
+     * simple changes like moving or renaming nodes.)<BR>
+     * <BR>
      * Parameter "removeInitialCheckState" allows to control which validation
      * will count as "initial validation" since "initial validation" is abort
      * condition for some validators.
@@ -115,8 +114,6 @@ public interface IDataModel extends IModel {
      */
     void setModelValidity(boolean b);
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
 }

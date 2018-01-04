@@ -29,8 +29,15 @@ public enum EValidationColor {
      */
     INVALID(ECustomColor.LIGHT_CORAL.getColor());
 
+    /** The used {@link Color} */
     private final Color color;
 
+    /**
+     * Constructor with a {@link Color} parameter.
+     * 
+     * @param c
+     *            The {@link Color} to use for this enum element
+     */
     private EValidationColor(Color c) {
         this.color = c;
     }

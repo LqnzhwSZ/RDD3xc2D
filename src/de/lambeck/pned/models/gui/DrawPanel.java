@@ -17,31 +17,23 @@ import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
- * The draw panel for one Petri net. Holds a reference to the 
- * status bar so that the draw panel can show status messages etc.
- * 
- * @formatter:off
- * Actions for mouse events: See MyMouseAdapter
- * 
- * Actions for key(board) events:
- * - F2 :
- *   - With only 1 selected element:
- *     -> Rename
- * - DEL: Delete selected elements
- * 
- * Removed:
- * - ESC: clear selection (in conflict with the popupMenuCanceled 
- *        methods in the popup menus)
- * 
- * @formatter:on
+ * The draw panel for one Petri net. Holds a reference to the status bar so that
+ * the draw panel can show status messages etc.<BR>
+ * <BR>
+ * Actions for mouse events: See {@link MyMouseAdapter}
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo_MousePos, IInfo_SelectionRangeSize,
         IInfo_DrawingAreaSize, IInfo_Status {
 
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = -4870692742687569636L;
+
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /** Reference to the {@link ApplicationController} */
@@ -50,7 +42,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     /** Reference to the {@link IGuiModelController} */
     protected IGuiModelController myGuiController = null;
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
     /** The {@link Map} with the popup Actions */
@@ -74,9 +66,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      */
     private Dimension graphicsArea = new Dimension(0, 0);
 
-    /*
-     * Variables for MyMouseAdapter (visible in this package)
-     */
+    /* Variables for MyMouseAdapter */
 
     /**
      * Location of the mousePressed event. (Mouse click or start of dragging)
@@ -106,24 +96,18 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      */
     private Point mouseDraggedTo = null;
 
-    /*
-     * Variables for KeyBinding
-     */
+    /* Variables for KeyBinding */
 
-    /** Stores if the CTRL modifier has been (and is currently) pressed. */
+    /** Stores if the CTRL key has been detected as pressed. */
     boolean ctrlKey_pressed = false;
 
-    /*
-     * Variable for the PopupMenuManager
-     */
+    /* Variable for the PopupMenuManager */
 
     private Point popupMenuLocation = null;
 
     private double zoom = 1.0D;
     
-    /*
-     * Constructor etc.
-     */
+    /* Constructor etc. */
 
     /**
      * Constructs the DrawPanel.
@@ -142,7 +126,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * @param popupActions
      *            List of Actions
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public DrawPanel(String modelName, String displayName, ApplicationController appController,
@@ -223,9 +207,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * getauscht wurde. Ersetzt durch KeyBindings/KeyboardFocusManager.
      */
 
-    /*
-     * Keyboard events
-     */
+    /* Keyboard events */
 
     private void ctrl_pressed_Action_occurred() {
         if (debug) {
@@ -251,9 +233,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         ctrlKey_pressed = false;
     }
 
-    /*
-     * Painting code...
-     */
+    /* Painting code... */
 
     @Override
     public void paintComponent(Graphics g) {
@@ -283,9 +263,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                 // Rectangle rect = new Rectangle(x, y, width, height);
                 // scrollRectToVisible(rect); Nicht hier, nur beim Einfügen!!!
 
-                /*
-                 * Update the draw panels graphicsArea
-                 */
+                /* Update the draw panels graphicsArea. */
                 int this_width = (x + width + 5);
                 if (this_width > graphicsArea.width) {
                     graphicsArea.width = this_width;
@@ -312,9 +290,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
 
         if (debug) {
-            /*
-             * Indicate the graphics area.
-             */
+            /* Indicate the graphics area. */
             g2.setColor(Color.LIGHT_GRAY);
             g2.drawRect(0, 0, graphicsArea.width, graphicsArea.height);
         }
@@ -325,8 +301,8 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     /**
      * Activates anti-aliasing.
      * 
-     * @param g
-     *            The Graphics object
+     * @param g2
+     *            The {@link Graphics2D} object
      */
     private void activateAntialiasing(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -338,50 +314,37 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * Draws grid lines to the drawing area.
      * 
      * @param g2
+     *            The {@link Graphics2D} object
      */
     private void drawGridLines(Graphics2D g2) {
         final int GRID_STEP = new Double(100.0D * this.zoom).intValue();
         Color gridColor = ECustomColor.SNOW2.getColor();
 
-        /*
-         * Nothing painted yet -> graphicsArea is empty!
-         */
+        /* Nothing painted yet -> graphicsArea is empty! */
         // int width = this.graphicsArea.width;
         // int height = this.graphicsArea.height;
 
-        /*
-         * Use the JComponent attributes.
-         */
-        int width = new Double((double)getWidth() * this.zoom).intValue();
-        int height = new Double((double)getHeight() * this.zoom).intValue();
+        /* Use the JComponent attributes. */
+        int width = new Double(new Integer(getWidth()).doubleValue() * this.zoom).intValue();
+        int height = new Double(new Integer(getHeight()).doubleValue() * this.zoom).intValue();
         if (width == 0 || height == 0)
             return;
 
         g2.setColor(gridColor);
 
-        /*
-         * Horizontal grid lines
-         */
+		/* Horizontal grid lines */
         int start = new Double(99 * this.zoom).intValue();
         for (int i = start; i <= height; i += GRID_STEP) {
             g2.drawLine(0, i, width, i);
         }
 
-        /*
-         * Vertical grid lines
-         */
+		/* Vertical grid lines */
         for (int i = start; i <= width; i += GRID_STEP) {
             g2.drawLine(i, 0, i, height);
         }
     }
 
-    void updateMousePos(Point pos) {
-        setInfo_MousePos(pos);
-    }
-
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
     @Override
     public String getModelName() {
@@ -408,9 +371,22 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         return this.graphicsArea;
     }
 
-    /*
-     * Methods for interface IDrawPanel
-     */
+    @Override
+    public void updateMousePos(Point pos) {
+        setInfo_MousePos(pos);
+    }
+
+    @Override
+    public boolean getCtrlKeyPressed() {
+        return this.ctrlKey_pressed;
+    }
+
+    @Override
+    public void setToolTipText(String text) {
+        super.setToolTipText(text);
+    }
+
+    /* Methods for interface IDrawPanel */
 
     @Override
     public void updateDrawing(Rectangle area) {
@@ -534,6 +510,9 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         this.mouseDraggedTo = null;
     }
 
+    /**
+     * Resets the local variables for detected keyboard modifiers.
+     */
     private void resetKeyboardModifiers() {
         this.ctrlKey_pressed = false;
     }
@@ -591,21 +570,13 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         return myGuiController.getSourceForNewArcType();
     }
 
-    /*
-     * Other public methods
-     */
+    /* Other public methods */
 
-    /*
-     * Menu commands (for menu bar or popup menus)
-     */
+    /* Menu commands (for menu bar or popup menus) */
 
-    /*
-     * Helper methods
-     */
+    /* Helper methods */
 
-    /*
-     * For interface IInfo_Status
-     */
+    /* For interface IInfo_Status */
 
     @Override
     public void setInfo_MousePos(Point p) {

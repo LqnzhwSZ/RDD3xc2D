@@ -42,9 +42,7 @@ public class DataTransition extends DataNode implements IDataTransition {
         this.position = initialPosition;
     }
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     @Override
     public boolean isEnabled() {

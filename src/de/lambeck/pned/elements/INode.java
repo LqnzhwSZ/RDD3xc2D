@@ -10,9 +10,7 @@ import java.awt.Point;
  */
 public interface INode extends IElement {
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     /**
      * Returns the name of this node.
@@ -30,8 +28,8 @@ public interface INode extends IElement {
     void setName(String newName);
 
     /**
-     * Returns the position (center) of this node.
-     * 
+     * Returns the position (center) of this node.<BR>
+     * <BR>
      * Note that for the GUI "center" refers to the shape of this node itself
      * (place, transition). It does not include the label.
      * 
@@ -40,8 +38,8 @@ public interface INode extends IElement {
     Point getPosition();
 
     /**
-     * Sets the position (center) of this node.
-     * 
+     * Sets the position (center) of this node.<BR>
+     * <BR>
      * Note that for the GUI "center" refers to the shape of this node itself
      * (place, transition). It does not include the label.
      * 

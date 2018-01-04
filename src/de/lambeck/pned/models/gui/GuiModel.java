@@ -20,6 +20,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class GuiModel implements IGuiModel, IModelRename {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /**
@@ -86,9 +87,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
     }
 
-    /*
-     * Getter and Setter
-     */
+    /* Getter and Setter */
 
     @Override
     public String getModelName() {
@@ -230,9 +229,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         this.modelModified = b;
     }
 
-    /*
-     * Sorting (for proper display on the draw panel)
-     */
+    /* Sorting (for proper display on the draw panel) */
 
     @Override
     public void sortElements() {
@@ -240,9 +237,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.sortElements");
         }
 
-        /*
-         * Sort (see: https://stackoverflow.com/a/2784576)
-         */
+        /* Sort (see: https://stackoverflow.com/a/2784576) */
         Collections.sort(elements, new Comparator<IGuiElement>() {
             @Override
             public int compare(IGuiElement element1, IGuiElement element2) {
@@ -263,9 +258,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.sortSelectedElements");
         }
 
-        /*
-         * Sort (see: https://stackoverflow.com/a/2784576)
-         */
+        /* Sort (see: https://stackoverflow.com/a/2784576) */
         Collections.sort(selected, new Comparator<IGuiElement>() {
             @Override
             public int compare(IGuiElement element1, IGuiElement element2) {
@@ -280,9 +273,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         });
     }
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
     @Override
     public void addPlace(String id, EPlaceToken initialTokens, Point position) {
@@ -409,6 +400,14 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
     }
 
+    /**
+     * Adds the specified {@link IGuiElement} to this {@link IGuiModel}.
+     * 
+     * @param newElement
+     *            The specified element
+     * @throws PNDuplicateAddedException
+     *             if the element already exists
+     */
     private void addElement(IGuiElement newElement) throws PNDuplicateAddedException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("PNGuiModel" + getModelName() + ").addElement", newElement);
@@ -496,10 +495,14 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
     }
 
-    /*
-     * Private helper methods
-     */
+    /* Private helper methods */
 
+    /**
+     * Adds the specified element to the {@link List} of selected elements.
+     * 
+     * @param element
+     *            The {@link IGuiElement} to add
+     */
     private void addToSelection(IGuiElement element) {
         if (element == null)
             return;
@@ -511,10 +514,10 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     /**
-     * Removes the specified element from the selected elements.
+     * Removes the specified element from the {@link List} of selected elements.
      * 
      * @param element
-     *            The element to remove from selection
+     *            The {@link IGuiElement} to remove
      */
     private void removeFromSelection(IGuiElement element) {
         if (element == null)
@@ -535,6 +538,9 @@ public class GuiModel implements IGuiModel, IModelRename {
         consoleLogSelection();
     }
 
+    /**
+     * Prints the ID of all selected elements to the standard output (stdout).
+     */
     private void consoleLogSelection() {
         if (!debug)
             return;
@@ -619,9 +625,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         this.maxZValue = max;
     }
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     @Override
     public void setGuiStartPlace(String placeId, boolean b) {

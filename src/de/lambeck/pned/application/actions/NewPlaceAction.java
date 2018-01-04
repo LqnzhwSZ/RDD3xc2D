@@ -11,8 +11,12 @@ import de.lambeck.pned.i18n.I18NManager;
  * @author Thomas Lambeck, 4128320
  *
  */
-@SuppressWarnings("serial")
 public class NewPlaceAction extends AbstractPNAction {
+
+    /**
+     * Generated serial version ID
+     */
+    private static final long serialVersionUID = 2982078806851050053L;
 
     /**
      * Creates the ElementToTheForegroundAction without additional parameters.
@@ -20,14 +24,12 @@ public class NewPlaceAction extends AbstractPNAction {
      * @param controller
      *            The application controller
      * @param i18nController
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     public NewPlaceAction(ApplicationController controller, I18NManager i18nController) {
         super(controller, i18nController);
 
         internalName = "NewPlace";
-        // iconPath = "icons/gnome/";
-        // iconName = "Gnome-document-new.svg.png";
         iconPath = "icons/";
         iconName = "New-Place.png";
         // No shortcut at all

@@ -10,24 +10,25 @@ import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
 /**
- * Checks the number of start places in a workflow net.
+ * Checks the number of start places in a workflow net. To be used in
+ * combination with the {@link ValidationController}.
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
 public class StartPlacesValidator extends AbstractValidator {
 
-    /*
-     * Constructor
-     */
+    /* Constructor */
 
     /**
+     * Constructs this validator with references to the necessary controllers.
+     * 
      * @param validationController
      *            The {@link IValidationController}
      * @param dataModelController
      *            The {@link IDataModelController}
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public StartPlacesValidator(IValidationController validationController, IDataModelController dataModelController,
@@ -36,9 +37,7 @@ public class StartPlacesValidator extends AbstractValidator {
         this.validatorInfoString = "infoStartPlacesValidator";
     }
 
-    /*
-     * Validation methods
-     */
+    /* Validation methods */
 
     @Override
     public void startValidation(IDataModel dataModel, boolean initialModelCheck) {
@@ -76,13 +75,11 @@ public class StartPlacesValidator extends AbstractValidator {
      * 
      * @param startPlaces
      *            The {@link List} of start places
+     * @return True = no place, false = at least 1 place
      */
     private boolean evaluateNoPlaces(List<String> startPlaces) {
         if (startPlaces == null) {
-            String message = i18n.getMessage("warningValidatorNoPlaces");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoPlaces();
             return true;
         }
         return false;
@@ -93,13 +90,11 @@ public class StartPlacesValidator extends AbstractValidator {
      * 
      * @param startPlaces
      *            The {@link List} of start places
+     * @return True = no start place, false = at least 1 start place
      */
     private boolean evaluateNoStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() == 0) {
-            String message = i18n.getMessage("warningValidatorNoStartPlace");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalNoStartPlace();
             return true;
         }
         return false;
@@ -112,6 +107,7 @@ public class StartPlacesValidator extends AbstractValidator {
      * 
      * @param startPlaces
      *            The {@link List} of start places
+     * @return True = too many start places, false = start places count is OK
      */
     private boolean evaluateTooManyStartPlaces(List<String> startPlaces) {
         if (startPlaces.size() > 1) {
@@ -121,10 +117,7 @@ public class StartPlacesValidator extends AbstractValidator {
             }
 
             /* Validation message */
-            String message = i18n.getMessage("warningValidatorTooManyStartPlaces");
-            IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.CRITICAL);
-            validationMessages.add(vMessage);
-
+            messageCriticalTooManyStartPlaces();
             return true;
         }
         return false;
@@ -141,9 +134,54 @@ public class StartPlacesValidator extends AbstractValidator {
         myDataModelController.setDataStartPlace(myDataModelName, placeId, true);
     }
 
-    /*
-     * Private helpers
+    /* Messages */
+
+    /**
+     * Adds a critical message to indicate that there are no places.
      */
+    protected void messageCriticalNoPlaces() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoPlaces");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there is no start place.
+     */
+    protected void messageCriticalNoStartPlace() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorNoStartPlace");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a critical message to indicate that there are too many start places.
+     */
+    protected void messageCriticalTooManyStartPlaces() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("criticalValidatorTooManyStartPlaces");
+        severity = EValidationResultSeverity.CRITICAL;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /* Private helpers */
 
     /**
      * Generates a {@link List} of start places of the Petri net.

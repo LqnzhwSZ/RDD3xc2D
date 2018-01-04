@@ -2,7 +2,7 @@ package de.lambeck.pned.elements.gui;
 
 /**
  * Possible directions for arcs to be used to calculate the arcAnchor in
- * {@link IGuiNode}.
+ * {@link IGuiTransition}.
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -49,8 +49,15 @@ public enum EArcDirection {
      */
     BOTTOM_LEFT_CORNER(7);
 
+    /** The int value of this enum element for comparisons */
     private int value;
 
+    /**
+     * Constructs this enum element with a specified int value.
+     * 
+     * @param initValue
+     *            The int value for this enum element
+     */
     private EArcDirection(final int initValue) {
         this.value = initValue;
     }

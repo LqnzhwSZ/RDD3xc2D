@@ -16,12 +16,13 @@ public interface IValidationMsg {
     public String getMessage();
 
     /**
-     * Returns the id of the model that was checked by the
+     * Returns the name of the model that was checked by the
      * {@link AbstractValidator}.
      * 
-     * @return The model IDas {@link String}
+     * @return The model name as {@link String} (Intended: full name of the
+     *         file)
      */
-    public String getModelId();
+    public String getModelName();
 
     // public String getNodeId();
 

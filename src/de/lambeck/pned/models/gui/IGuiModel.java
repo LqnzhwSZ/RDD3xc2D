@@ -19,9 +19,7 @@ import de.lambeck.pned.models.IModel;
  */
 public interface IGuiModel extends IModel {
 
-    /*
-     * Setter and Getter
-     */
+    /* Getter and Setter */
 
     /**
      * Returns a list with all elements in this model.
@@ -71,8 +69,8 @@ public interface IGuiModel extends IModel {
     IGuiPlace getPlaceById(String id) throws NoSuchElementException;
 
     /**
-     * Returns the minimum Z value for all elements in this GUI model.
-     * 
+     * Returns the minimum Z value for all elements in this GUI model.<BR>
+     * <BR>
      * Note: Intended to be used for putting an element to the background.
      * 
      * @return The minimum z value
@@ -80,8 +78,8 @@ public interface IGuiModel extends IModel {
     int getMinZValue();
 
     /**
-     * Returns the maximum Z value for all elements in this GUI model.
-     * 
+     * Returns the maximum Z value for all elements in this GUI model.<BR>
+     * <BR>
      * Note: Intended to be used for putting an element to the foreground.
      * 
      * @return The maximum z value
@@ -100,8 +98,8 @@ public interface IGuiModel extends IModel {
     /**
      * Returns a new minimum for the z value (height level) of all elements (The
      * lowest level used by existing elements - 1). Returns the current minimum
-     * if there are no elements.
-     * 
+     * if there are no elements.<BR>
+     * <BR>
      * Note: The limit of MinInt should never be reachable during a session.
      * 
      * @return The new minimum z value
@@ -111,17 +109,15 @@ public interface IGuiModel extends IModel {
     /**
      * Returns a new maximum for the z value (height level) of all elements (The
      * highest level used by existing elements + 1). Returns the current maximum
-     * if there are no elements.
-     * 
+     * if there are no elements.<BR>
+     * <BR>
      * Note: The limit of MaxInt should never be reachable during a session.
      * 
      * @return The new maximum z value
      */
     int getIncrMaxZ();
 
-    /*
-     * Sorting (for proper display on the draw panel)
-     */
+    /* Sorting (for proper display on the draw panel) */
 
     /**
      * Sorts the List of elements with ascending z values (Height level).
@@ -134,13 +130,11 @@ public interface IGuiModel extends IModel {
      */
     void sortSelectedElements();
 
-    /*
-     * Methods for adding, modify and removal of elements
-     */
+    /* Methods for adding, modify and removal of elements */
 
     /**
-     * Sets the selection to only 1 {@link IGuiElement}.
-     * 
+     * Sets the selection to only 1 {@link IGuiElement}.<BR>
+     * <BR>
      * Note that this method calls clearSelection() first. The previous
      * selection gets cleared if element is null.
      * 
@@ -162,9 +156,7 @@ public interface IGuiModel extends IModel {
      */
     void clearSelection();
 
-    /*
-     * Validation events
-     */
+    /* Validation events */
 
     /**
      * Handles the {@link IGuiModelController} request to update the start place

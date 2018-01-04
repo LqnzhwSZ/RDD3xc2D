@@ -8,9 +8,7 @@ package de.lambeck.pned.elements;
  */
 public interface IArc extends IElement {
 
-    /*
-     * Getter and setter
-     */
+    /* Getter and Setter */
 
     /*
      * No Setter for source and target! (Always create new arcs via
@@ -18,8 +16,8 @@ public interface IArc extends IElement {
      */
 
     /**
-     * Returns the source id of this Arc.
-     * 
+     * Returns the source id of this Arc.<BR>
+     * <BR>
      * Note: This method is used by the parser.
      * 
      * @return the source id
@@ -27,8 +25,8 @@ public interface IArc extends IElement {
     String getSourceId();
 
     /**
-     * Returns the target id of this Arc.
-     * 
+     * Returns the target id of this Arc.<BR>
+     * <BR>
      * Note: This method is used by the parser.
      * 
      * @return the target id

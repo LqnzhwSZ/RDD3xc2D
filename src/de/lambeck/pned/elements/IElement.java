@@ -9,8 +9,8 @@ package de.lambeck.pned.elements;
 public interface IElement {
 
     /**
-     * Returns the id of the Petri net element.
-     * 
+     * Returns the id of the Petri net element.<BR>
+     * <BR>
      * Note: This application creates UUIDs but the PNML-Format allows simple
      * Strings.
      * 
@@ -18,8 +18,6 @@ public interface IElement {
      */
     String getId();
 
-    /*
-     * The id has no Setter because it should never change after creation.
-     */
+    /* No Setter for id because it should never change after creation. */
 
 }

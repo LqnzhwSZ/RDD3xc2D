@@ -13,14 +13,14 @@ import de.lambeck.pned.i18n.MnemonicString;
  */
 public class MenuCreator {
 
-    /** Reference to the manager for I18N strings */
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
     /**
      * Constructs the MenuCreator.
      * 
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public MenuCreator(I18NManager i18n) {
@@ -29,10 +29,10 @@ public class MenuCreator {
     }
 
     /**
-     * Creates a menu.
-     * 
-     * Note: the mnemonic comes from the value in the properties (the "&" in the
-     * value).
+     * Creates a menu.<BR>
+     * <BR>
+     * Note: the mnemonic comes from the value in the properties (the "&amp;" in
+     * the value).
      * 
      * @param name
      *            The name of the menu

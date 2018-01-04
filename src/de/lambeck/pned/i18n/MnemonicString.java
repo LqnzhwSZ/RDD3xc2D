@@ -9,7 +9,10 @@ package de.lambeck.pned.i18n;
  */
 public class MnemonicString {
 
+    /** Part 1: The actual name */
     private String text;
+
+    /** Part 2: The mnemonic marker (accelerator) */
     private int mnemonic;
 
     /**
@@ -45,7 +48,7 @@ public class MnemonicString {
     }
 
     /**
-     * Getter for the memonic ("part 2" of the object)
+     * Getter for the mnemonic ("part 2" of the object)
      * 
      * @return The mnemonic
      */
@@ -54,7 +57,7 @@ public class MnemonicString {
     }
 
     /**
-     * Setter for the memonic ("part 2" of the object)
+     * Setter for the mnemonic ("part 2" of the object)
      * 
      * @param i
      *            The mnemonic (int value)
@@ -64,8 +67,8 @@ public class MnemonicString {
     }
 
     /**
-     * Setter for the memonic ("part 2" of the object)
-     * 
+     * Setter for the mnemonic ("part 2" of the object)<BR>
+     * <BR>
      * Note: this method determines the mnemonic from a string and uses
      * setMnemonic(int i) to set the attribute.
      * 

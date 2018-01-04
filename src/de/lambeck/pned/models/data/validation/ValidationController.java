@@ -22,6 +22,7 @@ import de.lambeck.pned.util.ConsoleLogger;
  */
 public class ValidationController extends Thread implements IValidationController {
 
+    /** Show debug messages? */
     private static boolean debug = false;
 
     /**
@@ -36,6 +37,7 @@ public class ValidationController extends Thread implements IValidationControlle
      */
     private IDataModelController myDataModelController = null;
 
+    /** The manager for localized strings */
     protected I18NManager i18n;
 
     /**
@@ -43,13 +45,6 @@ public class ValidationController extends Thread implements IValidationControlle
      * (validatorMap uses LinkedHashMap to preserve the order of validations.)
      */
     private Map<String, IValidator> validatorMap = new LinkedHashMap<String, IValidator>();
-
-    // /**
-    // * Stores the highest previous {@link EValidationResultSeverity} for the
-    // * current set of validations (for the current model).
-    // */
-    // private EValidationResultSeverity currentValidationStatus =
-    // EValidationResultSeverity.INFO;
 
     /**
      * A Map to store the highest previous {@link EValidationResultSeverity} for
@@ -69,7 +64,7 @@ public class ValidationController extends Thread implements IValidationControlle
      * @param dataModelController
      *            The data model controller
      * @param i18n
-     *            The source object for I18N strings
+     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public ValidationController(IDataModelController dataModelController, I18NManager i18n) {
@@ -243,7 +238,6 @@ public class ValidationController extends Thread implements IValidationControlle
     private void resetMsgPanelAndValidationStatus(IValidationMsgPanel msgPanel) {
         msgPanel.reset();
         msgPanel.setBgColor(EValidationColor.PENDING);
-        // this.currentValidationStatus = EValidationResultSeverity.INFO;
         String modelName = msgPanel.getModelName();
         this.currentValidationStatus.put(modelName, EValidationResultSeverity.INFO);
     }
@@ -291,9 +285,13 @@ public class ValidationController extends Thread implements IValidationControlle
         }
 
         EValidationResultSeverity currentSeverity = message.getSeverity();
-        // storeMaxSeverityLevel(currentSeverity);
         String modelName = msgPanel.getModelName();
         storeMaxSeverityLevel(modelName, currentSeverity);
+
+        if (currentSeverity == EValidationResultSeverity.WARNING) {
+            isModelValid = false; // But continue with more messages and tests
+            msgPanel.setBgColor(EValidationColor.PENDING);
+        }
 
         if (currentSeverity == EValidationResultSeverity.CRITICAL) {
             isModelValid = false; // But continue with more messages and tests
@@ -306,14 +304,14 @@ public class ValidationController extends Thread implements IValidationControlle
     /**
      * Stores the current severity level if higher than the previous.
      * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
      * @param nextSeverity
      *            the severity level of the last message from the current
      *            validator
      */
     private void storeMaxSeverityLevel(String modelName, EValidationResultSeverity nextSeverity) {
-        // if (this.currentValidationStatus.toInt() < nextSeverity.toInt()) {
-        // this.currentValidationStatus = nextSeverity;
-        // }
         int currentMaxStatus = this.currentValidationStatus.get(modelName).toInt();
         if (currentMaxStatus < nextSeverity.toInt()) {
             this.currentValidationStatus.put(modelName, nextSeverity);
