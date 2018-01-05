@@ -5,6 +5,8 @@ import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.swing.JFrame;
+
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
@@ -111,7 +113,7 @@ public class DataModelController implements IDataModelController {
          * ValidationController thread from starting the validation before we
          * even have added a validation messages panel!
          */
-        IDataModel newDataModel = new DataModel(modelName, displayName);
+        IDataModel newDataModel = new DataModel(modelName, displayName, this);
         newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
         this.dataModels.put(modelName, newDataModel);
 
@@ -162,7 +164,7 @@ public class DataModelController implements IDataModelController {
          * ValidationController thread from starting the validation before we
          * even have added a validation messages panel!
          */
-        IDataModel newDataModel = new DataModel(canonicalPath, displayName);
+        IDataModel newDataModel = new DataModel(canonicalPath, displayName, this);
         newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
         this.dataModels.put(canonicalPath, newDataModel);
 
@@ -496,6 +498,11 @@ public class DataModelController implements IDataModelController {
         }
 
         return modifiedModels;
+    }
+
+    @Override
+    public JFrame getMainFrame() {
+        return appController.getMainFrame();
     }
 
     /*

@@ -232,4 +232,14 @@ public abstract class AbstractApplicationController extends WindowAdapter
         setCurrentDirectory(directory);
     }
 
+    /**
+     * Returns the applications main frame to other classes to allow them to
+     * center messages or input dialogs.
+     * 
+     * @return The main application window as {@link JFrame}
+     */
+    public JFrame getMainFrame() {
+        return this.mainFrame;
+    }
+
 }

@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.JFrame;
+
 import de.lambeck.pned.application.*;
 import de.lambeck.pned.application.actions.EditDeleteAction;
 import de.lambeck.pned.application.actions.EditRenameAction;
@@ -147,6 +149,14 @@ public interface IGuiModelController
      * @return List of modified GUI models
      */
     List<String> getModifiedGuiModels();
+
+    /**
+     * Returns the applications main frame to other classes to allow them to
+     * center messages or input dialogs.
+     * 
+     * @return The main application window as {@link JFrame}
+     */
+    JFrame getMainFrame();
 
     /*
      * Methods for adding, modify and removal of elements (and callbacks for

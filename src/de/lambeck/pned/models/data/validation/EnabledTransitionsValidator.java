@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import de.lambeck.pned.elements.EPlaceToken;
@@ -422,7 +423,11 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         String title = i18n.getNameOnly("RegularEndmarking");
         String infoMessage = i18n.getMessage("infoValidationSimulationFinished");
         infoMessage = infoMessage.replace("%modelName%", myDataModelName);
-        JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+        /* Get the main frame to center the input dialog. */
+        JFrame mainFrame = myDataModelController.getMainFrame();
+
+        JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     /* Private helpers */

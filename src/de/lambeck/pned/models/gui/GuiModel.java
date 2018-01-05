@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.*;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import de.lambeck.pned.elements.EPlaceToken;
@@ -291,7 +292,11 @@ public class GuiModel implements IGuiModel, IModelRename {
             String title = this.modelName;
             String infoMessage = "Gui Place added: " + newPlace.toString();
             System.out.println(infoMessage);
-            JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myGuiController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -326,7 +331,11 @@ public class GuiModel implements IGuiModel, IModelRename {
             String title = this.modelName;
             String infoMessage = "Gui Transition added: " + newTransition.toString();
             System.out.println(infoMessage);
-            JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myGuiController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -382,7 +391,11 @@ public class GuiModel implements IGuiModel, IModelRename {
             String title = this.modelName;
             String infoMessage = "Gui Arc added: " + newArc.toString();
             System.out.println(infoMessage);
-            JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myGuiController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

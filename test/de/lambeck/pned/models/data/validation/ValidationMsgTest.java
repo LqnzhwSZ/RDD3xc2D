@@ -13,7 +13,7 @@ public class ValidationMsgTest {
 
     @SuppressWarnings("javadoc")
     public static void main(String[] args) {
-        IDataModel model = new DataModel("/home/documents/test.pnml", "test.pnml");
+        IDataModel model = new DataModel("/home/documents/test.pnml", "test.pnml", null);
         String message = "Test message";
         EValidationResultSeverity severity = EValidationResultSeverity.WARNING;
 

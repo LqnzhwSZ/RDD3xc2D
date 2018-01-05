@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import de.lambeck.pned.elements.EPlaceToken;
@@ -33,6 +34,12 @@ public class DataModel implements IDataModel, IModelRename {
      * This should be the name of the tab. (file name only)
      */
     private String displayName = "";
+
+    /**
+     * Reference to the data model controller. (Mainly for getMainFrame() method
+     * to position messages.)
+     */
+    protected IDataModelController myDataModelController = null;
 
     /**
      * List of all elements in this model
@@ -72,12 +79,15 @@ public class DataModel implements IDataModel, IModelRename {
      *            name of the PNML file represented by this model.)
      * @param displayName
      *            The name of the tab (the file name only)
+     * @param controller
+     *            The data model controller
      */
     @SuppressWarnings("hiding")
-    public DataModel(String modelName, String displayName) {
+    public DataModel(String modelName, String displayName, IDataModelController controller) {
         super();
         this.modelName = modelName;
         this.displayName = displayName;
+        this.myDataModelController = controller;
 
         if (debug) {
             System.out.println("DataModel created, name: " + getDisplayName() + ", " + getModelName());
@@ -187,7 +197,11 @@ public class DataModel implements IDataModel, IModelRename {
             String title = this.modelName;
             String infoMessage = "Data Place added: " + newPlace.toString();
             System.out.println(infoMessage);
-            JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myDataModelController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -217,7 +231,11 @@ public class DataModel implements IDataModel, IModelRename {
             String title = this.modelName;
             String infoMessage = "Data Transition added: " + newTransition.toString();
             System.out.println(infoMessage);
-            JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myDataModelController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -274,7 +292,11 @@ public class DataModel implements IDataModel, IModelRename {
             // String errorMessage = e.getMessage();
             String errorMessage = "DataModel, addArc: " + e.getMessage();
             System.err.println(errorMessage);
-            JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myDataModelController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
 
             return;
         }
@@ -292,7 +314,11 @@ public class DataModel implements IDataModel, IModelRename {
             String title = this.modelName;
             String infoMessage = "Data Arc added: " + newArc.toString();
             System.out.println(infoMessage);
-            JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = myDataModelController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

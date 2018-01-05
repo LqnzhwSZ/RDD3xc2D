@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.io.*;
 import java.util.Iterator;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -614,7 +615,11 @@ public class PNMLParser {
             if (debug) {
                 System.out.println(errorMessage);
             }
-            JOptionPane.showMessageDialog(null, errorMessage, "PNMLParser", JOptionPane.INFORMATION_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = dataModelController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, "PNMLParser", JOptionPane.INFORMATION_MESSAGE);
         }
 
         /* Reset the "next" values for the next element in the PNML file! */

@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import de.lambeck.pned.application.ApplicationController;
@@ -131,6 +132,11 @@ public class GuiModelController implements IGuiModelController {
     @Override
     public void setInfo_Status(String s, EStatusMessageLevel level) {
         appController.setInfo_Status(s, level);
+    }
+
+    @Override
+    public JFrame getMainFrame() {
+        return appController.getMainFrame();
     }
 
     /* Methods for open files */
@@ -637,10 +643,13 @@ public class GuiModelController implements IGuiModelController {
         if (arcAlreadyExists) {
             String title = currentModel.getModelName();
             String errorMessage = i18n.getMessage("errDuplicateArc");
+
             System.err.println(errorMessage);
-            // TODO let the application controller show all messages to have a
-            // parent component?
-            JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = appController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
 
             return true;
         }
@@ -724,7 +733,8 @@ public class GuiModelController implements IGuiModelController {
         }
 
         /* OK, we have exactly 1 node and can ask for a new name. */
-        String newName = askUserForNewName();
+        String oldName = selectedNode.getName();
+        String newName = askUserForNewName(oldName);
         if (newName == null)
             return; // User canceled the operation
 
@@ -1850,14 +1860,21 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Asks the user for a new name.
+     * Asks the user for a new name for the specified old name.
      * 
+     * @param oldName
+     *            The old name of the
      * @return Null if the user canceled the input; otherwise the input String
      */
-    private String askUserForNewName() {
+    private String askUserForNewName(String oldName) {
         String question = i18n.getMessage("questionNewName");
-        String inputValue = JOptionPane.showInputDialog(question);
-        System.out.println("inputValue: " + inputValue);
+
+        /* Get the main frame to center the input dialog. */
+        JFrame mainFrame = appController.getMainFrame();
+
+        String inputValue = JOptionPane.showInputDialog(mainFrame, question, oldName);
+
+        ConsoleLogger.logIfDebug(debug, "inputValue: " + inputValue);
         return inputValue;
     }
 

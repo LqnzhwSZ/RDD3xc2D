@@ -5,6 +5,8 @@ import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.swing.JFrame;
+
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.IInfo_Status;
 import de.lambeck.pned.elements.EPlaceToken;
@@ -143,6 +145,14 @@ public interface IDataModelController extends IInfo_Status {
      * @return List of modified data models
      */
     List<String> getModifiedDataModels();
+
+    /**
+     * Returns the applications main frame to other classes to allow them to
+     * center messages or input dialogs.
+     * 
+     * @return The main application window as {@link JFrame}
+     */
+    JFrame getMainFrame();
 
     /*
      * Methods for adding, modify and removal of elements (and callbacks for
