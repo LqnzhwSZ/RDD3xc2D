@@ -325,7 +325,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         Rectangle2D labelTextRect = getTextBounds(labelText, this.labelFont);
 
         /*
-         * Real calculation is necessary for:
+         * More calculation is necessary for:
          * 
          * - LeftX: Because some chars (e.g. "t") stick out to the left.
          * 
@@ -340,11 +340,7 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
 
         int labelTextRightX = (int) labelTextRect.getMaxX();
         this.totalWidth = Math.max(shapeSize, labelTextRightX);
-
-        /*
-         * totalWidth must be at least shapeSize - labelTextLeftX (if
-         * labelTextLeftX is negative)!
-         */
+        /* But for labelTextLeftX < 0: at least size - labelTextLeftX! */
         if (labelTextLeftX < 0)
             this.totalWidth = this.totalWidth - labelTextLeftX;
 

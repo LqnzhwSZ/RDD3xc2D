@@ -401,7 +401,7 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
-        /* The key for the Map of models. */
+        /* The old key for the Map of models. */
         String oldKey = model.getModelName();
 
         /* Get the associated validation message panel. */

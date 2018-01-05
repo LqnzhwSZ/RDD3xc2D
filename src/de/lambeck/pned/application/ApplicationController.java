@@ -1558,11 +1558,18 @@ public class ApplicationController extends AbstractApplicationController {
 
         IDataModel dataModel = dataModelController.getDataModel(modelName);
         dataModelController.renameDataModel(dataModel, canonicalPath, displayName);
+        /*
+         * Note: The data model controller is responsible to update the
+         * validation message panel as well.
+         */
+
+        validationController.modelRenamed(modelName, saveAsFullName);
 
         IGuiModel guiModel = guiModelController.getGuiModel(modelName);
         guiModelController.renameGuiModel(guiModel, canonicalPath, displayName);
         /*
-         * Note: The GUI controller is responsible to update the draw panel too.
+         * Note: The GUI controller is responsible to update the draw panel as
+         * well.
          */
 
         updateTabInfo(modelName, canonicalPath, displayName);

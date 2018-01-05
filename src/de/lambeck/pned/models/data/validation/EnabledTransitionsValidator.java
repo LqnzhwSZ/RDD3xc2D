@@ -308,6 +308,8 @@ public class EnabledTransitionsValidator extends AbstractValidator {
     private boolean checkAbortCondition1() {
         EValidationResultSeverity currentResultsSeverity = this.myValidationController
                 .getCurrentValidationStatus(myDataModelName);
+        if (currentResultsSeverity == null)
+            return false; // This occurred 1x. (Rename during a validation?)
 
         int current = currentResultsSeverity.toInt();
         int critical = EValidationResultSeverity.CRITICAL.toInt();

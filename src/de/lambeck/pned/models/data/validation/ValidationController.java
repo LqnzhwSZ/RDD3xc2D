@@ -140,6 +140,12 @@ public class ValidationController extends Thread implements IValidationControlle
         }
     }
 
+    @Override
+    public void modelRenamed(String oldModelName, String newModelName) {
+        EValidationResultSeverity value = currentValidationStatus.remove(oldModelName);
+        currentValidationStatus.put(newModelName, value);
+    }
+
     /* Private methods */
 
     /**

@@ -104,6 +104,8 @@ public class InitialMarkingValidator extends AbstractValidator {
     private boolean checkAbortCondition2() {
         EValidationResultSeverity currentResultsSeverity = this.myValidationController
                 .getCurrentValidationStatus(myDataModelName);
+        if (currentResultsSeverity == null)
+            return false; // This occurred 1x. (Rename during a validation?)
 
         int current = currentResultsSeverity.toInt();
         int critical = EValidationResultSeverity.CRITICAL.toInt();

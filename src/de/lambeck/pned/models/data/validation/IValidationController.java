@@ -47,4 +47,16 @@ public interface IValidationController {
      */
     void requestIndividualValidation(String validatorName, IDataModel dataModel);
 
+    /**
+     * Informs the {@link IValidationController} to update internal references
+     * because a model has been renamed. (This should happen only on SaveAs
+     * operations.)
+     * 
+     * @param oldModelName
+     *            The model name before renaming
+     * @param newModelName
+     *            The model name after renaming
+     */
+    void modelRenamed(String oldModelName, String newModelName);
+
 }

@@ -13,6 +13,7 @@ import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.gui.ECustomColor;
+import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
@@ -275,13 +276,12 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
 
         if (areaChanged) {
-            // Update client's preferred size because
-            // the area taken up by the graphics has
-            // gotten larger or smaller (if cleared).
+            // Update client's preferred size because the area taken up by the
+            // graphics has gotten larger or smaller (if cleared).
             this.setPreferredSize(graphicsArea);
+            updateInfo_DrawingAreaSize();
 
-            // Let the scroll pane know to update itself
-            // and its scrollbars.
+            // Let the scroll pane know to update itself and its scrollbars.
             this.revalidate();
         }
 
@@ -337,6 +337,16 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         for (int i = 99; i <= width; i += GRID_STEP) {
             g2.drawLine(i, 0, i, height);
         }
+    }
+
+    /**
+     * Updates the size of this {@link IDrawPanel} on the {@link StatusBar}
+     * using interface {@link IInfo_DrawingAreaSize}.
+     */
+    private void updateInfo_DrawingAreaSize() {
+        int width = this.graphicsArea.width;
+        int height = this.graphicsArea.height;
+        setInfo_DrawingAreaSize(width, height);
     }
 
     /* Getter and Setter */

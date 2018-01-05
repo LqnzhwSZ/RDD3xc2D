@@ -263,7 +263,7 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void renameGuiModel(IGuiModel model, String newModelName, String newDisplayName) {
-        /* The key for the Map of models. */
+        /* The old key for the Map of models. */
         String oldKey = model.getModelName();
 
         /* Get the associated draw panel. */
