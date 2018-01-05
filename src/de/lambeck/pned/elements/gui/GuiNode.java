@@ -341,6 +341,13 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         int labelTextRightX = (int) labelTextRect.getMaxX();
         this.totalWidth = Math.max(shapeSize, labelTextRightX);
 
+        /*
+         * totalWidth must be at least shapeSize - labelTextLeftX (if
+         * labelTextLeftX is negative)!
+         */
+        if (labelTextLeftX < 0)
+            this.totalWidth = this.totalWidth - labelTextLeftX;
+
         int labelTextBottomY = (int) labelTextRect.getMaxY();
         this.totalHeight = Math.max(shapeSize, shapeSize + labelOffsetY + labelTextBottomY);
 

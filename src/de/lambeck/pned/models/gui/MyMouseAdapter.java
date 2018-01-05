@@ -2,6 +2,7 @@ package de.lambeck.pned.models.gui;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
@@ -93,10 +94,12 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     private static boolean debug = false;
 
     /**
-     * The time delay (in milliseconds) before we switch to dragging mode if the
-     * user keeps holding the left mouse key down.
+     * The delay (in milliseconds) before switching to dragging mode if the user
+     * keeps holding the left mouse button down. (Now set to OS double click
+     * interval in the constructor.)
      */
-    private static final int DRAGGING_WAIT_TIME = 500;
+    // private static final int DRAGGING_WAIT_TIME = 500;
+    private int DRAGGING_WAIT_TIME = 500;
 
     /** Reference to the {@link DrawPanel} */
     private IDrawPanel myDrawPanel = null;
@@ -115,7 +118,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     /** Measures how long the mouse was pressed. (for dragging) */
     private java.util.Timer timer;
 
-    /* Constructor */
+    /* Constructor etc. */
 
     /**
      * Constructs this mouse adapter for the specified draw panel, with a
@@ -140,6 +143,31 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         this.myAppController = appController;
 
         debug = appController.getShowDebugMessages();
+
+        setDraggingDelay();
+    }
+
+    /**
+     * Sets the delay for dragging mode to the OS double click interval.<BR>
+     * <BR>
+     * This means the time to wait before dragging mode when the user holds the
+     * left mouse button down.
+     */
+    private void setDraggingDelay() {
+        int multiClickInterval = getSystemDoubleClickInterval();
+        this.DRAGGING_WAIT_TIME = multiClickInterval;
+    }
+
+    /**
+     * Returns the double click interval of the current operating system.
+     * 
+     * @return The system double click interval in milliseconds
+     */
+    private int getSystemDoubleClickInterval() {
+        /* https://stackoverflow.com/a/4577475 */
+        int clickInterval = (Integer) Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+        ConsoleLogger.logIfDebug(debug, "Operating System clickInterval: " + clickInterval);
+        return clickInterval;
     }
 
     /* MouseAdapter methods */
