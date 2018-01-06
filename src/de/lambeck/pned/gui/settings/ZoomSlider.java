@@ -28,10 +28,10 @@ public class ZoomSlider extends JPanel implements ChangeListener {
     protected ApplicationController appController = null;
 
     /** Minimum value of the slider */
-    private static final int SIZE_MIN = -10;
+    private static final int SIZE_MIN = -50;
 
     /** Maximum value of the slider */
-    private static final int SIZE_MAX = 10;
+    private static final int SIZE_MAX = 50;
 
     /** Initial value of the slider */
     private static final int SIZE_INIT = 0; // (Initial shape size)
@@ -85,26 +85,9 @@ public class ZoomSlider extends JPanel implements ChangeListener {
         // Font font = new Font("Dialog", Font.PLAIN, 10);
         shapeSizeSlider.setFont(LABEL_FONT);
 
-        if (appController == null) {
-            /* Create the label that displays the size. */
-            sizeLabel = new JLabel();
-            sizeLabel.setHorizontalAlignment(JLabel.CENTER);
-            sizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            sizeLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-                    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-
-            /* Display the initial size. */
-            updateSize();
-        }
-
         /* Put everything together. */
         add(sliderLabel);
         add(shapeSizeSlider);
-        if (appController == null) {
-            add(sizeLabel);
-            setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            // setBorder(BorderFactory.createEtchedBorder());
-        }
 
         /* Additional settings */
 
@@ -143,56 +126,10 @@ public class ZoomSlider extends JPanel implements ChangeListener {
         // if (source.getValueIsAdjusting())
         // return;
 
-        int size = (int) source.getValue();
-        if (appController == null) {
-            updateSize(size); // Only self test
-        } else {
-            appController.changeZoom(size);
-        }
+        Integer size = source.getValue();
+        Integer range = Math.abs(SIZE_MIN) + Math.abs(SIZE_MAX);
+        double value = new Integer(range + size).doubleValue() / range.doubleValue();
+        appController.changeZoom(value);
     }
 
-    /** Update the label to display the current size. */
-    protected void updateSize() {
-        int size = shapeSizeSlider.getValue();
-        sizeLabel.setText("" + size);
-    }
-
-    /** Update the label to display the current size. */
-    protected void updateSize(int size) {
-        sizeLabel.setText("" + size);
-    }
-
-    /**
-     * Create the GUI and show it. For thread safety, this method should be
-     * invoked from the event-dispatching thread.
-     */
-    private static void createAndShowGUI() {
-        JFrame frame = new JFrame("SliderDemo");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ZoomSlider slider = new ZoomSlider("Shape size", null);
-
-        frame.add(slider, BorderLayout.CENTER);
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    /**
-     * Self test
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        /* Turn off metal's use of bold fonts */
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
-
-        // Schedule a job for the event-dispatching thread:
-        // creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                createAndShowGUI();
-            }
-        });
-    }
 }

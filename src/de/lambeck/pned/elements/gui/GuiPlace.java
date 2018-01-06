@@ -180,10 +180,10 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     private void drawTokens(Graphics2D g2) {
         int size = (shapeSize * tokensSizePercentage) / 100; // shapeSize =
                                                              // shape diameter
-        size = new Double(size * this.zoom).intValue();
-        int offset = new Double(size / 2 * this.zoom).intValue();
-        int left_x = new Double((this.shapeCenter.x - offset) * this.zoom).intValue();
-        int top_y = new Double((this.shapeCenter.y - offset) * this.zoom).intValue();
+        size = this.zoomedIntValue(size, this.zoom);
+        int offset = this.zoomedIntValue(new Double(new Integer(size).doubleValue() / 2.0D).intValue(), this.zoom);
+        int left_x = this.zoomedIntValue(this.shapeCenter.x, this.zoom) - offset;
+        int top_y = this.zoomedIntValue(this.shapeCenter.y, this.zoom) - offset;
 
         g2.setColor(Color.BLACK);
 
@@ -216,18 +216,18 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         g2copy.setColor(color);
 
         /* Draw the circle at the inside of the normal shape. */
-        g2copy.drawOval(new Double((double)(shapeLeftX + 3) * this.zoom).intValue(), 
-        		new Double((double)(shapeTopY + 3) * this.zoom).intValue(), 
-        		new Double((double)(shapeSize - 6) * this.zoom).intValue(), 
-        		new Double((double)(shapeSize - 6) * this.zoom).intValue());
+        g2copy.drawOval(this.zoomedIntValue(shapeLeftX, this.zoom) + 3, 
+        		this.zoomedIntValue(shapeTopY, this.zoom) + 3, 
+        		this.zoomedIntValue(shapeSize, this.zoom) - 6, 
+        		this.zoomedIntValue(shapeSize, this.zoom) - 6);
     }
 
     @Override
     public boolean contains(Point p) {
-        double x = (double) new Double(shapeLeftX) * this.zoom;
-        double y = (double) new Double(shapeTopY) * this.zoom;
-        double w = (double) new Double(shapeSize) * this.zoom;
-        double h = (double) new Double(shapeSize) * this.zoom;
+        double x = this.zoomedIntValue(shapeLeftX, this.zoom);
+        double y = this.zoomedIntValue(shapeTopY, this.zoom);
+        double w = this.zoomedIntValue(shapeSize, this.zoom);
+        double h = this.zoomedIntValue(shapeSize, this.zoom);
         return (new Ellipse2D.Double(x, y, w, h).contains(p));
     }
 

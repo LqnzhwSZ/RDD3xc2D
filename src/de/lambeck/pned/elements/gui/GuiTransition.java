@@ -100,7 +100,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
         /* Draw most severe states first! */
 
         int x = this.zoomedIntValue(shapeLeftX, this.zoom);
-        int y = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int y = this.zoomedIntValue(shapeTopY, this.zoom);
         int s = this.zoomedIntValue(shapeSize, this.zoom);
         if (!this.isSafe()) {
             g2copy.setColor(Color.RED);
@@ -127,7 +127,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
     @Override
     void drawShape(Graphics2D g2) {
         int x = this.zoomedIntValue(shapeLeftX, this.zoom);
-        int y = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int y = this.zoomedIntValue(shapeTopY, this.zoom);
         int s = this.zoomedIntValue(shapeSize, this.zoom);
         g2.drawRect(x, y, s, s);
     }
@@ -135,7 +135,7 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
     @Override
     public boolean contains(Point p) {
         int x = this.zoomedIntValue(shapeLeftX, this.zoom);
-        int y = this.zoomedIntValue(shapeLeftX, this.zoom);
+        int y = this.zoomedIntValue(shapeTopY, this.zoom);
         int s = this.zoomedIntValue(shapeSize, this.zoom);
         return (new Rectangle(x, y, s, s).contains(p));
     }
@@ -225,8 +225,8 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
             doubleX = shape_center_x + (target_x - shape_center_x) * ratio;
             break;
         case RIGHT_SIDE:
-            doubleX = shapeLeftX + shapeSize; // The squares right border
-            ratio = Math.abs((shapeSize / 2) / (target_x - shape_center_x));
+            doubleX = this.zoomedIntValueToDouble(shapeLeftX + shapeSize, this.zoom); // The squares right border
+            ratio = Math.abs((this.zoomedIntValue(shapeSize, this.zoom) / 2) / (target_x - shape_center_x));
             doubleY = shape_center_y + (target_y - shape_center_y) * ratio;
             break;
         case BOTTOM:

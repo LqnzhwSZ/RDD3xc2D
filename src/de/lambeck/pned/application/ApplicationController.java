@@ -814,7 +814,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @param size
      *            The new zoom (-10 ... 10)
      */
-    public void changeZoom(int zoom) {
+    public void changeZoom(double zoom) {
         /* Changes a general setting for all {@link IGuiNode} */
         guiModelController.changeZoom(zoom);
     }

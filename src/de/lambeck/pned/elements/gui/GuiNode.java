@@ -373,10 +373,10 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
          * 
          * (Are these just rounding errors???)
          */
-        x = new Double(new Double(x - 1) * this.zoom).intValue();
-        y = new Double(new Double(y - 1) * this.zoom).intValue();
-        width = new Double(new Double(width + 2) * this.zoom).intValue();
-        height = new Double(new Double(height + 2) * this.zoom).intValue();
+        x = this.zoomedIntValue(x, this.zoom) - 1;
+        y = this.zoomedIntValue(y, this.zoom) - 1;
+        width = this.zoomedIntValue(width, this.zoom) + 2;
+        height = this.zoomedIntValue(height, this.zoom) + 2;
 
         Rectangle rect = new Rectangle(x, y, width, height);
         this.lastDrawingArea = rect;

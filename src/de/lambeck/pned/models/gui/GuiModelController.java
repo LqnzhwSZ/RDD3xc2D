@@ -1527,17 +1527,8 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public void changeZoom(int value) {
+    public void changeZoom(double zoom) {
     	
-    	double zoom;
-    	if (value == 0) {
-    		zoom = 1.0D;
-    	} else if (value < 0) {
-    		zoom = 1.0D / new Integer(value*(-1)).doubleValue();
-    	} else {
-    		zoom = 1.0D * new Integer(value).doubleValue();
-    	}
-
     	for (Map.Entry<String, IGuiModel> e : this.guiModels.entrySet()) {
     		IGuiModel m = e.getValue();
     		m.setZoom(zoom);

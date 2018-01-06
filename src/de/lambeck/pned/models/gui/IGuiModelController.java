@@ -422,7 +422,7 @@ public interface IGuiModelController
      */
     void changeShapeSize(int size);
 
-    public void changeZoom(int size);
+    public void changeZoom(double zoom);
     
     /* Validation events */
 

@@ -126,9 +126,9 @@ public class GuiArc extends GuiElement implements IGuiArc {
         g2.setColor(Color.BLACK);
 
         Point startAnchor = getStartAnchor();
-        startAnchor.setLocation(startAnchor.getX()*this.zoom, startAnchor.getY()*this.zoom);
+        //startAnchor.setLocation(startAnchor.getX()*this.zoom, startAnchor.getY()*this.zoom);
         Point endAnchor = getEndAnchor();
-        endAnchor.setLocation(endAnchor.getX()*this.zoom, endAnchor.getY()*this.zoom);
+        //endAnchor.setLocation(endAnchor.getX()*this.zoom, endAnchor.getY()*this.zoom);
 
         if (debug) {
             // Highlight the anchor positions
@@ -259,8 +259,13 @@ public class GuiArc extends GuiElement implements IGuiArc {
      */
     private void highlightAnchors(Graphics2D g2, Point startAnchor, Point endAnchor) {
         g2.setStroke(new BasicStroke(1));
-        g2.drawOval(startAnchor.x - 5, startAnchor.y - 5, 10, 10);
-        g2.drawOval(endAnchor.x - 5, endAnchor.y - 5, 10, 10);
+        int w = new Double(10.0D * this.zoom).intValue();
+        int x = this.zoomedIntValue(startAnchor.x - 5, this.zoom);
+        int y = this.zoomedIntValue(startAnchor.y - 5, this.zoom);
+        g2.drawOval(x, y, w, w);
+        x = this.zoomedIntValue(endAnchor.x - 5, this.zoom);
+        y = this.zoomedIntValue(endAnchor.y - 5, this.zoom);
+        g2.drawOval(x, y, w, w);
     }
 
     /**
@@ -330,8 +335,12 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * @return A polygon representing the arrow head
      */
     private Polygon getArrowHead(Point startAnchor, Point endAnchor) {
-        int dx = endAnchor.x - startAnchor.x;   // line length in x direction
-        int dy = endAnchor.y - startAnchor.y;   // line length in y direction
+    	int sAx = new Double(new Integer(startAnchor.x).doubleValue() / this.zoom).intValue();
+    	int sAy = new Double(new Integer(startAnchor.y).doubleValue() / this.zoom).intValue();
+    	int eAx = new Double(new Integer(endAnchor.x).doubleValue() / this.zoom).intValue();
+    	int eAy = new Double(new Integer(endAnchor.y).doubleValue() / this.zoom).intValue();
+        int dx = eAx - sAx;   // line length in x direction
+        int dy = eAy - sAy;   // line length in y direction
         if (debug) {
             // http://www.helixsoft.nl/articles/circle/sincos.htm
             // double angle = Math.atan2(dy, dx); // line angle
@@ -368,18 +377,18 @@ public class GuiArc extends GuiElement implements IGuiArc {
          */
 
         double x;
-        x = xm * cos - ym * sin + startAnchor.x;    // Rotate point 1 (xm, ym)
-        ym = xm * sin + ym * cos + startAnchor.y;   // and shift (startAnchor.x,
+        x = xm * cos - ym * sin + sAx;    // Rotate point 1 (xm, ym)
+        ym = xm * sin + ym * cos + sAy;   // and shift (startAnchor.x,
         xm = x;                                     // startAnchor.y)
 
-        x = xn * cos - yn * sin + startAnchor.x;    // Rotate point 2 (xn, yn)
-        yn = xn * sin + yn * cos + startAnchor.y;   // and shift (startAnchor.x,
+        x = xn * cos - yn * sin + sAx;    // Rotate point 2 (xn, yn)
+        yn = xn * sin + yn * cos + sAy;   // and shift (startAnchor.x,
         xn = x;                                     // startAnchor.y)
 
         Polygon arrowHead = new Polygon();
         arrowHead.addPoint(endAnchor.x, endAnchor.y);
-        arrowHead.addPoint((int) xm, (int) ym);
-        arrowHead.addPoint((int) xn, (int) yn);
+        arrowHead.addPoint(new Double(xm * this.zoom).intValue(), new Double(ym * this.zoom).intValue());
+        arrowHead.addPoint(new Double(xn * this.zoom).intValue(), new Double(yn * this.zoom).intValue());
 
         return arrowHead;
     }
@@ -396,7 +405,12 @@ public class GuiArc extends GuiElement implements IGuiArc {
      */
     private void drawSelection(Graphics2D g2, Point startAnchor, Point endAnchor) {
 
-        int min_x; // The left x of the Bounds
+    	int sAx = new Double(new Integer(startAnchor.x).doubleValue() / this.zoom).intValue();
+    	int sAy = new Double(new Integer(startAnchor.y).doubleValue() / this.zoom).intValue();
+    	int eAx = new Double(new Integer(endAnchor.x).doubleValue() / this.zoom).intValue();
+    	int eAy = new Double(new Integer(endAnchor.y).doubleValue() / this.zoom).intValue();
+
+    	int min_x; // The left x of the Bounds
         int max_x; // The right x ...
         int min_y; // The upper y ...
         int max_y; // The bottom y ...
@@ -416,17 +430,17 @@ public class GuiArc extends GuiElement implements IGuiArc {
             int arrowHeadRightX = arrowHeadLeftX + arrowHeadRect.width;
             int arrowHeadBottomY = arrowHeadTopY + arrowHeadRect.height;
 
-            min_x = Math.min(startAnchor.x, endAnchor.x);
-            min_x = Math.min(min_x, arrowHeadLeftX);
+            min_x = Math.min(sAx, eAx);
+            min_x = this.zoomedIntValue(Math.min(min_x, arrowHeadLeftX), this.zoom);
 
-            max_x = Math.max(startAnchor.x, endAnchor.x);
-            max_x = Math.max(max_x, arrowHeadRightX);
+            max_x = Math.max(sAx, eAx);
+            max_x = this.zoomedIntValue(Math.max(max_x, arrowHeadRightX), this.zoom);
 
-            min_y = Math.min(startAnchor.y, endAnchor.y);
-            min_y = Math.min(min_y, arrowHeadTopY);
+            min_y = Math.min(sAy, eAy);
+            min_y = this.zoomedIntValue(Math.min(min_y, arrowHeadTopY), this.zoom);
 
-            max_y = Math.max(startAnchor.y, endAnchor.y);
-            max_y = Math.max(max_y, arrowHeadBottomY);
+            max_y = Math.max(sAy, eAy);
+            max_y = this.zoomedIntValue(Math.max(max_y, arrowHeadBottomY), this.zoom);
 
             int width = max_x - min_x;
             int height = max_y - min_y;
@@ -457,11 +471,14 @@ public class GuiArc extends GuiElement implements IGuiArc {
     @Override
     public boolean contains(Point p) {
         Point startAnchor = getStartAnchor();
+        startAnchor.setLocation(startAnchor.getX()*this.zoom, startAnchor.getY()*this.zoom);
         Point endAnchor = getEndAnchor();
+        endAnchor.setLocation(endAnchor.getX()*this.zoom, endAnchor.getY()*this.zoom);
+        Point zp = new Point(this.zoomedIntValue(p.x, this.zoom),this.zoomedIntValue(p.y, this.zoom));
 
         /* Mouse click at the arrow head? */
         Polygon arrowHead = getArrowHead(startAnchor, endAnchor);
-        if (arrowHead.contains(p))
+        if (arrowHead.contains(zp))
             return true;
 
         /* Mouse click at the line? */
@@ -482,8 +499,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
          * this arc is going through this square.
          */
         final int SQUARE_SIZE = 4;
-        int box_x = p.x - SQUARE_SIZE / 2;
-        int box_y = p.y - SQUARE_SIZE / 2;
+        int box_x = zp.x - SQUARE_SIZE / 2;
+        int box_y = zp.y - SQUARE_SIZE / 2;
         Rectangle rect = new Rectangle(box_x, box_y, SQUARE_SIZE, SQUARE_SIZE);
         if (line.intersects(rect))
             return true;

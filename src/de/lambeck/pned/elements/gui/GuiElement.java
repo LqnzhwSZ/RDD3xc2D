@@ -92,7 +92,7 @@ public abstract class GuiElement implements IGuiElement {
 
     @Override
     public String toString() {
-        String returnString = "GuiElement [id=" + id + ", zValue=" + getZValue() + ", selected=" + isSelected() + "]";
+        String returnString = "GuiElement [id=" + id + ", zValue=" + getZValue() + ", selected=" + isSelected() + ", zoom="+this.zoom+"]";
         return returnString;
     }
 
