@@ -459,14 +459,19 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     private String getNodeInfo(IGuiNode node) {
         String nodeInfo;
 
+        String name = node.getName();
+        if (name.equalsIgnoreCase(""))
+            name = "—";
+        String id = node.getId();
+
         /*
          * Multi-line tool tip:
          * https://docs.oracle.com/javase/tutorial/uiswing/components/html.html
          */
         nodeInfo = "<html>";
-        nodeInfo = nodeInfo + "Name: " + node.getName();
+        nodeInfo = nodeInfo + "Name: " + name;
         nodeInfo = nodeInfo + "<BR>";
-        nodeInfo = nodeInfo + "ID: " + node.getId();
+        nodeInfo = nodeInfo + "ID: " + id;
         nodeInfo = nodeInfo + "</html>";
 
         return nodeInfo;

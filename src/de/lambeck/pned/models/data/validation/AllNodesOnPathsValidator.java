@@ -347,17 +347,17 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      * Adds an {@link IValidationMsg} with the number of unreachable nodes and
      * status "CRITICAL" to the messages list.
      * 
-     * @param number
+     * @param unreachableCount
      *            The number of {@link IDataNode} that have no connection to the
      *            start place
      */
-    private void reportFailed_NoPathFromStartPlace(int number) {
+    private void reportFailed_NoPathFromStartPlace(int unreachableCount) {
         String message;
         EValidationResultSeverity severity;
         IValidationMsg vMessage;
 
         message = i18n.getMessage("criticalValidatorNoPathFromStartPlace");
-        message = message.replace("%number%", Integer.toString(number));
+        message = message.replace("%number%", Integer.toString(unreachableCount));
         severity = EValidationResultSeverity.CRITICAL;
 
         vMessage = new ValidationMsg(myDataModel, message, severity);
@@ -368,17 +368,17 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
      * Adds an {@link IValidationMsg} with the number of unreachable nodes and
      * status "CRITICAL" to the messages list.
      * 
-     * @param number
+     * @param unreachableCount
      *            The number of {@link IDataNode} that have no connection to the
      *            end place
      */
-    private void reportFailed_NoPathToEndPlace(int number) {
+    private void reportFailed_NoPathToEndPlace(int unreachableCount) {
         String message;
         EValidationResultSeverity severity;
         IValidationMsg vMessage;
 
         message = i18n.getMessage("criticalValidatorNoPathToEndPlace");
-        message = message.replace("%number%", Integer.toString(number));
+        message = message.replace("%number%", Integer.toString(unreachableCount));
         severity = EValidationResultSeverity.CRITICAL;
 
         vMessage = new ValidationMsg(myDataModel, message, severity);

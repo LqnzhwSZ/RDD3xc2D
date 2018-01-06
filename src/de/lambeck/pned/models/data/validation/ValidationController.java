@@ -26,6 +26,12 @@ public class ValidationController extends Thread implements IValidationControlle
     private static boolean debug = false;
 
     /**
+     * The sleep time between validation cycles. (Smaller values = faster
+     * reaction to changes on the draw panel, higher values = save CPU power)
+     */
+    private final static int CYCLE_SLEEP_TIME = 1000;
+
+    /**
      * Predefined parameter because the {@link ValidationController} should
      * always remove the "initial check" state from the {@link IDataModel}.
      */
@@ -93,7 +99,7 @@ public class ValidationController extends Thread implements IValidationControlle
                 if ((dataModel != null) && (!dataModel.isModelChecked())) {
                     runAllValidations(dataModel);
                 }
-                Thread.sleep(1000);
+                Thread.sleep(CYCLE_SLEEP_TIME);
             }
         } catch (InterruptedException e) {
             // state = Thread.State.TERMINATED;

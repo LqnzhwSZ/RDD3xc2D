@@ -8,6 +8,7 @@ import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
+import de.lambeck.pned.util.NodeInfo;
 
 /**
  * Checks the number of start places in a workflow net. To be used in
@@ -206,7 +207,10 @@ public class StartPlacesValidator extends AbstractValidator {
                 startPlaces.add(placeId);
 
                 /* Show start places on the message panel. */
-                String message = i18n.getNameOnly("StartPlace") + ": " + place.getId();
+                String message = i18n.getNameOnly("StartPlace") + ": ";
+                String nameAndId = NodeInfo.getMessageStringNameAndId(place);
+                message = message + nameAndId;
+
                 IValidationMsg vMessage = new ValidationMsg(myDataModel, message, EValidationResultSeverity.INFO);
                 validationMessages.add(vMessage);
             }

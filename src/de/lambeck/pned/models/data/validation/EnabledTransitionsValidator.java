@@ -17,6 +17,7 @@ import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.util.ConsoleLogger;
+import de.lambeck.pned.util.NodeInfo;
 
 /**
  * Checks which transitions are enabled or not and detects unsafe transitions.
@@ -364,8 +365,6 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         IValidationMsg vMessage;
 
         message = i18n.getMessage("warningValidationFirstTokenOnEndPlace");
-        // IValidationMsg vMessage = new ValidationMsg(myDataModel, message,
-        // EValidationResultSeverity.CRITICAL);
         severity = EValidationResultSeverity.WARNING;
 
         vMessage = new ValidationMsg(myDataModel, message, severity);
@@ -399,8 +398,9 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         IValidationMsg vMessage;
 
         message = i18n.getMessage("warningValidationTransitionUnsafe");
-        String transitionId = unsafeTransition.getId();
-        message = message.replace("%id%", transitionId);
+        String nameAndId = NodeInfo.getMessageStringNameAndId(unsafeTransition);
+        message = message.replace("%nameAndId%", nameAndId);
+
         severity = EValidationResultSeverity.WARNING;
 
         vMessage = new ValidationMsg(myDataModel, message, severity);

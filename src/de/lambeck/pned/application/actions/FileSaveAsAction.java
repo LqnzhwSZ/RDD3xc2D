@@ -37,9 +37,6 @@ public class FileSaveAsAction extends AbstractPNAction {
     /** The {@link JFileChooser} that is used to look for a file name. */
     private JFileChooser fileChooser = new JFileChooser();
 
-//    /** The suffix for the files (automatically appended if missing) */
-//    private String suffix = ".pnml";
-
     /**
      * Creates the FileSaveAsAction with an additional parent component.
      * 
@@ -58,15 +55,13 @@ public class FileSaveAsAction extends AbstractPNAction {
         iconPath = "icons/gnome/";
         iconName = "Gnome-document-save-as.svg.png";
         keyEvent = KeyEvent.VK_S;
-        // Not SHORTCUT_KEY_MASK!
         actionEvent = SHORTCUT_KEY_MASK + ActionEvent.SHIFT_MASK;
 
         customize();
 
-        /*
-         * Add the extension filter only 1x (not in every actionPerformed)!
-         */
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Petri net files (*.pnml)", "pnml");
+        /* Add the extension filter only once! (not in actionPerformed!) */
+        String fileFilterDescr = i18nController.getNameOnly("FileExtFilterDescr_PNML");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(fileFilterDescr, "pnml");
         fileChooser.setFileFilter(filter);
     }
 

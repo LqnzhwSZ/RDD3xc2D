@@ -243,7 +243,8 @@ public class FSInfo {
          * will start in "user.home" or similar.
          */
 
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Petri net files (*.pnml)", "pnml");
+        String fileFilterDescr = i18n.getNameOnly("FileExtFilterDescr_PNML");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(fileFilterDescr, "pnml");
         fileChooser.setFileFilter(filter);
 
         int returnVal = fileChooser.showSaveDialog(parentComponent);

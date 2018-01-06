@@ -57,10 +57,9 @@ public class FileOpenAction extends AbstractPNAction {
 
         customize();
 
-        /*
-         * Add the extension filter only 1x (not in every actionPerformed)!
-         */
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Petri net files (*.pnml)", "pnml");
+        /* Add the extension filter only once! (not in actionPerformed!) */
+        String fileFilterDescr = i18nController.getNameOnly("FileExtFilterDescr_PNML");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(fileFilterDescr, "pnml");
         fileChooser.setFileFilter(filter);
     }
 
