@@ -14,7 +14,6 @@ import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.gui.statusBar.StatusBar;
-import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -42,9 +41,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     /** Reference to the {@link IGuiModelController} */
     protected IGuiModelController myGuiController = null;
-
-    /** The manager for localized strings */
-    protected I18NManager i18n;
 
     /** The {@link Map} with the popup Actions */
     protected Map<String, AbstractAction> popupActions;
@@ -124,20 +120,16 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      *            The GUI model to draw on this draw panel
      * @param popupActions
      *            List of Actions
-     * @param i18n
-     *            The manager for localized strings
      */
     @SuppressWarnings("hiding")
     public DrawPanel(String modelName, String displayName, ApplicationController appController,
-            IGuiModelController guiController, IGuiModel guiModel, Map<String, AbstractAction> popupActions,
-            I18NManager i18n) {
+            IGuiModelController guiController, IGuiModel guiModel, Map<String, AbstractAction> popupActions) {
         super();
         this.modelName = modelName;
         this.displayName = displayName;
         this.myAppController = appController;
         this.myGuiController = guiController;
         this.myGuiModel = guiModel;
-        this.i18n = i18n;
         this.popupActions = popupActions;
 
         setBorder(BorderFactory.createLineBorder(Color.black));

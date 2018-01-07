@@ -172,8 +172,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.addDrawPanel", modelName, displayName);
         }
 
-        this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, currentModel, popupActions,
-                i18n);
+        this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, currentModel, popupActions);
         this.drawPanels.put(modelName, currentDrawPanel);
 
         if (debug) {
