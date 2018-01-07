@@ -423,13 +423,33 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      */
     private void showEndMarkingMessage() {
         String title = i18n.getNameOnly("RegularEndmarking");
-        String infoMessage = i18n.getMessage("infoValidationSimulationFinished");
+        String infoMessage = getEndMarkingMessageString();
         infoMessage = infoMessage.replace("%modelName%", myDataModelName);
 
         /* Get the main frame to center the input dialog. */
         JFrame mainFrame = myDataModelController.getMainFrame();
 
         JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Returns the correct message String for the end marking depending on the
+     * {@link EValidationResultSeverity} of all (previous)
+     * {@link IValidationMsg}.
+     * 
+     * @return The {@link String} for the message
+     */
+    private String getEndMarkingMessageString() {
+        EValidationResultSeverity maxSeverity;
+        String message = "";
+
+        maxSeverity = myValidationController.getCurrentValidationStatus(myDataModelName);
+        if (maxSeverity.toInt() < EValidationResultSeverity.WARNING.toInt()) {
+            message = i18n.getMessage("infoValidationSimulationFinished");
+        } else {
+            message = i18n.getMessage("infoValidationSimulationFinishedWithWarnings");
+        }
+        return message;
     }
 
     /* Private helpers */

@@ -53,21 +53,19 @@ public class DataModel implements IDataModel, IModelRename {
     private boolean modelModified = false;
 
     /**
-     * Will be set to false any time the model will be changed/modified Will be
-     * set to true after the model has been validated to true or false
+     * Will be set to false after any structural modification of the model. Will
+     * be set to true when the validated begins.
      */
-    private boolean modelChecked = false;
+    private volatile boolean modelChecked = false;
 
     /**
      * Will be set to false as soon as "modelChecked" is set to true for the
      * first time.
      */
-    private boolean initialModelCheck = true;
+    private volatile boolean initialModelCheck = true;
 
-    /**
-     * Will be set to true if the model is valid other wise to false
-     */
-    private boolean modelValid = false;
+    /** Will be set to true if the model is valid otherwise to false */
+    private volatile boolean modelValid = false;
 
     /**
      * Constructs the date model with a specified name.<BR>
