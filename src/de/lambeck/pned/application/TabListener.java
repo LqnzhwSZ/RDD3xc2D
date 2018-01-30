@@ -4,6 +4,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import de.lambeck.pned.util.ConsoleLogger;
+
 /**
  * ChangeListener for the JTabbedPane. Changes the application title according
  * to the current tab.
@@ -44,24 +46,17 @@ public class TabListener implements ChangeListener {
      *            The ChangeEvent
      */
     private void tabstateChanged(ChangeEvent e) {
-        /*
-         * Get the selected tab
-         */
+        /* Get the selected tab index */
         JTabbedPane sourceTabbedPane = (JTabbedPane) e.getSource();
         int tabIndex = sourceTabbedPane.getSelectedIndex();
 
-        appController.setActiveFile(tabIndex); // This is an actual index or -1.
+        /* Update the active file in the application controller. */
+        appController.setActiveFile(tabIndex); // This might be an actual index
+                                               // or -1.
 
-        if (tabIndex < 0) {
-            appController.setFilenameOnTitle("");
-            return;
-        } else {
-            String filename = sourceTabbedPane.getTitleAt(tabIndex);
-            appController.setFilenameOnTitle(filename);
-        }
-
-        if (debug) {
-            System.out.println("TabListener, new active tab index: " + tabIndex);
+        if (tabIndex >= 0) {
+            String message = "TabListener, new active tab index: " + tabIndex;
+            ConsoleLogger.logIfDebug(debug, message);
         }
     }
 

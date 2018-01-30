@@ -91,7 +91,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
     /** Show debug messages? */
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /**
      * The delay (in milliseconds) before switching to dragging mode if the user
@@ -117,6 +117,15 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
     /** Measures how long the mouse was pressed. (for dragging) */
     private java.util.Timer timer;
+
+    /**
+     * Stores whether this mouse adapter is in "draw new arc" mode or not.<BR>
+     * <BR>
+     * <B>If true:</B> We have to report new mouse positions to the GUI model
+     * controller in order to update/repaint the (temporary) overlay with the
+     * new arc while the user is moving the mouse towards the 2nd node.
+     */
+    private boolean drawArcMode = false;
 
     /* Constructor etc. */
 
@@ -178,8 +187,26 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mousePressed", e);
         }
 
+        if (drawArcMode) {
+            /*
+             * Let the GUI model controller check whether the user has clicked
+             * on the 2nd node for a new arc or not.
+             */
+            myGuiController.checkDrawArcFinalEndLocation(e.getPoint());
+            deactivateDrawArcMode();
+
+            // TODO Check: Is it correct to return already and do nothing more?
+            return;
+        }
+
         if (SwingUtilities.isRightMouseButton(e)) {
             ConsoleLogger.logIfDebug(debug, "Right mouse button");
+
+            /* Deactivate "draw new arc" mode if necessary. */
+            if (drawArcMode)
+                deactivateDrawArcMode();
+
+            /* Show popup? */
             showPopupIfPopupTrigger(e); // Linux
 
         } else {
@@ -289,6 +316,8 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
         if (SwingUtilities.isRightMouseButton(e)) {
             ConsoleLogger.logIfDebug(debug, "Right mouse button");
+
+            /* Show popup? */
             showPopupIfPopupTrigger(e); // Windows
 
         } else {
@@ -364,7 +393,13 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
             Point p = myDrawPanel.getMousePressedLocation();
             if (p == null) {
-                System.err.println("MyMouseAdapter.mouseClicked(): mousePressedLocation == null");
+                /*
+                 * mousePressedLocation == null if we just have left the
+                 * "draw new arc" mode with the last mousePressed event.
+                 */
+                String message = "MyMouseAdapter.mouseClicked(): mousePressedLocation == null";
+                message = message + " (\"draw new arc\" mode left?)";
+                ConsoleLogger.logIfDebug(debug, message);
                 return;
             }
 
@@ -388,7 +423,6 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
         /* Reset mouse location. */
         myDrawPanel.setMousePressedLocation(null);
-
     }
 
     @Override
@@ -399,6 +433,10 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         /* Show tool tip on nodes. */
         showTooltip(e);
 
+        /* Update the overlay if we are in "draw new arc" mode. */
+        if (drawArcMode) {
+            myGuiController.updateDrawArcCurrentEndLocation(e.getPoint());
+        }
     }
 
     /* Interface PopupMenuListener */
@@ -449,8 +487,8 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     }
 
     /**
-     * Returns the information to the specified node as HTML-formatted String to
-     * allow line breaks.
+     * Returns the information related to the specified node as HTML-formatted
+     * String to allow line breaks.
      * 
      * @param node
      *            The {@link IGuiNode}
@@ -482,9 +520,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
     /**
      * Shows the suitable popup if the MouseEvent is a PopupTrigger.<BR>
      * <BR>
-     * Note: Informs the DrawPanel if a popup menu is shown. The DrawPanel can
-     * use this information to catch the following event (e.g. "ESC" button or a
-     * mouse click) if it is only exiting the popup menu.
+     * Note: Informs the DrawPanel about the popup menu location.
      * 
      * @param e
      *            The MouseEvent
@@ -495,7 +531,6 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             if (popupMenu == null)
                 return;
 
-            // myDrawPanel.setPopupMenuActive(true);
             Point p = e.getPoint();
             myDrawPanel.setPopupMenuLocation(p);
 
@@ -556,11 +591,33 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
         case "GuiArc":
             return new PopupMenuForArcs(myDrawPanel, arc, popupActions);
         case "":
-            return new PopupMenuForEmptyAreas(myDrawPanel, popupActions);
+            return new PopupMenuForEmptyAreas(popupActions);
         default:
             System.err.println("No proper popup menu found for: " + mouseLocation.toString());
             return null;
         }
+    }
+
+    /* For the "draw new arc" overlay */
+
+    /**
+     * Activates this mouse adapters "draw new arc" mode.
+     */
+    public void activateDrawArcMode() {
+        this.drawArcMode = true;
+    }
+
+    /**
+     * Deactivates this mouse adapters "draw new arc" mode.<BR>
+     * <BR>
+     * Note: This method is used locally. But it might also be needed as public
+     * method e.g. for the application or GUI model controller to deactivate
+     * this mode if the user switches to another file. (Which in return means
+     * that we are not drawing a new arc anymore.)
+     */
+    public void deactivateDrawArcMode() {
+        this.drawArcMode = false;
+        // myGuiController.deactivateDrawArcMode();
     }
 
     /* Private helpers */

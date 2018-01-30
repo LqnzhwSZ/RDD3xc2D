@@ -8,7 +8,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import de.lambeck.pned.models.gui.DrawPanel;
-import de.lambeck.pned.models.gui.IDrawPanel;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -34,25 +33,20 @@ public class PopupMenuForEmptyAreas extends JPopupMenu implements PopupMenuListe
     /** The Map with existing Actions, suitable for this popup menu. */
     protected Map<String, AbstractAction> popupActions;
 
-    /** Source of the popup trigger */
-    private IDrawPanel myDrawPanel = null;
-
     /** A popup menu "button" */
     private AbstractAction newPlaceAction;
     /** A popup menu "button" */
     private AbstractAction newTransitionAction;
 
     /**
-     * Constructs the popup menu with a reference to its {@link DrawPanel}.
+     * Constructs the popup menu <B>without</B> a reference to its
+     * {@link DrawPanel}.
      * 
-     * @param sourceDrawPanel
-     *            The {@link DrawPanel} as source of the popup trigger
      * @param popupActions
      *            List of Actions
      */
     @SuppressWarnings("hiding")
-    public PopupMenuForEmptyAreas(IDrawPanel sourceDrawPanel, Map<String, AbstractAction> popupActions) {
-        this.myDrawPanel = sourceDrawPanel;
+    public PopupMenuForEmptyAreas(Map<String, AbstractAction> popupActions) {
         this.popupActions = popupActions;
 
         createMenuItems();
@@ -85,19 +79,11 @@ public class PopupMenuForEmptyAreas extends JPopupMenu implements PopupMenuListe
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("PopupMenuForEmptyAreas.popupMenuCanceled", e);
         }
-
-        myDrawPanel.popupMenuCanceled();
     }
 
     @Override
     public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        // myDrawPanel.popupMenuLeft();
-        /*
-         * Note: Do not invoke popupMenuLeft() here because this would be before
-         * invoking the Action in the popup menu that the user might has clicked
-         * at. And these Actions might need the popup menu location which will
-         * be reset in popupMenuLeft()!
-         */
+        // NOP
     }
 
     @Override

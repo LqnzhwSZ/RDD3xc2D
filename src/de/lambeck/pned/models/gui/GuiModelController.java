@@ -1,21 +1,22 @@
 package de.lambeck.pned.models.gui;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
+import de.lambeck.pned.elements.util.NodeCheck;
 import de.lambeck.pned.exceptions.PNElementException;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
@@ -29,7 +30,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 public class GuiModelController implements IGuiModelController {
 
     /** Show debug messages? */
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /** Minimum shape size for setter */
     private final static int MIN_SHAPE_SIZE = 20;
@@ -85,11 +86,16 @@ public class GuiModelController implements IGuiModelController {
     private ENodeType sourceForNewArcType = null;
 
     /**
-     * Stores if this GUI model controller is in the state of "adding a new Arc"
-     * to the current GUI model. Which means that he is waiting for the second
-     * (target) node.
+     * Stores whether this GUI model controller is in "draw new arc" mode or
+     * not. This always refers to the current GUI model.<BR>
+     * <BR>
+     * <B>If true:</B> The mouse adapter has to report new mouse positions in
+     * order to update/repaint the (temporary) overlay with the new arc while
+     * the user is moving the mouse towards the 2nd node.
      */
-    private boolean stateAddingNewArc = false;
+    private boolean drawArcMode = false;
+
+    /* Constructor */
 
     /**
      * Constructs a GUI model controller with references to the application
@@ -333,7 +339,45 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setCurrentModel", model.getModelName());
         }
 
+        /* Some cleanup on the old model/draw panel */
+        if (model != this.currentModel) {
+            IGuiModel oldModel = this.currentModel;
+            IDrawPanel oldDrawPanel = this.currentDrawPanel;
+            modelDeactivated(oldModel, oldDrawPanel);
+        }
+
+        /* Activate the new model */
         this.currentModel = model;
+    }
+
+    /**
+     * Cleanup for an old {@link IGuiModel} and its {@link IDrawPanel} after the
+     * model got deactivated.
+     * 
+     * @param oldModel
+     *            The deactivated {@link IGuiModel}
+     * @param oldDrawPanel
+     *            The deactivated {@link IDrawPanel}
+     */
+    private void modelDeactivated(IGuiModel oldModel, IDrawPanel oldDrawPanel) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.modelDeactivated", oldModel, oldDrawPanel);
+        }
+
+        /*
+         * Deactivate the "draw new arc" mode on the old IDrawPanel.
+         * 
+         * Note: The IDrawPanel has to deactivate it on the MyMouseAdapter
+         * because the IDrawPanel has created the MyMouseAdapter and therefore
+         * holds the reference to it.
+         */
+        oldDrawPanel.deactivateDrawArcMode();
+
+        /* Deactivate the "draw new arc" mode on this GuiModelController. */
+        deactivateDrawArcMode();
+
+        /* Cleanup on the old IGuiModel */
+        oldModel.deactivated();
     }
 
     @Override
@@ -491,59 +535,105 @@ public class GuiModelController implements IGuiModelController {
         currentDrawPanel.setPopupMenuLocation(null);
     }
 
+    /* For the "draw new arc" overlay */
+
     @Override
-    public void setSourceNodeForNewArc() {
+    public void checkActivateDrawArcMode() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.checkActivateDrawArcMode");
+        }
+
         /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
             System.err.println(
-                    "GuiModelController.setSourceLocationForNewArc(): Unable to set source location for new arc: popup menu location unknown.");
+                    "GuiModelController.startDrawingArcMode(): Unable to set source location for new arc: popup menu location unknown.");
             return;
         }
 
         /* Check if we have a node at this location. */
-        IGuiNode node = getNodeAtLocation(popupMenuLocation);
-        if (node == null)
+        IGuiNode startNode = getNodeAtLocation(popupMenuLocation);
+        if (startNode == null)
             return;
 
         /* Store this node as source for the new Arc. */
-        sourceNodeForNewArc = node;
+        sourceNodeForNewArc = startNode;
 
-        if (node instanceof GuiPlace) {
+        if (startNode instanceof GuiPlace) {
             sourceForNewArcType = ENodeType.PLACE;
-        } else if (node instanceof GuiTransition) {
+        } else if (startNode instanceof GuiTransition) {
             sourceForNewArcType = ENodeType.TRANSITION;
         }
 
-        /* Set my state. */
-        setStateAddingNewArc();
+        /* Activate "draw new arc" mode. */
+        this.drawArcMode = true;
+
+        /*
+         * Use the current mouse position here because the mouse should usually
+         * be at another location than the node since we have moved the mouse to
+         * the popup menu button.
+         * 
+         * But we need the current position of the cursor above the draw panel!
+         */
+        Point initialEndLocation = getMousePositionOverDrawPanel();
+        if (initialEndLocation == null) {
+            System.err.println("Initial end location (over draw panel) == null!");
+            return;
+        }
+
+        /* Add an overlay to the model. */
+        IDrawArcOverlay overlay = new DrawArcOverlay(startNode, initialEndLocation);
+        EOverlayName name = EOverlayName.DRAW_NEW_ARC_OVERLAY;
+        currentModel.addOverlay(overlay, name);
+
+        /* The created overlay contains an initial arc. */
+        // IOverlayGuiArc initialArc = overlay.getCurrentArc();
+        // System.out.println(initialArc.getLastDrawingArea());
+
+        /*
+         * Activate "draw new arc" mode on the MouseAdapter of the draw panel in
+         * order to get the position of the 2nd node when the user produces the
+         * next mouseClicked event.
+         */
+        currentDrawPanel.activateDrawArcMode();
     }
 
     /**
-     * Sets the local state "AddingNewArc".<BR>
-     * <BR>
-     * Note: This is a private method because it should only be invoked after
-     * successfully finishing setSourceNodeForNewArc().
+     * Returns the (relative) mouse position according to the coordinate system
+     * of the current {@link IDrawPanel}.
+     * 
+     * @return Null on errors; otherwise a {@link Point}
      */
-    private void setStateAddingNewArc() {
-        this.stateAddingNewArc = true;
+    private Point getMousePositionOverDrawPanel() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.getMousePositionOverDrawPanel");
+        }
+
+        Point absMousePos = MouseInfo.getPointerInfo().getLocation();
+        ConsoleLogger.logIfDebug(debug, "absMousePos: " + absMousePos);
+
+        Component drawPanelComponent = getDrawPanelAsSwingComponent(this.currentDrawPanel);
+        if (drawPanelComponent == null)
+            return null;
+
+        Point convertedMousePos = absMousePos;
+        SwingUtilities.convertPointFromScreen(convertedMousePos, drawPanelComponent);
+        ConsoleLogger.logIfDebug(debug, "convertedMousePos: " + convertedMousePos);
+
+        return convertedMousePos;
     }
 
     @Override
-    public boolean getStateAddingNewArc() {
+    public boolean getDrawArcModeState() {
         /*
          * Reset the state if the first of the two necessary nodes does not
          * exist anymore because the user has deleted this node in the meantime!
-         * 
-         * -> This should force the PopupMenuManager to enable the first of the
-         * two Actions (NewArcFromHereAction)
          */
-        if (this.sourceNodeForNewArc == null) {
-            this.stateAddingNewArc = false;
-            this.sourceForNewArcType = null;
-        }
+        // TODO Check should be obsolete with the new "draw new arc" overlay!
+        if (this.sourceNodeForNewArc == null)
+            deactivateDrawArcMode();
 
-        return this.stateAddingNewArc;
+        return this.drawArcMode;
     }
 
     @Override
@@ -552,43 +642,95 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public void setTargetNodeForNewArc() {
-        /* Check the current state! */
-        if (!getStateAddingNewArc())
+    public void updateDrawArcCurrentEndLocation(Point p) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.updateDrawArcCurrentEndLocation");
+        }
+
+        if (currentModel == null)
             return;
 
-        /* Check if we have a location. */
-        Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
-        if (popupMenuLocation == null) {
-            System.err.println(
-                    "GuiModelController.setSourceLocationForNewArc(): Unable to set source location for new arc: popup menu location unknown.");
+        /* Get the "draw new arc" mode overlay and the existing arc on it. */
+        IOverlayGuiArc arc = getFirstOverlayGuiArc(EOverlayName.DRAW_NEW_ARC_OVERLAY);
+        if (arc == null)
+            return;
+
+        /* Store old area for repainting */
+        Rectangle oldArea = arc.getLastDrawingArea();
+
+        /* Update the end position of the arc */
+        arc.setCurrentArcEndLocation(p);
+
+        /* Repaint old and new area */
+        Rectangle newArea = arc.getLastDrawingArea();
+        updateDrawing(oldArea);
+        updateDrawing(newArea);
+    }
+
+    /**
+     * Returns the first existing {@link IOverlayGuiArc} from the specified
+     * {@link IOverlay}.
+     * 
+     * @param overlayName
+     *            The specified {@link IOverlay}
+     * @return Null if the overlay or the arc does not exist; otherwise a
+     *         reference to the {@link IOverlayGuiArc}
+     */
+    private IOverlayGuiArc getFirstOverlayGuiArc(EOverlayName overlayName) {
+        IOverlay overlay = currentModel.getOverlayByName(overlayName);
+
+        // if (!(overlay instanceof IDrawArcOverlay))
+        // return null;
+        // IDrawArcOverlay drawArcOverlay = (IDrawArcOverlay) overlay;
+
+        // IPaintable paintable = drawArcOverlay.getPaintableElements().get(0);
+        IPaintable paintable = overlay.getPaintableElements().get(0);
+        if (!(paintable instanceof IOverlayGuiArc))
+            return null;
+
+        IOverlayGuiArc arc = (IOverlayGuiArc) paintable;
+        return arc;
+    }
+
+    @Override
+    public void checkDrawArcFinalEndLocation(Point p) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.checkDrawArcFinalEndLocation");
+        }
+
+        /* In any case: We have to remove the overlay from the model. */
+        EOverlayName name = EOverlayName.DRAW_NEW_ARC_OVERLAY;
+        currentModel.removeOverlay(name);
+
+        /* Check if we have a node at this location. */
+        IGuiNode endNode = getNodeAtLocation(p);
+        if (endNode == null) {
+            deactivateDrawArcMode();
             return;
         }
 
-        /* Check if we have a node at this location. */
-        IGuiNode node = getNodeAtLocation(popupMenuLocation);
-        if (node == null)
+        /* Check for different types of start and end node. */
+        if (!NodeCheck.isValidConnection(sourceNodeForNewArc, endNode)) {
+            System.err.println("Invalid connection between same type of nodes!");
+            deactivateDrawArcMode();
             return;
+        }
 
-        /*
-         * Create a unique ID to avoid any conflict with existing elements.
-         */
+        /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
 
         /* Get the IDs of source and target. */
         String sourceId = sourceNodeForNewArc.getId();
-        String targetId = node.getId();
+        String targetId = endNode.getId();
 
         /* Does such a arc already exist in this model? */
         if (arcAlreadyExist(sourceId, targetId)) {
-            /* Leave the "add new arc" mode and return. */
-            resetStateAddingNewArc();
+            deactivateDrawArcMode();
             return;
         }
 
-        /* Create the Arc and leave the "add new arc" mode.. */
+        /* Create the Arc. */
         addArcToCurrentGuiModel(uuid, sourceId, targetId);
-        resetStateAddingNewArc();
 
         /* Update the drawing. */
         IGuiElement element;
@@ -596,17 +738,30 @@ public class GuiModelController implements IGuiModelController {
             element = currentModel.getElementById(uuid);
         } catch (NoSuchElementException e) {
             System.err.println("New arc not created!");
+            deactivateDrawArcMode();
             return;
         }
 
         Rectangle rect = element.getLastDrawingArea();
         updateDrawing(rect);
+    }
 
-        /*
-         * Reset the popup active state of the DrawPanel since we have left the
-         * popup menu with the NewPlaceAction!
-         */
-        currentDrawPanel.setPopupMenuLocation(null);
+    /**
+     * Returns the specified {@link IDrawPanel} as {@link Component}.<BR>
+     * <BR>
+     * Note: This allows the use of methods like
+     * SwingUtilities.convertPointFromScreen().
+     * 
+     * @param The
+     *            specified {@link IDrawPanel}
+     * @return A reference of type {@link Component}}
+     */
+    private Component getDrawPanelAsSwingComponent(IDrawPanel drawPanel) {
+        Component component = null;
+        if (drawPanel instanceof Component) {
+            component = (Component) drawPanel;
+        }
+        return component;
     }
 
     /**
@@ -657,10 +812,12 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public void resetStateAddingNewArc() {
+    public void deactivateDrawArcMode() {
         this.sourceNodeForNewArc = null;
         this.sourceForNewArcType = null;
-        this.stateAddingNewArc = false;
+        this.drawArcMode = false;
+
+        updateDrawing();
     }
 
     /* Modify methods for elements */
@@ -678,7 +835,6 @@ public class GuiModelController implements IGuiModelController {
         }
 
         List<IGuiElement> elements = currentModel.getElements();
-        // TODO Must the list be sorted again?
         IGuiElement foundElement = null;
 
         for (IGuiElement element : elements) {
@@ -696,12 +852,6 @@ public class GuiModelController implements IGuiModelController {
             }
         }
 
-        // if (debug) {
-        // if (foundElement == null)
-        // System.out.println("GuiModelController.getSelectableElementAtLocation:
-        // No selectable element at this Point!");
-        // }
-
         return foundElement;
     }
 
@@ -710,6 +860,31 @@ public class GuiModelController implements IGuiModelController {
         if (element instanceof ISelectable)
             return true;
         return false;
+    }
+
+    @Override
+    public IGuiNode getNodeAtLocation(Point p) {
+        IGuiElement foundElement = getElementAtLocation(p);
+        if (foundElement == null)
+            return null;
+
+        /*
+         * Note: getElementAtLocation() should have returned the topmost
+         * element.
+         */
+        IGuiNode foundNode = null;
+        if (foundElement instanceof IGuiNode) {
+            foundNode = (IGuiNode) foundElement;
+        }
+
+        if (foundNode == null) {
+            if (debug) {
+                System.out.println("No node at this Point!");
+            }
+            return null;
+        }
+
+        return foundNode;
     }
 
     @Override
@@ -1140,59 +1315,132 @@ public class GuiModelController implements IGuiModelController {
         }
     }
 
-    @Override
-    public void selectElementAtPopupMenu() {
+    /* ZValue Actions */
+
+    /**
+     * Returns the single {@link IGuiElement} for a ZValue Action (e.g.
+     * "moveToForeground").<BR>
+     * <BR>
+     * This is:<BR>
+     * 1. If a popup menu is active: the element at the popup menu location<BR>
+     * 2. If a single element is selected: this selected element<BR>
+     * 3. Otherwise: null
+     * 
+     * @return A {@link IGuiElement}
+     * @throws PNElementException
+     *             if the element was not found or is ambiguous
+     */
+    private IGuiElement getSingleElementForZValueAction() throws PNElementException {
+        IGuiElement element = null;
+        String message = null;
+
+        /* Check variant 1: popup menu location? */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
+        if (popupMenuLocation != null) {
+            /* Call via popup menu: we use its location */
+            element = getElementAtLocation(popupMenuLocation);
 
-        IGuiElement element = getElementAtLocation(popupMenuLocation);
-        if (element == null)
-            return;
+            if (element == null)
+                message = i18n.getMessage("warningNoElementAtPopupMenu");
 
-        selectOneElement(element);
+        } else {
+            /* Check variant 2: single selected element? */
+            try {
+                element = getSingleSelectedElement();
+            } catch (PNElementException e) {
+                message = e.getMessage();
+            }
+        }
+
+        if (message != null) {
+            /*
+             * This should not happen anymore if enabling the z value Actions
+             * works properly!
+             */
+            System.err.println(message);
+            System.err.println("Check enabling the z value Actions!");
+
+            setInfo_Status(message, EStatusMessageLevel.INFO);
+            throw new PNElementException(message);
+        }
+
+        return element;
+    }
+
+    /**
+     * Returns the neighbor in z direction compared to the specified
+     * {@link IGuiElement}.
+     * 
+     * @param currElem
+     *            The specified {@link IGuiElement}
+     * @param direction
+     *            1 = upwards; -1 downwards
+     * @return A {@link IGuiElement}
+     */
+    private IGuiElement getZValueSwapElement(IGuiElement currElem, boolean upwards) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.getSwapElement", currElem, upwards);
+        }
+
+        if (currElem == null)   // (Invoking method should have checked this
+            return null;        // already.)
+
+        /* Is the current element already on the highest/lowest layer? */
+        int currZ = currElem.getZValue();
+        int maxZ = currentModel.getMaxZValue();
+        int minZ = currentModel.getMinZValue();
+
+        if (upwards && (currZ == maxZ))
+            return null;
+        if (!upwards && (currZ == minZ))
+            return null;
+
+        /**
+         * We have to check 2 conditions to find the neighbor element to swap
+         * with, depending on the direction:<BR>
+         * 1. Z value has to be higher/lower than the current z value.<BR>
+         * 2. But as little as possible.
+         */
+        List<IGuiElement> elements = currentModel.getElements();
+        IGuiElement swapElement = null;
+
+        /* We need a "safe" limit value for z value comparison. */
+        int swapZ = 0;
+        if (upwards)
+            swapZ = maxZ + 1;
+        if (!upwards)
+            swapZ = minZ - 1;
+
+        /* Check all elements */
+        for (IGuiElement next : elements) {
+            int nextZ = next.getZValue();
+            if (upwards && (nextZ > currZ) || !upwards && (nextZ < currZ)) {
+                /* We have a candidate. */
+                IGuiElement candidate = next;
+                int candidateZ = nextZ;
+                if (upwards && (candidateZ < swapZ) || !upwards && (candidateZ > swapZ)) {
+                    /* Candidate is "closer" than the last candidate. */
+                    swapElement = candidate;
+                    swapZ = candidateZ;
+                }
+            }
+        }
+
+        return swapElement;
     }
 
     @Override
     public void moveElementToForeground() {
-        Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
-        if (popupMenuLocation != null) {
-            /* Call via popup menu: there is a location */
-            moveElementAtPopupMenuToForeground(popupMenuLocation);
-            return;
-        }
-
-        /* Call via menu bar: We need one (single) selected element. */
-        IGuiElement selectedElement;
+        /* Get the element we want to move to another z layer. */
+        IGuiElement moveElement = null;
         try {
-            selectedElement = getSingleSelectedElement();
+            moveElement = getSingleElementForZValueAction();
         } catch (PNElementException e) {
-            String warning = i18n.getMessage("warningUnableToAssignToForeground");
-            String explanation = e.getMessage();
-            String message = warning + " (" + explanation + ")";
-
-            System.out.println(message);
-            setInfo_Status(message, EStatusMessageLevel.INFO);
             return;
         }
 
-        /* OK, we have exactly 1 element. */
-        moveToForeground(selectedElement);
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
-    }
-
-    /**
-     * Used by moveElementToForeground().
-     * 
-     * @param popupMenuLocation
-     *            The popup menu location on the current draw panel
-     */
-    private void moveElementAtPopupMenuToForeground(Point popupMenuLocation) {
-        IGuiElement element = getElementAtLocation(popupMenuLocation);
-        if (element == null)
-            return;
-
-        moveToForeground(element);
+        /* OK, we have exactly 1 selected element. */
+        moveToForeground(moveElement);
 
         /* Update the Actions (buttons) */
         updateZValueActionsDependingOnSelection();
@@ -1225,61 +1473,36 @@ public class GuiModelController implements IGuiModelController {
         /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /* Repaint this element and (if necessary) adjacent arcs. */
-        List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
-        toBeRepainted.add(element);
+        // /* Repaint this element and (if necessary) adjacent arcs. */
+        // List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
+        // toBeRepainted.add(element);
+        //
+        // if (element instanceof IGuiNode) {
+        // IGuiNode node = (IGuiNode) element;
+        // List<IGuiArc> arcs = getAdjacentArcs(node);
+        // toBeRepainted.addAll(arcs);
+        // }
 
-        if (element instanceof IGuiNode) {
-            IGuiNode node = (IGuiNode) element;
-            List<IGuiArc> arcs = getAdjacentArcs(node);
-            toBeRepainted.addAll(arcs);
-        }
-
+        /*
+         * Just repaint everything since there might be many adjacent arcs and
+         * such an action is triggered by the user and therefore not too
+         * frequently.
+         */
         updateDrawing();
     }
 
     @Override
     public void moveElementToBackground() {
-        Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
-        if (popupMenuLocation != null) {
-            /* Call via popup menu: there is a location. */
-            moveElementAtPopupMenuToBackground(popupMenuLocation);
-            return;
-        }
-
-        /* Call via menu bar: We need one (single) selected element. */
-        IGuiElement selectedElement;
+        /* Get the element we want to move to another z layer. */
+        IGuiElement moveElement = null;
         try {
-            selectedElement = getSingleSelectedElement();
+            moveElement = getSingleElementForZValueAction();
         } catch (PNElementException e) {
-            String warning = i18n.getMessage("warningUnableToAssignToBackground");
-            String explanation = e.getMessage();
-            String message = warning + " (" + explanation + ")";
-
-            System.out.println(message);
-            setInfo_Status(message, EStatusMessageLevel.INFO);
             return;
         }
 
-        /* OK, we have exactly 1 element. */
-        moveToBackground(selectedElement);
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
-    }
-
-    /**
-     * Used by moveElementToBackground().
-     * 
-     * @param popupMenuLocation
-     *            The popup menu location on the current draw panel
-     */
-    private void moveElementAtPopupMenuToBackground(Point popupMenuLocation) {
-        IGuiElement element = getElementAtLocation(popupMenuLocation);
-        if (element == null)
-            return;
-
-        moveToBackground(element);
+        /* OK, we have exactly 1 selected element. */
+        moveToBackground(moveElement);
 
         /* Update the Actions (buttons) */
         updateZValueActionsDependingOnSelection();
@@ -1312,61 +1535,26 @@ public class GuiModelController implements IGuiModelController {
         /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /* Repaint this element and (if necessary) adjacent arcs. */
-        List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
-        toBeRepainted.add(element);
-
-        if (element instanceof IGuiNode) {
-            IGuiNode node = (IGuiNode) element;
-            List<IGuiArc> arcs = getAdjacentArcs(node);
-            toBeRepainted.addAll(arcs);
-        }
-
+        /*
+         * Just repaint everything since there might be many adjacent arcs and
+         * such an action is triggered by the user and therefore not too
+         * frequently.
+         */
         updateDrawing();
     }
 
     @Override
     public void moveElementOneLayerUp() {
-        Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
-        if (popupMenuLocation != null) {
-            /* Call via popup menu: there is a location. */
-            moveElementAtPopupMenuOneLayerUp(popupMenuLocation);
-            return;
-        }
-
-        /* Call via menu bar: We need one (single) selected element. */
-        IGuiElement selectedElement;
+        /* Get the element we want to move to another z layer. */
+        IGuiElement moveElement = null;
         try {
-            selectedElement = getSingleSelectedElement();
+            moveElement = getSingleElementForZValueAction();
         } catch (PNElementException e) {
-            String warning = i18n.getMessage("warningUnableToAssignOneLayerUp");
-            String explanation = e.getMessage();
-            String message = warning + " (" + explanation + ")";
-
-            System.out.println(message);
-            setInfo_Status(message, EStatusMessageLevel.INFO);
             return;
         }
 
-        /* OK, we have exactly 1 element. */
-        moveOneLayerUp(selectedElement);
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
-    }
-
-    /**
-     * used by moveElementOneLayerUp().
-     * 
-     * @param popupMenuLocation
-     *            The popup menu location on the current draw panel
-     */
-    private void moveElementAtPopupMenuOneLayerUp(Point popupMenuLocation) {
-        IGuiElement element = getElementAtLocation(popupMenuLocation);
-        if (element == null)
-            return;
-
-        moveOneLayerUp(element);
+        /* OK, we have exactly 1 selected element. */
+        moveOneLayerUp(moveElement);
 
         /* Update the Actions (buttons) */
         updateZValueActionsDependingOnSelection();
@@ -1379,99 +1567,51 @@ public class GuiModelController implements IGuiModelController {
      *            The element to be moved one layer up.
      */
     private void moveOneLayerUp(IGuiElement element) {
-        if (element == null)
-            throw new NoSuchElementException();
-
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerUp", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerUp", element);
         }
 
-        int currZValue = element.getZValue();
-        int currMax = currentModel.getMaxZValue();
-        if (currZValue == currMax)
+        /* Get the element to swap with. */
+        boolean upwards = true;
+        IGuiElement swapElement = getZValueSwapElement(element, upwards);
+        if (swapElement == null) {
+            String message = "No swap element found!";
+            System.err.println(message);
             return;
-
-        /* Switch layer with the next higher element. */
-        List<IGuiElement> elements = currentModel.getElements();
-        IGuiElement swap = null;
-        int swapZValue = currMax + 1; // A "safe" value to start with
-
-        for (IGuiElement next : elements) {
-            int nextZValue = next.getZValue();
-            if (nextZValue > currZValue) {
-                IGuiElement candidate = next;
-                int candidateZValue = nextZValue;
-                if (candidateZValue < swapZValue) {
-                    swap = candidate;
-                    swapZValue = candidateZValue;
-                }
-            }
         }
 
-        /* Swap element and swap element. */
-        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZValue + ")");
-        element.setZValue(swapZValue);
-        ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZValue + ")");
-        swap.setZValue(currZValue);
+        /* Swap the element with the swap element. */
+        int swapZ = swapElement.getZValue();
+        int currZ = element.getZValue();
+
+        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZ + ")");
+        element.setZValue(swapZ);
+        ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZ + ")");
+        swapElement.setZValue(currZ);
 
         /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /* Repaint this element and (if necessary) adjacent arcs. */
-        List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
-        toBeRepainted.add(element);
-
-        if (element instanceof IGuiNode) {
-            IGuiNode node = (IGuiNode) element;
-            List<IGuiArc> arcs = getAdjacentArcs(node);
-            toBeRepainted.addAll(arcs);
-        }
-
+        /*
+         * Just repaint everything since there might be many adjacent arcs and
+         * such an action is triggered by the user and therefore not too
+         * frequently.
+         */
         updateDrawing();
     }
 
     @Override
     public void moveElementOneLayerDown() {
-        Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
-        if (popupMenuLocation != null) {
-            /* Call via popup menu: there is a location. */
-            moveElementAtPopupMenuOneLayerDown(popupMenuLocation);
-            return;
-        }
-
-        /* Call via menu bar: We need one (single) selected element. */
-        IGuiElement selectedElement;
+        /* Get the element we want to move to another z layer. */
+        IGuiElement moveElement = null;
         try {
-            selectedElement = getSingleSelectedElement();
+            moveElement = getSingleElementForZValueAction();
         } catch (PNElementException e) {
-            String warning = i18n.getMessage("warningUnableToAssignOneLayerDown");
-            String explanation = e.getMessage();
-            String message = warning + " (" + explanation + ")";
-
-            System.out.println(message);
-            setInfo_Status(message, EStatusMessageLevel.INFO);
             return;
         }
 
-        /* OK, we have exactly 1 element. */
-        moveOneLayerDown(selectedElement);
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
-    }
-
-    /**
-     * used by moveElementOneLayerDown().
-     * 
-     * @param popupMenuLocation
-     *            The popup menu location on the current draw panel
-     */
-    private void moveElementAtPopupMenuOneLayerDown(Point popupMenuLocation) {
-        IGuiElement element = getElementAtLocation(popupMenuLocation);
-        if (element == null)
-            return;
-
-        moveOneLayerDown(element);
+        /* OK, we have exactly 1 selected element. */
+        moveOneLayerDown(moveElement);
 
         /* Update the Actions (buttons) */
         updateZValueActionsDependingOnSelection();
@@ -1484,56 +1624,40 @@ public class GuiModelController implements IGuiModelController {
      *            The element to be moved one layer down.
      */
     private void moveOneLayerDown(IGuiElement element) {
-        if (element == null)
-            throw new NoSuchElementException();
-
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerDown", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerUp", element);
         }
 
-        int currZValue = element.getZValue();
-        int currMin = currentModel.getMinZValue();
-        if (currZValue == currMin)
+        /* Get the element to swap with. */
+        boolean upwards = false;
+        IGuiElement swapElement = getZValueSwapElement(element, upwards);
+        if (swapElement == null) {
+            String message = "No swap element found!";
+            System.err.println(message);
             return;
-
-        /* Switch layer with the next higher element. */
-        List<IGuiElement> elements = currentModel.getElements();
-        IGuiElement swap = null;
-        int swapZValue = currMin - 1; // A "safe" value to start with
-
-        for (IGuiElement next : elements) {
-            int nextZValue = next.getZValue();
-            if (nextZValue < currZValue) {
-                IGuiElement candidate = next;
-                int candidateZValue = nextZValue;
-                if (candidateZValue > swapZValue) {
-                    swap = candidate;
-                    swapZValue = candidateZValue;
-                }
-            }
         }
 
-        /* Swap element and swap element. */
-        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZValue + ")");
-        element.setZValue(swapZValue);
-        ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZValue + ")");
-        swap.setZValue(currZValue);
+        /* Swap the element with the swap element. */
+        int swapZ = swapElement.getZValue();
+        int currZ = element.getZValue();
+
+        ConsoleLogger.logIfDebug(debug, "element.setZValue(" + swapZ + ")");
+        element.setZValue(swapZ);
+        ConsoleLogger.logIfDebug(debug, "swap.setZValue(" + currZ + ")");
+        swapElement.setZValue(currZ);
 
         /* Let the model resort the List of elements. */
         currentModel.sortElements();
 
-        /* Repaint this element and (if necessary) adjacent arcs. */
-        List<IGuiElement> toBeRepainted = new LinkedList<IGuiElement>();
-        toBeRepainted.add(element);
-
-        if (element instanceof IGuiNode) {
-            IGuiNode node = (IGuiNode) element;
-            List<IGuiArc> arcs = getAdjacentArcs(node);
-            toBeRepainted.addAll(arcs);
-        }
-
+        /*
+         * Just repaint everything since there might be many adjacent arcs and
+         * such an action is triggered by the user and therefore not too
+         * frequently.
+         */
         updateDrawing();
     }
+
+    /* Change shape size */
 
     @Override
     public void changeShapeSize(int size) {
@@ -1580,14 +1704,18 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Returns the element at the specified Point. (Returns the one with the
-     * highest z-value if there is more than 1 at this location.)
+     * Returns the {@link IGuiElement} at the specified Point. (Returns the one
+     * with the highest z-value if there is more than 1 at this location.)
      * 
      * @param p
      *            The specified Point
-     * @return The topmost element at the specified point
+     * @return The topmost {@link IGuiElement} at the specified point; null if
+     *         none exists
      */
     private IGuiElement getElementAtLocation(Point p) {
+        if (currentModel == null)
+            return null;
+
         java.util.List<IGuiElement> elements = currentModel.getElements();
         IGuiElement foundElement = null;
 
@@ -1609,43 +1737,13 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Returns the node (place or transition, not other elements) at the
-     * specified Point.
+     * Returns the {@link IGuiTransition} (not other elements) at the specified
+     * Point. Returns the one with the highest z-value if there is more than 1
+     * at this location.
      * 
      * @param p
      *            The specified Point
-     * @return The node at the specified point
-     */
-    private IGuiNode getNodeAtLocation(Point p) {
-        IGuiElement foundElement = getElementAtLocation(p);
-        if (foundElement == null)
-            return null;
-
-        /*
-         * Note: getElementAtLocation() should have returned the topmost
-         * element.
-         */
-        IGuiNode foundNode = null;
-        if (foundElement instanceof IGuiNode) {
-            foundNode = (IGuiNode) foundElement;
-        }
-
-        if (foundNode == null) {
-            if (debug) {
-                System.out.println("No node at this Point!");
-            }
-            return null;
-        }
-
-        return foundNode;
-    }
-
-    /**
-     * Returns the transition (not other elements) at the specified Point.
-     * 
-     * @param p
-     *            The specified Point
-     * @return The transition at the specified point
+     * @return The {@link IGuiTransition}; null if none exists
      */
     private IGuiTransition getTransitionAtLocation(Point p) {
         IGuiElement foundElement = getElementAtLocation(p);
@@ -1690,13 +1788,17 @@ public class GuiModelController implements IGuiModelController {
         }
 
         if (selectedElement == null) {
+            String warning = i18n.getMessage("warningNoSingleSelectedElement");
             String explanation = i18n.getMessage("infoNoElementSelected");
-            throw new PNElementException(explanation);
+            String message = warning + " (" + explanation + ")";
+            throw new PNElementException(message);
         }
 
         if (count > 1) {
+            String warning = i18n.getMessage("warningNoSingleSelectedElement");
             String explanation = i18n.getMessage("warningTooManyElementSelected");
-            throw new PNElementException(explanation);
+            String message = warning + " (" + explanation + ")";
+            throw new PNElementException(message);
         }
 
         return selectedElement;
@@ -1785,29 +1887,29 @@ public class GuiModelController implements IGuiModelController {
         return adjacentArcs;
     }
 
-    /**
-     * Returns a {@link List} of all {@link IGuiArc} that are adjacent to the
-     * specified {@link IGuiNode}.
-     * 
-     * @param node
-     *            The specified {@link IGuiNode}
-     * @return A {@link List} of {@link IGuiArc} of all adjacent arcs
-     */
-    private List<IGuiArc> getAdjacentArcs(IGuiNode node) {
-        List<IGuiElement> elements = currentModel.getElements();
-        List<IGuiArc> adjacentArcs = new LinkedList<IGuiArc>();
-
-        for (IGuiElement element : elements) {
-            if (element instanceof IGuiArc) {
-                IGuiArc arc = (IGuiArc) element;
-                if (isAdjacentArc(arc, node)) {
-                    adjacentArcs.add(arc);
-                }
-            }
-        }
-
-        return adjacentArcs;
-    }
+    // /**
+    // * Returns a {@link List} of all {@link IGuiArc} that are adjacent to the
+    // * specified {@link IGuiNode}.
+    // *
+    // * @param node
+    // * The specified {@link IGuiNode}
+    // * @return A {@link List} of {@link IGuiArc} of all adjacent arcs
+    // */
+    // private List<IGuiArc> getAdjacentArcs(IGuiNode node) {
+    // List<IGuiElement> elements = currentModel.getElements();
+    // List<IGuiArc> adjacentArcs = new LinkedList<IGuiArc>();
+    //
+    // for (IGuiElement element : elements) {
+    // if (element instanceof IGuiArc) {
+    // IGuiArc arc = (IGuiArc) element;
+    // if (isAdjacentArc(arc, node)) {
+    // adjacentArcs.add(arc);
+    // }
+    // }
+    // }
+    //
+    // return adjacentArcs;
+    // }
 
     /**
      * Checks if the arc is adjacent to at least one of the nodes in the

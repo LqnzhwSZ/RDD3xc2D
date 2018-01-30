@@ -41,8 +41,8 @@ public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
     /** Local reference to the current arc */
     private IGuiArc arc;
 
-    /** A popup menu "button" */
-    private AbstractAction selectAction;
+    // /** A popup menu "button" */
+    // private AbstractAction selectAction;
     /** A popup menu "button" */
     private AbstractAction toForegroundAction;
     /** A popup menu "button" */
@@ -77,10 +77,10 @@ public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
      * Adds the menu items to this menu.
      */
     private void createMenuItems() {
-        selectAction = popupActions.get("ElementSelect");
-        add(selectAction);
-
-        addSeparator();
+        // selectAction = popupActions.get("ElementSelect");
+        // add(selectAction);
+        //
+        // addSeparator();
 
         toForegroundAction = popupActions.get("ElementToTheForeground");
         add(toForegroundAction);
@@ -96,8 +96,8 @@ public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
      * Enables the menu items depending on the current element.
      */
     void enableMenuItems() {
-        /* All elements can be selected */
-        selectAction.setEnabled(true);
+        // /* All elements can be selected */
+        // selectAction.setEnabled(true);
 
         /*
          * Enables menu items depending on the z value (height level) of the
@@ -120,19 +120,11 @@ public class PopupMenuForArcs extends JPopupMenu implements PopupMenuListener {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("PopupMenuForArcs.popupMenuCanceled", e);
         }
-
-        myDrawPanel.popupMenuCanceled();
     }
 
     @Override
     public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        // myDrawPanel.popupMenuLeft();
-        /*
-         * Note: Do not invoke popupMenuLeft() here because this would be before
-         * invoking the Action in the popup menu that the user might has clicked
-         * at. And these Actions might need the popup menu location which will
-         * be reset in popupMenuLeft()!
-         */
+        // NOP
     }
 
     @Override

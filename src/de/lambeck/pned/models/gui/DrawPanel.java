@@ -12,6 +12,7 @@ import de.lambeck.pned.application.*;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
+import de.lambeck.pned.elements.gui.IPaintable;
 import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.util.ConsoleLogger;
@@ -65,14 +66,17 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     /* Variables for MyMouseAdapter */
 
+    /** Reference to this draw panels {@link MyMouseAdapter} */
+    MyMouseAdapter myMouseAdapter = null;
+
     /**
      * Location of the mousePressed event. (Mouse click or start of dragging)
      */
     private Point mousePressedLocation = null;
 
     /**
-     * Stores whether we are in mouse dragging mode. (To allow updating the data
-     * model after finishing the drag operation.)
+     * Stores whether we are in mouse dragging mode or not. (To allow updating
+     * the data model after finishing the drag operation.)
      */
     private boolean mouseDragMode = false;
 
@@ -141,8 +145,9 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
          * MouseListener to select and move nodes and to show popup menus and a
          * MouseMotionListener
          */
-        addMouseListener(new MyMouseAdapter(this, myGuiController, popupActions, myAppController));
-        addMouseMotionListener(new MyMouseAdapter(this, myGuiController, popupActions, myAppController));
+        this.myMouseAdapter = new MyMouseAdapter(this, myGuiController, popupActions, myAppController);
+        addMouseListener(myMouseAdapter);
+        addMouseMotionListener(myMouseAdapter);
 
         /*
          * KeyboardFocusManager replaces KeyBindings because of unexpected mouse
@@ -240,6 +245,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
         boolean areaChanged = false;
 
+        /* Paint the elements of the model. */
         for (IGuiElement element : myGuiModel.getElements()) {
             element.paintElement(g);
 
@@ -264,6 +270,16 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
                     graphicsArea.height = this_height;
                     areaChanged = true;
                 }
+            }
+        }
+
+        /* Paint the elements of the overlay(s). */
+        for (IOverlay overlay : myGuiModel.getAllOverlays()) {
+            for (IPaintable paintable : overlay.getPaintableElements()) {
+                paintable.paintElement(g);
+
+                // TODO We might have a problem here if this paintable is
+                // outside of the area stored in graphicsArea!
             }
         }
 
@@ -515,11 +531,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     }
 
     @Override
-    public boolean isSelectableElement(IGuiElement element) {
-        return myGuiController.isSelectableElement(element);
-    }
-
-    @Override
     public int getMinZValue() {
         return myGuiModel.getMinZValue();
     }
@@ -540,31 +551,30 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
     }
 
     @Override
-    public void popupMenuCanceled() {
-        this.popupMenuLocation = null;
-    }
-
-    @Override
-    public void popupMenuLeft() {
-        if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DrawPanel.popupMenuLeft");
-        }
-        this.popupMenuLocation = null;
-    }
-
-    @Override
     public Point getPopupMenuLocation() {
         return this.popupMenuLocation;
     }
 
+    /* For the "draw new arc" overlay */
+
     @Override
     public boolean getStateAddingNewArc() {
-        return myGuiController.getStateAddingNewArc();
+        return myGuiController.getDrawArcModeState();
     }
 
     @Override
     public ENodeType getSourceForNewArcType() {
         return myGuiController.getSourceForNewArcType();
+    }
+
+    @Override
+    public void activateDrawArcMode() {
+        myMouseAdapter.activateDrawArcMode();
+    }
+
+    @Override
+    public void deactivateDrawArcMode() {
+        myMouseAdapter.deactivateDrawArcMode();
     }
 
     /* Other public methods */

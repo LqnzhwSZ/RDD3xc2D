@@ -29,7 +29,7 @@ public class ValidationController extends Thread implements IValidationControlle
      * The sleep time between validation cycles. (Smaller values = faster
      * reaction to changes on the draw panel, higher values = save CPU power)
      */
-    private final static int CYCLE_SLEEP_TIME = 1000;
+    private final static int CYCLE_SLEEP_TIME = 500;
 
     /**
      * Predefined parameter because the {@link ValidationController} should
@@ -292,9 +292,14 @@ public class ValidationController extends Thread implements IValidationControlle
      * @return The new state of isModelValid
      */
     private boolean handleMessage(boolean isModelValid, IValidationMsgPanel msgPanel, IValidationMsg message) {
-        if (message != null) {
-            msgPanel.addMessage(message.getMessage());
+        // if (message != null) {
+        // msgPanel.addMessage(message.getMessage());
+        // }
+        if (message == null) {
+            /* We can only assume false! */
+            return false;
         }
+        msgPanel.addMessage(message.getMessage());
 
         EValidationResultSeverity currentSeverity = message.getSeverity();
         String modelName = msgPanel.getModelName();

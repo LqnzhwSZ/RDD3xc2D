@@ -114,6 +114,30 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
         calculateMyBounds(); // Depend on the other values.
     }
 
+    /* Static Getter and Setter */
+
+    /**
+     * Returns the size of all shapes (static attribute).<BR>
+     * <BR>
+     * Note: Used for placing new nodes inside of the visible area (left and top
+     * border &gt; 0).
+     * 
+     * @return The current shape size
+     */
+    public static int getShapeSize() {
+        return GuiPlace.shapeSize;
+    }
+
+    /**
+     * Changes the size of all shapes (static attribute).
+     * 
+     * @param size
+     *            The new size
+     */
+    public static void changeShapeSize(int size) {
+        GuiPlace.shapeSize = size;
+    }
+
     /* Methods for interface IGuiNode */
 
     @Override
@@ -145,28 +169,6 @@ public abstract class GuiNode extends GuiElement implements IGuiNode {
     @Override
     public Rectangle getLastDrawingArea() {
         return this.lastDrawingArea;
-    }
-
-    /**
-     * Returns the size of all shapes (static attribute).<BR>
-     * <BR>
-     * Note: Used for placing new nodes inside of the visible area (left and top
-     * border &gt; 0).
-     * 
-     * @return The current shape size
-     */
-    public static int getShapeSize() {
-        return GuiPlace.shapeSize;
-    }
-
-    /**
-     * Changes the size of all shapes (static attribute).
-     * 
-     * @param size
-     *            The new size
-     */
-    public static void changeShapeSize(int size) {
-        GuiPlace.shapeSize = size;
     }
 
     /*

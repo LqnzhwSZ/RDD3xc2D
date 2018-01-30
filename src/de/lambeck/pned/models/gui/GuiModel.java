@@ -3,6 +3,7 @@ package de.lambeck.pned.models.gui;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -22,7 +23,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 public class GuiModel implements IGuiModel, IModelRename {
 
     /** Show debug messages? */
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -43,12 +44,12 @@ public class GuiModel implements IGuiModel, IModelRename {
     /**
      * List of all elements in this model
      */
-    private List<IGuiElement> elements = new ArrayList<>();
+    private List<IGuiElement> elements = new ArrayList<IGuiElement>();
 
     /**
      * List of all elements selected by the user.
      */
-    private List<IGuiElement> selected = new ArrayList<>();
+    private List<IGuiElement> selected = new ArrayList<IGuiElement>();
 
     /** The minimum z value of all elements in this model */
     private int minZValue = 0;
@@ -61,6 +62,11 @@ public class GuiModel implements IGuiModel, IModelRename {
      * that the user is asked for "file save" when closing the file.
      */
     private boolean modelModified = false;
+
+    /** Map of present overlays (of type {@link IOverlay}) */
+    private Map<EOverlayName, IOverlay> overlays = new HashMap<EOverlayName, IOverlay>();
+
+    /* Constructor */
 
     /**
      * Constructs a new GUI model with the name as parameter. (Name is the full
@@ -82,7 +88,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         this.myGuiController = controller;
 
         if (debug) {
-            System.out.println("PNGuiModel created, name: " + getModelName());
+            System.out.println("GuiModel created, name: " + getModelName());
         }
     }
 
@@ -108,9 +114,10 @@ public class GuiModel implements IGuiModel, IModelRename {
         this.displayName = s;
     }
 
+    /* Interface IDataModel */
+
     @Override
     public List<IGuiElement> getElements() {
-        // return this.elements;
         List<IGuiElement> copy = new ArrayList<IGuiElement>(this.elements);
         return copy;
     }
@@ -118,11 +125,13 @@ public class GuiModel implements IGuiModel, IModelRename {
     @Override
     public IGuiElement getElementById(String id) throws NoSuchElementException {
         for (IGuiElement element : elements) {
-            if (element.getId() == id)
+            if (element.getId().equalsIgnoreCase(id))
                 return element;
         }
 
-        throw new NoSuchElementException();
+        String errorMessage = "Model " + this.modelName + ": element " + id + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
     }
 
     @Override
@@ -133,11 +142,13 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
-    public IGuiNode getNodeById(String nodeId) {
-        IGuiElement element = getElementById(nodeId);
-        if (element == null) {
-            System.err.println("Element " + nodeId + " not found!");
-            return null;
+    public IGuiNode getNodeById(String nodeId) throws NoSuchElementException {
+        IGuiElement element;
+        try {
+            element = getElementById(nodeId);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IGuiNode) {
@@ -145,15 +156,19 @@ public class GuiModel implements IGuiModel, IModelRename {
             return node;
         }
 
-        return null;
+        String errorMessage = "Model " + this.modelName + ": node " + nodeId + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
     }
 
     @Override
-    public IGuiPlace getPlaceById(String placeId) {
-        IGuiElement element = getElementById(placeId);
-        if (element == null) {
-            System.err.println("Element " + placeId + " not found!");
-            return null;
+    public IGuiPlace getPlaceById(String placeId) throws NoSuchElementException {
+        IGuiElement element;
+        try {
+            element = getElementById(placeId);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IGuiPlace) {
@@ -161,7 +176,29 @@ public class GuiModel implements IGuiModel, IModelRename {
             return place;
         }
 
-        return null;
+        String errorMessage = "Model " + this.modelName + ": place " + placeId + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
+    }
+
+    @Override
+    public IGuiTransition getTransitionById(String transitionId) throws NoSuchElementException {
+        IGuiElement element;
+        try {
+            element = getElementById(transitionId);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
+        }
+
+        if (element instanceof IGuiTransition) {
+            IGuiTransition transition = (IGuiTransition) element;
+            return transition;
+        }
+
+        String errorMessage = "Model " + this.modelName + ": transition " + transitionId + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
     }
 
     @Override
@@ -284,7 +321,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             addElement(newPlace);
         } catch (PNDuplicateAddedException e) {
             // e.printStackTrace();
-            System.err.println("PNGuiModel, addPlace: " + e.getMessage());
+            System.err.println("GuiModel, addPlace: " + e.getMessage());
             return;
         }
 
@@ -323,7 +360,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             addElement(newTransition);
         } catch (PNDuplicateAddedException e) {
             // e.printStackTrace();
-            System.err.println("PNGuiModel, addTransition: " + e.getMessage());
+            System.err.println("GuiModel, addTransition: " + e.getMessage());
             return;
         }
 
@@ -341,40 +378,45 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public void addArc(String id, String sourceId, String targetId) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.addArc", id, sourceId + targetId);
+        }
+
         /* Get source and target objects. */
         IGuiNode source = null;
-        IGuiNode target = null;
+        try {
+            source = getNodeById(sourceId);
+        } catch (NoSuchElementException e) {
+            // System.err.println(e.getMessage());
+            System.err.println("Node " + sourceId + " for arc " + id + " not found!");
+            return;
+        }
 
-        List<IGuiElement> currentElements = getElements();
-        for (IGuiElement element : currentElements) {
-            if (element.getId().equals(sourceId)) {
-                if (element instanceof IGuiNode)
-                    source = (IGuiNode) element;
-            }
-            if (element.getId().equals(targetId)) {
-                if (element instanceof IGuiNode)
-                    target = (IGuiNode) element;
-            }
-            if (source != null && target != null)
-                break;
+        IGuiNode target = null;
+        try {
+            target = getNodeById(targetId);
+        } catch (NoSuchElementException e) {
+            // System.err.println(e.getMessage());
+            System.err.println("Node " + targetId + " for arc " + id + " not found!");
+            return;
         }
 
         /*
          * Create the arc.
          * 
-         * Note: The constructor of Arc will throw an PNElementException if
-         * source and target are a invalid combination of nodes.
+         * Note: The arc constructor will throw an PNElementException if source
+         * and target are an invalid combination of nodes.
          */
         IGuiArc newArc = null;
 
-        /* Get the next value for zOrder. */
+        /* Get the next (higher) value for zOrder. */
         int zOrder = getIncrMaxZ();
 
         try {
             newArc = new GuiArc(id, zOrder, source, target);
         } catch (PNElementException e) {
             // e.printStackTrace();
-            System.err.println("PNGuiModel, addArc: " + e.getMessage());
+            System.err.println("GuiModel, addArc: " + e.getMessage());
             return;
         }
 
@@ -383,7 +425,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             addElement(newArc);
         } catch (PNDuplicateAddedException e) {
             // e.printStackTrace();
-            System.err.println("PNGuiModel, addArc: " + e.getMessage());
+            System.err.println("GuiModel, addArc: " + e.getMessage());
             return;
         }
 
@@ -409,40 +451,50 @@ public class GuiModel implements IGuiModel, IModelRename {
      */
     private void addElement(IGuiElement newElement) throws PNDuplicateAddedException {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("PNGuiModel" + getModelName() + ").addElement", newElement);
+            ConsoleLogger.consoleLogMethodCall("GuiModel" + getModelName() + ").addElement", newElement);
         }
 
+        /* Prevent duplicate IDs. */
         for (IGuiElement test : elements) {
-            if (test == newElement) { throw new PNDuplicateAddedException("Duplicate of: " + test.toString()); }
+            if (test == newElement) {
+                String errMessage = "Duplicate of: " + test.toString();
+                if (debug) {
+                    System.err.println(errMessage);
+                }
+                throw new PNDuplicateAddedException(errMessage);
+            }
         }
+
+        /* Add the element */
         elements.add(newElement);
     }
 
     @Override
     public void removeElement(String id) throws NoSuchElementException {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModel.removeElement", id);
+            ConsoleLogger.consoleLogMethodCall("GuiModel(" + getModelName() + ").removeElement", id);
         }
 
-        for (IGuiElement test : elements) {
-            if (test.getId() == id) {
-                /* Remove from the list of selected elements! */
-                this.selected.remove(test);
-
-                /* Remove the element. */
-                elements.remove(test);
-
-                return;
-            }
+        /* Find the element. */
+        IGuiElement removeElement;
+        try {
+            removeElement = getElementById(id);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
         }
 
-        throw new NoSuchElementException("Id " + id + " not found in GUI model " + this.getModelName());
+        /* Remove from the list of selected elements! */
+        this.selected.remove(removeElement);
+
+        /* Remove the element. */
+        elements.remove(removeElement);
     }
 
     @Override
     public void clear() {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("PNGuiModel(" + getModelName() + ").clear");
+            ConsoleLogger.consoleLogMethodCall("GuiModel(" + getModelName() + ").clear");
         }
 
         elements.clear();
@@ -631,8 +683,10 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiStartPlace", placeId, b);
         }
 
-        IGuiPlace place = getPlaceById(placeId);
-        if (place == null) {
+        IGuiPlace place = null;
+        try {
+            place = getPlaceById(placeId);
+        } catch (NoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -646,8 +700,10 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiStartPlaceCandidate", placeId, b);
         }
 
-        IGuiPlace place = getPlaceById(placeId);
-        if (place == null) {
+        IGuiPlace place = null;
+        try {
+            place = getPlaceById(placeId);
+        } catch (NoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -661,8 +717,10 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiEndPlace", placeId, b);
         }
 
-        IGuiPlace place = getPlaceById(placeId);
-        if (place == null) {
+        IGuiPlace place = null;
+        try {
+            place = getPlaceById(placeId);
+        } catch (NoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -676,8 +734,10 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setGuiEndPlaceCandidate", placeId, b);
         }
 
-        IGuiPlace place = getPlaceById(placeId);
-        if (place == null) {
+        IGuiPlace place = null;
+        try {
+            place = getPlaceById(placeId);
+        } catch (NoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -698,6 +758,62 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
 
         node.setUnreachable(b);
+    }
+
+    /* For the "draw new arc" overlay */
+
+    @Override
+    public void addOverlay(IOverlay overlay, EOverlayName name) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.addOverlay", overlay, name);
+        }
+
+        overlays.put(name, overlay);
+        ConsoleLogger.logIfDebug(debug, "New overlays.size(): " + overlays.size());
+    }
+
+    @Override
+    public void removeOverlay(EOverlayName name) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.removeOverlay", name);
+        }
+
+        overlays.remove(name);
+        ConsoleLogger.logIfDebug(debug, "overlays.size(): " + overlays.size());
+    }
+
+    @Override
+    public List<IOverlay> getAllOverlays() {
+        /*
+         * This model stores the overlays in a Map for random access, so we have
+         * to convert it into a List.
+         */
+        List<IOverlay> list = new ArrayList<IOverlay>(this.overlays.values());
+        return list;
+    }
+
+    @Override
+    public IOverlay getOverlayByName(EOverlayName name) {
+        return this.overlays.get(name);
+    }
+
+    /* Switching between files */
+
+    @Override
+    public void deactivated() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModel.deactivated");
+        }
+
+        /* Step 1: Cleanup (remove) of all overlays */
+        for (Entry<EOverlayName, IOverlay> entry : overlays.entrySet()) {
+            EOverlayName key = entry.getKey();
+            // IOverlay overlay = entry.getValue();
+
+            // if (key == EOverlayName.DRAW_NEW_ARC_OVERLAY)
+            // removeOverlay(key);
+            removeOverlay(key);
+        }
     }
 
 }

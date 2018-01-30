@@ -1,4 +1,4 @@
-package de.lambeck.pned.util;
+package de.lambeck.pned.elements.util;
 
 import de.lambeck.pned.elements.INode;
 import de.lambeck.pned.elements.data.DataPlace;

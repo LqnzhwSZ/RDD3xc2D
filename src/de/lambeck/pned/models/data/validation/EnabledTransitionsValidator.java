@@ -13,11 +13,11 @@ import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.IGuiTransition;
+import de.lambeck.pned.elements.util.NodeInfo;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.util.ConsoleLogger;
-import de.lambeck.pned.util.NodeInfo;
 
 /**
  * Checks which transitions are enabled or not and detects unsafe transitions.

@@ -1,6 +1,5 @@
 package de.lambeck.pned.elements.gui;
 
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -13,15 +12,7 @@ import de.lambeck.pned.models.gui.IGuiModel;
  * @author Thomas Lambeck, 4128320
  *
  */
-public interface IGuiElement extends IElement, IHasZValue, ISelectable {
-
-    /**
-     * Paints this element.
-     * 
-     * @param g
-     *            The graphics context of this node.
-     */
-    void paintElement(Graphics g);
+public interface IGuiElement extends IPaintable, IElement, IHasZValue, ISelectable {
 
     /**
      * Checks if a Point is within the shape.<BR>

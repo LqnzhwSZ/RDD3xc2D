@@ -224,11 +224,19 @@ public interface IGuiModelController
      */
     void createNewTransitionInCurrentGuiModel();
 
+    /* For the "draw new arc" overlay */
+
     /**
-     * Sets the {@link IGuiNode} at the popup menu location as source for the
-     * new {@link IGuiArc} in the current {@link IGuiModel}.
+     * Checks preconditions and activates this GUI model controllers "draw new
+     * arc" mode. The {@link IGuiNode} at the popup menu location is set as
+     * source for the new {@link IGuiArc} in the current {@link IGuiModel}.<BR>
+     * <BR>
+     * Note: <B>No direct public "activate" method</B> because only this GUI
+     * model controller should decide whether the preconditions, e.g.
+     * successfully finishing setSourceNodeForNewArc(), to activate this mode
+     * are fulfilled.
      */
-    void setSourceNodeForNewArc();
+    void checkActivateDrawArcMode();
 
     /**
      * Checks if this {@link IGuiModelController} is currently in the state to
@@ -237,7 +245,7 @@ public interface IGuiModelController
      * @return True if this GUI model controller is waiting for the second
      *         {@link IGuiNode} to finish the Arc; otherwise false.
      */
-    boolean getStateAddingNewArc();
+    boolean getDrawArcModeState();
 
     /**
      * Returns the type of node currently set as source for the new
@@ -248,16 +256,32 @@ public interface IGuiModelController
     ENodeType getSourceForNewArcType();
 
     /**
-     * Sets the {@link IGuiNode} at the popup menu location as target for the
-     * new {@link IGuiArc} in the current {@link IGuiModel}.
+     * Sets a new location for the end of the {@link IOverlayGuiArc} at the
+     * (temporary) {@link IDrawArcOverlay}
+     * 
+     * @param p
+     *            The location as {@link Point}
      */
-    void setTargetNodeForNewArc();
+    void updateDrawArcCurrentEndLocation(Point p);
 
     /**
-     * Resets the state of the {@link IGuiModelController} to add a new
-     * {@link IGuiArc}.
+     * Checks the final location for the end of the {@link IOverlayGuiArc} at
+     * the (temporary) {@link IDrawArcOverlay} when the user has made the 2nd
+     * mouse click in "draw new arc" mode.
+     * 
+     * @param p
+     *            The location as {@link Point}
      */
-    void resetStateAddingNewArc();
+    void checkDrawArcFinalEndLocation(Point p);
+
+    /**
+     * Deactivates this GUI model controllers "draw new arc" mode.<BR>
+     * <BR>
+     * Note: <B>No public "activate" method</B> because only this GUI model
+     * controller should decide whether the preconditions, e.g. successfully
+     * finishing setSourceNodeForNewArc(), to activate this mode are fulfilled.
+     */
+    void deactivateDrawArcMode();
 
     /* Modify elements */
 
@@ -283,6 +307,17 @@ public interface IGuiModelController
      * @return True if the element can be selected; otherwise false
      */
     boolean isSelectableElement(IGuiElement element);
+
+    /**
+     * Returns the {@link IGuiNode} (place or transition, not other elements) at
+     * the specified Point. Returns the one with the highest z-value if there is
+     * more than 1 at this location.
+     * 
+     * @param p
+     *            The specified Point
+     * @return The {@link IGuiNode}; null if none exists
+     */
+    IGuiNode getNodeAtLocation(Point p);
 
     /**
      * Callback for the {@link EditRenameAction} in the
@@ -391,11 +426,7 @@ public interface IGuiModelController
      */
     void keyEvent_F2_Occurred();
 
-    /**
-     * Callback for the popup menus of the {@link IDrawPanel}. Selects the
-     * element that contained the popup trigger.
-     */
-    void selectElementAtPopupMenu();
+    /* ZValue Actions */
 
     /**
      * Callback for {@link MenuBar} and popup menus of the {@link IDrawPanel}.
@@ -422,6 +453,8 @@ public interface IGuiModelController
      * Swaps the layer of this element with the next lower element.
      */
     void moveElementOneLayerDown();
+
+    /* Change shape size */
 
     /**
      * Callback for the {@link SizeSlider} to change the size of the elements on

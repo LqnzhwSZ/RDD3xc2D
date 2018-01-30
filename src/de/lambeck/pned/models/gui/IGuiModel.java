@@ -8,11 +8,13 @@ import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.elements.gui.IGuiPlace;
+import de.lambeck.pned.elements.gui.IGuiTransition;
 import de.lambeck.pned.models.IModel;
+import de.lambeck.pned.models.data.IDataModel;
 
 /**
- * Sub type of IModel for GUI models. This means models with all the graphical
- * information (from a data model or drawn by the user).
+ * Sub type of {@link IModel} for {@link IGuiModel}. This means models with all
+ * the graphical information (from a {@link IDataModel} or drawn by the user).
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -67,6 +69,17 @@ public interface IGuiModel extends IModel {
      *             if the place was not found
      */
     IGuiPlace getPlaceById(String id) throws NoSuchElementException;
+
+    /**
+     * Returns the {@link IGuiTransition} with the specified id.
+     * 
+     * @param id
+     *            The id to search for
+     * @return The {@link IGuiTransition} if found
+     * @throws NoSuchElementException
+     *             if the place was not found
+     */
+    IGuiTransition getTransitionById(String id) throws NoSuchElementException;
 
     /**
      * Returns the minimum Z value for all elements in this GUI model.<BR>
@@ -213,5 +226,53 @@ public interface IGuiModel extends IModel {
      *            place and can reach the end place
      */
     void highlightUnreachableGuiNode(String nodeId, boolean b);
+
+    /* For the "draw new arc" overlay */
+
+    /**
+     * Adds the specified {@link IOverlay} (for paintable elements) to this GUI
+     * model.
+     * 
+     * @param overlay
+     *            The {@link IOverlay} to add
+     * @param name
+     *            The {@link EOverlayName} for the specified overlay
+     */
+    void addOverlay(IOverlay overlay, EOverlayName name);
+
+    /**
+     * Removes the specified overlay from this GUI model.
+     * 
+     * @param name
+     *            The name of the {@link IOverlay} to remove
+     */
+    void removeOverlay(EOverlayName name);
+
+    /**
+     * Returns a list with all overlays on this {@link IGuiModel}.<BR>
+     * <BR>
+     * Note: This should be used by the {@link IDrawPanel} to retrieve all
+     * overlays that may contain paintable elements.
+     * 
+     * @return {@link List} of type {@link IOverlay}
+     */
+    List<IOverlay> getAllOverlays();
+
+    /**
+     * Returns the specified overlay from this {@link IGuiModel}s overlays.
+     * 
+     * @param name
+     *            The {@link EOverlayName} of the overlay
+     * @return The specified {@link IOverlay}
+     */
+    IOverlay getOverlayByName(EOverlayName name);
+
+    /* Switching between files */
+
+    /**
+     * To be called for cleanup of an {@link IGuiModel} after it got
+     * deactivated.
+     */
+    void deactivated();
 
 }

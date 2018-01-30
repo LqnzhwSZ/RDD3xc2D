@@ -64,8 +64,6 @@ public class ActionManager implements IActionManager {
     /** The {@link ElementToTheBackgroundAction} */
     AbstractAction toBackgroundAction;
 
-    /** The {@link ElementSelectAction} */
-    AbstractAction elementSelectAction;
     /** The {@link FireTransitionAction} */
     AbstractAction fireTransitionAction;
     /** The {@link StopSimulationAction} */
@@ -73,8 +71,6 @@ public class ActionManager implements IActionManager {
 
     /** The {@link NewArcFromHereAction} */
     AbstractAction newArcFromHereAction;
-    /** The {@link NewArcToHereAction} */
-    AbstractAction newArcToHereAction;
 
     /** The {@link NewPlaceAction} */
     AbstractAction newPlaceAction;
@@ -127,12 +123,10 @@ public class ActionManager implements IActionManager {
         oneLayerDownAction = new ElementOneLayerDownAction(appController, i18n);
         toBackgroundAction = new ElementToTheBackgroundAction(appController, i18n);
 
-        elementSelectAction = new ElementSelectAction(appController, i18n);
         fireTransitionAction = new FireTransitionAction(appController, i18n);
         stopSimulationAction = new StopSimulationAction(appController, i18n);
 
         newArcFromHereAction = new NewArcFromHereAction(appController, i18n);
-        newArcToHereAction = new NewArcToHereAction(appController, i18n);
 
         newPlaceAction = new NewPlaceAction(appController, i18n);
         newTransitionAction = new NewTransitionAction(appController, i18n);
@@ -162,14 +156,12 @@ public class ActionManager implements IActionManager {
         // Popup menu "Elements"
         popupActions.put("FireTransition", fireTransitionAction);
 
-        popupActions.put("ElementSelect", elementSelectAction);
         popupActions.put("ElementToTheForeground", toForegroundAction);
         popupActions.put("ElementOneLayerUp", oneLayerUpAction);
         popupActions.put("ElementOneLayerDown", oneLayerDownAction);
         popupActions.put("ElementToTheBackground", toBackgroundAction);
 
         popupActions.put("NewArcFromHere", newArcFromHereAction);
-        popupActions.put("NewArcToHere", newArcToHereAction);
 
         // Popup menu "Empty area"
         popupActions.put("NewPlace", newPlaceAction);

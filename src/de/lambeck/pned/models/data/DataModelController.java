@@ -76,6 +76,8 @@ public class DataModelController implements IDataModelController {
      */
     private int elementsAddedToCurrentModel = 0;
 
+    /* Constructor */
+
     /**
      * Constructs a data model controller with references to the application
      * controller (the parent) and a manager for localized strings.
@@ -573,25 +575,21 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameNode(String nodeId, String newName) {
-        IDataElement element;
+        IDataNode node;
         try {
-            element = currentModel.getElementById(nodeId);
+            node = currentModel.getNodeById(nodeId);
         } catch (NoSuchElementException e) {
-            System.err.println("Not found: data node id=" + nodeId);
-            return;
-        }
+            // System.err.println("Not found: data node id=" + nodeId);
 
-        if (!(element instanceof IDataNode)) {
             String warning = i18n.getMessage("warningUnableToRename");
             String explanation = i18n.getMessage("warningOnlyNodesAllowed");
             String message = warning + " (" + explanation + ")";
 
-            System.out.println(message);
+            System.err.println(message);
             setInfo_Status(message, EStatusMessageLevel.WARNING);
             return;
         }
 
-        IDataNode node = (IDataNode) element;
         node.setName(newName);
         currentModel.setModified(true, false);
 

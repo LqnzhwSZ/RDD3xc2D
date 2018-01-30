@@ -63,12 +63,13 @@ public interface IGuiNode extends IGuiElement, INode {
     /* For the positioning of arcs */
 
     /**
-     * This method returns the anchor location for an arc from/towards the node.
-     * This anchor is located at the border of the node.
+     * Returns the anchor location for an arc from/towards the node. This anchor
+     * is located at the border of the node.
      * 
      * @param target
      *            The target/source of the arc
-     * @return The position for start/end of an arc
+     * @return Null if target location is == location of this node; otherwise
+     *         the position for start/end of an arc
      */
     Point getArcAnchor(Point target);
 

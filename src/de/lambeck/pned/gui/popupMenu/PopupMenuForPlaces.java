@@ -7,7 +7,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.models.gui.DrawPanel;
 import de.lambeck.pned.models.gui.IDrawPanel;
@@ -42,8 +41,8 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
     /** Local reference to the current node */
     private IGuiNode node;
 
-    /** A popup menu "button" */
-    private AbstractAction selectAction;
+    // /** A popup menu "button" */
+    // private AbstractAction selectAction;
     /** A popup menu "button" */
     private AbstractAction toForegroundAction;
     /** A popup menu "button" */
@@ -54,8 +53,6 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
     private AbstractAction toBackgroundAction;
     /** A popup menu "button" */
     private AbstractAction newArcFromHereAction;
-    /** A popup menu "button" */
-    private AbstractAction newArcToHereAction;
 
     /**
      * Constructs the popup menu with a reference to its {@link DrawPanel} and
@@ -82,8 +79,13 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
      * Adds the menu items to this menu.
      */
     private void createMenuItems() {
-        selectAction = popupActions.get("ElementSelect");
-        add(selectAction);
+        // selectAction = popupActions.get("ElementSelect");
+        // add(selectAction);
+        //
+        // addSeparator();
+
+        newArcFromHereAction = popupActions.get("NewArcFromHere");
+        add(newArcFromHereAction);
 
         addSeparator();
 
@@ -95,21 +97,14 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         add(oneLayerDownAction);
         toBackgroundAction = popupActions.get("ElementToTheBackground");
         add(toBackgroundAction);
-
-        addSeparator();
-
-        newArcFromHereAction = popupActions.get("NewArcFromHere");
-        add(newArcFromHereAction);
-        newArcToHereAction = popupActions.get("NewArcToHere");
-        add(newArcToHereAction);
     }
 
     /**
      * Enables the menu items depending on the current element.
      */
-    void enableMenuItems() {
-        /* All elements can be selected */
-        selectAction.setEnabled(true);
+    private void enableMenuItems() {
+        // /* All elements can be selected */
+        // selectAction.setEnabled(true);
 
         /*
          * Enables menu items depending on the z value (height level) of the
@@ -125,26 +120,6 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         toBackgroundAction.setEnabled(currZ != minZ);
 
         newArcFromHereAction.setEnabled(true);
-
-        /* Check if we are adding a new arc (of proper type). */
-        boolean enableNewArcToHereAction = getEnableNewArcToHere();
-        newArcToHereAction.setEnabled(enableNewArcToHereAction);
-    }
-
-    /**
-     * Checks the type of node that is stored as source for the next arc.
-     * 
-     * @return True = enabled (source for the next arc is a transition), false =
-     *         disabled
-     */
-    private boolean getEnableNewArcToHere() {
-        boolean addingNewArc = myDrawPanel.getStateAddingNewArc();
-        ENodeType sourceForNewArc = myDrawPanel.getSourceForNewArcType();
-
-        if (!addingNewArc)
-            return false;
-
-        return (sourceForNewArc == ENodeType.TRANSITION);
     }
 
     /* Methods for interface PopupMenuListener */
@@ -154,19 +129,11 @@ public class PopupMenuForPlaces extends JPopupMenu implements PopupMenuListener 
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("PopupMenuForPlaces.popupMenuCanceled", e);
         }
-
-        myDrawPanel.popupMenuCanceled();
     }
 
     @Override
     public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        // myDrawPanel.popupMenuLeft();
-        /*
-         * Note: Do not invoke popupMenuLeft() here because this would be before
-         * invoking the Action in the popup menu that the user might has clicked
-         * at. And these Actions might need the popup menu location which will
-         * be reset in popupMenuLeft()!
-         */
+        // NOP
     }
 
     @Override

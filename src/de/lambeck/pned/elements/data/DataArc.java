@@ -1,5 +1,6 @@
 package de.lambeck.pned.elements.data;
 
+import de.lambeck.pned.elements.util.NodeCheck;
 import de.lambeck.pned.exceptions.PNElementException;
 
 /**
@@ -33,7 +34,7 @@ public class DataArc extends DataElement implements IDataArc {
         super(id);
 
         /* Check for different types of elements */
-        if (!isValidConnection(source, target))
+        if (!NodeCheck.isValidConnection(source, target))
             throw new PNElementException("Invalid combination of source and target for Arc");
 
         /*
@@ -42,26 +43,6 @@ public class DataArc extends DataElement implements IDataArc {
          */
         this.pred = source;
         this.succ = target;
-    }
-
-    /**
-     * Checks if source and target are a valid combination of a place and a
-     * transition.
-     * 
-     * @param source
-     *            The source node
-     * @param target
-     *            The target node
-     * @return true = valid combination, false = invalid combination
-     */
-    private boolean isValidConnection(IDataNode source, IDataNode target) {
-        if (source instanceof DataPlace)
-            if (target instanceof DataTransition)
-                return true;
-        if (source instanceof DataTransition)
-            if (target instanceof DataPlace)
-                return true;
-        return false;
     }
 
     @Override

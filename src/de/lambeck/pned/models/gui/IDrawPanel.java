@@ -3,7 +3,6 @@ package de.lambeck.pned.models.gui;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.elements.ENodeType;
@@ -170,18 +169,6 @@ public interface IDrawPanel {
     void resetState();
 
     /**
-     * Handles the request of the {@link MouseAdapter} to check if an element
-     * can be selected. (squares, circles and arrows)<BR>
-     * <BR>
-     * Passes this request to the GUI controller.
-     * 
-     * @param element
-     *            The element to check
-     * @return True if the element can be selected; otherwise false
-     */
-    boolean isSelectableElement(IGuiElement element);
-
-    /**
      * Returns the minimum Z value for all elements in this draw panels GUI
      * model.<BR>
      * <BR>
@@ -220,28 +207,18 @@ public interface IDrawPanel {
     void setPopupMenuLocation(Point p);
 
     /**
-     * Tells the draw panel that the current popup menu was canceled. (e.g. with
-     * ESC or by clicking at somewhere else on the DrawPanel)
-     */
-    void popupMenuCanceled();
-
-    /**
-     * Tells the draw panel that the current popup menu was left. (e.g.
-     * "normally" by clicking at a button of the popup menu)
-     */
-    void popupMenuLeft();
-
-    /**
      * Callback for the {@link IGuiModelController}.
      * 
      * @return The popup trigger location
      */
     Point getPopupMenuLocation();
 
+    /* For the "draw new arc" overlay */
+
     /**
      * Checks if the {@link IGuiModelController} is currently in the state to
      * add a new {@link IGuiArc}.
-     * 
+     *
      * @return True if the GUI model controller is waiting for the second
      *         {@link IGuiNode} to finish the Arc; otherwise false.
      */
@@ -250,9 +227,21 @@ public interface IDrawPanel {
     /**
      * Returns the type of node currently set as source for the new
      * {@link IGuiArc} to be added by the {@link IGuiModelController}.
-     * 
+     *
      * @return The {@link ENodeType} of the node
      */
     ENodeType getSourceForNewArcType();
+
+    /**
+     * Handles the request to activate the "draw new arc" mode for the
+     * {@link MyMouseAdapter} on this draw panel.
+     */
+    void activateDrawArcMode();
+
+    /**
+     * Handles the request to deactivate the "draw new arc" mode for the
+     * {@link MyMouseAdapter} on this draw panel.
+     */
+    void deactivateDrawArcMode();
 
 }

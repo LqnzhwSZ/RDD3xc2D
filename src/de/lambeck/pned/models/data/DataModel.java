@@ -67,8 +67,10 @@ public class DataModel implements IDataModel, IModelRename {
     /** Will be set to true if the model is valid otherwise to false */
     private volatile boolean modelValid = false;
 
+    /* Constructor */
+
     /**
-     * Constructs the date model with a specified name.<BR>
+     * Constructs the data model with a specified name.<BR>
      * <BR>
      * Intended use: name == path of the PNML file
      * 
@@ -243,43 +245,33 @@ public class DataModel implements IDataModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("DataModel.addArc", id, sourceId + targetId);
         }
 
-        IDataNode source = null;
-        IDataNode target = null;
-        IDataArc newArc = null;
-
         /* Get source and target objects. */
-        List<IDataElement> currentElements = getElements();
-        for (IDataElement element : currentElements) {
-            String elementId = element.getId();
+        IDataNode source = null;
+        try {
+            source = getNodeById(sourceId);
+        } catch (NoSuchElementException e) {
+            // System.err.println(e.getMessage());
+            System.err.println("Node " + sourceId + " for arc " + id + " not found!");
+            return;
+        }
 
-            if (elementId.equals(sourceId)) {
-                if (debug) {
-                    System.out.println("elementId.equals(sourceId): " + sourceId);
-                }
-
-                if (element instanceof IDataNode)
-                    source = (IDataNode) element;
-            }
-
-            if (elementId.equals(targetId)) {
-                if (debug) {
-                    System.out.println("elementId.equals(targetId): " + targetId);
-                }
-
-                if (element instanceof IDataNode)
-                    target = (IDataNode) element;
-            }
-
-            if (source != null && target != null)
-                break;
+        IDataNode target = null;
+        try {
+            target = getNodeById(targetId);
+        } catch (NoSuchElementException e) {
+            // System.err.println(e.getMessage());
+            System.err.println("Node " + targetId + " for arc " + id + " not found!");
+            return;
         }
 
         /*
          * Create the arc.
          * 
-         * Note: The constructor of Arc will throw an PNElementException if
-         * source and target are a invalid combination of nodes.
+         * Note: The arc constructor will throw an PNElementException if source
+         * and target are a invalid combination of nodes.
          */
+        IDataArc newArc = null;
+
         try {
             newArc = new DataArc(id, source, target);
         } catch (PNElementException e) {
@@ -321,10 +313,10 @@ public class DataModel implements IDataModel, IModelRename {
     }
 
     /**
-     * Adds the specified {@link IDataElement} to this {@link DataModel}.
+     * Adds the specified {@link IDataElement} to this {@link IDataModel}.
      * 
      * @param newElement
-     *            The new element
+     *            The specified element
      * @throws PNDuplicateAddedException
      *             If the element already exists
      */
@@ -377,21 +369,23 @@ public class DataModel implements IDataModel, IModelRename {
         String targetId = arc.getTargetId();
 
         /* Get source and target node. */
-        IDataElement sourceElement = getElementById(sourceId);
-        if (!(sourceElement instanceof IDataNode)) {
+        IDataNode pred = null;
+        try {
+            pred = getNodeById(sourceId);
+        } catch (NoSuchElementException e) {
             String errMessage = "Source is not a node!: " + sourceId;
             System.err.println(errMessage);
             return;
         }
-        IDataNode pred = (IDataNode) sourceElement;
 
-        IDataElement targetElement = getElementById(targetId);
-        if (!(targetElement instanceof IDataNode)) {
+        IDataNode succ = null;
+        try {
+            succ = getNodeById(targetId);
+        } catch (NoSuchElementException e) {
             String errMessage = "Target is not a node!: " + targetId;
             System.err.println(errMessage);
             return;
         }
-        IDataNode succ = (IDataNode) targetElement;
 
         /* Add the specified arc to the predecessors successor list. */
         try {
@@ -421,20 +415,12 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         /* Find the element. */
-        IDataElement removeElement = null;
-        for (IDataElement test : elements) {
-            if (test.getId() == id) {
-                removeElement = test;
-                break;
-            }
-        }
-
-        if (removeElement == null) {
-            String errorMessage = "Id " + id + " not found in data model " + this.getModelName();
-            if (debug) {
-                System.err.println(errorMessage);
-            }
-            throw new NoSuchElementException(errorMessage);
+        IDataElement removeElement;
+        try {
+            removeElement = getElementById(id);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
         }
 
         /* Remove the element */
@@ -467,7 +453,7 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         /* Remove the specified arc from all predecessors and successors. */
-        for (IDataElement element : elements) {
+        for (IDataElement element : this.elements) {
             if (element instanceof IDataNode) {
                 IDataNode node = (IDataNode) element;
 
@@ -486,84 +472,6 @@ public class DataModel implements IDataModel, IModelRename {
         }
     }
 
-    // /**
-    // * Returns a List of all {@link DataNode} in this {@link DataModel} which
-    // * have the specified {@link DataArc} in their List of successors.
-    // *
-    // * @param arc
-    // * The specified DataArc
-    // * @return A List of DataNodes
-    // */
-    // private List<IDataNode> getPredNodes(IDataArc arc) {
-    // if (debug) {
-    // System.out.println("DataModel(" + getModelName() + ").getPredNodes(" +
-    // "id=" + arc.getId() + ")");
-    // }
-    //
-    // List<IDataNode> nodes = new LinkedList<IDataNode>();
-    // List<IDataNode> predNodes = new LinkedList<IDataNode>();
-    //
-    // /*
-    // * Get all nodes.
-    // */
-    // for (IDataElement element : this.elements) {
-    // if (element instanceof IDataNode) {
-    // IDataNode node = (IDataNode) element;
-    // nodes.add(node);
-    // }
-    // }
-    //
-    // /*
-    // * Get all predecessors.
-    // */
-    // for (IDataNode node : nodes) {
-    // if (node.succListContains(arc)) {
-    // predNodes.add(node);
-    // }
-    // }
-    //
-    // return predNodes;
-    // }
-
-    // /**
-    // * Returns a List of all {@link DataNode} in this {@link DataModel} which
-    // * have the specified {@link DataArc} in their List of predecessors.
-    // *
-    // * @param arc
-    // * The specified DataArc
-    // * @return A List of DataNodes
-    // */
-    // private List<IDataNode> getSuccNodes(IDataArc arc) {
-    // if (debug) {
-    // System.out.println("DataModel(" + getModelName() + ").getSuccNodes(" +
-    // "id=" + arc.getId() + ")");
-    // }
-    //
-    // List<IDataNode> nodes = new LinkedList<IDataNode>();
-    // List<IDataNode> succNodes = new LinkedList<IDataNode>();
-    //
-    // /*
-    // * Get all nodes.
-    // */
-    // for (IDataElement element : this.elements) {
-    // if (element instanceof IDataNode) {
-    // IDataNode node = (IDataNode) element;
-    // nodes.add(node);
-    // }
-    // }
-    //
-    // /*
-    // * Get all successors.
-    // */
-    // for (IDataNode node : nodes) {
-    // if (node.predListContains(arc)) {
-    // succNodes.add(node);
-    // }
-    // }
-    //
-    // return succNodes;
-    // }
-
     @Override
     public void clear() {
         if (debug) {
@@ -577,7 +485,6 @@ public class DataModel implements IDataModel, IModelRename {
 
     @Override
     public List<IDataElement> getElements() {
-        // return this.elements;
         List<IDataElement> copy = new ArrayList<IDataElement>(this.elements);
         return copy;
     }
@@ -585,11 +492,73 @@ public class DataModel implements IDataModel, IModelRename {
     @Override
     public IDataElement getElementById(String id) throws NoSuchElementException {
         for (IDataElement element : this.elements) {
-            if (element.getId() == id)
+            if (element.getId().equalsIgnoreCase(id))
                 return element;
         }
 
-        throw new NoSuchElementException();
+        String errorMessage = "Model " + this.modelName + ": element " + id + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
+    }
+
+    @Override
+    public IDataNode getNodeById(String nodeId) throws NoSuchElementException {
+        IDataElement element;
+        try {
+            element = getElementById(nodeId);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
+        }
+
+        if (element instanceof IDataNode) {
+            IDataNode node = (IDataNode) element;
+            return node;
+        }
+
+        String errorMessage = "Model " + this.modelName + ": node " + nodeId + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
+    }
+
+    @Override
+    public IDataPlace getPlaceById(String placeId) throws NoSuchElementException {
+        IDataElement element;
+        try {
+            element = getElementById(placeId);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
+        }
+
+        if (element instanceof IDataPlace) {
+            IDataPlace place = (IDataPlace) element;
+            return place;
+        }
+
+        String errorMessage = "Model " + this.modelName + ": place " + placeId + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
+    }
+
+    @Override
+    public IDataTransition getTransitionById(String transitionId) throws NoSuchElementException {
+        IDataElement element;
+        try {
+            element = getElementById(transitionId);
+        } catch (NoSuchElementException e) {
+            /* Pass the exception to the invoker, no new error message. */
+            throw new NoSuchElementException(e.getMessage());
+        }
+
+        if (element instanceof IDataTransition) {
+            IDataTransition transition = (IDataTransition) element;
+            return transition;
+        }
+
+        String errorMessage = "Model " + this.modelName + ": transition " + transitionId + " not found!";
+        ConsoleLogger.logIfDebug(debug, errorMessage);
+        throw new NoSuchElementException(errorMessage);
     }
 
 }

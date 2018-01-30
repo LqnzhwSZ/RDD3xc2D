@@ -134,6 +134,12 @@ public class GuiTransition extends GuiNode implements IGuiTransition {
 
         double x_dist = target_x - shape_center_x;
         double y_dist = target_y - shape_center_y;
+        /*
+         * Attention: distance == 0.0 if target location is == shapeCenter
+         * (location of this node)!
+         */
+        if (x_dist == 0.0 && y_dist == 0.0)
+            return null;
 
         double abs_x_dist = Math.abs(target_x - shape_center_x);
         double abs_y_dist = Math.abs(target_y - shape_center_y);

@@ -48,6 +48,9 @@ public class ApplicationController extends AbstractApplicationController {
     /** The application title to begin with */
     private static String initialTitle = "Petri net Editor - Thomas Lambeck, MatrNr. 4128320";
 
+    /** The separator between file name and the actual application title */
+    private static String titleSeparator = "   -   ";
+
     /**
      * This attribute defines the preferred width and height of the application
      * window in comparison to the width and height of the screen.
@@ -413,26 +416,6 @@ public class ApplicationController extends AbstractApplicationController {
     /* Methods for the TabListener */
 
     /**
-     * Adds the file name to the title of the main frame.<BR>
-     * <BR>
-     * Note: This method is visible in this package because the TabListener uses
-     * this method!
-     * 
-     * @param filename
-     *            The name of the active file
-     */
-    void setFilenameOnTitle(String filename) {
-        String newTitle = "";
-
-        if (filename.equals("")) {
-            newTitle = initialTitle;
-        } else {
-            newTitle = filename + "   -   " + initialTitle;
-        }
-        mainFrame.setTitle(newTitle);
-    }
-
-    /**
      * Callback for the TabListener<BR>
      * <BR>
      * Note: This method is visible in this package because the TabListener uses
@@ -458,9 +441,15 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Easier with the full path name as tool tip on the tabs! */
         if (tabIndex < 0) {
-            this.activeFile = null;
+            this.activeFile = null; // No open file left
+            updateApplicationTitle("");
+
         } else {
-            this.activeFile = tabbedPane.getToolTipTextAt(tabIndex);
+            String fullName = tabbedPane.getToolTipTextAt(tabIndex);
+            // String displayName = tabbedPane.getTitleAt(tabIndex);
+
+            this.activeFile = fullName;
+            updateApplicationTitle(fullName);
         }
 
         /* Update the current models/draw panels of data and GUI controller. */
@@ -495,6 +484,45 @@ public class ApplicationController extends AbstractApplicationController {
         if (debug) {
             System.out.println("ApplicationController.setActiveFile, new active file: " + this.activeFile);
         }
+    }
+
+    /**
+     * Updates the title of the main frame.
+     * 
+     * @param fullName
+     *            The full path name of the current PNML file
+     */
+    private void updateApplicationTitle(String fullName) {
+        String title = getAppTitleString(fullName);
+        mainFrame.setTitle(title);
+    }
+
+    /**
+     * Returns the application title depending on the current file.
+     * 
+     * @param fullName
+     *            The full path name of the current PNML file
+     * @return A {@link String}
+     */
+    private String getAppTitleString(String fullName) {
+        if (fullName == null)
+            fullName = "";
+        if (fullName.equals(""))
+            return initialTitle;
+
+        String fileName = FSInfo.getFileName(fullName);
+        boolean writeProtected = FSInfo.isWriteProtectedFile(fullName);
+
+        String title = fileName;
+
+        if (writeProtected) {
+            String writeProtectedString = i18n.getNameOnly("writeProtected");
+            title = title + " (" + writeProtectedString + ")";
+        }
+
+        title = title + titleSeparator + initialTitle;
+
+        return title;
     }
 
     /**
@@ -648,14 +676,6 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for {@link ElementSelectAction}, selects the current element.
-     */
-    public void menuCmd_ElementSelect() {
-        /* Called only from popup menus */
-        guiModelController.selectElementAtPopupMenu();
-    }
-
-    /**
      * Callback for {@link ElementToTheForegroundAction}, moves the current
      * {@link IGuiElement} to the foreground.
      */
@@ -747,16 +767,8 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void menuCmd_NewArcFromHere() {
         /* Called only from popup menus */
-        guiModelController.setSourceNodeForNewArc();
-    }
-
-    /**
-     * Callback for {@link NewArcToHereAction}, sets the location for the target
-     * of the new {@link IGuiArc} in the current {@link IGuiModel}.
-     */
-    public void menuCmd_NewArcToHere() {
-        /* Called only from popup menus */
-        guiModelController.setTargetNodeForNewArc();
+        // guiModelController.setSourceNodeForNewArc();
+        guiModelController.checkActivateDrawArcMode();
     }
 
     /**
@@ -985,9 +997,6 @@ public class ApplicationController extends AbstractApplicationController {
         scrollPanel.getVerticalScrollBar().setUnitIncrement(5);
         // ...horizontal scrolling too?
         scrollPanel.getHorizontalScrollBar().setUnitIncrement(20);
-
-        // TODO Tab colors?
-        // initTabColor(index);
     }
 
     /*
@@ -1605,7 +1614,8 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Update references */
         setActiveFile(tabIndex);
-        setFilenameOnTitle(displayName);
+        // setFilenameOnTitle(displayName);
+        // updateApplicationTitle(newModelName, displayName);
 
         /* The list of open files */
         this.fileList.remove(oldModelName);

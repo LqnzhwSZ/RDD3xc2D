@@ -3,6 +3,7 @@ package de.lambeck.pned.elements.gui;
 import java.awt.*;
 import java.awt.geom.Line2D;
 
+import de.lambeck.pned.elements.util.NodeCheck;
 import de.lambeck.pned.exceptions.PNElementException;
 
 /**
@@ -33,6 +34,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
      */
     Rectangle lastDrawingArea = null;
 
+    /* Constructor */
+
     /**
      * Constructor with parameters for target and source. Makes sure that the
      * arc always connects a place and a transition.
@@ -53,7 +56,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
         super(id, zValue);
 
         /* Check for different types of elements */
-        if (!isValidConnection(source, target))
+        if (!NodeCheck.isValidConnection(source, target))
             throw new PNElementException("Invalid combination of source and target for Arc");
 
         /*
@@ -64,34 +67,18 @@ public class GuiArc extends GuiElement implements IGuiArc {
         this.succ = target;
     }
 
+    /* Static Getter and Setter */
+
     /**
-     * Checks if source and target are a valid combination of a place and a
-     * transition.
+     * Returns the size of all shapes (static attribute).<BR>
+     * <BR>
+     * Note: Used for drawing the (temporary) arc on the "draw new arc" overlay.
      * 
-     * @param source
-     *            The source node
-     * @param target
-     *            The target node
-     * @return true = valid combination, false = invalid combination
+     * @return The current shape size
      */
-    private boolean isValidConnection(IGuiNode source, IGuiNode target) {
-        boolean place = false;
-        boolean transition = false;
-
-        if (source instanceof GuiPlace)
-            place = true;
-        if (target instanceof GuiPlace)
-            place = true;
-
-        if (source instanceof GuiTransition)
-            transition = true;
-        if (target instanceof GuiTransition)
-            transition = true;
-
-        return place & transition;
+    public static int getShapeSize() {
+        return GuiArc.arrowTipLength;
     }
-
-    /* Method for interface IGuiElement */
 
     /**
      * Changes the size of all shapes (static attribute). Calculates a smaller
@@ -104,6 +91,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
         GuiArc.arrowTipLength = (int) (size * 0.2); // Smaller than the nodes!
     }
 
+    /* Method for interface IGuiElement */
+
     @Override
     public Rectangle getLastDrawingArea() {
         return this.lastDrawingArea;
@@ -111,12 +100,14 @@ public class GuiArc extends GuiElement implements IGuiArc {
 
     @Override
     public void paintElement(Graphics g) {
+        Point startAnchor = getStartAnchor();
+        Point endAnchor = getEndAnchor();
+        if (startAnchor == null || endAnchor == null)
+            return;
+
         Graphics2D g2 = (Graphics2D) g;
         activateAntialiasing(g2);
         g2.setColor(Color.BLACK);
-
-        Point startAnchor = getStartAnchor();
-        Point endAnchor = getEndAnchor();
 
         if (debug) {
             // Highlight the anchor positions
@@ -195,7 +186,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * Returns the start point of this arc determined by the predecessor
      * ({@link GuiPlace} or {@link GuiTransition} respectively).
      * 
-     * @return A {@link Point} as start anchor
+     * @return A {@link Point} as start anchor; null if distance between start
+     *         and end is zero
      */
     private Point getStartAnchor() {
         /*
@@ -217,7 +209,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
      * Returns the end point of this arc determined by the successor
      * ({@link GuiPlace} or {@link GuiTransition} respectively).
      * 
-     * @return A {@link Point} as end anchor
+     * @return A {@link Point} as end anchor; null if distance between start and
+     *         end is zero
      */
     private Point getEndAnchor() {
         /*
@@ -446,6 +439,8 @@ public class GuiArc extends GuiElement implements IGuiArc {
     public boolean contains(Point p) {
         Point startAnchor = getStartAnchor();
         Point endAnchor = getEndAnchor();
+        if (startAnchor == null || endAnchor == null)
+            return false;
 
         /* Mouse click at the arrow head? */
         Polygon arrowHead = getArrowHead(startAnchor, endAnchor);
@@ -479,7 +474,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
         return false;
     }
 
-    /* Getter and setter */
+    /* Getter and Setter */
 
     // @Override
     // public Rectangle getApproxDrawArea() {

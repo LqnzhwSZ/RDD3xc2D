@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.data.IDataElement;
+import de.lambeck.pned.elements.data.IDataNode;
+import de.lambeck.pned.elements.data.IDataPlace;
+import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.models.IModel;
 import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
 
@@ -48,11 +51,44 @@ public interface IDataModel extends IModel {
      * 
      * @param id
      *            The id to search for
-     * @return The element if found
+     * @return The {@link IDataElement} if found
      * @throws NoSuchElementException
      *             if element was not found
      */
     IDataElement getElementById(String id) throws NoSuchElementException;
+
+    /**
+     * Returns the {@link IDataNode} with the specified id.
+     * 
+     * @param id
+     *            The id to search for
+     * @return The {@link IDataNode} if found
+     * @throws NoSuchElementException
+     *             if element was not found
+     */
+    IDataNode getNodeById(String id) throws NoSuchElementException;
+
+    /**
+     * Returns the {@link IDataPlace} with the specified id.
+     * 
+     * @param id
+     *            The id to search for
+     * @return The {@link IDataPlace} if found
+     * @throws NoSuchElementException
+     *             if the place was not found
+     */
+    IDataPlace getPlaceById(String id) throws NoSuchElementException;
+
+    /**
+     * Returns the {@link IDataTransition} with the specified id.
+     * 
+     * @param id
+     *            The id to search for
+     * @return The {@link IDataTransition} if found
+     * @throws NoSuchElementException
+     *             if the place was not found
+     */
+    IDataTransition getTransitionById(String id) throws NoSuchElementException;
 
     /**
      * The check state indicates, whether the model needs checking or not. This

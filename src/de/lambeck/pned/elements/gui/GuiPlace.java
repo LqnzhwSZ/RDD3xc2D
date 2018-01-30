@@ -223,6 +223,13 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
         double y_dist = target.getY() - this.shapeCenter.getY();
 
         double dist = Math.sqrt((x_dist * x_dist) + (y_dist * y_dist));
+        /*
+         * Attention: distance == 0.0 if target location is == shapeCenter
+         * (location of this node)!
+         */
+        if (dist == 0.0)
+            return null;
+
         double ratio = (GuiNode.shapeSize / 2) / dist;
         double x_offset = x_dist * ratio;
         double y_offset = y_dist * ratio;
