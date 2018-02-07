@@ -1,11 +1,11 @@
 package de.lambeck.pned.models.data.validation;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.lambeck.pned.exceptions.PNInvalidParameterException;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.DataModel;
 import de.lambeck.pned.models.data.IDataModel;
@@ -71,12 +71,15 @@ public class ValidationController extends Thread implements IValidationControlle
      *            The data model controller
      * @param i18n
      *            The manager for localized strings
+     * @throws PNInvalidParameterException
+     *             if dataModelController is null
      */
     @SuppressWarnings("hiding")
-    public ValidationController(IDataModelController dataModelController, I18NManager i18n) {
+    public ValidationController(IDataModelController dataModelController, I18NManager i18n)
+            throws PNInvalidParameterException {
         super();
         if (dataModelController == null)
-            throw new InvalidParameterException("DataModelController must not be null");
+            throw new PNInvalidParameterException("DataModelController must not be null");
 
         this.myDataModelController = dataModelController;
         this.i18n = i18n;

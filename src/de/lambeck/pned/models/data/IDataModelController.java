@@ -3,7 +3,6 @@ package de.lambeck.pned.models.data;
 import java.awt.Point;
 import java.io.File;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.swing.JFrame;
 
@@ -14,6 +13,7 @@ import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.IGuiTransition;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.data.validation.*;
 import de.lambeck.pned.models.gui.IGuiModel;
 
@@ -272,10 +272,10 @@ public interface IDataModelController extends IInfo_Status {
      * 
      * @param id
      *            The id of the element
-     * @throws NoSuchElementException
-     *             if element does not exist
+     * @throws PNNoSuchElementException
+     *             If the current model has no element with the specified id
      */
-    void removeElementFromCurrentDataModel(String id) throws NoSuchElementException;
+    void removeElementFromCurrentDataModel(String id) throws PNNoSuchElementException;
 
     /**
      * Removes all elements from the current data model.

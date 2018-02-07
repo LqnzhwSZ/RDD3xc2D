@@ -12,6 +12,7 @@ import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -23,7 +24,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 public class GuiModel implements IGuiModel, IModelRename {
 
     /** Show debug messages? */
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /**
      * This should be the canonical (unique) path name of the file.
@@ -123,7 +124,7 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
-    public IGuiElement getElementById(String id) throws NoSuchElementException {
+    public IGuiElement getElementById(String id) throws PNNoSuchElementException {
         for (IGuiElement element : elements) {
             if (element.getId().equalsIgnoreCase(id))
                 return element;
@@ -131,7 +132,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": element " + id + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
@@ -142,13 +143,13 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
-    public IGuiNode getNodeById(String nodeId) throws NoSuchElementException {
+    public IGuiNode getNodeById(String nodeId) throws PNNoSuchElementException {
         IGuiElement element;
         try {
             element = getElementById(nodeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IGuiNode) {
@@ -158,17 +159,17 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": node " + nodeId + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
-    public IGuiPlace getPlaceById(String placeId) throws NoSuchElementException {
+    public IGuiPlace getPlaceById(String placeId) throws PNNoSuchElementException {
         IGuiElement element;
         try {
             element = getElementById(placeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IGuiPlace) {
@@ -178,17 +179,17 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": place " + placeId + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
-    public IGuiTransition getTransitionById(String transitionId) throws NoSuchElementException {
+    public IGuiTransition getTransitionById(String transitionId) throws PNNoSuchElementException {
         IGuiElement element;
         try {
             element = getElementById(transitionId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IGuiTransition) {
@@ -198,7 +199,7 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": transition " + transitionId + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
@@ -386,7 +387,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiNode source = null;
         try {
             source = getNodeById(sourceId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
             System.err.println("Node " + sourceId + " for arc " + id + " not found!");
             return;
@@ -395,7 +396,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiNode target = null;
         try {
             target = getNodeById(targetId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
             System.err.println("Node " + targetId + " for arc " + id + " not found!");
             return;
@@ -470,7 +471,7 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
-    public void removeElement(String id) throws NoSuchElementException {
+    public void removeElement(String id) throws PNNoSuchElementException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModel(" + getModelName() + ").removeElement", id);
         }
@@ -479,9 +480,9 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiElement removeElement;
         try {
             removeElement = getElementById(id);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         /* Remove from the list of selected elements! */
@@ -686,7 +687,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiPlace place = null;
         try {
             place = getPlaceById(placeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -703,7 +704,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiPlace place = null;
         try {
             place = getPlaceById(placeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -720,7 +721,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiPlace place = null;
         try {
             place = getPlaceById(placeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -737,7 +738,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         IGuiPlace place = null;
         try {
             place = getPlaceById(placeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Place " + placeId + " not found!");
             return;
         }
@@ -751,8 +752,10 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.setEndPlace", nodeId, b);
         }
 
-        IGuiNode node = getNodeById(nodeId);
-        if (node == null) {
+        IGuiNode node = null;
+        try {
+            node = getNodeById(nodeId);
+        } catch (PNNoSuchElementException e) {
             System.err.println("Node " + nodeId + " not found!");
             return;
         }

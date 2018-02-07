@@ -205,8 +205,9 @@ public class PNMLParser {
                 }
             } catch (XMLStreamException e) {
                 System.err.println("Fehler beim Parsen des PNML Dokuments. " + e.getMessage());
-                e.printStackTrace();
+                // e.printStackTrace();
                 this.exitCode = this.exitCode | EPNMLParserExitCode.FLAG_ERROR_READING_FILE.getValue();
+                return this.exitCode;
             }
         }
         return this.exitCode;

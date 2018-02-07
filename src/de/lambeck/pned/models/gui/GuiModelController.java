@@ -18,6 +18,7 @@ import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.elements.util.NodeCheck;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.util.ConsoleLogger;
 
@@ -30,7 +31,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 public class GuiModelController implements IGuiModelController {
 
     /** Show debug messages? */
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /** Minimum shape size for setter */
     private final static int MIN_SHAPE_SIZE = 20;
@@ -151,6 +152,13 @@ public class GuiModelController implements IGuiModelController {
     public void addGuiModel(String modelName, String displayName) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.addGuiModel", modelName, displayName);
+        }
+
+        /* Some cleanup on the old model/draw panel */
+        if (this.currentModel != null) {
+            IGuiModel oldModel = this.currentModel;
+            IDrawPanel oldDrawPanel = this.currentDrawPanel;
+            modelDeactivated(oldModel, oldDrawPanel);
         }
 
         this.currentModel = new GuiModel(modelName, displayName, this);
@@ -484,7 +492,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement element;
         try {
             element = currentModel.getElementById(uuid);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("New place not created!");
             return;
         }
@@ -520,7 +528,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement element;
         try {
             element = currentModel.getElementById(uuid);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("New transition not created!");
             return;
         }
@@ -711,7 +719,16 @@ public class GuiModelController implements IGuiModelController {
 
         /* Check for different types of start and end node. */
         if (!NodeCheck.isValidConnection(sourceNodeForNewArc, endNode)) {
-            System.err.println("Invalid connection between same type of nodes!");
+            String title = currentModel.getModelName();
+            String errorMessage = i18n.getMessage("errArcsOnlyBetweenDifferentNodes");
+
+            System.err.println(errorMessage);
+
+            /* Get the main frame to center the input dialog. */
+            JFrame mainFrame = appController.getMainFrame();
+
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+
             deactivateDrawArcMode();
             return;
         }
@@ -736,7 +753,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement element;
         try {
             element = currentModel.getElementById(uuid);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("New arc not created!");
             deactivateDrawArcMode();
             return;
@@ -972,7 +989,18 @@ public class GuiModelController implements IGuiModelController {
             if (debug) {
                 System.out.println("GuiModelController.removeSelectedGuiElements: Remove id: " + id);
             }
-            currentModel.removeElement(id);
+
+            try {
+                currentModel.removeElement(id);
+            } catch (PNNoSuchElementException e) {
+                String message = i18n.getMessage("errMissingIdInModel");
+                message = message.replace("%id%", id);
+                String modelName = currentModel.getModelName();
+                message = message.replace("%modelName%", modelName);
+                System.err.println(message);
+                return;
+            }
+
             currentModel.setModified(true);
 
             /*
@@ -996,13 +1024,23 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement element;
         try {
             element = currentModel.getElementById(arcId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Arc to remove not found!");
             return;
         }
         Rectangle rect = element.getLastDrawingArea();
 
-        currentModel.removeElement(arcId);
+        try {
+            currentModel.removeElement(arcId);
+        } catch (PNNoSuchElementException e) {
+            String message = i18n.getMessage("errMissingIdInModel");
+            message = message.replace("%id%", arcId);
+            String modelName = currentModel.getModelName();
+            message = message.replace("%modelName%", modelName);
+            System.err.println(message);
+            return;
+        }
+
         currentModel.setModified(true);
 
         /* Update the drawing. */
@@ -1317,6 +1355,16 @@ public class GuiModelController implements IGuiModelController {
 
     /* ZValue Actions */
 
+    @Override
+    public int getCurrentMinZValue() {
+        return currentModel.getMinZValue();
+    }
+
+    @Override
+    public int getCurrentMaxZValue() {
+        return currentModel.getMaxZValue();
+    }
+
     /**
      * Returns the single {@link IGuiElement} for a ZValue Action (e.g.
      * "moveToForeground").<BR>
@@ -1440,7 +1488,12 @@ public class GuiModelController implements IGuiModelController {
         }
 
         /* OK, we have exactly 1 selected element. */
-        moveToForeground(moveElement);
+        try {
+            moveToForeground(moveElement);
+        } catch (PNNoSuchElementException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
 
         /* Update the Actions (buttons) */
         updateZValueActionsDependingOnSelection();
@@ -1452,10 +1505,12 @@ public class GuiModelController implements IGuiModelController {
      * 
      * @param element
      *            The element to be set as the new foreground element.
+     * @throws PNNoSuchElementException
+     *             if element is null
      */
-    private void moveToForeground(IGuiElement element) {
+    private void moveToForeground(IGuiElement element) throws PNNoSuchElementException {
         if (element == null)
-            throw new NoSuchElementException();
+            throw new PNNoSuchElementException("Element must not be null.");
 
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToForeground", element.getId());
@@ -1502,7 +1557,12 @@ public class GuiModelController implements IGuiModelController {
         }
 
         /* OK, we have exactly 1 selected element. */
-        moveToBackground(moveElement);
+        try {
+            moveToBackground(moveElement);
+        } catch (PNNoSuchElementException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
 
         /* Update the Actions (buttons) */
         updateZValueActionsDependingOnSelection();
@@ -1514,10 +1574,12 @@ public class GuiModelController implements IGuiModelController {
      * 
      * @param element
      *            The element to be set as the new background element.
+     * @throws PNNoSuchElementException
+     *             if element is null
      */
-    private void moveToBackground(IGuiElement element) {
+    private void moveToBackground(IGuiElement element) throws PNNoSuchElementException {
         if (element == null)
-            throw new NoSuchElementException();
+            throw new PNNoSuchElementException("Element must not be null.");
 
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToBackground", element.getId());
@@ -1657,6 +1719,19 @@ public class GuiModelController implements IGuiModelController {
         updateDrawing();
     }
 
+    // /**
+    // * Prints the current Z values of all {@link IGuiElement} in the specified
+    // * {@link IGuiModel}.
+    // *
+    // * @param model
+    // * The specified {@link IGuiModel}.
+    // */
+    // private void debugPrintZValues(IGuiModel model) {
+    // for (IGuiElement element : model.getElements()) {
+    // System.out.println(element.getZValue() + " " + element.toString());
+    // }
+    // }
+
     /* Change shape size */
 
     @Override
@@ -1720,9 +1795,15 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement foundElement = null;
 
         for (IGuiElement element : elements) {
-            if (element.contains(p)) {
+            boolean contains = element.contains(p);
+            if (contains) {
                 foundElement = element;
-                break;
+                /*
+                 * Don't break on the first found element because we have to
+                 * find the element with the highest z value and this will be
+                 * more at the "end" of the list.
+                 */
+                // break;
             }
         }
 
@@ -1945,7 +2026,7 @@ public class GuiModelController implements IGuiModelController {
         /* Node is predecessor of the arc? */
         try {
             if (arc.getPredElem() == node) { return true; }
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Arc without predecessor! Arc id: " + arc.getId());
             e.printStackTrace();
         }
@@ -1953,7 +2034,7 @@ public class GuiModelController implements IGuiModelController {
         /* Node is successor of the arc? */
         try {
             if (arc.getSuccElem() == node) { return true; }
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Arc without succecessor! Arc id: " + arc.getId());
             e.printStackTrace();
         }
@@ -2053,7 +2134,16 @@ public class GuiModelController implements IGuiModelController {
         guiModel.setGuiStartPlace(placeId, b);
 
         /* Repaint */
-        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        IGuiNode guiNode = null;
+        try {
+            guiNode = currentModel.getPlaceById(placeId);
+        } catch (PNNoSuchElementException e) {
+            String message = i18n.getMessage("errMissingIdInModel");
+            message = message.replace("%id%", placeId);
+            message = message.replace("%modelName%", modelName);
+            System.err.println(message);
+            return;
+        }
         Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
@@ -2071,7 +2161,16 @@ public class GuiModelController implements IGuiModelController {
         guiModel.setGuiStartPlaceCandidate(placeId, b);
 
         /* Repaint */
-        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        IGuiNode guiNode = null;
+        try {
+            guiNode = currentModel.getPlaceById(placeId);
+        } catch (PNNoSuchElementException e) {
+            String message = i18n.getMessage("errMissingIdInModel");
+            message = message.replace("%id%", placeId);
+            message = message.replace("%modelName%", modelName);
+            System.err.println(message);
+            return;
+        }
         Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
@@ -2089,7 +2188,16 @@ public class GuiModelController implements IGuiModelController {
         guiModel.setGuiEndPlace(placeId, b);
 
         /* Repaint */
-        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        IGuiNode guiNode = null;
+        try {
+            guiNode = currentModel.getPlaceById(placeId);
+        } catch (PNNoSuchElementException e) {
+            String message = i18n.getMessage("errMissingIdInModel");
+            message = message.replace("%id%", placeId);
+            message = message.replace("%modelName%", modelName);
+            System.err.println(message);
+            return;
+        }
         Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
@@ -2107,7 +2215,16 @@ public class GuiModelController implements IGuiModelController {
         guiModel.setGuiEndPlaceCandidate(placeId, b);
 
         /* Repaint */
-        IGuiNode guiNode = currentModel.getNodeById(placeId);
+        IGuiNode guiNode = null;
+        try {
+            guiNode = currentModel.getPlaceById(placeId);
+        } catch (PNNoSuchElementException e) {
+            String message = i18n.getMessage("errMissingIdInModel");
+            message = message.replace("%id%", placeId);
+            message = message.replace("%modelName%", modelName);
+            System.err.println(message);
+            return;
+        }
         Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
@@ -2125,7 +2242,16 @@ public class GuiModelController implements IGuiModelController {
         guiModel.highlightUnreachableGuiNode(nodeId, b);
 
         /* Repaint */
-        IGuiNode guiNode = currentModel.getNodeById(nodeId);
+        IGuiNode guiNode = null;
+        try {
+            guiNode = currentModel.getNodeById(nodeId);
+        } catch (PNNoSuchElementException e) {
+            String message = i18n.getMessage("errMissingIdInModel");
+            message = message.replace("%id%", nodeId);
+            message = message.replace("%modelName%", modelName);
+            System.err.println(message);
+            return;
+        }
         Rectangle rect = guiNode.getLastDrawingArea();
         updateDrawing(rect);
     }
@@ -2384,16 +2510,6 @@ public class GuiModelController implements IGuiModelController {
         /* Inform the application controller */
         String transitionId = transition.getId();
         appController.fireDataTransition(transitionId);
-    }
-
-    @Override
-    public int getCurrentMinZValue() {
-        return currentModel.getMinZValue();
-    }
-
-    @Override
-    public int getCurrentMaxZValue() {
-        return currentModel.getMaxZValue();
     }
 
 }

@@ -2,7 +2,10 @@ package de.lambeck.pned.models.data;
 
 import java.awt.Point;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JFrame;
@@ -12,6 +15,7 @@ import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
@@ -578,7 +582,7 @@ public class DataModelController implements IDataModelController {
         IDataNode node;
         try {
             node = currentModel.getNodeById(nodeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             // System.err.println("Not found: data node id=" + nodeId);
 
             String warning = i18n.getMessage("warningUnableToRename");
@@ -610,14 +614,19 @@ public class DataModelController implements IDataModelController {
         IDataElement element;
         try {
             element = currentModel.getElementById(elementId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Not found: data element id=" + elementId);
             return;
         }
 
         /* Check if element is an arc an can be removed directly. */
         if (element instanceof IDataArc) {
-            currentModel.removeElement(elementId);
+            try {
+                currentModel.removeElement(elementId);
+            } catch (PNNoSuchElementException e) {
+                System.err.println(e.getMessage());
+                return;
+            }
             currentModel.setModified(true, true);
             return;
         }
@@ -630,7 +639,12 @@ public class DataModelController implements IDataModelController {
         List<IDataArc> succElements = node.getSuccElems();
 
         /* Remove the node. */
-        currentModel.removeElement(elementId);
+        try {
+            currentModel.removeElement(elementId);
+        } catch (PNNoSuchElementException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
         currentModel.setModified(true, true);
 
         /* Remove all adjacent arcs. */
@@ -655,7 +669,7 @@ public class DataModelController implements IDataModelController {
     }
 
     @Override
-    public void removeElementFromCurrentDataModel(String id) throws NoSuchElementException {
+    public void removeElementFromCurrentDataModel(String id) throws PNNoSuchElementException {
         currentModel.removeElement(id);
         currentModel.setModified(true, true);
     }
@@ -677,7 +691,7 @@ public class DataModelController implements IDataModelController {
         IDataElement element;
         try {
             element = currentModel.getElementById(nodeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Not found: data node id=" + nodeId);
             return;
         }
@@ -931,7 +945,7 @@ public class DataModelController implements IDataModelController {
         IDataElement element;
         try {
             element = currentModel.getElementById(transitionId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             System.err.println("Not found: data transition id=" + transitionId);
             return;
         }

@@ -3,7 +3,6 @@ package de.lambeck.pned.models.data.validation;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -14,6 +13,8 @@ import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.IGuiTransition;
 import de.lambeck.pned.elements.util.NodeInfo;
+import de.lambeck.pned.exceptions.PNIllegalStateException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
@@ -134,7 +135,7 @@ public class EnabledTransitionsValidator extends AbstractValidator {
         boolean tokenOnEndPlace;
         try {
             tokenOnEndPlace = isTokenOnEndPlace();
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             reportValidationTokenOnEndPlaceFailed();
             return;
         }
@@ -232,10 +233,10 @@ public class EnabledTransitionsValidator extends AbstractValidator {
      * Checks whether there is a token on the end place or not.
      * 
      * @return True = token on end place, false = no token on end place
-     * @throws NoSuchElementException
+     * @throws PNNoSuchElementException
      *             If end place was not found
      */
-    private boolean isTokenOnEndPlace() throws NoSuchElementException {
+    private boolean isTokenOnEndPlace() throws PNNoSuchElementException {
         DataPlace endPlace = getUnambiguousEndPlace(allDataPlaces);
         if (endPlace == null) {
             /*
@@ -244,7 +245,7 @@ public class EnabledTransitionsValidator extends AbstractValidator {
              * as valid or not. -> This means it has at least 1 place: the start
              * and end place.
              */
-            throw new NoSuchElementException();
+            throw new PNNoSuchElementException();
         }
 
         if (endPlace.getTokensCount() == EPlaceToken.ONE)
@@ -275,7 +276,7 @@ public class EnabledTransitionsValidator extends AbstractValidator {
             boolean enabled = false;
             try {
                 enabled = dataTransition.checkEnabled();
-            } catch (IllegalStateException e) {
+            } catch (PNIllegalStateException e) {
                 reportValidationTransitionUnsafe(dataTransition);
 
                 /* Update the GUI transition as well. */

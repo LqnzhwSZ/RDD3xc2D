@@ -1,8 +1,7 @@
 package de.lambeck.pned.exceptions;
 
 /**
- * Exception for the case that an element which already is in the Petri net is
- * added again.
+ * Exception for the attempt to add an existing element to a Petri net again.
  * 
  * @author Thomas Lambeck, 4128320
  * 
@@ -23,20 +22,20 @@ public class PNDuplicateAddedException extends Exception {
 
     /**
      * @param message
-     *            as in Exception
+     *            as in {@link Exception}
+     * @param cause
+     *            as in {@link Exception}
      */
-    public PNDuplicateAddedException(String message) {
-        super(message);
+    public PNDuplicateAddedException(String message, Throwable cause) {
+        super(message, cause);
     }
 
     /**
      * @param message
-     *            as in Exception
-     * @param cause
-     *            as in Exception
+     *            as in {@link Exception}
      */
-    public PNDuplicateAddedException(String message, Throwable cause) {
-        super(message, cause);
+    public PNDuplicateAddedException(String message) {
+        super(message);
     }
 
 }

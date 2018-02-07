@@ -3,9 +3,9 @@ package de.lambeck.pned.elements.data;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
  * Superclass DataNode implements the common members for all nodes.
@@ -101,16 +101,16 @@ public abstract class DataNode extends DataElement implements IDataNode {
     }
 
     @Override
-    public void removePred(IDataArc arc) throws NoSuchElementException {
+    public void removePred(IDataArc arc) throws PNNoSuchElementException {
         if (!this.predElems.contains(arc))
-            throw new NoSuchElementException();
+            throw new PNNoSuchElementException();
         this.predElems.remove(arc);
     }
 
     @Override
-    public void removeSucc(IDataArc arc) throws NoSuchElementException {
+    public void removeSucc(IDataArc arc) throws PNNoSuchElementException {
         if (!this.succElems.contains(arc))
-            throw new NoSuchElementException();
+            throw new PNNoSuchElementException();
         this.succElems.remove(arc);
     }
 

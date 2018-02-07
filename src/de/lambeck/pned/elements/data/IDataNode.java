@@ -1,10 +1,10 @@
 package de.lambeck.pned.elements.data;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.INode;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.data.IDataModel;
 
 /**
@@ -44,20 +44,20 @@ public interface IDataNode extends IDataElement, INode {
      * 
      * @param arc
      *            The specified {@link IDataArc}
-     * @throws NoSuchElementException
-     *             If this arc does not exist
+     * @throws PNNoSuchElementException
+     *             If the specified arc is not a predecessor of this node
      */
-    void removePred(IDataArc arc) throws NoSuchElementException;
+    void removePred(IDataArc arc) throws PNNoSuchElementException;
 
     /**
      * Removes the specified arc from the list of successors.
      * 
      * @param arc
      *            The specified {@link IDataArc}
-     * @throws NoSuchElementException
-     *             If this arc does not exist
+     * @throws PNNoSuchElementException
+     *             If the specified arc is not a successor of this node
      */
-    void removeSucc(IDataArc arc) throws NoSuchElementException;
+    void removeSucc(IDataArc arc) throws PNNoSuchElementException;
 
     /**
      * This method returns a list of all predecessors of the node. If the node

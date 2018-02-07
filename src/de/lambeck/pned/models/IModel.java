@@ -1,9 +1,9 @@
 package de.lambeck.pned.models;
 
 import java.awt.Point;
-import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
  * Interface for models representing a Petri net.
@@ -150,10 +150,10 @@ public interface IModel {
      *
      * @param id
      *            The id of the element
-     * @throws NoSuchElementException
-     *             if element does not exist
+     * @throws PNNoSuchElementException
+     *             If this model has no element with the specified id
      */
-    void removeElement(String id) throws NoSuchElementException;
+    void removeElement(String id) throws PNNoSuchElementException;
 
     /**
      * Removes all elements from this model.

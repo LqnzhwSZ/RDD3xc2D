@@ -6,7 +6,7 @@ import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataArc;
 import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.data.IDataNode;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.i18n.I18NManager;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
@@ -253,7 +253,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
             IDataNode succ = null;
             try {
                 succ = arc.getSuccElem();
-            } catch (PNElementException e) {
+            } catch (PNNoSuchElementException e) {
                 e.printStackTrace();
             }
 
@@ -286,7 +286,7 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
             IDataNode pred = null;
             try {
                 pred = arc.getPredElem();
-            } catch (PNElementException e) {
+            } catch (PNNoSuchElementException e) {
                 e.printStackTrace();
             }
 

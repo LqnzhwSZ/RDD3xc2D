@@ -1,7 +1,6 @@
 package de.lambeck.pned.models.gui;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataNode;
@@ -9,6 +8,7 @@ import de.lambeck.pned.elements.gui.IGuiElement;
 import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.elements.gui.IGuiPlace;
 import de.lambeck.pned.elements.gui.IGuiTransition;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.IModel;
 import de.lambeck.pned.models.data.IDataModel;
 
@@ -36,10 +36,10 @@ public interface IGuiModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IGuiElement} if found
-     * @throws NoSuchElementException
-     *             if the element was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no element with the specified id
      */
-    IGuiElement getElementById(String id) throws NoSuchElementException;
+    IGuiElement getElementById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns a list with all selected elements in this model.
@@ -54,10 +54,10 @@ public interface IGuiModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IGuiNode} if found
-     * @throws NoSuchElementException
-     *             if the node was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no node with the specified id
      */
-    IGuiNode getNodeById(String id) throws NoSuchElementException;
+    IGuiNode getNodeById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns the {@link IGuiPlace} with the specified id.
@@ -65,10 +65,10 @@ public interface IGuiModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IGuiPlace} if found
-     * @throws NoSuchElementException
-     *             if the place was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no place with the specified id
      */
-    IGuiPlace getPlaceById(String id) throws NoSuchElementException;
+    IGuiPlace getPlaceById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns the {@link IGuiTransition} with the specified id.
@@ -76,10 +76,10 @@ public interface IGuiModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IGuiTransition} if found
-     * @throws NoSuchElementException
-     *             if the place was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no transition with the specified id
      */
-    IGuiTransition getTransitionById(String id) throws NoSuchElementException;
+    IGuiTransition getTransitionById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns the minimum Z value for all elements in this GUI model.<BR>

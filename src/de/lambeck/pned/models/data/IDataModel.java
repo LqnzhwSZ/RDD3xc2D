@@ -1,12 +1,12 @@
 package de.lambeck.pned.models.data;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.data.IDataPlace;
 import de.lambeck.pned.elements.data.IDataTransition;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.IModel;
 import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
 
@@ -52,10 +52,10 @@ public interface IDataModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IDataElement} if found
-     * @throws NoSuchElementException
-     *             if element was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no element with the specified id
      */
-    IDataElement getElementById(String id) throws NoSuchElementException;
+    IDataElement getElementById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns the {@link IDataNode} with the specified id.
@@ -63,10 +63,10 @@ public interface IDataModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IDataNode} if found
-     * @throws NoSuchElementException
-     *             if element was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no node with the specified id
      */
-    IDataNode getNodeById(String id) throws NoSuchElementException;
+    IDataNode getNodeById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns the {@link IDataPlace} with the specified id.
@@ -74,10 +74,10 @@ public interface IDataModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IDataPlace} if found
-     * @throws NoSuchElementException
-     *             if the place was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no place with the specified id
      */
-    IDataPlace getPlaceById(String id) throws NoSuchElementException;
+    IDataPlace getPlaceById(String id) throws PNNoSuchElementException;
 
     /**
      * Returns the {@link IDataTransition} with the specified id.
@@ -85,10 +85,10 @@ public interface IDataModel extends IModel {
      * @param id
      *            The id to search for
      * @return The {@link IDataTransition} if found
-     * @throws NoSuchElementException
-     *             if the place was not found
+     * @throws PNNoSuchElementException
+     *             If this model has no transition with the specified id
      */
-    IDataTransition getTransitionById(String id) throws NoSuchElementException;
+    IDataTransition getTransitionById(String id) throws PNNoSuchElementException;
 
     /**
      * The check state indicates, whether the model needs checking or not. This

@@ -2,6 +2,7 @@ package de.lambeck.pned.elements.data;
 
 import de.lambeck.pned.elements.util.NodeCheck;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
  * Implements the arcs (arrows) of the Petri net.
@@ -72,16 +73,16 @@ public class DataArc extends DataElement implements IDataArc {
     }
 
     @Override
-    public IDataNode getPredElem() throws PNElementException {
+    public IDataNode getPredElem() throws PNNoSuchElementException {
         if (this.pred == null)
-            throw new PNElementException(this.toString() + " has no predecessor.");
+            throw new PNNoSuchElementException(this.toString() + " has no predecessor.");
         return this.pred;
     }
 
     @Override
-    public IDataNode getSuccElem() throws PNElementException {
+    public IDataNode getSuccElem() throws PNNoSuchElementException {
         if (this.succ == null)
-            throw new PNElementException(this.toString() + " has no successor.");
+            throw new PNNoSuchElementException(this.toString() + " has no successor.");
         return this.succ;
     }
 

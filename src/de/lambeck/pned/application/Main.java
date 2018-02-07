@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import de.lambeck.pned.exceptions.PNIllegalStateException;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.i18n.I18NManager;
 
@@ -24,7 +25,7 @@ public class Main {
     private static boolean debug = false;
 
     /** The initial title of the application */
-    private static String initialTitle = "Petri net Editor - Thomas Lambeck, MatrNr. 4128320";
+    private static String initialTitle = "Petri net Editor  —  Thomas Lambeck, MatrNr. 4128320";
 
     /** The minimum size of the main application window */
     private static Dimension minSize = new Dimension(400, 300);
@@ -76,8 +77,15 @@ public class Main {
         StatusBar statusBar = new StatusBar(i18n);
 
         /* Add the application controller. */
-        @SuppressWarnings("unused")
-        ApplicationController appController = new ApplicationController(frame, i18n, statusBar);
+        try {
+            @SuppressWarnings("unused")
+            ApplicationController appController = new ApplicationController(frame, i18n, statusBar);
+        } catch (PNIllegalStateException e) {
+            i18n = null;
+            statusBar = null;
+            frame.dispose();
+            return;
+        }
 
         /* Display the window. */
         frame.pack();

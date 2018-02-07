@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 
 import de.lambeck.pned.elements.util.NodeCheck;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
  * Implements the arcs (arrows) of the Petri net.
@@ -523,16 +524,16 @@ public class GuiArc extends GuiElement implements IGuiArc {
     }
 
     @Override
-    public IGuiNode getPredElem() throws PNElementException {
+    public IGuiNode getPredElem() throws PNNoSuchElementException {
         if (this.pred == null)
-            throw new PNElementException(this.toString() + " has no predecessor.");
+            throw new PNNoSuchElementException(this.toString() + " has no predecessor.");
         return this.pred;
     }
 
     @Override
-    public IGuiNode getSuccElem() throws PNElementException {
+    public IGuiNode getSuccElem() throws PNNoSuchElementException {
         if (this.succ == null)
-            throw new PNElementException(this.toString() + " has no successor.");
+            throw new PNNoSuchElementException(this.toString() + " has no successor.");
         return this.succ;
     }
 
@@ -554,7 +555,7 @@ public class GuiArc extends GuiElement implements IGuiArc {
         try {
             elem1 = getPredElem();
             elem2 = getSuccElem();
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             // e.printStackTrace();
             System.err.println("Arc " + getId() + " does not have predecessor *and* successor element!");
             return;

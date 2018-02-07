@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lambeck.pned.elements.EPlaceToken;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNIllegalStateException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
  * Implements the transitions (squares) of the Petri net.
@@ -61,7 +62,7 @@ public class DataTransition extends DataNode implements IDataTransition {
     }
 
     @Override
-    public boolean checkEnabled() throws IllegalStateException {
+    public boolean checkEnabled() throws PNIllegalStateException {
         this.enabled = false;
 
         List<DataPlace> inputPlaces = getPredPlaces();
@@ -92,7 +93,7 @@ public class DataTransition extends DataNode implements IDataTransition {
                      * because a simple "false" would not be clear enough!)
                      */
                     String message = "Output place with a token";
-                    throw new IllegalStateException(message);
+                    throw new PNIllegalStateException(message);
                 }
             }
         }
@@ -120,7 +121,7 @@ public class DataTransition extends DataNode implements IDataTransition {
                     currentPlace = (DataPlace) currentNode;
                     predPlaces.add(currentPlace);
                 }
-            } catch (PNElementException e) {
+            } catch (PNNoSuchElementException e) {
                 // NOP
             }
         }
@@ -141,7 +142,7 @@ public class DataTransition extends DataNode implements IDataTransition {
                     currentPlace = (DataPlace) currentNode;
                     succPlaces.add(currentPlace);
                 }
-            } catch (PNElementException e) {
+            } catch (PNNoSuchElementException e) {
                 // NOP
             }
         }

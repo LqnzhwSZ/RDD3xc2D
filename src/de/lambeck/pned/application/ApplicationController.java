@@ -16,6 +16,8 @@ import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.elements.gui.*;
+import de.lambeck.pned.exceptions.PNIllegalStateException;
+import de.lambeck.pned.exceptions.PNInvalidParameterException;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.PNMLWriter;
 import de.lambeck.pned.gui.menuBar.MenuBar;
@@ -46,10 +48,10 @@ public class ApplicationController extends AbstractApplicationController {
     private static boolean debug = false;
 
     /** The application title to begin with */
-    private static String initialTitle = "Petri net Editor - Thomas Lambeck, MatrNr. 4128320";
+    private static String initialTitle = "Petri net Editor  —  Thomas Lambeck, MatrNr. 4128320";
 
     /** The separator between file name and the actual application title */
-    private static String titleSeparator = "   -   ";
+    private static String titleSeparator = "  —  ";
 
     /**
      * This attribute defines the preferred width and height of the application
@@ -142,14 +144,16 @@ public class ApplicationController extends AbstractApplicationController {
      *            The manager for localized strings
      * @param stBar
      *            The status bar (of this application)
+     * @throws PNIllegalStateException
+     *             if the application could not be created properly
      */
     @SuppressWarnings("hiding")
-    public ApplicationController(JFrame frame, I18NManager i18n, StatusBar stBar) {
+    public ApplicationController(JFrame frame, I18NManager i18n, StatusBar stBar) throws PNIllegalStateException {
         super(frame, i18n, stBar);
         mainFrame.addComponentListener(new ComponentResizeListener(this));
 
         /*
-         * Replace the DefaultCloseOperation with the application controller's
+         * Replace the DefaultCloseOperation with the application controllers
          * windowClosing() method to observe the state of the application.
          */
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -157,7 +161,19 @@ public class ApplicationController extends AbstractApplicationController {
         mainFrame.addWindowStateListener(this);
 
         /* Add controllers */
-        addControllers(i18n);
+        try {
+            addControllers(i18n);
+        } catch (PNIllegalStateException e) {
+            /* Remove all Listeners */
+            mainFrame.removeWindowStateListener(this);
+            mainFrame.removeWindowListener(this);
+
+            /* ...reset DefaultCloseOperation */
+            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            /* ...and quit */
+            throw new PNIllegalStateException(e.getMessage(), e);
+        }
 
         /* Add validators to the validation controller. */
         addValidators(i18n);
@@ -210,16 +226,28 @@ public class ApplicationController extends AbstractApplicationController {
      * 
      * @param i18n
      *            The manager for localized strings
+     * @throws PNIllegalStateException
+     *             if a controller could not be created properly
      */
     @SuppressWarnings("hiding")
-    private void addControllers(I18NManager i18n) {
+    private void addControllers(I18NManager i18n) throws PNIllegalStateException {
         this.actionManager = new ActionManager(this, i18n, mainFrame);
         this.allActions = this.actionManager.getAllActions();
         this.popupActions = this.actionManager.getPopupActions();
 
         this.dataModelController = new DataModelController(this, i18n);
         this.guiModelController = new GuiModelController(this, i18n, this.popupActions);
-        this.validationController = new ValidationController(this.dataModelController, i18n);
+
+        try {
+            this.validationController = new ValidationController(this.dataModelController, i18n);
+        } catch (PNInvalidParameterException e) {
+            /* Show an error message. */
+            String title = ApplicationController.initialTitle;
+            String errorMessage = "Could not create the validation controller! (" + e.getMessage() + ")";
+            System.err.println(errorMessage);
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+            throw new PNIllegalStateException(errorMessage);
+        }
     }
 
     /**
@@ -517,7 +545,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         if (writeProtected) {
             String writeProtectedString = i18n.getNameOnly("writeProtected");
-            title = title + " (" + writeProtectedString + ")";
+            title = title + " [" + writeProtectedString + "]";
         }
 
         title = title + titleSeparator + initialTitle;
@@ -554,6 +582,7 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         addNewEmptyFile();
+        refreshActiveFile();
     }
 
     /**

@@ -1,7 +1,7 @@
 package de.lambeck.pned.elements.gui;
 
 import de.lambeck.pned.elements.IArc;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.gui.IGuiModel;
 
 /**
@@ -19,23 +19,27 @@ public interface IGuiArc extends IGuiElement, IArc {
      */
 
     /**
-     * This method returns the predecessor of the arc. If the arc has no
-     * predecessor (no "start"), the method returns null.
+     * This method returns the predecessor (the "start") of the arc.<BR>
+     * <BR>
+     * Note: Throws a {@link PNNoSuchElementException} if predecessor is null
+     * because per definition a {@link IGuiArc} has a predecessor at any time.
      * 
      * @return The predecessor
-     * @throws PNElementException
-     *             if the value is null
+     * @throws PNNoSuchElementException
+     *             if predecessor is null
      */
-    IGuiNode getPredElem() throws PNElementException;
+    IGuiNode getPredElem() throws PNNoSuchElementException;
 
     /**
-     * This method returns the successor of the arc. If the arc has no successor
-     * (no "end"), the method returns null.
+     * This method returns the successor (the "end") of the arc.<BR>
+     * <BR>
+     * Note: Throws a {@link PNNoSuchElementException} if successor is null
+     * because per definition a {@link IGuiArc} has a successor at any time.
      * 
      * @return The successor
-     * @throws PNElementException
-     *             if the value is null
+     * @throws PNNoSuchElementException
+     *             if successor is null
      */
-    IGuiNode getSuccElem() throws PNElementException;
+    IGuiNode getSuccElem() throws PNNoSuchElementException;
 
 }

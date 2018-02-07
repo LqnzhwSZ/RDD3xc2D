@@ -1,7 +1,7 @@
 package de.lambeck.pned.exceptions;
 
 /**
- * Exceptions for elements of the Petri net.
+ * General exception for elements of the Petri net.
  * 
  * @author Thomas Lambeck, 4128320
  * 
@@ -15,20 +15,20 @@ public class PNElementException extends Exception {
 
     /**
      * @param message
-     *            as in Exception
+     *            as in {@link Exception}
+     * @param cause
+     *            as in {@link Exception}
      */
-    public PNElementException(String message) {
-        super(message);
+    public PNElementException(String message, Throwable cause) {
+        super(message, cause);
     }
 
     /**
      * @param message
-     *            as in Exception
-     * @param cause
-     *            as in Exception
+     *            as in {@link Exception}
      */
-    public PNElementException(String message, Throwable cause) {
-        super(message, cause);
+    public PNElementException(String message) {
+        super(message);
     }
 
 }

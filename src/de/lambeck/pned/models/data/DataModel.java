@@ -3,7 +3,6 @@ package de.lambeck.pned.models.data;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -12,6 +11,7 @@ import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
 import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -249,7 +249,7 @@ public class DataModel implements IDataModel, IModelRename {
         IDataNode source = null;
         try {
             source = getNodeById(sourceId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
             System.err.println("Node " + sourceId + " for arc " + id + " not found!");
             return;
@@ -258,7 +258,7 @@ public class DataModel implements IDataModel, IModelRename {
         IDataNode target = null;
         try {
             target = getNodeById(targetId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
             System.err.println("Node " + targetId + " for arc " + id + " not found!");
             return;
@@ -372,7 +372,7 @@ public class DataModel implements IDataModel, IModelRename {
         IDataNode pred = null;
         try {
             pred = getNodeById(sourceId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             String errMessage = "Source is not a node!: " + sourceId;
             System.err.println(errMessage);
             return;
@@ -381,7 +381,7 @@ public class DataModel implements IDataModel, IModelRename {
         IDataNode succ = null;
         try {
             succ = getNodeById(targetId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             String errMessage = "Target is not a node!: " + targetId;
             System.err.println(errMessage);
             return;
@@ -409,7 +409,7 @@ public class DataModel implements IDataModel, IModelRename {
     /* Remove methods for elements */
 
     @Override
-    public void removeElement(String id) throws NoSuchElementException {
+    public void removeElement(String id) throws PNNoSuchElementException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").removeElement", id);
         }
@@ -418,9 +418,9 @@ public class DataModel implements IDataModel, IModelRename {
         IDataElement removeElement;
         try {
             removeElement = getElementById(id);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         /* Remove the element */
@@ -459,13 +459,13 @@ public class DataModel implements IDataModel, IModelRename {
 
                 try {
                     node.removeSucc(arc);
-                } catch (NoSuchElementException ignore) {
+                } catch (PNNoSuchElementException ignore) {
                     // NOP
                 }
 
                 try {
                     node.removePred(arc);
-                } catch (NoSuchElementException ignore) {
+                } catch (PNNoSuchElementException ignore) {
                     // NOP
                 }
             }
@@ -490,7 +490,7 @@ public class DataModel implements IDataModel, IModelRename {
     }
 
     @Override
-    public IDataElement getElementById(String id) throws NoSuchElementException {
+    public IDataElement getElementById(String id) throws PNNoSuchElementException {
         for (IDataElement element : this.elements) {
             if (element.getId().equalsIgnoreCase(id))
                 return element;
@@ -498,17 +498,17 @@ public class DataModel implements IDataModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": element " + id + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
-    public IDataNode getNodeById(String nodeId) throws NoSuchElementException {
+    public IDataNode getNodeById(String nodeId) throws PNNoSuchElementException {
         IDataElement element;
         try {
             element = getElementById(nodeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IDataNode) {
@@ -518,17 +518,17 @@ public class DataModel implements IDataModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": node " + nodeId + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
-    public IDataPlace getPlaceById(String placeId) throws NoSuchElementException {
+    public IDataPlace getPlaceById(String placeId) throws PNNoSuchElementException {
         IDataElement element;
         try {
             element = getElementById(placeId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IDataPlace) {
@@ -538,17 +538,17 @@ public class DataModel implements IDataModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": place " + placeId + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
     @Override
-    public IDataTransition getTransitionById(String transitionId) throws NoSuchElementException {
+    public IDataTransition getTransitionById(String transitionId) throws PNNoSuchElementException {
         IDataElement element;
         try {
             element = getElementById(transitionId);
-        } catch (NoSuchElementException e) {
+        } catch (PNNoSuchElementException e) {
             /* Pass the exception to the invoker, no new error message. */
-            throw new NoSuchElementException(e.getMessage());
+            throw new PNNoSuchElementException(e.getMessage());
         }
 
         if (element instanceof IDataTransition) {
@@ -558,7 +558,7 @@ public class DataModel implements IDataModel, IModelRename {
 
         String errorMessage = "Model " + this.modelName + ": transition " + transitionId + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
-        throw new NoSuchElementException(errorMessage);
+        throw new PNNoSuchElementException(errorMessage);
     }
 
 }

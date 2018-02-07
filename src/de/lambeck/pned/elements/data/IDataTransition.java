@@ -3,6 +3,7 @@ package de.lambeck.pned.elements.data;
 import java.util.List;
 
 import de.lambeck.pned.elements.ITransition;
+import de.lambeck.pned.exceptions.PNIllegalStateException;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 
@@ -37,10 +38,10 @@ public interface IDataTransition extends ITransition, IDataNode {
      * while the transition in the GUI model has a Setter for this state.
      * 
      * @return True = transition enabled, false = transition disabled
-     * @throws IllegalStateException
+     * @throws PNIllegalStateException
      *             If this transition is not safe
      */
-    boolean checkEnabled() throws IllegalStateException;
+    boolean checkEnabled() throws PNIllegalStateException;
 
     /**
      * Returns a {@link List} of places ({@link DataPlace}) before the previous
