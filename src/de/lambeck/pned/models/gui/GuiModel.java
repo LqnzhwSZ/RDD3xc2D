@@ -524,6 +524,17 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
+    public void addToSelection(IGuiElement element) {
+        if (element == null)
+            return;
+
+        selected.add(element);
+        element.setSelected(true);
+
+        consoleLogSelection();
+    }
+
+    @Override
     public void clearSelection() {
         /*
          * Task: Invoke removeFromSelection() for all selected elements.
@@ -547,22 +558,6 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     /* Private helper methods */
-
-    /**
-     * Adds the specified element to the {@link List} of selected elements.
-     * 
-     * @param element
-     *            The {@link IGuiElement} to add
-     */
-    private void addToSelection(IGuiElement element) {
-        if (element == null)
-            return;
-
-        selected.add(element);
-        element.setSelected(true);
-
-        consoleLogSelection();
-    }
 
     /**
      * Removes the specified element from the {@link List} of selected elements.

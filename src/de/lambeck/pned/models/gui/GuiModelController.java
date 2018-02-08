@@ -6,10 +6,7 @@ import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.swing.AbstractAction;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
@@ -969,19 +966,32 @@ public class GuiModelController implements IGuiModelController {
          * Task: Remove all selected elements *and* all adjacent arcs!
          */
 
-        /* Get all selected elements. */
+        /* Get all selected elements and store their drawing area. */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
-
-        /* Store the drawing area for repainting. */
         List<Rectangle> drawingAreas = getDrawingAreas(toBeRemoved);
 
         /*
-         * Add to a separate list first to avoid ConcurrentModificationException
-         * when removeElement() removes the element from the list!
+         * Separate ID list to avoid ConcurrentModificationException when
+         * removeElement() removes the element from the list!
          */
         List<String> toBeRemoved_IDs = new ArrayList<String>();
+
+        /*
+         * Additional ID list for all arcs because many arcs will be removed
+         * automatically when they were adjacent to removed nodes.
+         * 
+         * This means that a later attempt to remove these arcs from the model
+         * will cause an error. And we can reasonably ignore this error if it
+         * occurs on an arc ID.
+         */
+        List<String> arcIDs = new ArrayList<String>();
+
         for (IGuiElement element : toBeRemoved) {
             toBeRemoved_IDs.add(element.getId());
+
+            /* Add only arc IDs to the second list. */
+            if (element instanceof IGuiArc)
+                arcIDs.add(element.getId());
         }
 
         /* Remove all elements. */
@@ -992,22 +1002,51 @@ public class GuiModelController implements IGuiModelController {
 
             try {
                 currentModel.removeElement(id);
+
+                // TODO Comment out the following command after testing!
+                // if (debug)
+                // debugRepaintImmediately();
+
+                currentModel.setModified(true);
+
+                /*
+                 * Inform the application controller to remove this element from
+                 * the data model!
+                 */
+                appController.guiElementRemoved(id);
+
             } catch (PNNoSuchElementException e) {
-                String message = i18n.getMessage("errMissingIdInModel");
-                message = message.replace("%id%", id);
-                String modelName = currentModel.getModelName();
-                message = message.replace("%modelName%", modelName);
-                System.err.println(message);
-                return;
+                String message = "";
+                if (arcIDs.contains(id)) {
+                    /* Ignore this error on arc IDs */
+                    if (debug) {
+                        message = i18n.getMessage("infoArcDontExistAnymore");
+                        message = message.replace("%id%", id);
+
+                        System.out.println(message);
+                    }
+
+                } else {
+                    /* Serious error on other types of elements! */
+                    message = i18n.getMessage("errMissingIdInModel");
+                    message = message.replace("%id%", id);
+
+                    String modelName = currentModel.getModelName();
+                    message = message.replace("%modelName%", modelName);
+
+                    System.err.println(message);
+                    return;
+                }
             }
 
-            currentModel.setModified(true);
+            // currentModel.setModified(true);
 
-            /*
-             * Inform the application controller to remove this element from the
-             * data model!
-             */
-            appController.guiElementRemoved(id);
+            // /*
+            // * Inform the application controller to remove this element from
+            // the
+            // * data model!
+            // */
+            // appController.guiElementRemoved(id);
         }
 
         /* Repaint the areas. */
@@ -1053,7 +1092,7 @@ public class GuiModelController implements IGuiModelController {
         currentModel.setModified(true);
     }
 
-    /* Mouse events */
+    /* Mouse and selection events */
 
     @Override
     public void mouseClick_Occurred(Point mousePressedLocation, MouseEvent e) {
@@ -1186,6 +1225,37 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
+    public void selectAllGuiElements() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.selectAllGuiElements");
+        }
+
+        if (currentModel == null) {
+            System.err.println("GuiModelController.selectAllGuiElements(), currentModel == null!");
+            return;
+        }
+
+        /*
+         * Task: Select all elements.
+         */
+
+        List<IGuiElement> toBeSelected = currentModel.getElements();
+
+        String message = "";
+        for (IGuiElement element : toBeSelected) {
+            if (!element.isSelected()) {
+                currentModel.addToSelection(element);
+
+                message = "GuiModelController, Added to selection: element " + element.getId();
+                ConsoleLogger.logIfDebug(debug, message);
+            }
+        }
+
+        /* Repaint (everything) */
+        updateDrawing();
+    }
+
+    @Override
     public void mouseDragged(int distance_x, int distance_y) {
         /*
          * Task: Move only the selected nodes and update the drawing.
@@ -1310,7 +1380,7 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * used by keyEvent_Escape_Occurred()
+     * De-selects all {@link IGuiElement} and updates the drawing.
      */
     private void resetSelection() {
         if (currentModel == null)
@@ -1325,7 +1395,6 @@ public class GuiModelController implements IGuiModelController {
         currentModel.clearSelection();
 
         if (debug) {
-            System.out.println("GuiModelController: KeyEvent Escape occurred:");
             System.out.println("Selection cleared.");
             System.out.println("updateDrawing(" + drawingAreas + ")");
         }
@@ -1776,6 +1845,31 @@ public class GuiModelController implements IGuiModelController {
     private void updateDrawing() {
         Rectangle area = null;
         updateDrawing(area);
+    }
+
+    /**
+     * Forces <B>immediate</B> repaint of the current {@link IDrawPanel} for
+     * debugging purposes.<BR>
+     * <BR>
+     * <B>Attention:</B> This needs more CPU time! Comment out the invoking line
+     * after testing!
+     */
+    @SuppressWarnings("unused")
+    private void debugRepaintImmediately() {
+        if (currentDrawPanel == null) {
+            String message = "GuiModelController.debugRepaintImmediately(): currentDrawPanel == null";
+            ConsoleLogger.logIfDebug(debug, message);
+            return;
+        }
+
+        /* Get the whole area of the draw panel. */
+        Dimension dim = currentDrawPanel.getPreferredSize();
+        int width = dim.width;
+        int height = dim.height;
+        Rectangle r = new Rectangle(0, 0, width, height);
+
+        /* Repaint it now. */
+        ((JComponent) currentDrawPanel).paintImmediately(r);
     }
 
     /**

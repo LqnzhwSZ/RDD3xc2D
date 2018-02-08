@@ -52,6 +52,8 @@ public class ActionManager implements IActionManager {
 
     /** The {@link EditRenameAction} */
     AbstractAction editRenameAction;
+    /** The {@link SelectAllAction} */
+    AbstractAction selectAllAction;
     /** The {@link EditDeleteAction} */
     AbstractAction editDeleteAction;
 
@@ -99,15 +101,14 @@ public class ActionManager implements IActionManager {
         this.i18n = i18n;
         this.mainFrame = mainFrame;
 
+        createAllActions();
         addAllActionsToHashMaps();
     }
 
     /**
-     * Adds all {@link AbstractAction} for this application to a
-     * {@link HashMap}.
+     * Creates all {@link AbstractAction} for this application.
      */
-    private void addAllActionsToHashMaps() {
-        /* Create all Actions... */
+    private void createAllActions() {
         fileNewAction = new FileNewAction(appController, i18n);
         fileOpenAction = new FileOpenAction(appController, i18n, mainFrame);
         fileCloseAction = new FileCloseAction(appController, i18n);
@@ -116,6 +117,7 @@ public class ActionManager implements IActionManager {
         appExitAction = new AppExitAction(appController, i18n);
 
         editRenameAction = new EditRenameAction(appController, i18n);
+        selectAllAction = new SelectAllAction(appController, i18n);
         editDeleteAction = new EditDeleteAction(appController, i18n);
 
         toForegroundAction = new ElementToTheForegroundAction(appController, i18n);
@@ -130,9 +132,13 @@ public class ActionManager implements IActionManager {
 
         newPlaceAction = new NewPlaceAction(appController, i18n);
         newTransitionAction = new NewTransitionAction(appController, i18n);
+    }
 
-        /* ...and add them to the Maps... */
-
+    /**
+     * Adds all {@link AbstractAction} for this application to a
+     * {@link HashMap}.
+     */
+    private void addAllActionsToHashMaps() {
         // Menu "File"
         allActions.put("FileNew", fileNewAction);
         allActions.put("FileOpen...", fileOpenAction);
@@ -143,6 +149,7 @@ public class ActionManager implements IActionManager {
 
         // Menu "Edit"
         allActions.put("EditRename...", editRenameAction);
+        allActions.put("SelectAll", selectAllAction);
         allActions.put("EditDelete", editDeleteAction);
 
         // Tool bar "Elements"

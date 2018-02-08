@@ -50,6 +50,8 @@ public class MenuBar extends JMenuBar {
     /** A menu bar "button" */
     private AbstractAction editRenameAction;
     /** A menu bar "button" */
+    private AbstractAction selectAllAction;
+    /** A menu bar "button" */
     private AbstractAction editDeleteAction;
     /** A menu bar "button" */
     private AbstractAction stopSimulationAction;
@@ -139,6 +141,9 @@ public class MenuBar extends JMenuBar {
         /* Create the menu items. */
         editRenameAction = allActions.get("EditRename...");
         editMenu.add(editRenameAction);
+
+        selectAllAction = allActions.get("SelectAll");
+        editMenu.add(selectAllAction);
 
         editDeleteAction = allActions.get("EditDelete");
         editMenu.add(editDeleteAction);

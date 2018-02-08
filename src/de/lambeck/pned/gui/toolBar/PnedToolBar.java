@@ -35,6 +35,8 @@ public class PnedToolBar extends AbstractPnedToolBar {
     /** A tool bar "button" */
     private AbstractAction toBackgroundAction;
     /** A tool bar "button" */
+    private AbstractAction selectAllAction;
+    /** A tool bar "button" */
     private AbstractAction editDeleteAction;
     /** A tool bar "button" */
     private AbstractAction stopSimulationAction;
@@ -87,6 +89,9 @@ public class PnedToolBar extends AbstractPnedToolBar {
         add(toBackgroundAction);
 
         addSeparator();
+
+        selectAllAction = allActions.get("SelectAll");
+        add(selectAllAction);
 
         editDeleteAction = allActions.get("EditDelete");
         add(editDeleteAction);

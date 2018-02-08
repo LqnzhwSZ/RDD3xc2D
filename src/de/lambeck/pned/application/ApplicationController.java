@@ -705,6 +705,23 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
+     * Callback for {@link SelectAllAction}, selects all {@link IGuiElement} in
+     * the current {@link IGuiModel}/{@link IDrawPanel}.
+     */
+    public void menuCmd_SelectAll() {
+        if (!isFileOpen())
+            return;
+
+        if (debug) {
+            String testMsg = "Menu command: SelectAll";
+            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
+            System.out.println(testMsg);
+        }
+
+        selectAllGuiElements();
+    }
+
+    /**
      * Callback for {@link ElementToTheForegroundAction}, moves the current
      * {@link IGuiElement} to the foreground.
      */
@@ -1965,11 +1982,25 @@ public class ApplicationController extends AbstractApplicationController {
 
     /* Modify methods for elements */
 
+    /**
+     * Selects all {@link IGuiElement} in the current
+     * {@link IGuiModel}/{@link IDrawPanel}.<BR>
+     * <BR>
+     * Note: Callback for menuCmd_SelectAll ({@link SelectAllAction})
+     */
+    public void selectAllGuiElements() {
+        if (debug) {
+            System.out.println("ApplicationController.selectAllGuiElements()");
+        }
+
+        guiModelController.selectAllGuiElements();
+    }
+
     /* Remove methods for elements */
 
     /**
-     * Removes all selected elements from the GUI model.
-     * 
+     * Removes all selected elements from the GUI model.<BR>
+     * <BR>
      * Note: Callback for menuCmd_EditDelete (EditDeleteAction)
      */
     public void removeSelectedGuiElements() {

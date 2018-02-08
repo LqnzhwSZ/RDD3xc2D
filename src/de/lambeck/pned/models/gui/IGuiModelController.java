@@ -11,6 +11,7 @@ import de.lambeck.pned.application.*;
 import de.lambeck.pned.application.actions.EditDeleteAction;
 import de.lambeck.pned.application.actions.EditRenameAction;
 import de.lambeck.pned.application.actions.NewPlaceAction;
+import de.lambeck.pned.application.actions.SelectAllAction;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.IDataTransition;
@@ -360,7 +361,7 @@ public interface IGuiModelController
      */
     void clearCurrentGuiModel();
 
-    /* Mouse events */
+    /* Mouse and selection events */
 
     /**
      * Callback for the {@link DrawPanel}.<BR>
@@ -387,6 +388,15 @@ public interface IGuiModelController
      *            The current location (mouseReleased)
      */
     void mouseClick_WithCtrl_Occurred(Point mousePressedLocation, MouseEvent e);
+
+    /**
+     * Callback for the {@link SelectAllAction} in the
+     * {@link ApplicationController}.<BR>
+     * <BR>
+     * Selects all {@link IGuiElement} in the current
+     * {@link IGuiModel}/{@link IDrawPanel}.
+     */
+    void selectAllGuiElements();
 
     /**
      * Callback for the {@link DrawPanel}.

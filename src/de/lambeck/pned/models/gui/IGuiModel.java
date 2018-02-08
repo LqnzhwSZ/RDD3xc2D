@@ -165,6 +165,15 @@ public interface IGuiModel extends IModel {
     void toggleSelection(IGuiElement element);
 
     /**
+     * Adds the specified {@link IGuiElement} to the {@link List} of selected
+     * elements.
+     * 
+     * @param element
+     *            The {@link IGuiElement} to add
+     */
+    void addToSelection(IGuiElement element);
+
+    /**
      * Clears the whole selection.
      */
     void clearSelection();
