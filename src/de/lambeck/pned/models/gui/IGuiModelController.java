@@ -464,6 +464,16 @@ public interface IGuiModelController
      */
     void moveElementOneLayerDown();
 
+    /**
+     * @return the minimum z value from the current {@link IGuiModel}
+     */
+    int getCurrentMinZValue();
+
+    /**
+     * @return the maximum z value from the current {@link IGuiModel}
+     */
+    int getCurrentMaxZValue();
+
     /* Change shape size */
 
     /**
@@ -659,13 +669,21 @@ public interface IGuiModelController
     void fireGuiTransition();
 
     /**
-     * @return the minimum z value from the current {@link IGuiModel}
+     * Returns the area of the start place in the current {@link IGuiModel}.
+     * 
+     * @return A {@link Rectangle}; null if the current {@link IGuiModel} is
+     *         null or has no real (unambiguous) start place
      */
-    int getCurrentMinZValue();
+    Rectangle getCurrentGuiModelStartPlaceArea();
 
     /**
-     * @return the maximum z value from the current {@link IGuiModel}
+     * Returns a {@link List} with the areas of all enabled
+     * {@link IGuiTransition} in the current {@link IGuiModel}.
+     * 
+     * @return A {@link List} of type {@link Rectangle}; null if the current
+     *         {@link IGuiModel} is null; empty List if it has no enabled
+     *         {@link IGuiTransition}
      */
-    int getCurrentMaxZValue();
+    List<Rectangle> getCurrentGuiModelEnabledTransitionsAreas();
 
 }

@@ -2606,4 +2606,22 @@ public class GuiModelController implements IGuiModelController {
         appController.fireDataTransition(transitionId);
     }
 
+    @Override
+    public Rectangle getCurrentGuiModelStartPlaceArea() {
+        if (currentModel == null)
+            return null;
+
+        Rectangle startPlaceArea = currentModel.getStartPlaceArea();
+        return startPlaceArea;
+    }
+
+    @Override
+    public List<Rectangle> getCurrentGuiModelEnabledTransitionsAreas() {
+        if (currentModel == null)
+            return null;
+
+        List<Rectangle> enabledTransitionsAreas = currentModel.getEnabledTransitionsAreas();
+        return enabledTransitionsAreas;
+    }
+
 }

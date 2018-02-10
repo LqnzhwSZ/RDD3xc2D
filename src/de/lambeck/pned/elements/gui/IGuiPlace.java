@@ -13,6 +13,15 @@ import de.lambeck.pned.models.gui.IGuiModel;
 public interface IGuiPlace extends IGuiNode, IPlace {
 
     /**
+     * Returns true if this {@link IGuiPlace} is the real (unambiguous) start
+     * place.
+     * 
+     * @return True = (unambiguous) start place; no (or not the unambiguous)
+     *         start place
+     */
+    boolean isGuiStartPlace();
+
+    /**
      * Sets this places status as the real (unambiguous) start place.
      * 
      * @param b

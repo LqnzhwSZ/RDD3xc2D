@@ -758,6 +758,41 @@ public class GuiModel implements IGuiModel, IModelRename {
         node.setUnreachable(b);
     }
 
+    @Override
+    public Rectangle getStartPlaceArea() {
+        IGuiElement startPlace = null;
+        for (IGuiElement element : this.elements) {
+            if (element instanceof IGuiPlace) {
+                IGuiPlace place = (IGuiPlace) element;
+                if (place.isGuiStartPlace()) {
+                    startPlace = place;
+                }
+            }
+        }
+
+        if (startPlace == null)
+            return null;
+
+        Rectangle rect = startPlace.getLastDrawingArea();
+        return rect;
+    }
+
+    @Override
+    public List<Rectangle> getEnabledTransitionsAreas() {
+        List<Rectangle> enabledTransitionsAreas = new ArrayList<Rectangle>();
+        for (IGuiElement element : this.elements) {
+            if (element instanceof IGuiTransition) {
+                IGuiTransition transition = (IGuiTransition) element;
+                if (transition.isEnabled()) {
+                    Rectangle area = transition.getLastDrawingArea();
+                    enabledTransitionsAreas.add(area);
+                }
+            }
+        }
+
+        return enabledTransitionsAreas;
+    }
+
     /* For the "draw new arc" overlay */
 
     @Override

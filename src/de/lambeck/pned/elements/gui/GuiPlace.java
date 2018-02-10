@@ -95,6 +95,11 @@ public class GuiPlace extends GuiNode implements IGuiPlace {
     }
 
     @Override
+    public boolean isGuiStartPlace() {
+        return this.isStartPlace;
+    }
+
+    @Override
     public void setGuiStartPlace(boolean b) {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiPlace(" + this.getId() + ").setGuiStartPlace", b);

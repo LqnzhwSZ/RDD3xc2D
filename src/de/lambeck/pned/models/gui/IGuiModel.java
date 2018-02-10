@@ -1,5 +1,6 @@
 package de.lambeck.pned.models.gui;
 
+import java.awt.Rectangle;
 import java.util.List;
 
 import de.lambeck.pned.elements.data.DataPlace;
@@ -283,5 +284,22 @@ public interface IGuiModel extends IModel {
      * deactivated.
      */
     void deactivated();
+
+    /**
+     * Returns the area of the start place in this {@link IGuiModel}.
+     * 
+     * @return A {@link Rectangle}; null if this {@link IGuiModel} has no real
+     *         (unambiguous) start place
+     */
+    Rectangle getStartPlaceArea();
+
+    /**
+     * Returns a {@link List} with the areas of all enabled
+     * {@link IGuiTransition} in this {@link IGuiModel}.
+     * 
+     * @return A {@link List} of type {@link Rectangle}; empty List if this
+     *         {@link IGuiModel} has no enabled {@link IGuiTransition}
+     */
+    List<Rectangle> getEnabledTransitionsAreas();
 
 }

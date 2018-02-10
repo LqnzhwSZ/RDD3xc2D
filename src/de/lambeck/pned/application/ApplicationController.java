@@ -583,6 +583,9 @@ public class ApplicationController extends AbstractApplicationController {
 
         addNewEmptyFile();
         refreshActiveFile();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -605,6 +608,9 @@ public class ApplicationController extends AbstractApplicationController {
             return;
 
         addNewModelFromFile(pnmlFile);
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -618,6 +624,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         closeActiveFile();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -631,6 +640,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         saveActiveFile();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -651,6 +663,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         saveActiveFileAs(pnmlFile);
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -668,6 +683,9 @@ public class ApplicationController extends AbstractApplicationController {
          * will check the attribute allowedToClose.
          */
         windowClosing(null);
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -685,6 +703,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         guiModelController.keyEvent_F2_Occurred();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -702,6 +723,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         removeSelectedGuiElements();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -719,6 +743,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         selectAllGuiElements();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -736,6 +763,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         guiModelController.moveElementToForeground();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -753,6 +783,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         guiModelController.moveElementToBackground();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -770,6 +803,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         guiModelController.moveElementOneLayerUp();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -787,6 +823,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         guiModelController.moveElementOneLayerDown();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
     }
 
     /**
@@ -842,6 +881,111 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         dataModelController.stopSimulation();
+
+        /* Set focus back to the TabbedPane. */
+        this.tabbedPane.requestFocus();
+
+        /* Scroll to the start place. */
+        scrollToStartPlace();
+    }
+
+    /**
+     * Scrolls the current {@link IDrawPanel} so that start place and enabled
+     * transitions are visible.
+     */
+    private void scrollToStartPlace() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("ApplicationController.scrollToStartPlace");
+        }
+
+        Rectangle startPlaceArea = guiModelController.getCurrentGuiModelStartPlaceArea();
+        ConsoleLogger.logIfDebug(debug, "startPlaceArea: " + startPlaceArea);
+        if (startPlaceArea == null)
+            return;
+
+        List<Rectangle> enabledTransitionsAreas = guiModelController.getCurrentGuiModelEnabledTransitionsAreas();
+        ConsoleLogger.logIfDebug(debug, "enabledTransitionsAreas: " + enabledTransitionsAreas);
+
+        Rectangle aRect = startPlaceArea;
+        if (enabledTransitionsAreas != null)
+            aRect = combineAreas(aRect, enabledTransitionsAreas);
+
+        IDrawPanel drawPanel = getCurrentDrawPanel();
+        /* This draw panel can be scrolled within the parent JViewPort. */
+        if (drawPanel == null)
+            return;
+
+        ((JPanel) drawPanel).scrollRectToVisible(aRect);
+    }
+
+    /**
+     * Combines the areas of 1 {@link Rectangle} and several {@link Rectangle}
+     * to 1 area.
+     * 
+     * @param startArea
+     *            The first {@link Rectangle}
+     * @param areasToAdd
+     *            The {@link List} of type {@link Rectangle} to add
+     * @return A {@link Rectangle} that contains all specified areas
+     */
+    private Rectangle combineAreas(Rectangle startArea, List<Rectangle> areasToAdd) {
+        Rectangle resultArea = startArea;
+
+        for (Rectangle r : areasToAdd) {
+            resultArea.add(r);
+        }
+
+        return resultArea;
+    }
+
+    /**
+     * Returns the current {@link IDrawPanel}. This is the draw panel on the
+     * current tab.
+     * 
+     * @return {@link IDrawPanel} or null on errors
+     */
+    private IDrawPanel getCurrentDrawPanel() {
+        Component component = tabbedPane.getSelectedComponent();
+        component = tabbedPane.getSelectedComponent();
+
+        Component scrollPaneCandidate = component.getComponentAt(1, 1);
+        // System.out.println(scrollPaneCandidate.toString());
+
+        JScrollPane scrollPane = null;
+        if (scrollPaneCandidate instanceof JScrollPane) {
+            scrollPane = (JScrollPane) scrollPaneCandidate;
+        }
+        if (scrollPane == null) {
+            System.err.println("Could not determine the JScrollPane!");
+            return null;
+        }
+        // scrollPane.getViewport().setViewPosition(new Point(0, 0));
+
+        Component viewPortCandidate = scrollPane.getComponentAt(1, 1);
+        // System.out.println(viewPortCandidate.toString());
+
+        JViewport viewPort = null;
+        if (viewPortCandidate instanceof JViewport) {
+            viewPort = (JViewport) viewPortCandidate;
+        }
+        if (viewPort == null) {
+            System.err.println("Could not determine the JViewport!");
+            return null;
+        }
+
+        Component drawPanelCandidate = viewPortCandidate.getComponentAt(1, 1);
+        // System.out.println(drawPanelCandidate.toString());
+
+        IDrawPanel drawPanel = null;
+        if (drawPanelCandidate instanceof IDrawPanel) {
+            drawPanel = (IDrawPanel) drawPanelCandidate;
+        }
+        if (drawPanel == null) {
+            System.err.println("Could not determine the IDrawPanel!");
+            return null;
+        }
+
+        return drawPanel;
     }
 
     /**
