@@ -3,6 +3,7 @@ de.lambeck.pned.application.actions
 de.lambeck.pned.elements
 de.lambeck.pned.elements.data
 de.lambeck.pned.elements.gui
+de.lambeck.pned.elements.util
 de.lambeck.pned.exceptions
 de.lambeck.pned.filesystem
 de.lambeck.pned.filesystem.pnml

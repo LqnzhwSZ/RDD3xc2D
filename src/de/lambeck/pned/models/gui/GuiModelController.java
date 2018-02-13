@@ -766,8 +766,8 @@ public class GuiModelController implements IGuiModelController {
      * Note: This allows the use of methods like
      * SwingUtilities.convertPointFromScreen().
      * 
-     * @param The
-     *            specified {@link IDrawPanel}
+     * @param drawPanel
+     *            The specified {@link IDrawPanel}
      * @return A reference of type {@link Component}}
      */
     private Component getDrawPanelAsSwingComponent(IDrawPanel drawPanel) {
@@ -1002,7 +1002,6 @@ public class GuiModelController implements IGuiModelController {
 
             try {
                 currentModel.removeElement(id);
-
                 // TODO Comment out the following command after testing!
                 // if (debug)
                 // debugRepaintImmediately();
@@ -1051,6 +1050,11 @@ public class GuiModelController implements IGuiModelController {
 
         /* Repaint the areas. */
         updateDrawing(drawingAreas);
+
+        String message = i18n.getMessage("infoElementsDeleted");
+        message = message.replace("%number%", Integer.toString(toBeRemoved_IDs.size()));
+        message = message.replace("%IDs%", toBeRemoved_IDs.toString());
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     @Override
@@ -1253,6 +1257,10 @@ public class GuiModelController implements IGuiModelController {
 
         /* Repaint (everything) */
         updateDrawing();
+
+        message = i18n.getMessage("infoElementsSelected");
+        message = message.replace("%number%", Integer.toString(toBeSelected.size()));
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     @Override
@@ -1490,8 +1498,9 @@ public class GuiModelController implements IGuiModelController {
      * 
      * @param currElem
      *            The specified {@link IGuiElement}
-     * @param direction
-     *            1 = upwards; -1 downwards
+     * @param upwards
+     *            true: return the neighbor upwards; false: return the neighbor
+     *            downwards
      * @return A {@link IGuiElement}
      */
     private IGuiElement getZValueSwapElement(IGuiElement currElem, boolean upwards) {

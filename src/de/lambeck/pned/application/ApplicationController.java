@@ -97,10 +97,10 @@ public class ApplicationController extends AbstractApplicationController {
      */
     private List<String> modifiedDataModels = new ArrayList<String>();
 
+    /* Validation controller and validators */
+
     /** Reference to the {@link ValidationController} */
     private ValidationController validationController;
-
-    /* Validator names */
 
     /**
      * The name of the {@link StartPlacesValidator} (for requests of individual
@@ -203,12 +203,12 @@ public class ApplicationController extends AbstractApplicationController {
         Dimension preferredSize = getScreenDependingMinimumSize();
         mainFrame.setPreferredSize(preferredSize);
 
-        // CTRL-Tab switch tabs in a JTabbedPane
+        /* CTRL+TAB switch tabs in a JTabbedPane */
         setupTabTraversalKeys(tabbedPane);
 
         /*
-         * Set focus to the TabbedPane to use the keyboard to cycle through the
-         * tabs. Works only for cursors before calling setupTabTraversalKeys().
+         * Set the focus to the JTabbedPane so we really can use the keyboard
+         * (CTRL+TAB) to cycle through the tabs.
          */
         this.tabbedPane.requestFocus();
 
@@ -304,7 +304,7 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Makes CTRL-Tab switch tabs in a JTabbedPane. See:
+     * Makes CTRL+TAB switch tabs in a JTabbedPane. See:
      * http://www.davidc.net/programming/java/how-make-ctrl-tab-switch-tabs-jtabbedpane
      * 
      * @param tabbedPane
@@ -584,8 +584,12 @@ public class ApplicationController extends AbstractApplicationController {
         addNewEmptyFile();
         refreshActiveFile();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
+
+        String message = i18n.getMessage("infoNewFileCreated");
+        message = message.replace("%modelName%", this.activeFile);
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     /**
@@ -609,7 +613,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         addNewModelFromFile(pnmlFile);
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -625,7 +629,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         closeActiveFile();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -641,8 +645,12 @@ public class ApplicationController extends AbstractApplicationController {
 
         saveActiveFile();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
+
+        String message = i18n.getMessage("infoFileSaved");
+        message = message.replace("%fullName%", this.activeFile);
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     /**
@@ -664,8 +672,12 @@ public class ApplicationController extends AbstractApplicationController {
 
         saveActiveFileAs(pnmlFile);
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
+
+        String message = i18n.getMessage("infoFileSaved");
+        message = message.replace("%fullName%", this.activeFile);
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     /**
@@ -684,7 +696,7 @@ public class ApplicationController extends AbstractApplicationController {
          */
         windowClosing(null);
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -704,7 +716,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         guiModelController.keyEvent_F2_Occurred();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -724,7 +736,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         removeSelectedGuiElements();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -744,7 +756,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         selectAllGuiElements();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -764,7 +776,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         guiModelController.moveElementToForeground();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -784,7 +796,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         guiModelController.moveElementToBackground();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -804,7 +816,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         guiModelController.moveElementOneLayerUp();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -824,7 +836,7 @@ public class ApplicationController extends AbstractApplicationController {
 
         guiModelController.moveElementOneLayerDown();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
 
@@ -852,7 +864,6 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void menuCmd_NewArcFromHere() {
         /* Called only from popup menus */
-        // guiModelController.setSourceNodeForNewArc();
         guiModelController.checkActivateDrawArcMode();
     }
 
@@ -882,21 +893,31 @@ public class ApplicationController extends AbstractApplicationController {
 
         dataModelController.stopSimulation();
 
-        /* Set focus back to the TabbedPane. */
+        /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
 
-        /* Scroll to the start place. */
+        /* Scroll to the start place to prepare for the next simulation. */
         scrollToStartPlace();
+
+        String message = i18n.getMessage("infoSimulationStopped");
+        message = message.replace("%modelName%", this.activeFile);
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     /**
      * Scrolls the current {@link IDrawPanel} so that start place and enabled
-     * transitions are visible.
+     * transitions are visible.<BR>
+     * <BR>
+     * Note: Waits up to 1 second for the {@link IDataModel} to become checked
+     * because it needs up-to-date results of the
+     * {@link EnabledTransitionsValidator}.
      */
     private void scrollToStartPlace() {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("ApplicationController.scrollToStartPlace");
         }
+
+        waitForCurrentDataModelChecked();
 
         Rectangle startPlaceArea = guiModelController.getCurrentGuiModelStartPlaceArea();
         ConsoleLogger.logIfDebug(debug, "startPlaceArea: " + startPlaceArea);
@@ -919,6 +940,40 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
+     * Waits (up to 1 second) until the current {@link IDataModel} was checked
+     * (by the {@link IValidationController}).
+     */
+    private void waitForCurrentDataModelChecked() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("ApplicationController.waitForCurrentDataModelChecked");
+        }
+
+        final int CHECK_INTERVAL = 100;
+        final int MAX_CYCLES = 10; // Wait no more than 1 second!
+        boolean modelChecked = false;
+
+        modelChecked = dataModelController.getCurrentModel().isModelChecked();
+        for (int i = 0; i < MAX_CYCLES; i++) {
+            /* Data model was checked already? */
+            if (modelChecked)
+                return;
+
+            /* Wait */
+            try {
+                // Thread.sleep(CHECK_INTERVAL);
+                java.util.concurrent.TimeUnit.MILLISECONDS.sleep(CHECK_INTERVAL);
+            } catch (InterruptedException e) {
+                return;
+            }
+            String message = "Waited " + CHECK_INTERVAL + " ms.";
+            ConsoleLogger.logIfDebug(debug, message);
+
+            /* Check again */
+            modelChecked = dataModelController.getCurrentModel().isModelChecked();
+        }
+    }
+
+    /**
      * Combines the areas of 1 {@link Rectangle} and several {@link Rectangle}
      * to 1 area.
      * 
@@ -929,12 +984,15 @@ public class ApplicationController extends AbstractApplicationController {
      * @return A {@link Rectangle} that contains all specified areas
      */
     private Rectangle combineAreas(Rectangle startArea, List<Rectangle> areasToAdd) {
-        Rectangle resultArea = startArea;
+        ConsoleLogger.logIfDebug(debug, "startArea: " + startArea.toString());
 
+        Rectangle resultArea = startArea;
         for (Rectangle r : areasToAdd) {
+            ConsoleLogger.logIfDebug(debug, "Adding: " + r.toString());
             resultArea.add(r);
         }
 
+        ConsoleLogger.logIfDebug(debug, "resultArea: " + resultArea.toString());
         return resultArea;
     }
 
