@@ -1051,6 +1051,10 @@ public class GuiModelController implements IGuiModelController {
         /* Repaint the areas. */
         updateDrawing(drawingAreas);
 
+        /* Update Actions (buttons) in case we removed a selected element. */
+        List<IGuiElement> emptyList = new LinkedList<IGuiElement>();
+        appController.enableActionsForSelectedElements(emptyList);
+
         String message = i18n.getMessage("infoElementsDeleted");
         message = message.replace("%number%", Integer.toString(toBeRemoved_IDs.size()));
         message = message.replace("%IDs%", toBeRemoved_IDs.toString());
@@ -1088,12 +1092,23 @@ public class GuiModelController implements IGuiModelController {
 
         /* Update the drawing. */
         updateDrawing(rect);
+
+        /* Update Actions (buttons) in case we removed a selected element. */
+        List<IGuiElement> selected = currentModel.getSelectedElements();
+        appController.enableActionsForSelectedElements(selected);
     }
 
     @Override
     public void clearCurrentGuiModel() {
         currentModel.clear();
         currentModel.setModified(true);
+
+        /* Update the drawing. */
+        updateDrawing();
+
+        /* Update Actions (buttons) in case we removed a selected element. */
+        List<IGuiElement> emptyList = new LinkedList<IGuiElement>();
+        appController.enableActionsForSelectedElements(emptyList);
     }
 
     /* Mouse and selection events */
@@ -1106,17 +1121,18 @@ public class GuiModelController implements IGuiModelController {
 
         if (mousePressedLocation == null) {
             System.err.println("mousePressedLocation == null");
-            appController.updateZValueActions(null);
+            appController.enableZValueActions(null);
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
 
-        appController.updateZValueActions(mousePressedElement);
+        // appController.updateZValueActions(mousePressedElement);
 
         if (mousePressedElement == null) {
             resetSelection();
+            appController.enableZValueActions(null);
             return;
         }
 
@@ -1162,6 +1178,10 @@ public class GuiModelController implements IGuiModelController {
         }
         updateDrawing(oldArea);
         updateDrawing(newArea);
+
+        /* Update the Actions (buttons) */
+        List<IGuiElement> selected = currentModel.getSelectedElements();
+        appController.enableActionsForSelectedElements(selected);
     }
 
     @Override
@@ -1173,16 +1193,19 @@ public class GuiModelController implements IGuiModelController {
 
         if (mousePressedLocation == null) {
             System.err.println("mousePressedLocation == null");
-            appController.updateZValueActions(null);
+            appController.enableZValueActions(null);
             return;
         }
 
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
 
-        appController.updateZValueActions(mousePressedElement);
+        // appController.updateZValueActions(mousePressedElement);
 
-        if (mousePressedElement == null) { return; }
+        if (mousePressedElement == null) {
+            appController.enableZValueActions(null);
+            return;
+        }
 
         IGuiElement mouseReleasedElement;
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
@@ -1226,6 +1249,10 @@ public class GuiModelController implements IGuiModelController {
         }
         updateDrawing(oldArea);
         updateDrawing(newArea);
+
+        /* Update the Actions (buttons) */
+        List<IGuiElement> selected = currentModel.getSelectedElements();
+        appController.enableActionsForSelectedElements(selected);
     }
 
     @Override
@@ -1257,6 +1284,10 @@ public class GuiModelController implements IGuiModelController {
 
         /* Repaint (everything) */
         updateDrawing();
+
+        /* Update the Actions (buttons) */
+        List<IGuiElement> selected = currentModel.getSelectedElements();
+        appController.enableActionsForSelectedElements(selected);
 
         message = i18n.getMessage("infoElementsSelected");
         message = message.replace("%number%", Integer.toString(toBeSelected.size()));
@@ -1382,10 +1413,10 @@ public class GuiModelController implements IGuiModelController {
 
     /* Keyboard events */
 
-    @Override
-    public void keyEvent_Escape_Occurred() {
-        resetSelection();
-    }
+    // @Override
+    // public void keyEvent_Escape_Occurred() {
+    // resetSelection();
+    // }
 
     /**
      * De-selects all {@link IGuiElement} and updates the drawing.
@@ -1537,7 +1568,7 @@ public class GuiModelController implements IGuiModelController {
         if (!upwards)
             swapZ = minZ - 1;
 
-        /* Check all elements */
+        /* Check all elements to find the next element in the desired direction. */
         for (IGuiElement next : elements) {
             int nextZ = next.getZValue();
             if (upwards && (nextZ > currZ) || !upwards && (nextZ < currZ)) {
@@ -1545,7 +1576,7 @@ public class GuiModelController implements IGuiModelController {
                 IGuiElement candidate = next;
                 int candidateZ = nextZ;
                 if (upwards && (candidateZ < swapZ) || !upwards && (candidateZ > swapZ)) {
-                    /* Candidate is "closer" than the last candidate. */
+                    /* Candidate is "closer" than the current swap candidate. */
                     swapElement = candidate;
                     swapZ = candidateZ;
                 }
@@ -1572,27 +1603,25 @@ public class GuiModelController implements IGuiModelController {
             System.err.println(e.getMessage());
             return;
         }
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
     }
 
     /**
-     * Assigns the specified element to the foreground. (1 level higher in z
-     * direction than the current top element)
+     * Assigns the specified {@link IGuiElement} to the foreground. (1 level
+     * higher in z direction than the current top element)
      * 
      * @param element
-     *            The element to be set as the new foreground element.
+     *            The {@link IGuiElement} to be set as the new foreground
+     *            element
      * @throws PNNoSuchElementException
      *             if element is null
      */
     private void moveToForeground(IGuiElement element) throws PNNoSuchElementException {
-        if (element == null)
-            throw new PNNoSuchElementException("Element must not be null.");
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToForeground", element.getId());
         }
+
+        if (element == null)
+            throw new PNNoSuchElementException("Element must not be null.");
 
         int currZValue = element.getZValue();
         int currMax = currentModel.getMaxZValue();
@@ -1622,6 +1651,9 @@ public class GuiModelController implements IGuiModelController {
          * frequently.
          */
         updateDrawing();
+
+        /* Update the Actions (buttons) */
+        enableZValueActionsDependingOnSelection();
     }
 
     @Override
@@ -1641,27 +1673,25 @@ public class GuiModelController implements IGuiModelController {
             System.err.println(e.getMessage());
             return;
         }
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
     }
 
     /**
-     * Assigns the specified element to the background. (1 level lower in z
-     * direction than the current bottom element)
+     * Assigns the specified {@link IGuiElement} to the background. (1 level
+     * lower in z direction than the current bottom element)
      * 
      * @param element
-     *            The element to be set as the new background element.
+     *            The {@link IGuiElement} to be set as the new background
+     *            element
      * @throws PNNoSuchElementException
      *             if element is null
      */
     private void moveToBackground(IGuiElement element) throws PNNoSuchElementException {
-        if (element == null)
-            throw new PNNoSuchElementException("Element must not be null.");
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToBackground", element.getId());
         }
+
+        if (element == null)
+            throw new PNNoSuchElementException("Element must not be null.");
 
         int currZValue = element.getZValue();
         int currMin = currentModel.getMinZValue();
@@ -1681,6 +1711,9 @@ public class GuiModelController implements IGuiModelController {
          * frequently.
          */
         updateDrawing();
+
+        /* Update the Actions (buttons) */
+        enableZValueActionsDependingOnSelection();
     }
 
     @Override
@@ -1694,22 +1727,29 @@ public class GuiModelController implements IGuiModelController {
         }
 
         /* OK, we have exactly 1 selected element. */
-        moveOneLayerUp(moveElement);
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
+        try {
+            moveOneLayerUp(moveElement);
+        } catch (PNNoSuchElementException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
     }
 
     /**
-     * Assigns the specified element to the next higher layer.
+     * Assigns the specified {@link IGuiElement} to the next higher layer.
      * 
      * @param element
-     *            The element to be moved one layer up.
+     *            The {@link IGuiElement} to be moved one layer up
+     * @throws PNNoSuchElementException
+     *             if element is null
      */
-    private void moveOneLayerUp(IGuiElement element) {
+    private void moveOneLayerUp(IGuiElement element) throws PNNoSuchElementException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerUp", element);
         }
+
+        if (element == null)
+            throw new PNNoSuchElementException("Element must not be null.");
 
         /* Get the element to swap with. */
         boolean upwards = true;
@@ -1738,6 +1778,9 @@ public class GuiModelController implements IGuiModelController {
          * frequently.
          */
         updateDrawing();
+
+        /* Update the Actions (buttons) */
+        enableZValueActionsDependingOnSelection();
     }
 
     @Override
@@ -1751,22 +1794,29 @@ public class GuiModelController implements IGuiModelController {
         }
 
         /* OK, we have exactly 1 selected element. */
-        moveOneLayerDown(moveElement);
-
-        /* Update the Actions (buttons) */
-        updateZValueActionsDependingOnSelection();
+        try {
+            moveOneLayerDown(moveElement);
+        } catch (PNNoSuchElementException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
     }
 
     /**
-     * Assigns the specified element to the next lower layer.
+     * Assigns the specified {@link IGuiElement} to the next lower layer.
      * 
      * @param element
-     *            The element to be moved one layer down.
+     *            The {@link IGuiElement} to be moved one layer down
+     * @throws PNNoSuchElementException
+     *             if element is null
      */
-    private void moveOneLayerDown(IGuiElement element) {
+    private void moveOneLayerDown(IGuiElement element) throws PNNoSuchElementException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.moveOneLayerUp", element);
         }
+
+        if (element == null)
+            throw new PNNoSuchElementException("Element must not be null.");
 
         /* Get the element to swap with. */
         boolean upwards = false;
@@ -1795,6 +1845,9 @@ public class GuiModelController implements IGuiModelController {
          * frequently.
          */
         updateDrawing();
+
+        /* Update the Actions (buttons) */
+        enableZValueActionsDependingOnSelection();
     }
 
     // /**
@@ -2164,17 +2217,17 @@ public class GuiModelController implements IGuiModelController {
     }
 
     /**
-     * Invokes updateZValueActions() in {@link ApplicationController} with the
+     * Invokes enableZValueActions() in {@link ApplicationController} with the
      * proper parameter depending on whether a (single) {@link IGuiElement} is
      * selected or not.
      */
-    private void updateZValueActionsDependingOnSelection() {
+    private void enableZValueActionsDependingOnSelection() {
         IGuiElement selectedElement;
         try {
             selectedElement = getSingleSelectedElement();
-            appController.updateZValueActions(selectedElement);
+            appController.enableZValueActions(selectedElement);
         } catch (PNElementException e) {
-            appController.updateZValueActions(null);
+            appController.enableZValueActions(null);
         }
     }
 

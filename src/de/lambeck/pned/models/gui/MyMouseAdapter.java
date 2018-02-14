@@ -187,6 +187,9 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
             ConsoleLogger.consoleLogMethodCall("MyMouseAdapter.mousePressed", e);
         }
 
+        /* Reset the last popup menu location! */
+        myDrawPanel.setPopupMenuLocation(null);
+
         if (drawArcMode) {
             /*
              * Let the GUI model controller check whether the user has clicked
@@ -579,7 +582,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
          * But we need the info anyways because we have to update the enabled
          * state of the "z level" Actions ("ElementToTheForeground" ...).
          */
-        myAppController.updateZValueActions(element);
+        myAppController.enableZValueActions(element);
 
         /* Decide which popup to show */
         String simpleClassName = getSimpleClassName(element);

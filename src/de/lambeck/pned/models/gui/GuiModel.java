@@ -204,11 +204,13 @@ public class GuiModel implements IGuiModel, IModelRename {
 
     @Override
     public int getMinZValue() {
+        updateMinZ();
         return this.minZValue;
     }
 
     @Override
     public int getMaxZValue() {
+        updateMaxZ();
         return this.maxZValue;
     }
 

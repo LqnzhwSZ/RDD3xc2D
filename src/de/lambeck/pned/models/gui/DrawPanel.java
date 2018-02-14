@@ -521,6 +521,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         this.initialDraggedFrom = null;
         this.mouseDraggedFrom = null;
         this.mouseDraggedTo = null;
+        this.popupMenuLocation = null;
     }
 
     /**

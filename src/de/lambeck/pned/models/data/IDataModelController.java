@@ -147,8 +147,8 @@ public interface IDataModelController extends IInfo_Status {
     List<String> getModifiedDataModels();
 
     /**
-     * Returns the applications main frame to other classes to allow them to
-     * center messages or input dialogs.
+     * Returns the applications main frame so that other classes can position
+     * messages or input dialogs properly instead on the center of the screen.
      * 
      * @return The main application window as {@link JFrame}
      */

@@ -1,6 +1,8 @@
 package de.lambeck.pned.application.actions;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -8,6 +10,7 @@ import javax.swing.JFrame;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.elements.gui.IGuiElement;
+import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.i18n.I18NManager;
 
 /**
@@ -102,6 +105,7 @@ public class ActionManager implements IActionManager {
         this.mainFrame = mainFrame;
 
         createAllActions();
+        disableInitiallyUnnecessaryActions();
         addAllActionsToHashMaps();
     }
 
@@ -132,6 +136,14 @@ public class ActionManager implements IActionManager {
 
         newPlaceAction = new NewPlaceAction(appController, i18n);
         newTransitionAction = new NewTransitionAction(appController, i18n);
+    }
+
+    /**
+     * Disables all {@link AbstractAction} that will not be needed at program
+     * start.
+     */
+    private void disableInitiallyUnnecessaryActions() {
+        enableActionsForOpenFiles("");
     }
 
     /**
@@ -186,7 +198,63 @@ public class ActionManager implements IActionManager {
     }
 
     @Override
-    public void updateZValueActions(IGuiElement element) {
+    public void enableActionsForOpenFiles(String activeFile) {
+        if (activeFile == null || activeFile.equals("")) {
+            fileCloseAction.setEnabled(false);
+            fileSaveAction.setEnabled(false);
+            fileSaveAsAction.setEnabled(false);
+
+            selectAllAction.setEnabled(false);
+
+            List<IGuiElement> emptyList = new LinkedList<IGuiElement>();
+            enableActionsForSelectedElements(emptyList);
+
+            stopSimulationAction.setEnabled(false);
+
+        } else {
+            /* Close and SaveAs are always possible for all files. */
+            fileCloseAction.setEnabled(true);
+            fileSaveAsAction.setEnabled(true);
+
+            /* Save (directly) not for new and write-protected files */
+            boolean isFileSystemFile = FSInfo.isFileSystemFile(activeFile);
+            boolean isWriteProtected = FSInfo.isWriteProtectedFile(activeFile);
+            if (isFileSystemFile && !isWriteProtected)
+                fileSaveAction.setEnabled(true);
+
+            selectAllAction.setEnabled(true);
+
+            stopSimulationAction.setEnabled(true);
+
+        }
+    }
+
+    @Override
+    public void enableActionsForSelectedElements(List<IGuiElement> selected) {
+        if (selected.size() == 0) {
+            editRenameAction.setEnabled(false);
+            editDeleteAction.setEnabled(false);
+
+            enableZValueActions(null);
+
+        } else if (selected.size() == 1) {
+            editRenameAction.setEnabled(true);
+            editDeleteAction.setEnabled(true);
+
+            IGuiElement singleElement = selected.get(0);
+            enableZValueActions(singleElement);
+
+        } else {
+            editRenameAction.setEnabled(false);
+            editDeleteAction.setEnabled(true);
+
+            enableZValueActions(null);
+
+        }
+    }
+
+    @Override
+    public void enableZValueActions(IGuiElement element) {
         if (element == null) {
             toForegroundAction.setEnabled(false);
             oneLayerUpAction.setEnabled(false);

@@ -584,6 +584,9 @@ public class ApplicationController extends AbstractApplicationController {
         addNewEmptyFile();
         refreshActiveFile();
 
+        /* Update the Actions (buttons) */
+        this.actionManager.enableActionsForOpenFiles(this.activeFile);
+
         /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
 
@@ -613,6 +616,9 @@ public class ApplicationController extends AbstractApplicationController {
 
         addNewModelFromFile(pnmlFile);
 
+        /* Update the Actions (buttons) */
+        this.actionManager.enableActionsForOpenFiles(this.activeFile);
+
         /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
     }
@@ -628,6 +634,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         closeActiveFile();
+
+        /* Update the Actions (buttons) */
+        this.actionManager.enableActionsForOpenFiles(this.activeFile);
 
         /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
@@ -2496,8 +2505,8 @@ public class ApplicationController extends AbstractApplicationController {
      *            popup menu location, or null = no element selected and no
      *            element at the popup menu location
      */
-    public void updateZValueActions(IGuiElement element) {
-        actionManager.updateZValueActions(element);
+    public void enableZValueActions(IGuiElement element) {
+        actionManager.enableZValueActions(element);
     }
 
     /**
@@ -2516,6 +2525,20 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public int getCurrentMaxZValue() {
         return guiModelController.getCurrentMaxZValue();
+    }
+
+    /**
+     * Enables or disables all {@link AbstractAction} that depend on the number
+     * of selected {@link IGuiElement}.<BR>
+     * <BR>
+     * Note: Callback for the {@link IGuiModelController}, passes the request to
+     * the {@link ActionManager}.
+     * 
+     * @param selected
+     *            The {@link List} of selected {@link IGuiElement}
+     */
+    public void enableActionsForSelectedElements(List<IGuiElement> selected) {
+        this.actionManager.enableActionsForSelectedElements(selected);
     }
 
 }
