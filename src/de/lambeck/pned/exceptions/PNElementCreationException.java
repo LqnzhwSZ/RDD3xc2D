@@ -1,12 +1,12 @@
 package de.lambeck.pned.exceptions;
 
 /**
- * General exception for elements of the Petri net.
+ * Exception for errors during creation of elements in a Petri net.
  * 
  * @author Thomas Lambeck, 4128320
  * 
  */
-public class PNElementException extends Exception {
+public class PNElementCreationException extends Exception {
 
     /**
      * Generated serial version ID
@@ -19,7 +19,7 @@ public class PNElementException extends Exception {
      * @param cause
      *            as in {@link Exception}
      */
-    public PNElementException(String message, Throwable cause) {
+    public PNElementCreationException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -27,7 +27,7 @@ public class PNElementException extends Exception {
      * @param message
      *            as in {@link Exception}
      */
-    public PNElementException(String message) {
+    public PNElementCreationException(String message) {
         super(message);
     }
 

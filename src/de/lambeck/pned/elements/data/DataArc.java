@@ -1,7 +1,7 @@
 package de.lambeck.pned.elements.data;
 
 import de.lambeck.pned.elements.util.NodeCheck;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNElementCreationException;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
@@ -27,16 +27,16 @@ public class DataArc extends DataElement implements IDataArc {
      *            The source id
      * @param target
      *            The target id
-     * @throws PNElementException
+     * @throws PNElementCreationException
      *             For an invalid combination of source and target
      */
     @SuppressWarnings("hiding")
-    public DataArc(String id, IDataNode source, IDataNode target) throws PNElementException {
+    public DataArc(String id, IDataNode source, IDataNode target) throws PNElementCreationException {
         super(id);
 
         /* Check for different types of elements */
         if (!NodeCheck.isValidConnection(source, target))
-            throw new PNElementException("Invalid combination of source and target for Arc");
+            throw new PNElementCreationException("Invalid combination of source and target for Arc");
 
         /*
          * predElements/succElements must have only 1 entry and they are lists

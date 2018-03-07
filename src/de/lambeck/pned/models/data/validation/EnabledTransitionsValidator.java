@@ -79,6 +79,10 @@ public class EnabledTransitionsValidator extends AbstractValidator {
 
         addValidatorInfo();
 
+        /* Abort condition: empty model? */
+        if (evaluateEmptyModel(myDataModel))
+            return;
+
         removeExistingEnabledStates();
 
         if (checkAbortCondition1())

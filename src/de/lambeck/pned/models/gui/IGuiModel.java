@@ -12,24 +12,37 @@ import de.lambeck.pned.elements.gui.IGuiTransition;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.IModel;
 import de.lambeck.pned.models.data.IDataModel;
+import de.lambeck.pned.models.gui.overlay.EOverlayName;
+import de.lambeck.pned.models.gui.overlay.IOverlay;
 
 /**
- * Sub type of {@link IModel} for {@link IGuiModel}. This means models with all
- * the graphical information (from a {@link IDataModel} or drawn by the user).
+ * Sub type of {@link IModel} for GUI models (with all graphical information
+ * from an {@link IDataModel} or drawn by the user).
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
+// public interface IGuiModel extends IModel, IUndoableModel {
 public interface IGuiModel extends IModel {
 
     /* Getter and Setter */
 
+    // @Override
     /**
-     * Returns a list with all elements in this model.
+     * Returns a list with all {@link IGuiElement} in this {@link IGuiModel}.
      * 
-     * @return Elements of the petri net
+     * @return all {@link IGuiElement} as Java {@link List}
      */
     List<IGuiElement> getElements();
+
+    // @Override
+    /**
+     * Returns a list with all selected {@link IGuiElement} in this
+     * {@link IGuiModel}.
+     * 
+     * @return all selected {@link IGuiElement} as Java {@link List}
+     */
+    List<IGuiElement> getSelectedElements();
 
     /**
      * Returns the {@link IGuiElement} with the specified id.
@@ -41,13 +54,6 @@ public interface IGuiModel extends IModel {
      *             If this model has no element with the specified id
      */
     IGuiElement getElementById(String id) throws PNNoSuchElementException;
-
-    /**
-     * Returns a list with all selected elements in this model.
-     * 
-     * @return Elements of the petri net
-     */
-    List<IGuiElement> getSelectedElements();
 
     /**
      * Returns the {@link IGuiNode} with the specified id.
@@ -83,51 +89,55 @@ public interface IGuiModel extends IModel {
     IGuiTransition getTransitionById(String id) throws PNNoSuchElementException;
 
     /**
-     * Returns the minimum Z value for all elements in this GUI model.<BR>
+     * Returns the minimum Z value (height level) over all elements in this
+     * {@link IGuiModel}.<BR>
      * <BR>
      * Note: Intended to be used for putting an element to the background.
      * 
-     * @return The minimum z value
+     * @return The minimum Z value
      */
     int getMinZValue();
 
     /**
-     * Returns the maximum Z value for all elements in this GUI model.<BR>
+     * Returns the maximum Z value (height level) over all elements in this
+     * {@link IGuiModel}.<BR>
      * <BR>
      * Note: Intended to be used for putting an element to the foreground.
      * 
-     * @return The maximum z value
+     * @return The maximum Z value
      */
     int getMaxZValue();
 
     /**
-     * Returns the z value of an element
+     * Returns the Z value (height level) of the specified {@link IGuiElement}.
      * 
      * @param element
-     *            The current element
-     * @return The z value (height level)
+     *            The specified {@link IGuiElement}
+     * @return The Z value
      */
     int getZValue(IGuiElement element);
 
     /**
-     * Returns a new minimum for the z value (height level) of all elements (The
-     * lowest level used by existing elements - 1). Returns the current minimum
-     * if there are no elements.<BR>
+     * Returns a new minimum for the Z value (height level) for all
+     * {@link IGuiElement} in this {@link IGuiModel}. (the lowest level used by
+     * existing elements - 1)<BR>
      * <BR>
      * Note: The limit of MinInt should never be reachable during a session.
      * 
-     * @return The new minimum z value
+     * @return The new minimum Z value; the current minimum if there are no
+     *         elements
      */
     int getDecrMinZ();
 
     /**
-     * Returns a new maximum for the z value (height level) of all elements (The
-     * highest level used by existing elements + 1). Returns the current maximum
-     * if there are no elements.<BR>
+     * Returns a new maximum for the Z value (height level) for all
+     * {@link IGuiElement} in this {@link IGuiModel}. (the highest level used by
+     * existing elements + 1)<BR>
      * <BR>
      * Note: The limit of MaxInt should never be reachable during a session.
      * 
-     * @return The new maximum z value
+     * @return The new maximum Z value; the current maximum if there are no
+     *         elements
      */
     int getIncrMaxZ();
 
@@ -147,21 +157,22 @@ public interface IGuiModel extends IModel {
     /* Methods for adding, modify and removal of elements */
 
     /**
-     * Sets the selection to only 1 {@link IGuiElement}.<BR>
+     * Sets the selected state of only the (one) specified {@link IGuiElement}
+     * and removes this state from all other {@link IGuiElement} in this
+     * {@link IGuiModel}.<BR>
      * <BR>
-     * Note that this method calls clearSelection() first. The previous
-     * selection gets cleared if element is null.
+     * Note that the previous selection gets cleared if element is null.
      * 
      * @param element
-     *            The element to select
+     *            The specified {@link IGuiElement} to select.
      */
     void selectSingleElement(IGuiElement element);
 
     /**
-     * Toggles the selection of this {@link IGuiElement}.
+     * Toggles the selected state of the specified {@link IGuiElement}.
      * 
      * @param element
-     *            The element whose isSelected state has to be switched
+     *            The specified {@link IGuiElement}
      */
     void toggleSelection(IGuiElement element);
 
@@ -281,7 +292,9 @@ public interface IGuiModel extends IModel {
 
     /**
      * To be called for cleanup of an {@link IGuiModel} after it got
-     * deactivated.
+     * deactivated.<BR>
+     * <BR>
+     * Currently used to remove overlays.
      */
     void deactivated();
 

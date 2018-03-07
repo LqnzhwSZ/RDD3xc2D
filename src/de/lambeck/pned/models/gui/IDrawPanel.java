@@ -169,31 +169,31 @@ public interface IDrawPanel {
     void resetState();
 
     /**
-     * Returns the minimum Z value for all elements in this draw panels GUI
-     * model.<BR>
+     * Returns the minimum Z value (height level) over all elements in this draw
+     * panels current {@link IGuiModel}.<BR>
      * <BR>
      * Note: Intended to be used for putting an element to the background.
      * 
-     * @return The minimum z value
+     * @return The minimum Z value
      */
     int getMinZValue();
 
     /**
-     * Returns the maximum Z value for all elements in this draw panels GUI
-     * model.<BR>
+     * Returns the maximum Z value (height level) over all elements in this draw
+     * panels current {@link IGuiModel}.<BR>
      * <BR>
      * Note: Intended to be used for putting an element to the foreground.
      * 
-     * @return The maximum z value
+     * @return The maximum Z value
      */
     int getMaxZValue();
 
     /**
-     * Returns the z value of an element.
-     * 
+     * Returns the Z value (height level) of the specified {@link IGuiElement}.
+     *
      * @param element
-     *            The current element
-     * @return The z value (height level)
+     *            The specified {@link IGuiElement}
+     * @return The Z value
      */
     int getZValue(IGuiElement element);
 

@@ -3,7 +3,7 @@ package de.lambeck.pned.elements.gui;
 import java.awt.*;
 import java.awt.geom.Line2D;
 
-import de.lambeck.pned.models.gui.IDrawArcOverlay;
+import de.lambeck.pned.models.gui.overlay.IDrawArcOverlay;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**

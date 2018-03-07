@@ -94,6 +94,10 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
 
         addValidatorInfo();
 
+        /* Abort condition: empty model? */
+        if (evaluateEmptyModel(myDataModel))
+            return;
+
         /* Check condition 1: exactly 1 start and end place */
         if (!evaluateStartAndEndPlace())
             return;
@@ -194,9 +198,9 @@ public class AllNodesOnPathsValidator extends AbstractValidator {
         /* Add all nodes to List "allNodes" */
         for (IDataElement element : allElements) {
             if (element instanceof IDataNode) {
-                String nodeId = element.getId();
+                String nodeID = element.getId();
                 IDataNode node = (IDataNode) element;
-                this.allNodes.put(nodeId, node);
+                this.allNodes.put(nodeID, node);
             }
         }
 

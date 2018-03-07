@@ -1,4 +1,4 @@
-package de.lambeck.pned.models.gui;
+package de.lambeck.pned.models.gui.overlay;
 
 /*
  * DrawArcOverlay is working but without this interface.
@@ -7,7 +7,7 @@ package de.lambeck.pned.models.gui;
 /**
  * Interface for Components that can be visible or invisible.<BR>
  * <BR>
- * Note: Non-public interface like {@link IModelRename}
+ * Note: Non-public interface
  * 
  * @author Thomas Lambeck, 4128320
  *

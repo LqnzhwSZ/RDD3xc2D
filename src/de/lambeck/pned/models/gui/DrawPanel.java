@@ -2,6 +2,7 @@ package de.lambeck.pned.models.gui;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -15,6 +16,7 @@ import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.elements.gui.IPaintable;
 import de.lambeck.pned.gui.ECustomColor;
 import de.lambeck.pned.gui.statusBar.StatusBar;
+import de.lambeck.pned.models.gui.overlay.IOverlay;
 import de.lambeck.pned.util.ConsoleLogger;
 
 /**
@@ -55,9 +57,6 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      * This should be the name of the tab. (file name only)
      */
     private String displayName = "";
-
-    /** Reference to the {@link IGuiModel} for this draw panel */
-    private IGuiModel myGuiModel = null;
 
     /**
      * Indicates the area taken up by graphics.
@@ -120,20 +119,17 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
      *            The application controller
      * @param guiController
      *            The GUI model controller
-     * @param guiModel
-     *            The GUI model to draw on this draw panel
      * @param popupActions
      *            List of Actions
      */
     @SuppressWarnings("hiding")
     public DrawPanel(String modelName, String displayName, ApplicationController appController,
-            IGuiModelController guiController, IGuiModel guiModel, Map<String, AbstractAction> popupActions) {
+            IGuiModelController guiController, Map<String, AbstractAction> popupActions) {
         super();
         this.modelName = modelName;
         this.displayName = displayName;
         this.myAppController = appController;
         this.myGuiController = guiController;
-        this.myGuiModel = guiModel;
         this.popupActions = popupActions;
 
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -245,8 +241,11 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
         boolean areaChanged = false;
 
+        IGuiModel currentGuiModel = getCurrentGuiModel();
+
         /* Paint the elements of the model. */
-        for (IGuiElement element : myGuiModel.getElements()) {
+        List<IGuiElement> elements = currentGuiModel.getElements();
+        for (IGuiElement element : elements) {
             element.paintElement(g);
 
             if (element instanceof IGuiNode) {
@@ -274,7 +273,7 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         }
 
         /* Paint the elements of the overlay(s). */
-        for (IOverlay overlay : myGuiModel.getAllOverlays()) {
+        for (IOverlay overlay : currentGuiModel.getAllOverlays()) {
             for (IPaintable paintable : overlay.getPaintableElements()) {
                 paintable.paintElement(g);
 
@@ -345,6 +344,21 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
         for (int i = 99; i <= width; i += GRID_STEP) {
             g2.drawLine(i, 0, i, height);
         }
+    }
+
+    /**
+     * Returns the current {@link IGuiModel} from the
+     * {@link IGuiModelController}.<BR>
+     * <BR>
+     * Note: This model may be a <B>different object reference</B> if the user
+     * has invoked an Undo or Redo operation! This means: no change in the model
+     * but <B>replacing the model with another model</B>.
+     * 
+     * @return the current {@link IGuiModel}
+     */
+    private IGuiModel getCurrentGuiModel() {
+        IGuiModel currentGuiModel = myGuiController.getCurrentModel();
+        return currentGuiModel;
     }
 
     /**
@@ -533,17 +547,18 @@ public class DrawPanel extends JPanel implements IDrawPanel, IModelRename, IInfo
 
     @Override
     public int getMinZValue() {
-        return myGuiModel.getMinZValue();
+        return myGuiController.getCurrentMinZValue();
     }
 
     @Override
     public int getMaxZValue() {
-        return myGuiModel.getMaxZValue();
+        return myGuiController.getCurrentMaxZValue();
     }
 
     @Override
     public int getZValue(IGuiElement element) {
-        return myGuiModel.getZValue(element);
+        IGuiModel currentGuiModel = getCurrentGuiModel();
+        return currentGuiModel.getZValue(element);
     }
 
     @Override

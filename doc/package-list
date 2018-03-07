@@ -19,4 +19,5 @@ de.lambeck.pned.models
 de.lambeck.pned.models.data
 de.lambeck.pned.models.data.validation
 de.lambeck.pned.models.gui
+de.lambeck.pned.models.gui.overlay
 de.lambeck.pned.util

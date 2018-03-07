@@ -1,4 +1,4 @@
-package de.lambeck.pned.models.gui;
+package de.lambeck.pned.models.gui.overlay;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -9,6 +9,8 @@ import de.lambeck.pned.elements.gui.IGuiNode;
 import de.lambeck.pned.elements.gui.IOverlayGuiArc;
 import de.lambeck.pned.elements.gui.IPaintable;
 import de.lambeck.pned.elements.gui.OverlayGuiArc;
+import de.lambeck.pned.models.gui.IDrawPanel;
+import de.lambeck.pned.models.gui.MyMouseAdapter;
 
 /**
  * Implements a temporary overlay with 1 arc that should be visible above the

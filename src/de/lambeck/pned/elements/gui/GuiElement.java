@@ -1,8 +1,10 @@
 package de.lambeck.pned.elements.gui;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import de.lambeck.pned.models.gui.DrawPanel;
+import de.lambeck.pned.util.ObjectCloner;
 
 /**
  * Superclass GuiElement implements the common members for all elements.
@@ -10,7 +12,12 @@ import de.lambeck.pned.models.gui.DrawPanel;
  * @author Thomas Lambeck, 4128320
  *
  */
-public abstract class GuiElement implements IGuiElement {
+public abstract class GuiElement implements IGuiElement, Serializable {
+
+    /**
+     * Generated serial version ID (necessary for the {@link ObjectCloner})
+     */
+    private static final long serialVersionUID = -2680605249299184431L;
 
     /* Attributes for interface IGuiElement */
 
@@ -47,7 +54,7 @@ public abstract class GuiElement implements IGuiElement {
      */
     @SuppressWarnings("hiding")
     public GuiElement(String id, int zValue) {
-        if (id == null || id == "")
+        if (id == null || id.equals(""))
             System.err.println("Invalid empty ID!");
 
         this.id = id;

@@ -99,7 +99,12 @@ public class I18NManager {
      * @return The string for the given key
      */
     private String getString(String key, ResourceBundle bundle) {
-        if (key == "")
+        if (key == null) {
+            System.err.println("getString() was called with a null string!");
+            return "";
+        }
+
+        if (key.equals(""))
             return "";
 
         String i18nString = "";
@@ -171,13 +176,13 @@ public class I18NManager {
     private MnemonicString getMnemonicString(String key, ResourceBundle bundle) {
         MnemonicString mnemonicString = new MnemonicString("", -1);
 
-        if (key == "")
-            return mnemonicString;
-
         if (key == null) {
             System.err.println("getMnemonicString() was called with a null string!");
             return mnemonicString;
         }
+
+        if (key.equals(""))
+            return mnemonicString;
 
         String i18nString = "";
         try {

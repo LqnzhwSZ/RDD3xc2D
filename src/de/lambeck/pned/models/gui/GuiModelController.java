@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.*;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
@@ -14,10 +16,17 @@ import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.elements.util.NodeCheck;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNElementCreationException;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
+import de.lambeck.pned.exceptions.PNObjectNotClonedException;
 import de.lambeck.pned.i18n.I18NManager;
+import de.lambeck.pned.models.data.IDataModel;
+import de.lambeck.pned.models.gui.overlay.DrawArcOverlay;
+import de.lambeck.pned.models.gui.overlay.EOverlayName;
+import de.lambeck.pned.models.gui.overlay.IDrawArcOverlay;
+import de.lambeck.pned.models.gui.overlay.IOverlay;
 import de.lambeck.pned.util.ConsoleLogger;
+import de.lambeck.pned.util.ObjectCloner;
 
 /**
  * Observes the state of the GUI.
@@ -48,8 +57,20 @@ public class GuiModelController implements IGuiModelController {
     private Map<String, IGuiModel> guiModels = new HashMap<String, IGuiModel>();
 
     /**
-     * Current model is the model that corresponds to the active tab of the
-     * tabbed pane.
+     * Map of (Undo) stacks for old versions of {@link IGuiModel} identified by
+     * their name (full name of the file)
+     */
+    private Map<String, IGuiModelStack> undoStacks = new HashMap<String, IGuiModelStack>();
+
+    /**
+     * Map of (Redo) stacks for "new" versions of {@link IGuiModel} identified
+     * by their name (full name of the file)
+     */
+    private Map<String, IGuiModelStack> redoStacks = new HashMap<String, IGuiModelStack>();
+
+    /**
+     * Current model is the {@link IGuiModel} that corresponds to the active tab
+     * (active file) of the applications {@link JTabbedPane}.
      */
     private IGuiModel currentModel = null;
 
@@ -158,8 +179,15 @@ public class GuiModelController implements IGuiModelController {
             modelDeactivated(oldModel, oldDrawPanel);
         }
 
-        this.currentModel = new GuiModel(modelName, displayName, this);
-        this.guiModels.put(modelName, currentModel);
+        /* Create the GUI model. */
+        IGuiModel newGuiModel = createGuiModel(modelName, displayName);
+
+        /* Set as current GUI model. */
+        // this.currentModel = newGuiModel;
+        setCurrentModel(newGuiModel);
+
+        /* Create the Undo and Redo stacks for this model. */
+        createUndoAndRedoStack(modelName);
 
         /* Add an associated draw panel as well! */
         addDrawPanel(modelName, displayName);
@@ -167,6 +195,45 @@ public class GuiModelController implements IGuiModelController {
         if (debug) {
             System.out.println("GUI models count: " + guiModels.size());
         }
+    }
+
+    /**
+     * Creates a new {@link IGuiModel} and returns it.
+     * 
+     * @param modelName
+     *            The full path name of the PNML file
+     * @param displayName
+     *            The title of the tab (= the file name)
+     * @return The created {@link IGuiModel}
+     */
+    private IGuiModel createGuiModel(String modelName, String displayName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.createGuiModel", modelName, displayName);
+        }
+
+        // IGuiModel newGuiModel = new GuiModel(modelName, displayName, this);
+        IGuiModel newGuiModel = new GuiModel(modelName, displayName);
+        this.guiModels.put(modelName, newGuiModel);
+
+        return newGuiModel;
+    }
+
+    /**
+     * Creates the Undo and Redo stack for the specified model.
+     * 
+     * @param modelName
+     *            The full path name of the PNML file
+     */
+    private void createUndoAndRedoStack(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.createUndoAndRedoStack", modelName);
+        }
+
+        IGuiModelStack undoStack = new GuiModelStack();
+        this.undoStacks.put(modelName, undoStack);
+
+        IGuiModelStack redoStack = new GuiModelStack();
+        this.redoStacks.put(modelName, redoStack);
     }
 
     /**
@@ -183,7 +250,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.addDrawPanel", modelName, displayName);
         }
 
-        this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, currentModel, popupActions);
+        this.currentDrawPanel = new DrawPanel(modelName, displayName, appController, this, popupActions);
         this.drawPanels.put(modelName, currentDrawPanel);
 
         if (debug) {
@@ -217,19 +284,13 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiModel", modelName);
         }
 
-        /*
-         * Reset the "current model" attribute if we remove the current model.
-         */
-        try {
-            if (this.currentModel.getModelName().equalsIgnoreCase(modelName)) {
-                this.currentModel = null;
-            }
-        } catch (NullPointerException ignore) {
-            // Nothing to do
+        /* Reset "current model" attribute if we remove the current model. */
+        if (this.currentModel != null && this.currentModel.getModelName().equalsIgnoreCase(modelName)) {
+            this.currentModel = null;
         }
 
-        /* Remove the model. */
-        this.guiModels.remove(modelName);
+        /* Remove the model from the Maps. */
+        removeModelFromModelNameDependentMaps(modelName);
 
         /* Remove the associated draw panel as well. */
         removeDrawPanel(modelName);
@@ -255,12 +316,8 @@ public class GuiModelController implements IGuiModelController {
          * Reset the "current draw panel" attribute if we remove the current
          * draw panel.
          */
-        try {
-            if (this.currentDrawPanel.getModelName().equalsIgnoreCase(modelName)) {
-                this.currentDrawPanel = null;
-            }
-        } catch (NullPointerException ignore) {
-            // Nothing to do
+        if (this.currentDrawPanel != null && this.currentDrawPanel.getModelName().equalsIgnoreCase(modelName)) {
+            this.currentDrawPanel = null;
         }
 
         /* Remove the draw panel. */
@@ -273,27 +330,20 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void renameGuiModel(IGuiModel model, String newModelName, String newDisplayName) {
-        /* The old key for the Map of models. */
-        String oldKey = model.getModelName();
-
-        /* Get the associated draw panel. */
-        IDrawPanel drawPanel = getDrawPanel(oldKey);
-
-        /* Rename the model and the associated draw panel. */
+        String oldModelName = model.getModelName(); // For the draw panel
         IModelRename renameCandidate;
 
+        /* Rename the model and the associated draw panel. */
         renameCandidate = (IModelRename) model;
         setModelNames(renameCandidate, newModelName, newDisplayName);
 
+        IDrawPanel drawPanel = getDrawPanel(oldModelName);
         renameCandidate = (IModelRename) drawPanel;
         setDrawPanelNames(renameCandidate, newModelName, newDisplayName);
 
-        /* Update both Maps! */
-        IGuiModel value1 = guiModels.remove(oldKey);
-        guiModels.put(newModelName, value1);
-
-        IDrawPanel value2 = drawPanels.remove(oldKey);
-        drawPanels.put(newModelName, value2);
+        /* Update all Maps where the model name is the key! */
+        // updateKeyInModelNameDependentMaps(model, newModelName);
+        updateKeyInModelNameDependentMaps(oldModelName, newModelName);
     }
 
     /**
@@ -345,7 +395,7 @@ public class GuiModelController implements IGuiModelController {
         }
 
         /* Some cleanup on the old model/draw panel */
-        if (model != this.currentModel) {
+        if (this.currentModel != null && model != this.currentModel) {
             IGuiModel oldModel = this.currentModel;
             IDrawPanel oldDrawPanel = this.currentDrawPanel;
             modelDeactivated(oldModel, oldDrawPanel);
@@ -353,6 +403,17 @@ public class GuiModelController implements IGuiModelController {
 
         /* Activate the new model */
         this.currentModel = model;
+
+        /*
+         * Update the Maps for the models.
+         * 
+         * This is necessary for Undo or Redo operations. In this case, the
+         * model will change but the model name is the same. This means that we
+         * have to make sure that the object referenced in the Maps is the
+         * correct model!
+         */
+        String key = model.getModelName();
+        updateModelInModelNameDependentMaps(key, model);
     }
 
     /**
@@ -433,6 +494,141 @@ public class GuiModelController implements IGuiModelController {
         return modifiedModels;
     }
 
+    /* Map updates */
+
+    // /**
+    // * Replaces the entry for the specified {@link IGuiModel} with a new entry
+    // * associated with the specified new key in all affected Maps.
+    // *
+    // * @param model
+    // * the specified {@link IGuiModel}
+    // * @param newKey
+    // * the specified new key
+    // */
+    // private void updateKeyInModelNameDependentMaps(IGuiModel model, String
+    // newKey) {
+    // String oldKey = model.getModelName();
+    //
+    // IGuiModel value1 = guiModels.remove(oldKey);
+    // guiModels.put(newKey, value1);
+    //
+    // IDrawPanel value2 = drawPanels.remove(oldKey);
+    // drawPanels.put(newKey, value2);
+    //
+    // IGuiModelStack value3 = undoStacks.remove(oldKey);
+    // undoStacks.put(newKey, value3);
+    //
+    // IGuiModelStack value4 = redoStacks.remove(oldKey);
+    // redoStacks.put(newKey, value4);
+    // }
+
+    /**
+     * Replaces the old key with the new key in every {@link Map} that depends
+     * on the name of an {@link IGuiModel}.<BR>
+     * <BR>
+     * This is realized by removing the entry associated with that old key and
+     * re-inserting that entry with the new key.
+     * 
+     * @param oldKey
+     *            the specified old key representing the name of the model
+     * @param newKey
+     *            the specified new key representing the name of the model
+     */
+    private void updateKeyInModelNameDependentMaps(String oldKey, String newKey) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.updateKeyInModelNameDependentMaps", oldKey, newKey);
+        }
+
+        if (isDuplicateKeyInModelNameDependentMaps(newKey))
+            return;
+
+        /* Replace the keys */
+        IGuiModel value1 = guiModels.remove(oldKey);
+        guiModels.put(newKey, value1);
+
+        IDrawPanel value2 = drawPanels.remove(oldKey);
+        drawPanels.put(newKey, value2);
+
+        IGuiModelStack value3 = undoStacks.remove(oldKey);
+        undoStacks.put(newKey, value3);
+
+        IGuiModelStack value4 = redoStacks.remove(oldKey);
+        redoStacks.put(newKey, value4);
+    }
+
+    /**
+     * Checks whether the specified key already exists in a {@link Map} that
+     * depends on the name of an {@link IDataModel}.
+     * 
+     * @param newKey
+     *            the specified key representing the name of a model
+     * @return true = newKey is a duplicate in at least 1 Map; false = newKey is
+     *         no duplicate in any of the Maps
+     */
+    private boolean isDuplicateKeyInModelNameDependentMaps(String newKey) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.isDuplicateKeyInModelNameDependentMaps", newKey);
+        }
+
+        IGuiModel value1 = guiModels.get(newKey);
+        if (value1 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'guiModels'";
+            System.err.println(message);
+            return true;
+        }
+
+        IDrawPanel value2 = drawPanels.remove(newKey);
+        if (value2 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'drawPanels'";
+            System.err.println(message);
+            return true;
+        }
+
+        IGuiModelStack value3 = undoStacks.remove(newKey);
+        if (value3 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'undoStacks'";
+            System.err.println(message);
+            return true;
+        }
+
+        IGuiModelStack value4 = redoStacks.remove(newKey);
+        if (value4 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'redoStacks'";
+            System.err.println(message);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Replaces the value ({@link IGuiModel}) that is associated with the
+     * specified key with a new {@link IGuiModel} in all affected Maps.
+     * 
+     * @param key
+     *            the specified key
+     * @param newModel
+     *            the specified new {@link IGuiModel}
+     */
+    private void updateModelInModelNameDependentMaps(String key, IGuiModel newModel) {
+        guiModels.put(key, newModel);
+    }
+
+    /**
+     * Removes the specified {@link IGuiModel} from all Maps.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    private void removeModelFromModelNameDependentMaps(String modelName) {
+        this.guiModels.remove(modelName);
+
+        /* Remove Undo and Redo stack for this model. */
+        this.undoStacks.remove(modelName);
+        this.redoStacks.remove(modelName);
+    }
+
     /*
      * Methods for adding, modify and removal of elements (and callbacks for
      * updates between data and GUI model controller)
@@ -442,6 +638,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
+        // TODO Implement Undo/Redo!
+
         currentModel.addPlace(id, name, initialTokens, position);
         currentModel.setModified(true);
 
@@ -451,6 +649,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addTransitionToCurrentGuiModel(String id, String name, Point position) {
+        // TODO Implement Undo/Redo!
+
         currentModel.addTransition(id, name, position);
         currentModel.setModified(true);
 
@@ -460,7 +660,15 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addArcToCurrentGuiModel(String id, String sourceId, String targetId) {
-        currentModel.addArc(id, sourceId, targetId);
+        // TODO Implement Undo/Redo!
+
+        try {
+            currentModel.addArc(id, sourceId, targetId);
+        } catch (PNElementCreationException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
+
         currentModel.setModified(true);
 
         /* Update the data model */
@@ -469,6 +677,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void createNewPlaceInCurrentGuiModel() {
+        // TODO Implement Undo/Redo!
+
         /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
@@ -506,6 +716,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void createNewTransitionInCurrentGuiModel() {
+        // TODO Implement Undo/Redo!
+
         /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
@@ -802,10 +1014,13 @@ public class GuiModelController implements IGuiModelController {
         }
 
         for (IGuiArc guiArc : guiArcs) {
-            if (guiArc.getSourceId() == sourceId)
-                if (guiArc.getTargetId() == targetId) {
+            String arcSourceId = guiArc.getSourceId();
+            if (arcSourceId.equals(sourceId)) {
+                String arcTargetId = guiArc.getTargetId();
+                if (arcTargetId.equals(targetId)) {
                     arcAlreadyExists = true;
                 }
+            }
         }
 
         if (arcAlreadyExists) {
@@ -831,6 +1046,7 @@ public class GuiModelController implements IGuiModelController {
         this.sourceForNewArcType = null;
         this.drawArcMode = false;
 
+        /* Repaint (everything) */
         updateDrawing();
     }
 
@@ -902,15 +1118,17 @@ public class GuiModelController implements IGuiModelController {
     }
 
     @Override
-    public void renameSelectedGuiElement() {
+    public void renameSelectedGuiNode() {
+        // TODO Implement Undo/Redo!
+
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.renameSelectedGuiElements");
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.renameSelectedGuiNode");
         }
 
         IGuiNode selectedNode;
         try {
             selectedNode = getSingleSelectedNode();
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             String warning = i18n.getMessage("warningUnableToRename");
             String explanation = e.getMessage();
             String message = warning + " (" + explanation + ")";
@@ -955,6 +1173,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void removeSelectedGuiElements() {
+        // TODO Implement Undo/Redo!
+
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeSelectedGuiElements");
         }
@@ -965,6 +1185,8 @@ public class GuiModelController implements IGuiModelController {
         /*
          * Task: Remove all selected elements *and* all adjacent arcs!
          */
+
+        makeUndoable();
 
         /* Get all selected elements and store their drawing area. */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
@@ -987,11 +1209,12 @@ public class GuiModelController implements IGuiModelController {
         List<String> arcIDs = new ArrayList<String>();
 
         for (IGuiElement element : toBeRemoved) {
-            toBeRemoved_IDs.add(element.getId());
+            String elementID = element.getId();
+            toBeRemoved_IDs.add(elementID);
 
             /* Add only arc IDs to the second list. */
             if (element instanceof IGuiArc)
-                arcIDs.add(element.getId());
+                arcIDs.add(elementID);
         }
 
         /* Remove all elements. */
@@ -1051,7 +1274,7 @@ public class GuiModelController implements IGuiModelController {
         /* Repaint the areas. */
         updateDrawing(drawingAreas);
 
-        /* Update Actions (buttons) in case we removed a selected element. */
+        /* Update Actions (buttons) in case we removed selected elements. */
         List<IGuiElement> emptyList = new LinkedList<IGuiElement>();
         appController.enableActionsForSelectedElements(emptyList);
 
@@ -1063,6 +1286,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void removeGuiArc(String arcId) {
+        // TODO Implement Undo/Redo!
+
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiArc", arcId);
         }
@@ -1100,10 +1325,12 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void clearCurrentGuiModel() {
+        // TODO Implement Undo/Redo!
+
         currentModel.clear();
         currentModel.setModified(true);
 
-        /* Update the drawing. */
+        /* Repaint (everything) */
         updateDrawing();
 
         /* Update Actions (buttons) in case we removed a selected element. */
@@ -1125,33 +1352,32 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
+        /* Mouse click in an empty area? */
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
-
-        // appController.updateZValueActions(mousePressedElement);
-
         if (mousePressedElement == null) {
             resetSelection();
             appController.enableZValueActions(null);
             return;
         }
 
+        /* Mouse has been dragged? */
         IGuiElement mouseReleasedElement;
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
-
         if (mousePressedElement != mouseReleasedElement) {
             /* Reject this mouseClicked event as unintended! */
             return;
         }
 
+        /* OK, this really is a mouse click at an element. */
         selectOneElement(mousePressedElement);
     }
 
     /**
-     * Selects this (one) element alone.
+     * Sets the selection to the (one) specified {@link IGuiElement} alone.
      * 
      * @param mousePressedElement
-     *            The element at which the mouse event has occurred
+     *            The specified {@link IGuiElement}
      */
     private void selectOneElement(IGuiElement mousePressedElement) {
         if (debug) {
@@ -1167,6 +1393,7 @@ public class GuiModelController implements IGuiModelController {
 
         Rectangle oldArea = element.getLastDrawingArea();
 
+        resetSelection();
         currentModel.selectSingleElement(element);
 
         Rectangle newArea = element.getLastDrawingArea();
@@ -1176,6 +1403,8 @@ public class GuiModelController implements IGuiModelController {
             System.out.println("updateDrawing(" + oldArea + ")");
             System.out.println("updateDrawing(" + newArea + ")");
         }
+
+        /* Update the drawing */
         updateDrawing(oldArea);
         updateDrawing(newArea);
 
@@ -1197,32 +1426,31 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
+        /* Mouse click in an empty area? */
         IGuiElement mousePressedElement;
         mousePressedElement = getSelectableElementAtLocation(mousePressedLocation);
-
-        // appController.updateZValueActions(mousePressedElement);
-
         if (mousePressedElement == null) {
             appController.enableZValueActions(null);
             return;
         }
 
+        /* Mouse has been dragged? */
         IGuiElement mouseReleasedElement;
         mouseReleasedElement = getSelectableElementAtLocation(e.getPoint());
-
         if (mousePressedElement != mouseReleasedElement) {
             /* Reject this mouseClicked event as unintended! */
             return;
         }
 
+        /* OK, this really is a mouse click at an element. */
         toggleOneElementsSelection(mousePressedElement);
     }
 
     /**
-     * Toggles the selection of this (one) element.
+     * Toggles the selection of the (one) specified {@link IGuiElement}.
      * 
      * @param mousePressedElement
-     *            The element at which the mouse event has occurred
+     *            The specified {@link IGuiElement}
      */
     private void toggleOneElementsSelection(IGuiElement mousePressedElement) {
         if (debug) {
@@ -1277,7 +1505,8 @@ public class GuiModelController implements IGuiModelController {
             if (!element.isSelected()) {
                 currentModel.addToSelection(element);
 
-                message = "GuiModelController, Added to selection: element " + element.getId();
+                String elementID = element.getId();
+                message = "GuiModelController, Added to selection: element " + elementID;
                 ConsoleLogger.logIfDebug(debug, message);
             }
         }
@@ -1296,6 +1525,11 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void mouseDragged(int distance_x, int distance_y) {
+        // TODO Implement Undo/Redo!
+        // TODO Check for Undo only if moving has finished!
+        // TODO Compare GuiModelController.mouseDragged() and
+        // DataModelController.moveNode()
+
         /*
          * Task: Move only the selected nodes and update the drawing.
          */
@@ -1389,6 +1623,9 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void updateDataNodePositions() {
+        // TODO Implement Undo/Redo!
+        // TODO Update only after DataModelController.moveNode()?
+
         if (currentModel == null)
             return;
 
@@ -1419,7 +1656,8 @@ public class GuiModelController implements IGuiModelController {
     // }
 
     /**
-     * De-selects all {@link IGuiElement} and updates the drawing.
+     * De-selects all {@link IGuiElement} in the current {@link IGuiModel} and
+     * updates the drawing.
      */
     private void resetSelection() {
         if (currentModel == null)
@@ -1453,7 +1691,7 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void keyEvent_F2_Occurred() {
-        renameSelectedGuiElement();
+        renameSelectedGuiNode();
 
         if (debug) {
             System.out.println("GuiModelController: KeyEvent F2 occurred:");
@@ -1483,10 +1721,10 @@ public class GuiModelController implements IGuiModelController {
      * 3. Otherwise: null
      * 
      * @return A {@link IGuiElement}
-     * @throws PNElementException
+     * @throws PNNoSuchElementException
      *             if the element was not found or is ambiguous
      */
-    private IGuiElement getSingleElementForZValueAction() throws PNElementException {
+    private IGuiElement getSingleElementForZValueAction() throws PNNoSuchElementException {
         IGuiElement element = null;
         String message = null;
 
@@ -1503,7 +1741,7 @@ public class GuiModelController implements IGuiModelController {
             /* Check variant 2: single selected element? */
             try {
                 element = getSingleSelectedElement();
-            } catch (PNElementException e) {
+            } catch (PNNoSuchElementException e) {
                 message = e.getMessage();
             }
         }
@@ -1517,7 +1755,7 @@ public class GuiModelController implements IGuiModelController {
             System.err.println("Check enabling the z value Actions!");
 
             setInfo_Status(message, EStatusMessageLevel.INFO);
-            throw new PNElementException(message);
+            throw new PNNoSuchElementException(message);
         }
 
         return element;
@@ -1568,7 +1806,9 @@ public class GuiModelController implements IGuiModelController {
         if (!upwards)
             swapZ = minZ - 1;
 
-        /* Check all elements to find the next element in the desired direction. */
+        /*
+         * Check all elements to find the next element in the desired direction.
+         */
         for (IGuiElement next : elements) {
             int nextZ = next.getZValue();
             if (upwards && (nextZ > currZ) || !upwards && (nextZ < currZ)) {
@@ -1592,7 +1832,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement moveElement = null;
         try {
             moveElement = getSingleElementForZValueAction();
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             return;
         }
 
@@ -1617,7 +1857,7 @@ public class GuiModelController implements IGuiModelController {
      */
     private void moveToForeground(IGuiElement element) throws PNNoSuchElementException {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToForeground", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToForeground", element);
         }
 
         if (element == null)
@@ -1662,7 +1902,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement moveElement = null;
         try {
             moveElement = getSingleElementForZValueAction();
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             return;
         }
 
@@ -1687,7 +1927,7 @@ public class GuiModelController implements IGuiModelController {
      */
     private void moveToBackground(IGuiElement element) throws PNNoSuchElementException {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToBackground", element.getId());
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.moveToBackground", element);
         }
 
         if (element == null)
@@ -1722,7 +1962,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement moveElement = null;
         try {
             moveElement = getSingleElementForZValueAction();
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             return;
         }
 
@@ -1789,7 +2029,7 @@ public class GuiModelController implements IGuiModelController {
         IGuiElement moveElement = null;
         try {
             moveElement = getSingleElementForZValueAction();
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             return;
         }
 
@@ -2010,10 +2250,10 @@ public class GuiModelController implements IGuiModelController {
      * Checks if exactly 1 element is selected.
      * 
      * @return The selected element
-     * @throws PNElementException
+     * @throws PNNoSuchElementException
      *             if no or too many elements are selected
      */
-    private IGuiElement getSingleSelectedElement() throws PNElementException {
+    private IGuiElement getSingleSelectedElement() throws PNNoSuchElementException {
         /* Check if exactly 1 element is selected. */
         java.util.List<IGuiElement> selected = currentModel.getSelectedElements();
         IGuiElement selectedElement = null;
@@ -2028,14 +2268,14 @@ public class GuiModelController implements IGuiModelController {
             String warning = i18n.getMessage("warningNoSingleSelectedElement");
             String explanation = i18n.getMessage("infoNoElementSelected");
             String message = warning + " (" + explanation + ")";
-            throw new PNElementException(message);
+            throw new PNNoSuchElementException(message);
         }
 
         if (count > 1) {
             String warning = i18n.getMessage("warningNoSingleSelectedElement");
             String explanation = i18n.getMessage("warningTooManyElementSelected");
             String message = warning + " (" + explanation + ")";
-            throw new PNElementException(message);
+            throw new PNNoSuchElementException(message);
         }
 
         return selectedElement;
@@ -2045,13 +2285,13 @@ public class GuiModelController implements IGuiModelController {
      * Checks if exactly 1 node is selected.
      * 
      * @return The selected node
-     * @throws PNElementException
+     * @throws PNNoSuchElementException
      *             if no or too many nodes are selected
      */
-    private IGuiNode getSingleSelectedNode() throws PNElementException {
+    private IGuiNode getSingleSelectedNode() throws PNNoSuchElementException {
         if (currentModel == null) {
             String explanation = i18n.getMessage("warningNoCurrentModel");
-            throw new PNElementException(explanation);
+            throw new PNNoSuchElementException(explanation);
         }
 
         /* Check if exactly 1 node is selected. */
@@ -2068,12 +2308,12 @@ public class GuiModelController implements IGuiModelController {
 
         if (selectedNode == null) {
             String explanation = i18n.getMessage("infoNoNodeSelected");
-            throw new PNElementException(explanation);
+            throw new PNNoSuchElementException(explanation);
         }
 
         if (count > 1) {
             String explanation = i18n.getMessage("warningTooManyElementSelected");
-            throw new PNElementException(explanation);
+            throw new PNNoSuchElementException(explanation);
         }
 
         return selectedNode;
@@ -2226,7 +2466,7 @@ public class GuiModelController implements IGuiModelController {
         try {
             selectedElement = getSingleSelectedElement();
             appController.enableZValueActions(selectedElement);
-        } catch (PNElementException e) {
+        } catch (PNNoSuchElementException e) {
             appController.enableZValueActions(null);
         }
     }
@@ -2239,7 +2479,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiStartPlaces", modelName);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2261,7 +2501,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiEndPlaces", modelName);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2283,7 +2523,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiStartPlace", modelName, placeId, b);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2310,7 +2550,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiStartPlaceCandidate", modelName, placeId, b);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2337,7 +2577,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiEndPlace", modelName, placeId, b);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2364,7 +2604,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiEndPlaceCandidate", modelName, placeId, b);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2391,7 +2631,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.highlightUnreachableGuiNode", modelName, nodeId, b);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2418,7 +2658,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeAllGuiTokens", modelName);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2440,7 +2680,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiToken", modelName, placesWithToken);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2471,7 +2711,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.addGuiToken", modelName, placesWithToken);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2502,7 +2742,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiTransitionsEnabledState", modelName);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2528,17 +2768,17 @@ public class GuiModelController implements IGuiModelController {
      * Returns the specified {@link IGuiModel} with suppressed error messages if
      * not found because this error can be expected in rare cases.<BR>
      * <BR>
-     * This method is part of the validation process. And the validation
-     * controller thread might slightly lagging behind in terms of the current
-     * model (e.g. if the user has suddenly closed the current file during
-     * validation).
+     * Explanation: This method is part of the validation process. And the
+     * validation controller thread might slightly lagging behind in terms of
+     * the current model (e.g. if the user has suddenly closed the current file
+     * during validation).
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
      *            name of the PNML file represented by this model.)
      * @return The specified {@link IGuiModel} if found; otherwise null
      */
-    private IGuiModel getGuiModelForValidation(String modelName) {
+    private IGuiModel getGuiModelForDataValidationOnly(String modelName) {
         IGuiModel guiModel = this.guiModels.get(modelName);
         if (guiModel == null) {
             String message = i18n.getMessage("errGuiModelNotFound");
@@ -2558,7 +2798,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.resetAllGuiTransitionsSafeState", modelName);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2586,7 +2826,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiTransitionUnsafe", modelName, transitionId);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2598,7 +2838,7 @@ public class GuiModelController implements IGuiModelController {
             if (guiElement instanceof IGuiTransition) {
                 IGuiTransition guiTransition = (IGuiTransition) guiElement;
                 String id = guiTransition.getId();
-                if (id == transitionId) {
+                if (id.equals(transitionId)) {
                     guiTransition.setSafe(false);
                     drawingArea = guiTransition.getLastDrawingArea();
                     break;
@@ -2616,7 +2856,7 @@ public class GuiModelController implements IGuiModelController {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.setGuiTransitionEnabled", modelName, transitionId);
         }
 
-        IGuiModel guiModel = getGuiModelForValidation(modelName);
+        IGuiModel guiModel = getGuiModelForDataValidationOnly(modelName);
         if (guiModel == null)
             return;
 
@@ -2628,7 +2868,7 @@ public class GuiModelController implements IGuiModelController {
             if (guiElement instanceof IGuiTransition) {
                 IGuiTransition guiTransition = (IGuiTransition) guiElement;
                 String id = guiTransition.getId();
-                if (id == transitionId) {
+                if (id.equals(transitionId)) {
                     guiTransition.setEnabled(true);
                     drawingArea = guiTransition.getLastDrawingArea();
                     break;
@@ -2684,6 +2924,441 @@ public class GuiModelController implements IGuiModelController {
 
         List<Rectangle> enabledTransitionsAreas = currentModel.getEnabledTransitionsAreas();
         return enabledTransitionsAreas;
+    }
+
+    /* Undo/Redo */
+
+    @Override
+    public boolean canUndo() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.canUndo");
+        }
+
+        IGuiModelStack currentUndoStack = getCurrentModelUndoStack();
+        if (currentUndoStack == null)
+            return false;
+
+        boolean canBeUndone = !currentUndoStack.empty();
+        return canBeUndone;
+    }
+
+    /**
+     * Returns the Undo stack ({@link IGuiModelStack}) for the current
+     * {@link IGuiModel}.
+     * 
+     * @return the Undo stack as {@link IGuiModelStack}; or null if current
+     *         model is null or the stack does not exist.
+     */
+    private IGuiModelStack getCurrentModelUndoStack() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.getCurrentModelUndoStack");
+        }
+
+        if (currentModel == null)
+            return null;
+
+        String fullName = currentModel.getModelName();
+        IGuiModelStack undoStack = null;
+        try {
+            undoStack = undoStacks.get(fullName);
+        } catch (ClassCastException e) {
+            return null;
+        } catch (NullPointerException e) {
+            return null;
+        }
+
+        return undoStack;
+    }
+
+    @Override
+    public boolean canRedo() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.canRedo");
+        }
+
+        IGuiModelStack currentRedoStack = getCurrentModelRedoStack();
+        if (currentRedoStack == null)
+            return false;
+
+        boolean canBeRedone = !currentRedoStack.empty();
+        return canBeRedone;
+    }
+
+    /**
+     * Returns the Redo stack ({@link IGuiModelStack}) for the current
+     * {@link IGuiModel}.
+     * 
+     * @return the Redo stack as {@link IGuiModelStack}; or null if current
+     *         model is null or the stack does not exist.
+     */
+    private IGuiModelStack getCurrentModelRedoStack() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.getCurrentModelRedoStack");
+        }
+
+        if (currentModel == null)
+            return null;
+
+        String fullName = currentModel.getModelName();
+        IGuiModelStack redoStack = null;
+        try {
+            redoStack = redoStacks.get(fullName);
+        } catch (ClassCastException e) {
+            return null;
+        } catch (NullPointerException e) {
+            return null;
+        }
+
+        return redoStack;
+    }
+
+    // Puts an {@link UndoRedoElementBuffer} with the elements of the current
+    // {@link IGuiModel} onto the Undo stack ({@link IGuiModelStack}).
+    /**
+     * Puts a copy of the current {@link IGuiModel} onto the Undo stack
+     * ({@link IGuiModelStack}).<BR>
+     * <BR>
+     * Note: This method is private because this {@link IGuiModelController}
+     * should start all Undo operations.
+     * 
+     * @return 0 = Success: model made undoable<BR>
+     *         1 = Error: currentModel == null<BR>
+     *         2 = Error: copy == null<BR>
+     *         3 = Error: undoStack == null
+     */
+    private int makeUndoable() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.makeUndoable");
+        }
+
+        if (currentModel == null)
+            return 1;
+
+        // UndoRedoElementBuffer elementBuffer = createUndoRedoElementBuffer();
+        // if (elementBuffer == null)
+        // return 2;
+        IGuiModel copy = cloneCurrentModel();
+        if (copy == null)
+            return 2;
+
+        IGuiModelStack undoStack = getCurrentModelUndoStack();
+        if (undoStack == null)
+            return 3;
+
+        /* First: Keep the data model controller up-to-date! */
+        int returnValue = appController.makeDataModelUndoable();
+        if (returnValue != 0) {
+            System.err.println("appController.makeDataModelUndoable() return value: " + returnValue);
+            return returnValue;
+        }
+
+        // undoStack.push(elementBuffer);
+        undoStack.push(copy);
+
+        appController.enableUndoRedoActions();
+
+        return 0;
+    }
+
+    /**
+     * Clones the current {@link IGuiModel}.
+     *
+     * @return a copy of the current {@link IGuiModel}; or null if errors
+     *         occurred.
+     */
+    private IGuiModel cloneCurrentModel() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.cloneCurrentModel");
+        }
+
+        // IGuiModel old = this.currentModel;
+        // if (old == null) {
+        // System.err.println("Unable to determine the current data model!");
+        // return null;
+        // }
+
+        IGuiModel copy = null;
+        try {
+            copy = (IGuiModel) ObjectCloner.deepCopy(this.currentModel);
+        } catch (PNObjectNotClonedException e) {
+            String message = "Unable to clone the current GUI model!";
+            System.err.println(message);
+            return null;
+        }
+        return copy;
+    }
+
+    // Puts an {@link UndoRedoElementBuffer} with the elements of the current
+    // {@link IGuiModel} onto the Redo stack ({@link IGuiModelStack}).
+    /**
+     * Puts a copy of the current {@link IGuiModel} onto the Redo stack
+     * ({@link IGuiModelStack}).<BR>
+     * <BR>
+     * Note: This method is private because this {@link IGuiModelController}
+     * should start all Redo operations.
+     * 
+     * @return 0 = Success: model made redoable<BR>
+     *         1 = Error: currentModel == null<BR>
+     *         2 = Error: copy == null<BR>
+     *         3 = Error: redoStack == null
+     */
+    private int makeRedoable() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.makeRedoable");
+        }
+
+        if (currentModel == null)
+            return 1;
+
+        // UndoRedoElementBuffer elementBuffer = createUndoRedoElementBuffer();
+        // if (elementBuffer == null)
+        // return 2;
+        IGuiModel copy = cloneCurrentModel();
+        if (copy == null)
+            return 2;
+
+        IGuiModelStack redoStack = getCurrentModelRedoStack();
+        if (redoStack == null)
+            return 3;
+
+        /* First: Keep the data model controller up-to-date! */
+        int returnValue = appController.makeDataModelRedoable();
+        if (returnValue != 0) {
+            System.err.println("appController.makeDataModelRedoable() return value: " + returnValue);
+            return returnValue;
+        }
+
+        // redoStack.push(elementBuffer);
+        redoStack.push(copy);
+
+        appController.enableUndoRedoActions();
+
+        return 0;
+    }
+
+    // /**
+    // * Creates an {@link UndoRedoElementBuffer} with all {@link IGuiElement}
+    // of
+    // * the current {@link IGuiModel}.
+    // *
+    // * @return {@link UndoRedoElementBuffer}; null if there is no current
+    // * {@link IGuiModel}
+    // */
+    // private UndoRedoElementBuffer createUndoRedoElementBuffer() {
+    // if (debug) {
+    // ConsoleLogger.consoleLogMethodCall("GuiModelController.createUndoRedoElementBuffer");
+    // }
+    //
+    // if (currentModel == null)
+    // return null;
+    //
+    // UndoRedoElementBuffer elementBuffer = new UndoRedoElementBuffer();
+    //
+    // List<IGuiElement> newElements = currentModel.getElements();
+    // elementBuffer.setElements(newElements);
+    //
+    // List<IGuiElement> newSelected = currentModel.getSelectedElements();
+    // elementBuffer.setSelectedElements(newSelected);
+    //
+    // return elementBuffer;
+    // }
+
+    @Override
+    public void Undo() throws CannotUndoException {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.Undo");
+        }
+
+        // UndoRedoElementBuffer last = null;
+        IGuiModel last = null;
+        try {
+            // last = getUndoElementBuffer();
+            last = getUndoModel();
+        } catch (CannotUndoException e) {
+            throw e;
+        }
+
+        // makeRedoable();
+        int returnValue = makeRedoable();
+        if (returnValue != 0) {
+            System.err.println("GuiModelController.makeRedoable() return value: " + returnValue);
+            throw new CannotUndoException();
+        }
+
+        /* First: Keep the data model controller up-to-date! */
+        try {
+            appController.undoDataModel();
+        } catch (CannotUndoException e) {
+            throw e;
+        }
+
+        /* This is the actual Undo operation. */
+        // List<IGuiElement> newElements = last.getElements();
+        // this.currentModel.setElements(newElements);
+        // List<IGuiElement> newSelected = last.getSelectedElements();
+        // this.currentModel.setSelectedElements(newSelected);
+
+        // this.currentModel = last;
+        setCurrentModel(last);
+
+        /* Repaint (everything) */
+        updateDrawing();
+    }
+
+    // /**
+    // * Returns the last Undo buffer with the {@link List} of {@link
+    // IGuiElement}
+    // * for the current {@link IGuiModel}.
+    // *
+    // * @return An {@link UndoRedoElementBuffer} from the Undo stack
+    // * @throws CannotUndoException
+    // * if currentModel or undoStack == null or undoStack.empty()
+    // */
+    // private UndoRedoElementBuffer getUndoElementBuffer() throws
+    // CannotUndoException {
+    // /* Checks */
+    //
+    // if (currentModel == null)
+    // throw new CannotUndoException();
+    //
+    // IGuiModelStack undoStack = getCurrentModelUndoStack();
+    // if (undoStack == null)
+    // throw new CannotUndoException();
+    //
+    // /* Avoid EmptyStackException in undoStack.pop() */
+    // if (undoStack.empty())
+    // throw new CannotUndoException();
+    //
+    // /* Undo operation is possible. */
+    //
+    // UndoRedoElementBuffer last = undoStack.pop();
+    // return last;
+    // }
+
+    /**
+     * Returns the last copy of the current {@link IGuiModel}.
+     * 
+     * @return An {@link IGuiModel} from the Undo stack
+     * @throws CannotUndoException
+     *             if currentModel or undoStack == null or undoStack.empty()
+     */
+    private IGuiModel getUndoModel() throws CannotUndoException {
+        /* Checks */
+
+        if (currentModel == null)
+            throw new CannotUndoException();
+
+        IGuiModelStack undoStack = getCurrentModelUndoStack();
+        if (undoStack == null)
+            throw new CannotUndoException();
+
+        /* Avoid EmptyStackException in undoStack.pop() */
+        if (undoStack.empty())
+            throw new CannotUndoException();
+
+        /* Undo operation is possible. */
+
+        IGuiModel last = undoStack.pop();
+        return last;
+    }
+
+    @Override
+    public void Redo() throws CannotRedoException {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.Redo");
+        }
+
+        // UndoRedoElementBuffer next = null;
+        IGuiModel next = null;
+        try {
+            // next = getRedoElementBuffer();
+            next = getRedoModel();
+        } catch (CannotRedoException e) {
+            throw e;
+        }
+
+        // makeUndoable();
+        int returnValue = makeUndoable();
+        if (returnValue != 0) {
+            System.err.println("GuiModelController.makeUndoable() return value: " + returnValue);
+            throw new CannotRedoException();
+        }
+
+        /* First: Keep the data model controller up-to-date! */
+        try {
+            appController.redoDataModel();
+        } catch (CannotRedoException e) {
+            throw e;
+        }
+
+        /* This is the actual Redo operation. */
+        // List<IGuiElement> newElements = next.getElements();
+        // this.currentModel.setElements(newElements);
+        // List<IGuiElement> newSelected = next.getSelectedElements();
+        // this.currentModel.setSelectedElements(newSelected);
+
+        // this.currentModel = next;
+        setCurrentModel(next);
+
+        /* Repaint (everything) */
+        updateDrawing();
+    }
+
+    // /**
+    // * Returns the next Redo buffer with the {@link List} of {@link
+    // IGuiElement}
+    // * for the current {@link IGuiModel}.
+    // *
+    // * @return An {@link UndoRedoElementBuffer} from the Redo stack
+    // * @throws CannotRedoException
+    // * if currentModel or redoStack == null or redoStack.empty()
+    // */
+    // private UndoRedoElementBuffer getRedoElementBuffer() throws
+    // CannotRedoException {
+    // /* Checks */
+    //
+    // if (currentModel == null)
+    // throw new CannotRedoException();
+    //
+    // IGuiModelStack redoStack = getCurrentModelRedoStack();
+    // if (redoStack == null)
+    // throw new CannotRedoException();
+    //
+    // /* Avoid EmptyStackException in redoStack.pop() */
+    // if (redoStack.empty())
+    // throw new CannotRedoException();
+    //
+    // /* Redo operation is possible. */
+    //
+    // UndoRedoElementBuffer succ = redoStack.pop();
+    // return succ;
+    // }
+
+    /**
+     * Returns the next copy of the current {@link IGuiModel}.
+     * 
+     * @return An {@link IGuiModel} from the Redo stack
+     * @throws CannotRedoException
+     *             if currentModel or redoStack == null or redoStack.empty()
+     */
+    private IGuiModel getRedoModel() throws CannotRedoException {
+        /* Checks */
+
+        if (currentModel == null)
+            throw new CannotRedoException();
+
+        IGuiModelStack redoStack = getCurrentModelRedoStack();
+        if (redoStack == null)
+            throw new CannotRedoException();
+
+        /* Avoid EmptyStackException in redoStack.pop() */
+        if (redoStack.empty())
+            throw new CannotRedoException();
+
+        /* Redo operation is possible. */
+
+        IGuiModel next = redoStack.pop();
+        return next;
     }
 
 }

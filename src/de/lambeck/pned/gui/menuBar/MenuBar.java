@@ -48,6 +48,10 @@ public class MenuBar extends JMenuBar {
     /** A menu bar "button" */
     private AbstractAction appExitAction;
     /** A menu bar "button" */
+    private AbstractAction editUndoAction;
+    /** A menu bar "button" */
+    private AbstractAction editRedoAction;
+    /** A menu bar "button" */
     private AbstractAction editRenameAction;
     /** A menu bar "button" */
     private AbstractAction selectAllAction;
@@ -139,6 +143,14 @@ public class MenuBar extends JMenuBar {
         editMenu = itemCreator.getMenu("Edit", "EditMenuDescription");
 
         /* Create the menu items. */
+        editUndoAction = allActions.get("EditUndo");
+        editMenu.add(editUndoAction);
+
+        editRedoAction = allActions.get("EditRedo");
+        editMenu.add(editRedoAction);
+
+        editMenu.addSeparator();
+
         editRenameAction = allActions.get("EditRename...");
         editMenu.add(editRenameAction);
 

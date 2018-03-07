@@ -48,6 +48,10 @@ public class EndPlacesValidator extends AbstractValidator {
 
         addValidatorInfo();
 
+        /* Abort condition: empty model? */
+        if (evaluateEmptyModel(myDataModel))
+            return;
+
         /* Reset all previous end places. */
         myDataModelController.resetAllDataEndPlaces(myDataModelName);
 

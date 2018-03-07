@@ -1,0 +1,7 @@
+Why should I use Deque over Stack?
+https://stackoverflow.com/questions/12524826/why-should-i-use-deque-over-stack
+
+
+Java Stack vs Deque
+http://baddotrobot.com/blog/2013/01/10/stack-vs-deque/
+Conclusion: "Don’t Use Deque..."

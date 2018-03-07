@@ -11,13 +11,23 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.i18n.I18NManager;
 
+/*
+ * "Fully-qualified path" is synonymous with "absolute path"
+ * 
+ * https://stackoverflow.com/a/3670775/5944475
+ */
+
 /**
  * Class for conversion of path names (e.g. into canonical path names) and
  * checks if files exist.<BR>
  * <BR>
  * Note: canonical path names are unique and thus we can use them as identifiers
  * for the open files and models. (See:
- * https://docs.oracle.com/javase/8/docs/api/java/io/File.html#getCanonicalPath--)
+ * https://docs.oracle.com/javase/8/docs/api/java/io/File.html#getCanonicalPath--)<BR>
+ * <BR>
+ * Known limitation:<BR>
+ * UNC paths used via mapped network drives will not be recognized as the same
+ * path!
  * 
  * @author Thomas Lambeck, 4128320
  *
@@ -32,7 +42,7 @@ public class FSInfo {
      * path. (See: example in the main method)
      * 
      * @param file
-     *            The file as a File object
+     *            The file as a Java {@link File} object
      * @return The canonical (unique) path name
      */
     public static String getCanonicalPath(File file) {
@@ -66,7 +76,7 @@ public class FSInfo {
      * Determines the file name of the file.
      * 
      * @param file
-     *            The file as a {@link File}
+     *            The file as a Java {@link File} object
      * @return The file name
      */
     public static String getFileName(File file) {
@@ -108,7 +118,7 @@ public class FSInfo {
      * Checks if the specified file is write-protected.
      * 
      * @param file
-     *            The file as a {@link File}
+     *            The file as a Java {@link File} object
      * @return True if the file is write-protected; otherwise false
      */
     private static boolean isWriteProtectedFile(File file) {
@@ -262,7 +272,7 @@ public class FSInfo {
                 return null; // User cancelled this operation
 
             /* Overwrite warning? */
-            canonicalPath = dontOverwriteExistingFile(parentComponent, canonicalPath);
+            canonicalPath = dontOverwriteExistingFile(parentComponent, canonicalPath, i18n);
             if (canonicalPath == null)
                 return null; // User cancelled this operation
         }
@@ -315,13 +325,16 @@ public class FSInfo {
      *            The parent component (should be the main application window)
      * @param canonicalPath
      *            The canonical (unique) path name
+     * @param i18n
+     *            The manager for localized strings
      * @return Null if the user declined to overwrite an existing file;
      *         otherwise the canonical (unique) path name
      */
-    private static String dontOverwriteExistingFile(JFrame parentComponent, String canonicalPath) {
+    private static String dontOverwriteExistingFile(JFrame parentComponent, String canonicalPath, I18NManager i18n) {
         if (isFileSystemFile(canonicalPath)) {
-            String title = "Overwrite file?";
-            String question = "Overwrite existing file %filename%?".replace("%filename%", canonicalPath);
+            String title = i18n.getNameOnly("OverwriteFile");
+            String question = i18n.getMessage("questionOverwriteFile");
+            question = question.replace("%filename%", canonicalPath);
 
             int options = JOptionPane.YES_NO_CANCEL_OPTION;
             int answer = JOptionPane.showConfirmDialog(parentComponent, question, title, options);
@@ -338,14 +351,14 @@ public class FSInfo {
     }
 
     /**
-     * Returns the {@link File} for a full path name as {@link String}.
+     * Returns the {@link File} object for a full path name as {@link String}.
      * 
      * @param pathname
      *            A pathname string
-     * @return The {@link File}
+     * @return The file as a Java {@link File}
      */
     public static File getFile(String pathname) {
-        if (pathname == null || pathname == "")
+        if (pathname == null || pathname.equals(""))
             return null;
 
         File file = new File(pathname);

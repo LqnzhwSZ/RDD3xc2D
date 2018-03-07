@@ -91,7 +91,7 @@ import de.lambeck.pned.util.ConsoleLogger;
 public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
 
     /** Show debug messages? */
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     /**
      * The delay (in milliseconds) before switching to dragging mode if the user
@@ -389,10 +389,7 @@ public class MyMouseAdapter extends MouseAdapter implements PopupMenuListener {
              * Otherwise, this might be an unintended mouseClicked event.
              */
 
-            // TODO Different positions impossible now since we moved this code
-            // to mouseClicked()?
-
-            // TODO Safe to ignore mousePressedLocation now?
+            // TODO Check: Is it safe to ignore mousePressedLocation now?
 
             Point p = myDrawPanel.getMousePressedLocation();
             if (p == null) {

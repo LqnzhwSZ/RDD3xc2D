@@ -3,6 +3,10 @@ package de.lambeck.pned.models;
 import java.awt.Point;
 
 import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.elements.IArc;
+import de.lambeck.pned.elements.IPlace;
+import de.lambeck.pned.elements.ITransition;
+import de.lambeck.pned.exceptions.PNElementCreationException;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
 
 /**
@@ -63,85 +67,85 @@ public interface IModel {
     /* Add elements */
 
     /**
-     * Adds a place to this model.<BR>
+     * Adds an {@link IPlace} to this {@link IModel}.<BR>
      * <BR>
-     * Intended use: adding a place after a GUI event when the new place is
-     * without a name after creation.
+     * <B>Intended use:</B> adding a place after a <B>GUI event</B> when the new
+     * place is without a name after creation.
      * 
      * @param id
-     *            The ID of the place
+     *            The ID of the place as Java {@link String}
      * @param initialTokens
-     *            The initial tokens count of the place
+     *            The initial tokens count of the place as {@link EPlaceToken}
      * @param position
-     *            The position (center) of the place
+     *            The position (center) of the place as Java {@link Point}
      */
     void addPlace(String id, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a place to this model.<BR>
+     * Adds an {@link IPlace} to this {@link IModel}, specifying another
+     * parameter <B>name</B>.<BR>
      * <BR>
-     * Note: Adds an additional parameter name to the other method
-     * addPlace(String id, EPlaceTokens initialTokens, Point position)<BR>
-     * <BR>
-     * Intended use: adding a place after reading from a PNML file because these
-     * places may have a name.
+     * <B>Intended use:</B> adding a place after <B>reading from a PNML file</B>
+     * because these places may have a name.
      * 
      * @param id
-     *            The ID of the place
+     *            The ID of the place as Java {@link String}
      * @param name
-     *            The name of the place
+     *            The name of the place as Java {@link String}
      * @param initialTokens
-     *            The initial tokens count of the place
+     *            The initial tokens count of the place as {@link EPlaceToken}
      * @param position
-     *            The position (center) of the place
+     *            The position (center) of the place as Java {@link Point}
      */
     void addPlace(String id, String name, EPlaceToken initialTokens, Point position);
 
     /**
-     * Adds a transition to this model.<BR>
+     * Adds an {@link ITransition} to this {@link IModel}.<BR>
      * <BR>
-     * Intended use: adding a transition after a GUI event when the new
-     * transition is without a name after creation.
+     * <B>Intended use:</B> adding a transition after a <B>GUI event</B> when
+     * the new transition is without a name after creation.
      * 
      * @param id
-     *            The ID of the transition
+     *            The ID of the transition as Java {@link String}
      * @param position
-     *            The position (center) of the transition
+     *            The position (center) of the transition as Java {@link Point}
      */
     void addTransition(String id, Point position);
 
     /**
-     * Adds a transition to this model.<BR>
+     * Adds an {@link ITransition} to this {@link IModel}, specifying another
+     * parameter <B>name</B>.<BR>
      * <BR>
-     * Note: Adds an additional parameter name to the other method
-     * addTransition(String id, Point position)<BR>
-     * <BR>
-     * Intended use: adding a transition after reading from a PNML file because
-     * these transitions may have a name.
+     * <B>Intended use:</B> adding a transition after <B>reading from a PNML
+     * file</B> because these transitions may have a name.
      * 
      * @param id
-     *            The ID of the transition
+     *            The ID of the transition as Java {@link String}
      * @param name
-     *            The name of the transition
+     *            The name of the transition as Java {@link String}
      * @param position
-     *            The position (center) of the transition
+     *            The position (center) of the transition as Java {@link Point}
      */
     void addTransition(String id, String name, Point position);
 
     /**
-     * Adds an arc to this model.<BR>
+     * Adds an {@link IArc} to this {@link IModel}.<BR>
      * <BR>
      * Note: This method should be the same for GUI events and reading from a
      * PNML file because arcs will have all 3 attributes in both cases.
      * 
      * @param id
-     *            The id of the arc
+     *            The ID of the arc as Java {@link String}
      * @param sourceId
-     *            The id of the source (Place or Transition)
+     *            The ID of the source ({@link IPlace} or {@link ITransition})
+     *            as Java {@link String}
      * @param targetId
-     *            The id of the target (Place or Transition)
+     *            The ID of the target ({@link IPlace} or {@link ITransition})
+     *            as Java {@link String}
+     * @throws PNElementCreationException
+     *             if this {@link IArc} could not be created.
      */
-    void addArc(String id, String sourceId, String targetId);
+    void addArc(String id, String sourceId, String targetId) throws PNElementCreationException;
 
     /* Remove methods for elements */
 

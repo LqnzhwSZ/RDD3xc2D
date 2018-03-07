@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.*;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.EPlaceToken;
@@ -335,7 +337,7 @@ public class ApplicationController extends AbstractApplicationController {
     /* Methods for super class AbstractApplicationController */
 
     /**
-     * Asks the data model controller for it's list of models that have been
+     * Asks the data model controller for its list of models that have been
      * changed and need to be saved.
      */
     private void updateModifiedDataModelsList() {
@@ -400,7 +402,7 @@ public class ApplicationController extends AbstractApplicationController {
      * Updates the attribute allowedToClose.
      */
     private void updateAllowedToClose() {
-        /* Check if it's safe to close the application. */
+        /* Check if it is safe to close the application. */
         updateModifiedDataModelsList();
         int allModifiedDataModelsCount = modifiedDataModels.size();
         this.allowedToClose = (allModifiedDataModelsCount == 0);
@@ -508,6 +510,9 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Update the status bar */
         updateDrawPanelSizeInfo();
+
+        /* Update the Actions (buttons) */
+        this.actionManager.enableActionsForOpenFiles(this.activeFile);
 
         if (debug) {
             System.out.println("ApplicationController.setActiveFile, new active file: " + this.activeFile);
@@ -654,6 +659,9 @@ public class ApplicationController extends AbstractApplicationController {
 
         saveActiveFile();
 
+        /* Update the Actions (buttons) */
+        this.actionManager.enableActionsForOpenFiles(this.activeFile);
+
         /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
 
@@ -663,11 +671,11 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Callback for {@link FileSaveAsAction}, saves the model as the specified
-     * file.<BR>
+     * Callback for {@link FileSaveAsAction}, saves the current
+     * {@link IDataModel} as the specified file.<BR>
      * <BR>
-     * Note: This method should be called by the FileSaveAsAction after getting
-     * a file.
+     * Note: {@link FileSaveAsAction} invokes this method after getting a file
+     * (including overwrite check).
      * 
      * @param pnmlFile
      *            The file chosen by the user
@@ -680,6 +688,9 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         saveActiveFileAs(pnmlFile);
+
+        /* Update the Actions (buttons) */
+        this.actionManager.enableActionsForOpenFiles(this.activeFile);
 
         /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
@@ -707,6 +718,60 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Set focus back to the JTabbedPane for CTRL+TAB function. */
         this.tabbedPane.requestFocus();
+    }
+
+    /**
+     * Undoes the last edit in the current Petri net. Callback for
+     * {@link EditUndoAction}.
+     */
+    public void menuCmd_EditUndo() {
+        if (debug) {
+            String testMsg = "Menu command: EditUndo";
+            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
+            System.out.println(testMsg);
+        }
+
+        try {
+            guiModelController.Undo();
+        } catch (CannotUndoException e) {
+            /* Show an error message. */
+            String title = ApplicationController.initialTitle;
+            String errorMessage = i18n.getMessage("warningCannotUndo");
+            System.err.println(errorMessage);
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+        }
+
+        enableUndoRedoActions();
+
+        String message = i18n.getMessage("infoUndoComplete");
+        setInfo_Status(message, EStatusMessageLevel.INFO);
+    }
+
+    /**
+     * Redoes the last edit in the current Petri net. Callback for
+     * {@link EditRedoAction}.
+     */
+    public void menuCmd_EditRedo() {
+        if (debug) {
+            String testMsg = "Menu command: EditRedo";
+            setInfo_Status(testMsg, EStatusMessageLevel.INFO);
+            System.out.println(testMsg);
+        }
+
+        try {
+            guiModelController.Redo();
+        } catch (CannotRedoException e) {
+            /* Show an error message. */
+            String title = ApplicationController.initialTitle;
+            String errorMessage = i18n.getMessage("warningCannotRedo");
+            System.err.println(errorMessage);
+            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
+        }
+
+        enableUndoRedoActions();
+
+        String message = i18n.getMessage("infoRedoComplete");
+        setInfo_Status(message, EStatusMessageLevel.INFO);
     }
 
     /**
@@ -1266,7 +1331,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @return The result of {@link closeFile}
      */
     private int closeActiveFile() {
-        if (this.activeFile == null || this.activeFile == "") {
+        if (this.activeFile == null || this.activeFile.equals("")) {
             if (debug) {
                 System.out.println("No active file to close.");
             }
@@ -1298,7 +1363,6 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Close the file immediately, if not modified */
         boolean modified = isFileModified(modelName);
-
         if (!modified) {
             disposeFile(modelName);
             return ExitCode.OPERATION_SUCCESSFUL;
@@ -1310,7 +1374,6 @@ public class ApplicationController extends AbstractApplicationController {
          * 0 = YES_OPTION, 1 = NO_OPTION, 2 = CANCEL_OPTION
          */
         int answer = askSaveChanges(modelName);
-
         switch (answer) {
         case JOptionPane.CANCEL_OPTION:
             return ExitCode.OPERATION_CANCELED;
@@ -1321,8 +1384,6 @@ public class ApplicationController extends AbstractApplicationController {
 
         case JOptionPane.YES_OPTION:
             int result = closeFile(modelName, true);
-            if (result == 0)
-                disposeFile(modelName);
             return result;
 
         default:
@@ -1340,8 +1401,8 @@ public class ApplicationController extends AbstractApplicationController {
      * @param saveChanges
      *            Save changes before closing?
      * @return OPERATION_SUCCESSFUL if an unmodified file was closed without
-     *         saving, exit code of {@link saveFile} if file was modified;
-     *         otherwise UNEXPECTED_ERROR
+     *         saving or a modified file was closed after saving; exit code of
+     *         {@link saveFile} if file was modified; otherwise UNEXPECTED_ERROR
      */
     private int closeFile(String modelName, boolean saveChanges) {
         if (isParamUndefined(modelName, "closeFile", "modelName"))
@@ -1355,14 +1416,46 @@ public class ApplicationController extends AbstractApplicationController {
 
         /* Close the file immediately, if not modified. */
         boolean modified = isFileModified(modelName);
-
         if (!modified) {
             disposeFile(modelName);
             return ExitCode.OPERATION_SUCCESSFUL;
         }
 
-        int result = saveFile(modelName);
-        return result;
+        /* Get a file name if not saved before! */
+        boolean isFSFile = FSInfo.isFileSystemFile(modelName);
+        if (!isFSFile) {
+            /* Ask for a (new) file name. */
+            String saveAsFullName = FSInfo.getSaveAsFullName(mainFrame, this, i18n);
+            if (saveAsFullName == null)
+                return ExitCode.OPERATION_CANCELED;
+
+            /* We rename this file! */
+
+            /*
+             * Store the new current directory because the user "was there" with
+             * the FileSave-Dialog.
+             */
+            setCurrentDirectory(saveAsFullName);
+
+            /* Try to actually save the file there. */
+            int result = saveToFile(modelName, saveAsFullName, false);
+
+            /* Update the name of the models etc. if successful */
+            if (result == ExitCode.OPERATION_SUCCESSFUL) {
+                renameModels(modelName, saveAsFullName);
+                disposeFile(saveAsFullName);
+            }
+
+            return result;
+
+        } else {
+            int result = saveFile(modelName);
+            if (result == ExitCode.OPERATION_SUCCESSFUL) {
+                disposeFile(modelName);
+                return ExitCode.OPERATION_SUCCESSFUL;
+            }
+            return result;
+        }
     }
 
     /**
@@ -1425,11 +1518,9 @@ public class ApplicationController extends AbstractApplicationController {
             return;
         /* Remove the specified tab. */
         int index = getTabIndexForFile(modelName);
-        // if (index == -1)
-        // return;
 
         /*
-         * Do not leave this method here if there is no tab to close!
+         * Do NOT leave this method here if there is no tab to close!
          * 
          * -> There is no tab if we have opened a new file with errors. (In this
          * case: The data model controller has rejected the file during import,
@@ -1437,6 +1528,8 @@ public class ApplicationController extends AbstractApplicationController {
          * 
          * -> So we still have to remove the models!
          */
+        // if (index == -1)
+        // return;
         if (index != -1)
             tabbedPane.removeTabAt(index);
 
@@ -1479,7 +1572,8 @@ public class ApplicationController extends AbstractApplicationController {
          * swing
          */
         String title = i18n.getNameOnly("SaveChanges");
-        String question = i18n.getMessage("questionSaveChanges").replace("%modelName%", modelName);
+        String question = i18n.getMessage("questionSaveChanges");
+        question = question.replace("%modelName%", modelName);
         int messageType = JOptionPane.YES_NO_CANCEL_OPTION;
 
         Toolkit.getDefaultToolkit().beep();
@@ -1555,6 +1649,11 @@ public class ApplicationController extends AbstractApplicationController {
         if (result == ExitCode.OPERATION_SUCCESSFUL)
             renameModels(modelName, saveAsFullName);
 
+        /*
+         * Note: It looks like the tab title is not up-to-date immediately when
+         * we are in Debugging mode!
+         */
+
         return result;
     }
 
@@ -1583,7 +1682,7 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(saveAsFullName, "saveToExistingFile", "saveAsFullName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        int result = -1;
+        int result = ExitCode.UNEXPECTED_ERROR;
 
         /* Do we have to display an overwrite warning? */
         if (modelName.equals(saveAsFullName))
@@ -1591,22 +1690,29 @@ public class ApplicationController extends AbstractApplicationController {
         if (!FSInfo.isFileSystemFile(saveAsFullName))
             displayAlerts = false; // We don't overwrite an existing file.
 
-        if (displayAlerts) {
-            String title = i18n.getNameOnly("OverwriteFile");
-            // String title = modelName;
-            String question = i18n.getMessage("questionOverwriteFile").replace("%fullName%", saveAsFullName);
-            int messageType = JOptionPane.YES_NO_CANCEL_OPTION;
-
-            int answer = JOptionPane.showConfirmDialog(mainFrame, question, title, messageType);
-
-            if (answer == JOptionPane.CANCEL_OPTION)
-                return ExitCode.OPERATION_CANCELED;
-            if (answer == JOptionPane.NO_OPTION)
-                return ExitCode.OPERATION_FAILED;
-        }
+        /*
+         * Obsolete if-section because FileSaveAsAction has already made the
+         * overwrite check.
+         */
+        // if (displayAlerts) {
+        // String title = i18n.getNameOnly("OverwriteFile");
+        // // String title = modelName;
+        // String question =
+        // i18n.getMessage("questionOverwriteFile").replace("%fullName%",
+        // saveAsFullName);
+        // int messageType = JOptionPane.YES_NO_CANCEL_OPTION;
+        //
+        // int answer = JOptionPane.showConfirmDialog(mainFrame, question,
+        // title, messageType);
+        //
+        // if (answer == JOptionPane.CANCEL_OPTION)
+        // return ExitCode.OPERATION_CANCELED;
+        // if (answer == JOptionPane.NO_OPTION)
+        // return ExitCode.OPERATION_FAILED;
+        // }
 
         /* Do we have to ask for a file name? */
-        if (saveAsFullName == null || saveAsFullName == "") {
+        if (saveAsFullName == null || saveAsFullName.equals("")) {
             // File initialFolder = getCurrentDirectory("saveFile");
             // saveAsFullName = FSInfo.getSaveAsFullName(mainFrame,
             // initialFolder);
@@ -1637,9 +1743,7 @@ public class ApplicationController extends AbstractApplicationController {
         }
         result = writeToPnmlFile(modifiedDataModel, saveAsFullName);
 
-        /*
-         * "Convert" the exit codes from the PNML writer to what we need here.
-         */
+        /* "Convert" the exit codes from the PNML writer. */
         switch (result) {
         case ExitCode.OPERATION_SUCCESSFUL:
             return ExitCode.OPERATION_SUCCESSFUL;
@@ -1647,8 +1751,9 @@ public class ApplicationController extends AbstractApplicationController {
         case ExitCode.OPERATION_CANCELED:
             return ExitCode.OPERATION_FAILED;
         default:
-            System.err.println(
-                    "Unexpected return value from writeToPnmlFile(modifiedDataModel, saveAsFullName): " + result);
+            String message = "Unexpected return value from writeToPnmlFile(modifiedDataModel, saveAsFullName): "
+                    + result;
+            System.err.println(message);
             return ExitCode.OPERATION_CANCELED;
         }
     }
@@ -1685,8 +1790,11 @@ public class ApplicationController extends AbstractApplicationController {
         if (returnValue > 0)
             return ExitCode.OPERATION_FAILED;
 
+        /* Get the List with all elements. */
+        List<IDataElement> dataElements = model.getElements();
+
         /* Write all places in this model */
-        for (IDataElement element : model.getElements()) {
+        for (IDataElement element : dataElements) {
             if (element instanceof DataPlace) {
                 String id = element.getId();
                 String label = ((DataPlace) element).getName();
@@ -1701,7 +1809,7 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         /* Write all transitions in this model */
-        for (IDataElement element : model.getElements()) {
+        for (IDataElement element : dataElements) {
             if (element instanceof DataTransition) {
                 String id = element.getId();
                 String label = ((DataTransition) element).getName();
@@ -1715,7 +1823,7 @@ public class ApplicationController extends AbstractApplicationController {
         }
 
         /* Write all arcs in this model */
-        for (IDataElement element : model.getElements()) {
+        for (IDataElement element : dataElements) {
             if (element instanceof DataArc) {
                 String id = element.getId();
                 String source = ((DataArc) element).getSourceId();
@@ -1752,7 +1860,10 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Invokes saveFileAs(modelName, pnmlFile) with the active file.
+     * Invokes saveFileAs(modelName, pnmlFile) with the active file.<BR>
+     * <BR>
+     * Note: This method is used by menuCmd_FileSaveAs() as Callback for the
+     * {@link FileSaveAsAction}.
      * 
      * @param pnmlFile
      *            The specified {@link File}
@@ -1785,7 +1896,7 @@ public class ApplicationController extends AbstractApplicationController {
     }
 
     /**
-     * Saves the specified file as the specified {@link File}.
+     * Saves the specified file to the specified full path name.
      * 
      * @param modelName
      *            The name of the model (This is intended to be the full path
@@ -1799,7 +1910,9 @@ public class ApplicationController extends AbstractApplicationController {
         if (isParamUndefined(modelName, "saveFileAs", "modelName"))
             return ExitCode.UNEXPECTED_ERROR;
 
-        int result = saveToFile(modelName, saveAsFullName, true);
+        // int result = saveToFile(modelName, saveAsFullName, true);
+        /* FileSaveAsAction has already done the overwrite check */
+        int result = saveToFile(modelName, saveAsFullName, false);
 
         /* Update the name of the models etc. */
         if (result == ExitCode.OPERATION_SUCCESSFUL)
@@ -1887,7 +2000,7 @@ public class ApplicationController extends AbstractApplicationController {
      * @return True = At least one open file, false = no open files
      */
     private boolean isFileOpen() {
-        if (this.activeFile == null || this.activeFile == "") {
+        if (this.activeFile == null || this.activeFile.equals("")) {
             ConsoleLogger.logIfDebug(debug, "No file open.");
             return false;
         }
@@ -1994,7 +2107,8 @@ public class ApplicationController extends AbstractApplicationController {
             System.err.println("Undefined parameter " + paramName + " in method " + methodName + "!");
             return true;
         }
-        if (param == "") {
+        // if (param == "") {
+        if (param.equals("")) {
             System.err.println("Empty parameter " + paramName + " in method " + methodName + "!");
             return true;
         }
@@ -2539,6 +2653,109 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void enableActionsForSelectedElements(List<IGuiElement> selected) {
         this.actionManager.enableActionsForSelectedElements(selected);
+    }
+
+    /* Undo/Redo */
+
+    /**
+     * Returns true if the last edit in {@link IDataModel} <B>and</B>
+     * {@link IGuiModel} may be undone.<BR>
+     * <BR>
+     * Note: This is intended to be used to enable the {@link EditUndoAction}.
+     * 
+     * @return true = at least 1 edit can be undone; false = no edit can be
+     *         undone
+     */
+    public boolean canUndo() {
+        boolean canUndo = (dataModelController.canUndo() && guiModelController.canUndo());
+        return canUndo;
+    }
+
+    /**
+     * Returns true if the last edit in {@link IDataModel} <B>and</B>
+     * {@link IGuiModel} may be redone.<BR>
+     * <BR>
+     * Note: This is intended to be used to enable the {@link EditRedoAction}.
+     * 
+     * @return true = at least 1 edit can be redone; false = no edit can be
+     *         redone
+     */
+    public boolean canRedo() {
+        boolean canRedo = (dataModelController.canRedo() && guiModelController.canRedo());
+        return canRedo;
+    }
+
+    /**
+     * Passes the request to make the {@link IDataModel} undoable to the
+     * {@link IDataModelController} and returns the result.<BR>
+     * <BR>
+     * Note: MakeUndoable requests are <B>unidirectional</B> (from the
+     * {@link IGuiModelController} to the {@link IDataModelController})
+     * <B>because only GUI events are made by the user</B>. And the user will
+     * expect that an Undo operation will undo his own action.
+     * 
+     * @return the result of dataModelController.makeUndoable().
+     */
+    public int makeDataModelUndoable() {
+        return dataModelController.makeUndoable();
+    }
+
+    /**
+     * Passes the request to make the {@link IDataModel} redoable to the
+     * {@link IDataModelController} and returns the result.<BR>
+     * <BR>
+     * Note: MakeRedoable requests are <B>unidirectional</B> (from the
+     * {@link IGuiModelController} to the {@link IDataModelController})
+     * <B>because only GUI events are made by the user</B>. And the user will
+     * expect that an Undo operation will undo his own action.
+     * 
+     * @return the result of dataModelController.makeRedoable().
+     */
+    public int makeDataModelRedoable() {
+        return dataModelController.makeRedoable();
+    }
+
+    /**
+     * Passes the request to undo the last edit in the current
+     * {@link IDataModel} to the {@link IDataModelController}.
+     * 
+     * @throws CannotUndoException
+     *             if the {@link IDataModelController} throws
+     *             {@link CannotUndoException}.
+     */
+    public void undoDataModel() throws CannotUndoException {
+        try {
+            dataModelController.Undo();
+        } catch (CannotUndoException e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Passes the request to redo the last edit in the current
+     * {@link IDataModel} to the {@link IDataModelController}.
+     * 
+     * @throws CannotRedoException
+     *             if the {@link IDataModelController} throws
+     *             {@link CannotRedoException}.
+     */
+    public void redoDataModel() throws CannotRedoException {
+        try {
+            dataModelController.Redo();
+        } catch (CannotRedoException e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Passes the request to update the "enabled" state of
+     * {@link EditUndoAction} and {@link EditRedoAction} to the
+     * {@link IActionManager}.<BR>
+     * <BR>
+     * Note: This refers to the active file.
+     */
+    public void enableUndoRedoActions() {
+        actionManager.enableUndoRedoActions(activeFile);
     }
 
 }

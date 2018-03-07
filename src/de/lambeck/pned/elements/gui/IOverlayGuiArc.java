@@ -5,7 +5,7 @@ package de.lambeck.pned.elements.gui;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import de.lambeck.pned.models.gui.IDrawArcOverlay;
+import de.lambeck.pned.models.gui.overlay.IDrawArcOverlay;
 
 /**
  * Interface for the arc in the {@link IDrawArcOverlay}.

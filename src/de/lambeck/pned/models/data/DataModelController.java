@@ -9,21 +9,28 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.EStatusMessageLevel;
 import de.lambeck.pned.application.ExitCode;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
+import de.lambeck.pned.exceptions.PNElementCreationException;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
+import de.lambeck.pned.exceptions.PNObjectNotClonedException;
 import de.lambeck.pned.filesystem.FSInfo;
 import de.lambeck.pned.filesystem.pnml.EPNMLParserExitCode;
 import de.lambeck.pned.filesystem.pnml.PNMLParser;
 import de.lambeck.pned.i18n.I18NManager;
+import de.lambeck.pned.models.data.validation.IValidationController;
 import de.lambeck.pned.models.data.validation.IValidationMsgPanel;
 import de.lambeck.pned.models.data.validation.ValidationController;
 import de.lambeck.pned.models.data.validation.ValidationMsgPanel;
 import de.lambeck.pned.util.ConsoleLogger;
+import de.lambeck.pned.util.ObjectCloner;
 
 /**
  * Implements a controller for the data models of Petri nets. This means the
@@ -50,13 +57,25 @@ public class DataModelController implements IDataModelController {
     protected I18NManager i18n = null;
 
     /**
-     * List of data models identified by their name (full name of the file)
+     * Map of data models identified by their name (full name of the file)
      */
     private Map<String, IDataModel> dataModels = new HashMap<String, IDataModel>();
 
     /**
-     * Current model is the model that corresponds to the active tab of the
-     * tabbed pane.
+     * Map of (Undo) stacks for old versions of {@link IDataModel} identified by
+     * their name (full name of the file)
+     */
+    private Map<String, IDataModelStack> undoStacks = new HashMap<String, IDataModelStack>();
+
+    /**
+     * Map of (Redo) stacks for "new" versions of {@link IDataModel} identified
+     * by their name (full name of the file)
+     */
+    private Map<String, IDataModelStack> redoStacks = new HashMap<String, IDataModelStack>();
+
+    /**
+     * Current model is the {@link IDataModel} that corresponds to the active
+     * tab (active file) of the applications {@link JTabbedPane}.
      */
     private IDataModel currentModel = null;
 
@@ -112,19 +131,15 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.addDataModel", modelName, displayName);
         }
 
-        /*
-         * Add a data model.
-         * 
-         * -> Set "checked" state to true as soon as possible to prevent the
-         * ValidationController thread from starting the validation before we
-         * even have added a validation messages panel!
-         */
-        IDataModel newDataModel = new DataModel(modelName, displayName, this);
-        newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
-        this.dataModels.put(modelName, newDataModel);
+        /* Create the data model. */
+        IDataModel newDataModel = createDataModel(modelName, displayName);
 
         /* Set as current data model. */
-        this.currentModel = newDataModel;
+        // this.currentModel = newDataModel;
+        setCurrentModel(newDataModel);
+
+        /* Create the Undo and Redo stacks for this model. */
+        createUndoAndRedoStack(modelName);
 
         /* Add an associated validation messages panel. */
         IValidationMsgPanel validationMessagesPanel = addValidationMessagePanel(modelName);
@@ -134,6 +149,51 @@ public class DataModelController implements IDataModelController {
         if (debug) {
             System.out.println("Data models count: " + dataModels.size());
         }
+    }
+
+    /**
+     * Creates a new {@link IDataModel} and returns it.<BR>
+     * <BR>
+     * Sets the "checked" state to true as soon as possible to prevent the
+     * {@link IValidationController} thread from starting the validation before
+     * we even have added a {@link IValidationMsgPanel}!
+     * 
+     * @param modelName
+     *            The full path name of the PNML file
+     * @param displayName
+     *            The title of the tab (= the file name)
+     * @return The created {@link IDataModel}
+     */
+    private IDataModel createDataModel(String modelName, String displayName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.createDataModel", modelName, displayName);
+        }
+
+        // IDataModel newDataModel = new DataModel(modelName, displayName,
+        // this);
+        IDataModel newDataModel = new DataModel(modelName, displayName);
+        newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
+        this.dataModels.put(modelName, newDataModel);
+
+        return newDataModel;
+    }
+
+    /**
+     * Creates the Undo and Redo stack for the specified model.
+     * 
+     * @param modelName
+     *            The full path name of the PNML file
+     */
+    private void createUndoAndRedoStack(String modelName) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.createUndoAndRedoStack", modelName);
+        }
+
+        IDataModelStack undoStack = new DataModelStack();
+        this.undoStacks.put(modelName, undoStack);
+
+        IDataModelStack redoStack = new DataModelStack();
+        this.redoStacks.put(modelName, redoStack);
     }
 
     @Override
@@ -163,16 +223,8 @@ public class DataModelController implements IDataModelController {
          */
         this.importingFromPnml = true;
 
-        /*
-         * Add the data model.
-         * 
-         * -> Set "checked" state to true as soon as possible to prevent the
-         * ValidationController thread from starting the validation before we
-         * even have added a validation messages panel!
-         */
-        IDataModel newDataModel = new DataModel(canonicalPath, displayName, this);
-        newDataModel.setModelChecked(true, NEVER_REMOVE_INITIAL_CHECK_STATE);
-        this.dataModels.put(canonicalPath, newDataModel);
+        /* Create the data model. */
+        IDataModel newDataModel = createDataModel(canonicalPath, displayName);
 
         /*
          * Set as current data model.
@@ -180,7 +232,11 @@ public class DataModelController implements IDataModelController {
          * Note: This data model must be set as current model here because the
          * PNMLParser pushes all found elements into the current data model!
          */
-        this.currentModel = newDataModel;
+        // this.currentModel = newDataModel;
+        setCurrentModel(newDataModel);
+
+        /* Create the Undo and Redo stacks for this model. */
+        createUndoAndRedoStack(canonicalPath);
 
         /* Parse the file. */
         PNMLParser pnmlParser = new PNMLParser(pnmlFile, this);
@@ -362,19 +418,13 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeDataModel", modelName);
         }
 
-        /*
-         * Reset the "current model" attribute if we remove the current model.
-         */
-        try {
-            if (this.currentModel.getModelName().equalsIgnoreCase(modelName)) {
-                this.currentModel = null;
-            }
-        } catch (NullPointerException ignore) {
-            // Nothing to do
+        /* Reset "current model" attribute if we remove the current model. */
+        if (this.currentModel != null && this.currentModel.getModelName().equalsIgnoreCase(modelName)) {
+            this.currentModel = null;
         }
 
-        /* Remove the model. */
-        this.dataModels.remove(modelName);
+        /* Remove the model from the Maps. */
+        removeModelFromModelNameDependentMaps(modelName);
 
         /* Remove the associated validation messages panel. */
         removeValidationMessagePanel(modelName);
@@ -407,26 +457,19 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameDataModel(IDataModel model, String newModelName, String newDisplayName) {
-        /* The old key for the Map of models. */
-        String oldKey = model.getModelName();
-
-        /* Get the associated validation message panel. */
-        IValidationMsgPanel validationMessagePanel = getValidationMessagePanel(oldKey);
-
-        /* Rename the model and the associated validation message panel. */
+        String oldModelName = model.getModelName(); // For the message panel
         IModelRename renameCandidate;
 
+        /* Rename the model and the associated validation message panel. */
         renameCandidate = (IModelRename) model;
         setModelNames(renameCandidate, newModelName, newDisplayName);
 
+        IValidationMsgPanel validationMessagePanel = getValidationMessagePanel(oldModelName);
         setValidationMessagePanelNames(validationMessagePanel, newModelName);
 
-        /* Update both Maps! */
-        IDataModel value1 = dataModels.remove(oldKey);
-        dataModels.put(newModelName, value1);
-
-        IValidationMsgPanel value2 = validationMessagePanels.remove(oldKey);
-        validationMessagePanels.put(newModelName, value2);
+        /* Update all Maps where the model name is the key! */
+        // updateKeyInModelNameDependentMaps(model, newModelName);
+        updateKeyInModelNameDependentMaps(oldModelName, newModelName);
     }
 
     /**
@@ -475,7 +518,19 @@ public class DataModelController implements IDataModelController {
             ConsoleLogger.consoleLogMethodCall("DataModelController.setCurrentModel", model.getModelName());
         }
 
+        /* Activate the new model */
         this.currentModel = model;
+
+        /*
+         * Update the Maps for the models.
+         * 
+         * This is necessary for Undo or Redo operations. In this case, the
+         * model will change but the model name is the same. This means that we
+         * have to make sure that the object referenced in the Maps is the
+         * correct model!
+         */
+        String key = model.getModelName();
+        updateModelInModelNameDependentMaps(key, model);
     }
 
     @Override
@@ -483,8 +538,8 @@ public class DataModelController implements IDataModelController {
         for (Entry<String, IValidationMsgPanel> entry : validationMessagePanels.entrySet()) {
             // String key = entry.getKey();
             IValidationMsgPanel validationMessagePanel = entry.getValue();
-
-            if (validationMessagePanel.getModelName().equalsIgnoreCase(modelName))
+            String messagePanelName = validationMessagePanel.getModelName();
+            if (messagePanelName.equalsIgnoreCase(modelName))
                 return validationMessagePanel;
         }
 
@@ -511,6 +566,142 @@ public class DataModelController implements IDataModelController {
         return appController.getMainFrame();
     }
 
+    /* Map updates */
+
+    // /**
+    // * Replaces the entry for the specified {@link IDataModel} with a new
+    // entry
+    // * associated with the specified new key in all affected Maps.
+    // *
+    // * @param model
+    // * the specified {@link IDataModel}
+    // * @param newKey
+    // * the specified new key
+    // */
+    // private void updateKeyInModelNameDependentMaps(IDataModel model, String
+    // newKey) {
+    // String oldKey = model.getModelName();
+    //
+    // IDataModel value1 = dataModels.remove(oldKey);
+    // dataModels.put(newKey, value1);
+    //
+    // IValidationMsgPanel value2 = validationMessagePanels.remove(oldKey);
+    // validationMessagePanels.put(newKey, value2);
+    //
+    // IDataModelStack value3 = undoStacks.remove(oldKey);
+    // undoStacks.put(newKey, value3);
+    //
+    // IDataModelStack value4 = redoStacks.remove(oldKey);
+    // redoStacks.put(newKey, value4);
+    // }
+
+    /**
+     * Replaces the old key with the new key in every {@link Map} that depends
+     * on the name of an {@link IDataModel}.<BR>
+     * <BR>
+     * This is realized by removing the entry associated with that old key and
+     * re-inserting that entry with the new key.
+     * 
+     * @param oldKey
+     *            the specified old key representing the name of the model
+     * @param newKey
+     *            the specified new key representing the name of the model
+     */
+    private void updateKeyInModelNameDependentMaps(String oldKey, String newKey) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.updateKeyInModelNameDependentMaps", oldKey, newKey);
+        }
+
+        if (isDuplicateKeyInModelNameDependentMaps(newKey))
+            return;
+
+        /* Replace the keys */
+        IDataModel value1 = dataModels.remove(oldKey);
+        dataModels.put(newKey, value1);
+
+        IValidationMsgPanel value2 = validationMessagePanels.remove(oldKey);
+        validationMessagePanels.put(newKey, value2);
+
+        IDataModelStack value3 = undoStacks.remove(oldKey);
+        undoStacks.put(newKey, value3);
+
+        IDataModelStack value4 = redoStacks.remove(oldKey);
+        redoStacks.put(newKey, value4);
+    }
+
+    /**
+     * Checks whether the specified key already exists in a {@link Map} that
+     * depends on the name of an {@link IDataModel}.
+     * 
+     * @param newKey
+     *            the specified key representing the name of a model
+     * @return true = newKey is a duplicate in at least 1 Map; false = newKey is
+     *         no duplicate in any of the Maps
+     */
+    private boolean isDuplicateKeyInModelNameDependentMaps(String newKey) {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.isDuplicateKeyInModelNameDependentMaps", newKey);
+        }
+
+        IDataModel value1 = dataModels.get(newKey);
+        if (value1 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'dataModels'";
+            System.err.println(message);
+            return true;
+        }
+
+        IValidationMsgPanel value2 = validationMessagePanels.remove(newKey);
+        if (value2 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'validationMessagePanels'";
+            System.err.println(message);
+            return true;
+        }
+
+        IDataModelStack value3 = undoStacks.remove(newKey);
+        if (value3 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'undoStacks'";
+            System.err.println(message);
+            return true;
+        }
+
+        IDataModelStack value4 = redoStacks.remove(newKey);
+        if (value4 != null) {
+            String message = "-> Duplicate entry: " + newKey + " in Map 'redoStacks'";
+            System.err.println(message);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Replaces the value ({@link IDataModel}) that is associated with the
+     * specified key with a new {@link IDataModel} in all affected Maps.
+     * 
+     * @param key
+     *            the specified key
+     * @param newModel
+     *            the specified new {@link IDataModel}
+     */
+    private void updateModelInModelNameDependentMaps(String key, IDataModel newModel) {
+        dataModels.put(key, newModel);
+    }
+
+    /**
+     * Removes the specified {@link IDataModel} from all Maps.
+     * 
+     * @param modelName
+     *            The name of the model (This is intended to be the full path
+     *            name of the PNML file represented by this model.)
+     */
+    private void removeModelFromModelNameDependentMaps(String modelName) {
+        this.dataModels.remove(modelName);
+
+        /* Remove Undo and Redo stack for this model. */
+        this.undoStacks.remove(modelName);
+        this.redoStacks.remove(modelName);
+    }
+
     /*
      * Methods for adding, modify and removal of elements (and callbacks for
      * updates between data and GUI model controller)
@@ -520,6 +711,8 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position) {
+        // TODO Implement Undo/Redo!
+
         currentModel.addPlace(id, "", initialTokens, position);
 
         if (!this.importingFromPnml)
@@ -528,6 +721,8 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addPlaceToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
+        // TODO Implement Undo/Redo!
+
         currentModel.addPlace(id, name, initialTokens, position);
         this.elementsAddedToCurrentModel++;
 
@@ -542,6 +737,8 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addTransitionToCurrentDataModel(String id, Point position) {
+        // TODO Implement Undo/Redo!
+
         currentModel.addTransition(id, "", position);
 
         if (!this.importingFromPnml)
@@ -550,6 +747,8 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addTransitionToCurrentDataModel(String id, String name, Point position) {
+        // TODO Implement Undo/Redo!
+
         currentModel.addTransition(id, name, position);
         this.elementsAddedToCurrentModel++;
 
@@ -564,7 +763,15 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addArcToCurrentDataModel(String id, String sourceId, String targetId) {
-        currentModel.addArc(id, sourceId, targetId);
+        // TODO Implement Undo/Redo!
+
+        try {
+            currentModel.addArc(id, sourceId, targetId);
+        } catch (PNElementCreationException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
+
         this.elementsAddedToCurrentModel++;
 
         if (!this.importingFromPnml)
@@ -579,6 +786,12 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameNode(String nodeId, String newName) {
+        // TODO Implement Undo/Redo!
+
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.renameNode");
+        }
+
         IDataNode node;
         try {
             node = currentModel.getNodeById(nodeId);
@@ -607,6 +820,8 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void removeDataElement(String elementId) {
+        // TODO Implement Undo/Redo!
+
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeDataElement", elementId);
         }
@@ -668,14 +883,17 @@ public class DataModelController implements IDataModelController {
         }
     }
 
-    @Override
-    public void removeElementFromCurrentDataModel(String id) throws PNNoSuchElementException {
-        currentModel.removeElement(id);
-        currentModel.setModified(true, true);
-    }
+    // @Override
+    // public void removeElementFromCurrentDataModel(String id) throws
+    // PNNoSuchElementException {
+    // currentModel.removeElement(id);
+    // currentModel.setModified(true, true);
+    // }
 
     @Override
     public void clearCurrentDataModel() {
+        // TODO Implement Undo/Redo!
+
         currentModel.clear();
         currentModel.setModified(true, true);
     }
@@ -684,6 +902,11 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void moveNode(String nodeId, Point newPosition) {
+        // TODO Implement Undo/Redo!
+        // TODO Check for Undo only if moving has finished!
+        // TODO Compare GuiModelController.mouseDragged() and
+        // DataModelController.moveNode()
+
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.moveNode", nodeId, newPosition);
         }
@@ -1075,6 +1298,370 @@ public class DataModelController implements IDataModelController {
             return;
 
         currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
+    }
+
+    /* Undo/Redo */
+
+    @Override
+    public boolean canUndo() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.canUndo");
+        }
+
+        IDataModelStack currentUndoStack = getCurrentModelUndoStack();
+        if (currentUndoStack == null)
+            return false;
+
+        boolean canBeUndone = !currentUndoStack.empty();
+        return canBeUndone;
+    }
+
+    /**
+     * Returns the Undo stack ({@link IDataModelStack}) for the current
+     * {@link IDataModel}.
+     * 
+     * @return the Undo stack as {@link IDataModelStack}; or null if current
+     *         model is null or the stack does not exist.
+     */
+    private IDataModelStack getCurrentModelUndoStack() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.getCurrentModelUndoStack");
+        }
+
+        if (currentModel == null)
+            return null;
+
+        String fullName = currentModel.getModelName();
+        IDataModelStack undoStack = null;
+        try {
+            undoStack = undoStacks.get(fullName);
+        } catch (ClassCastException e) {
+            return null;
+        } catch (NullPointerException e) {
+            return null;
+        }
+
+        return undoStack;
+    }
+
+    @Override
+    public boolean canRedo() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.canRedo");
+        }
+
+        IDataModelStack currentRedoStack = getCurrentModelRedoStack();
+        if (currentRedoStack == null)
+            return false;
+
+        boolean canBeRedone = !currentRedoStack.empty();
+        return canBeRedone;
+    }
+
+    /**
+     * Returns the Redo stack ({@link IDataModelStack}) for the current
+     * {@link IDataModel}.
+     * 
+     * @return the Redo stack as {@link IDataModelStack}; or null if current
+     *         model is null or the stack does not exist.
+     */
+    private IDataModelStack getCurrentModelRedoStack() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.getCurrentModelRedoStack");
+        }
+
+        if (currentModel == null)
+            return null;
+
+        String fullName = currentModel.getModelName();
+        IDataModelStack redoStack = null;
+        try {
+            redoStack = redoStacks.get(fullName);
+        } catch (ClassCastException e) {
+            return null;
+        } catch (NullPointerException e) {
+            return null;
+        }
+
+        return redoStack;
+    }
+
+    @Override
+    public int makeUndoable() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.makeUndoable");
+        }
+
+        if (currentModel == null)
+            return 1;
+
+        // UndoRedoElementBuffer elementBuffer = createUndoRedoElementBuffer();
+        // if (elementBuffer == null)
+        // return 2;
+        IDataModel copy = cloneCurrentModel();
+        if (copy == null)
+            return 2;
+
+        IDataModelStack undoStack = getCurrentModelUndoStack();
+        if (undoStack == null)
+            return 3;
+
+        // undoStack.push(elementBuffer);
+        undoStack.push(copy);
+
+        return 0;
+    }
+
+    /**
+     * Clones the current {@link IDataModel}.
+     *
+     * @return a copy of the current {@link IDataModel}; or null if errors
+     *         occurred.
+     */
+    private IDataModel cloneCurrentModel() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.cloneCurrentModel");
+        }
+
+        // IDataModel old = this.currentModel;
+        // if (old == null) {
+        // System.err.println("Unable to determine the current data model!");
+        // return null;
+        // }
+
+        IDataModel copy = null;
+        try {
+            copy = (IDataModel) ObjectCloner.deepCopy(this.currentModel);
+        } catch (PNObjectNotClonedException e) {
+            String message = "Unable to clone the current data model!";
+            System.err.println(message);
+            return null;
+        }
+        return copy;
+    }
+
+    @Override
+    public int makeRedoable() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.makeRedoable");
+        }
+
+        if (currentModel == null)
+            return 1;
+
+        // UndoRedoElementBuffer elementBuffer = createUndoRedoElementBuffer();
+        // if (elementBuffer == null)
+        // return 2;
+        IDataModel copy = cloneCurrentModel();
+        if (copy == null)
+            return 2;
+
+        IDataModelStack redoStack = getCurrentModelRedoStack();
+        if (redoStack == null)
+            return 3;
+
+        // redoStack.push(elementBuffer);
+        redoStack.push(copy);
+
+        return 0;
+    }
+
+    // /**
+    // * Creates an {@link UndoRedoElementBuffer} with all {@link IDataElement}
+    // of
+    // * the current {@link IDataModel}.
+    // *
+    // * @return {@link UndoRedoElementBuffer}; null if there is no current
+    // * {@link IDataModel}
+    // */
+    // private UndoRedoElementBuffer createUndoRedoElementBuffer() {
+    // if (debug) {
+    // ConsoleLogger.consoleLogMethodCall("DataModelController.createUndoRedoElementBuffer");
+    // }
+    //
+    // if (currentModel == null)
+    // return null;
+    //
+    // UndoRedoElementBuffer elementBuffer = new UndoRedoElementBuffer();
+    //
+    // List<IDataElement> newElements = currentModel.getElements();
+    // elementBuffer.setElements(newElements);
+    //
+    // return elementBuffer;
+    // }
+
+    @Override
+    public void Undo() throws CannotUndoException {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.Undo");
+        }
+
+        // UndoRedoElementBuffer last = null;
+        IDataModel last = null;
+        try {
+            // last = getUndoElementBuffer();
+            last = getUndoModel();
+        } catch (CannotUndoException e) {
+            throw e;
+        }
+
+        makeRedoable();
+
+        /* This is the actual Undo operation. */
+        // List<IDataElement> newElements = last.getElements();
+        // this.currentModel.setElements(newElements);
+
+        // this.currentModel = last;
+        setCurrentModel(last);
+
+        /*
+         * Revalidate this model because validation results are not included in
+         * the Undo operation.
+         */
+        this.currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
+    }
+
+    // /**
+    // * Returns the last Undo buffer with the {@link List} of
+    // * {@link IDataElement} for the current {@link IDataModel}.
+    // *
+    // * @return An {@link UndoRedoElementBuffer} from the Undo stack
+    // * @throws CannotUndoException
+    // * if currentModel or undoStack == null or undoStack.empty()
+    // */
+    // private UndoRedoElementBuffer getUndoElementBuffer() throws
+    // CannotUndoException {
+    // /* Checks */
+    //
+    // if (currentModel == null)
+    // throw new CannotUndoException();
+    //
+    // IDataModelStack undoStack = getCurrentModelUndoStack();
+    // if (undoStack == null)
+    // throw new CannotUndoException();
+    //
+    // /* Avoid EmptyStackException in undoStack.pop() */
+    // if (undoStack.empty())
+    // throw new CannotUndoException();
+    //
+    // /* Undo operation is possible. */
+    //
+    // UndoRedoElementBuffer last = undoStack.pop();
+    // return last;
+    // }
+
+    /**
+     * Returns the last copy of the current {@link IDataModel}.
+     * 
+     * @return An {@link IDataModel} from the Undo stack
+     * @throws CannotUndoException
+     *             if currentModel or undoStack == null or undoStack.empty()
+     */
+    private IDataModel getUndoModel() throws CannotUndoException {
+        /* Checks */
+
+        if (currentModel == null)
+            throw new CannotUndoException();
+
+        IDataModelStack undoStack = getCurrentModelUndoStack();
+        if (undoStack == null)
+            throw new CannotUndoException();
+
+        /* Avoid EmptyStackException in undoStack.pop() */
+        if (undoStack.empty())
+            throw new CannotUndoException();
+
+        /* Undo operation is possible. */
+
+        IDataModel last = undoStack.pop();
+        return last;
+    }
+
+    @Override
+    public void Redo() throws CannotRedoException {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.Redo");
+        }
+
+        // UndoRedoElementBuffer next = null;
+        IDataModel next = null;
+        try {
+            // next = getRedoElementBuffer();
+            next = getRedoModel();
+        } catch (CannotRedoException e) {
+            throw e;
+        }
+
+        makeUndoable();
+
+        /* This is the actual Redo operation. */
+        // List<IDataElement> newElements = next.getElements();
+        // this.currentModel.setElements(newElements);
+
+        // this.currentModel = next;
+        setCurrentModel(next);
+
+        /*
+         * Revalidate this model because validation results are not included in
+         * the Redo operation.
+         */
+        this.currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
+    }
+
+    // /**
+    // * Returns the next Redo buffer with the {@link List} of
+    // * {@link IDataElement} for the current {@link IDataModel}.
+    // *
+    // * @return An {@link UndoRedoElementBuffer} from the Redo stack
+    // * @throws CannotRedoException
+    // * if currentModel or redoStack == null or redoStack.empty()
+    // */
+    // private UndoRedoElementBuffer getRedoElementBuffer() throws
+    // CannotRedoException {
+    // /* Checks */
+    //
+    // if (currentModel == null)
+    // throw new CannotRedoException();
+    //
+    // IDataModelStack redoStack = getCurrentModelRedoStack();
+    // if (redoStack == null)
+    // throw new CannotRedoException();
+    //
+    // /* Avoid EmptyStackException in redoStack.pop() */
+    // if (redoStack.empty())
+    // throw new CannotRedoException();
+    //
+    // /* Redo operation is possible. */
+    //
+    // UndoRedoElementBuffer succ = redoStack.pop();
+    // return succ;
+    // }
+
+    /**
+     * Returns the next copy of the current {@link IDataModel}.
+     * 
+     * @return An {@link IDataModel} from the Redo stack
+     * @throws CannotRedoException
+     *             if currentModel or redoStack == null or redoStack.empty()
+     */
+    private IDataModel getRedoModel() throws CannotRedoException {
+        /* Checks */
+
+        if (currentModel == null)
+            throw new CannotRedoException();
+
+        IDataModelStack redoStack = getCurrentModelRedoStack();
+        if (redoStack == null)
+            throw new CannotRedoException();
+
+        /* Avoid EmptyStackException in redoStack.pop() */
+        if (redoStack.empty())
+            throw new CannotRedoException();
+
+        /* Redo operation is possible. */
+
+        IDataModel next = redoStack.pop();
+        return next;
     }
 
 }

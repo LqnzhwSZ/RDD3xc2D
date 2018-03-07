@@ -52,6 +52,10 @@ public class InitialMarkingValidator extends AbstractValidator {
 
         addValidatorInfo();
 
+        /* Abort condition: empty model? */
+        if (evaluateEmptyModel(myDataModel))
+            return;
+
         if (checkAbortCondition1())
             return;
 

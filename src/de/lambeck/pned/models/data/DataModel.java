@@ -1,18 +1,18 @@
 package de.lambeck.pned.models.data;
 
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNElementCreationException;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
+import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
 import de.lambeck.pned.util.ConsoleLogger;
+import de.lambeck.pned.util.ObjectCloner;
 
 /**
  * Implements the data model (for 1 Petri net).
@@ -20,7 +20,12 @@ import de.lambeck.pned.util.ConsoleLogger;
  * @author Thomas Lambeck, 4128320
  *
  */
-public class DataModel implements IDataModel, IModelRename {
+public class DataModel implements IDataModel, IModelRename, Serializable {
+
+    /**
+     * Generated serial version ID (necessary for the {@link ObjectCloner})
+     */
+    private static final long serialVersionUID = 7516845139667473831L;
 
     /** Show debug messages? */
     private static boolean debug = false;
@@ -34,12 +39,6 @@ public class DataModel implements IDataModel, IModelRename {
      * This should be the name of the tab. (file name only)
      */
     private String displayName = "";
-
-    /**
-     * Reference to the data model controller. (Mainly for getMainFrame() method
-     * to position messages.)
-     */
-    protected IDataModelController myDataModelController = null;
 
     /**
      * List of all elements in this model
@@ -60,7 +59,10 @@ public class DataModel implements IDataModel, IModelRename {
 
     /**
      * Will be set to false as soon as "modelChecked" is set to true for the
-     * first time.
+     * first time.<BR>
+     * <BR>
+     * Note: Used in {@link InitialMarkingValidator} to avoid resetting the
+     * initial marking when loading from a PNML file.
      */
     private volatile boolean initialModelCheck = true;
 
@@ -79,15 +81,12 @@ public class DataModel implements IDataModel, IModelRename {
      *            name of the PNML file represented by this model.)
      * @param displayName
      *            The name of the tab (the file name only)
-     * @param controller
-     *            The data model controller
      */
     @SuppressWarnings("hiding")
-    public DataModel(String modelName, String displayName, IDataModelController controller) {
+    public DataModel(String modelName, String displayName) {
         super();
         this.modelName = modelName;
         this.displayName = displayName;
-        this.myDataModelController = controller;
 
         if (debug) {
             System.out.println("DataModel created, name: " + getDisplayName() + ", " + getModelName());
@@ -194,14 +193,8 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         if (debug) {
-            String title = this.modelName;
             String infoMessage = "Data Place added: " + newPlace.toString();
             System.out.println(infoMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myDataModelController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -228,19 +221,13 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         if (debug) {
-            String title = this.modelName;
             String infoMessage = "Data Transition added: " + newTransition.toString();
             System.out.println(infoMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myDataModelController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     @Override
-    public void addArc(String id, String sourceId, String targetId) {
+    public void addArc(String id, String sourceId, String targetId) throws PNElementCreationException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModel.addArc", id, sourceId + targetId);
         }
@@ -251,8 +238,9 @@ public class DataModel implements IDataModel, IModelRename {
             source = getNodeById(sourceId);
         } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
-            System.err.println("Node " + sourceId + " for arc " + id + " not found!");
-            return;
+            String message = "DataModel" + this.getModelName() + "), addArc: " + "Node " + sourceId + " for arc " + id
+                    + " not found!";
+            throw new PNElementCreationException(message);
         }
 
         IDataNode target = null;
@@ -260,35 +248,18 @@ public class DataModel implements IDataModel, IModelRename {
             target = getNodeById(targetId);
         } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
-            System.err.println("Node " + targetId + " for arc " + id + " not found!");
-            return;
+            String message = "DataModel" + this.getModelName() + "), addArc: " + "Node " + targetId + " for arc " + id
+                    + " not found!";
+            throw new PNElementCreationException(message);
         }
 
-        /*
-         * Create the arc.
-         * 
-         * Note: The arc constructor will throw an PNElementException if source
-         * and target are a invalid combination of nodes.
-         */
+        /* Create the arc. */
         IDataArc newArc = null;
-
         try {
             newArc = new DataArc(id, source, target);
-        } catch (PNElementException e) {
-            // e.printStackTrace();
-
-            /* Show an error message. */
-            String title = "Arc, id = " + id;
-            // String errorMessage = e.getMessage();
-            String errorMessage = "DataModel, addArc: " + e.getMessage();
-            System.err.println(errorMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myDataModelController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, errorMessage, title, JOptionPane.WARNING_MESSAGE);
-
-            return;
+        } catch (PNElementCreationException e) {
+            String message = "DataModel" + this.getModelName() + "), addArc: " + e.getMessage();
+            throw new PNElementCreationException(message);
         }
 
         /* Add the arc to the model. */
@@ -301,14 +272,8 @@ public class DataModel implements IDataModel, IModelRename {
         }
 
         if (debug) {
-            String title = this.modelName;
             String infoMessage = "Data Arc added: " + newArc.toString();
             System.out.println(infoMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myDataModelController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -322,7 +287,7 @@ public class DataModel implements IDataModel, IModelRename {
      */
     private void addElement(IDataElement newElement) throws PNDuplicateAddedException {
         if (debug) {
-            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").addElement", newElement.getId());
+            ConsoleLogger.consoleLogMethodCall("DataModel(" + getModelName() + ").addElement", newElement);
         }
 
         /* Prevent duplicate IDs. */
@@ -492,7 +457,8 @@ public class DataModel implements IDataModel, IModelRename {
     @Override
     public IDataElement getElementById(String id) throws PNNoSuchElementException {
         for (IDataElement element : this.elements) {
-            if (element.getId().equalsIgnoreCase(id))
+            String elementID = element.getId();
+            if (elementID.equalsIgnoreCase(id))
                 return element;
         }
 
@@ -560,5 +526,21 @@ public class DataModel implements IDataModel, IModelRename {
         ConsoleLogger.logIfDebug(debug, errorMessage);
         throw new PNNoSuchElementException(errorMessage);
     }
+
+    @Override
+    public boolean isEmpty() {
+        return this.elements.isEmpty();
+    }
+
+    /*
+     * Interface IUndoRedo (The other methods of this interface are already
+     * implemented.)
+     */
+
+    // @Override
+    // public void setElements(List<IDataElement> newElements) {
+    // List<IDataElement> copy = new ArrayList<IDataElement>(newElements);
+    // this.elements = copy;
+    // }
 
 }

@@ -5,17 +5,21 @@ import java.io.File;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 import de.lambeck.pned.application.ApplicationController;
 import de.lambeck.pned.application.IInfo_Status;
+import de.lambeck.pned.application.actions.EditRedoAction;
+import de.lambeck.pned.application.actions.EditUndoAction;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.DataPlace;
 import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.IGuiTransition;
-import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.data.validation.*;
 import de.lambeck.pned.models.gui.IGuiModel;
+import de.lambeck.pned.models.gui.IGuiModelController;
 
 /**
  * Interface for controllers for data models representing a Petri net. This
@@ -267,15 +271,16 @@ public interface IDataModelController extends IInfo_Status {
      */
     void removeDataElement(String elementId);
 
-    /**
-     * Removes the specified element from the current data model.
-     * 
-     * @param id
-     *            The id of the element
-     * @throws PNNoSuchElementException
-     *             If the current model has no element with the specified id
-     */
-    void removeElementFromCurrentDataModel(String id) throws PNNoSuchElementException;
+    // /**
+    // * Removes the specified element from the current data model.
+    // *
+    // * @param id
+    // * The id of the element
+    // * @throws PNNoSuchElementException
+    // * If the current model has no element with the specified id
+    // */
+    // void removeElementFromCurrentDataModel(String id) throws
+    // PNNoSuchElementException;
 
     /**
      * Removes all elements from the current data model.
@@ -464,5 +469,93 @@ public interface IDataModelController extends IInfo_Status {
      * Resets the current state of tokens and enabled transitions.
      */
     void stopSimulation();
+
+    /* Undo/Redo */
+
+    /**
+     * Indicates whether an Undo operation for the current {@link IDataModel} is
+     * legal. (Undo stack is not empty.)<BR>
+     * <BR>
+     * Note: This is intended to be used to enable the {@link EditUndoAction}.
+     * 
+     * @return true = at least 1 edit can be undone; false = no edit can be
+     *         undone
+     */
+    boolean canUndo();
+
+    /**
+     * Indicates whether a Redo operation for the current {@link IDataModel} is
+     * legal. (Redo stack is not empty.)<BR>
+     * <BR>
+     * Note: This is intended to be used to enable the {@link EditRedoAction}.
+     * 
+     * @return true = at least 1 edit can be redone; false = no edit can be
+     *         redone
+     */
+    boolean canRedo();
+
+    // Puts an {@link UndoRedoElementBuffer} with the elements of the current
+    // {@link IDataModel} onto the Undo stack ({@link IDataModelStack}).
+    /**
+     * Puts a copy of the current {@link IDataModel} onto the Undo stack
+     * ({@link IDataModelStack}).<BR>
+     * <BR>
+     * Note: MakeUndoable requests are <B>unidirectional</B> (from the
+     * {@link IGuiModelController} to the {@link IDataModelController})
+     * <B>because only GUI events are made by the user</B>. And the user will
+     * expect that an Undo operation will undo his own action.<BR>
+     * <BR>
+     * Note: This method is public to allow invoking it from the
+     * {@link IGuiModelController} after interaction with the user.
+     * 
+     * @return 0 = Success: model made undoable<BR>
+     *         1 = Error: currentModel == null<BR>
+     *         2 = Error: copy == null<BR>
+     *         3 = Error: undoStack == null
+     */
+    int makeUndoable();
+
+    // Puts an {@link UndoRedoElementBuffer} with the elements of the current
+    // {@link IDataModel} onto the Redo stack ({@link IDataModelStack}).
+    /**
+     * Puts a copy of the current {@link IDataModel} onto the Redo stack
+     * ({@link IDataModelStack}).<BR>
+     * <BR>
+     * Note: MakeRedoable requests are <B>unidirectional</B> (from the
+     * {@link IGuiModelController} to the {@link IDataModelController})
+     * <B>because only GUI events are made by the user</B>. And the user will
+     * expect that a Redo operation will undo his own action.<BR>
+     * <BR>
+     * Note: This method is public to allow invoking it from the
+     * {@link IGuiModelController} after interaction with the user.
+     * 
+     * @return 0 = Success: model made redoable<BR>
+     *         1 = Error: currentModel == null<BR>
+     *         2 = Error: copy == null<BR>
+     *         3 = Error: redoStack == null
+     */
+    int makeRedoable();
+
+    /**
+     * Undoes the last edit in the current {@link IDataModel}.<BR>
+     * <BR>
+     * Note: Callback for the Undo method in {@link IGuiModelController}. Should
+     * be invoked via its reference to the {@link ApplicationController}.
+     * 
+     * @throws CannotUndoException
+     *             if there are no edits to be undone
+     */
+    void Undo() throws CannotUndoException;
+
+    /**
+     * Redoes the following edit in the current {@link IDataModel}.<BR>
+     * <BR>
+     * Note: Callback for the Redo method in {@link IGuiModelController}. Should
+     * be invoked via its reference to the {@link ApplicationController}.
+     * 
+     * @throws CannotRedoException
+     *             if there are no edits to be redone
+     */
+    void Redo() throws CannotRedoException;
 
 }

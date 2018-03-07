@@ -8,18 +8,28 @@ import de.lambeck.pned.elements.data.IDataPlace;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
 import de.lambeck.pned.models.IModel;
+import de.lambeck.pned.models.data.validation.IValidator;
 import de.lambeck.pned.models.data.validation.InitialMarkingValidator;
 
 /**
- * Sub type of IModel for data models (with all persistent information loaded
- * from or saved to files).
+ * Sub type of {@link IModel} for data models (with all persistent information
+ * loaded from or saved to PNML files).
  * 
  * @author Thomas Lambeck, 4128320
  *
  */
+// public interface IDataModel extends IModel, IUndoableModel {
 public interface IDataModel extends IModel {
 
     /* Getter and Setter */
+
+    // @Override
+    /**
+     * Returns a list with all {@link IDataElement} in this {@link IDataModel}.
+     * 
+     * @return all {@link IDataElement} as Java {@link List}
+     */
+    List<IDataElement> getElements();
 
     /**
      * Adds parameter "revalidate" to setModified(boolean b) in {@link IModel}
@@ -38,13 +48,6 @@ public interface IDataModel extends IModel {
      *            model.
      */
     void setModified(boolean b, boolean revalidate);
-
-    /**
-     * Returns a list with all elements in this model.
-     * 
-     * @return Elements of the petri net
-     */
-    List<IDataElement> getElements();
 
     /**
      * Returns the {@link IDataElement} with the specified id.
@@ -90,6 +93,8 @@ public interface IDataModel extends IModel {
      */
     IDataTransition getTransitionById(String id) throws PNNoSuchElementException;
 
+    /* Methods for validation */
+
     /**
      * The check state indicates, whether the model needs checking or not. This
      * function indicates the current state
@@ -119,9 +124,12 @@ public interface IDataModel extends IModel {
      * changes to this data model change the structure of the Petri net. (Not
      * simple changes like moving or renaming nodes.)<BR>
      * <BR>
-     * Parameter "removeInitialCheckState" allows to control which validation
-     * will count as "initial validation" since "initial validation" is abort
-     * condition for some validators.
+     * Note: Parameter "removeInitialCheckState" allows to control which
+     * validation counts as "initial validation" because "initial validation" is
+     * abort condition for some implementations of {@link IValidator}. <BR>
+     * <BR>
+     * Example: Used in {@link InitialMarkingValidator} to avoid resetting the
+     * initial marking when loading from a PNML file.
      * 
      * @param b
      *            new model check state
@@ -149,6 +157,13 @@ public interface IDataModel extends IModel {
      *            new model check state
      */
     void setModelValidity(boolean b);
+
+    /**
+     * Checks whether this {@link IDataModel} is empty.
+     * 
+     * @return true = this {@link IDataModel} is empty; false = not empty
+     */
+    boolean isEmpty();
 
     /* Methods for adding, modify and removal of elements */
 

@@ -2,18 +2,19 @@ package de.lambeck.pned.models.gui;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.exceptions.PNDuplicateAddedException;
-import de.lambeck.pned.exceptions.PNElementException;
+import de.lambeck.pned.exceptions.PNElementCreationException;
 import de.lambeck.pned.exceptions.PNNoSuchElementException;
+import de.lambeck.pned.models.gui.overlay.EOverlayName;
+import de.lambeck.pned.models.gui.overlay.IOverlay;
 import de.lambeck.pned.util.ConsoleLogger;
+import de.lambeck.pned.util.ObjectCloner;
 
 /**
  * Implements the GUI model of a Petri net.
@@ -21,7 +22,12 @@ import de.lambeck.pned.util.ConsoleLogger;
  * @author Thomas Lambeck, 4128320
  *
  */
-public class GuiModel implements IGuiModel, IModelRename {
+public class GuiModel implements IGuiModel, IModelRename, Serializable {
+
+    /**
+     * Generated serial version ID (necessary for the {@link ObjectCloner})
+     */
+    private static final long serialVersionUID = -5201202359871909805L;
 
     /** Show debug messages? */
     private static boolean debug = false;
@@ -35,12 +41,6 @@ public class GuiModel implements IGuiModel, IModelRename {
      * This should be the name of the tab. (file name only)
      */
     private String displayName = "";
-
-    /**
-     * Reference to the GUI controller. (Mainly for returning dirty areas which
-     * need repainting.)
-     */
-    protected IGuiModelController myGuiController = null;
 
     /**
      * List of all elements in this model
@@ -78,15 +78,12 @@ public class GuiModel implements IGuiModel, IModelRename {
      *            name of the PNML file represented by this model.)
      * @param displayName
      *            The name of the tab (the file name only)
-     * @param controller
-     *            The GUI controller
      */
     @SuppressWarnings("hiding")
-    public GuiModel(String modelName, String displayName, IGuiModelController controller) {
+    public GuiModel(String modelName, String displayName) {
         super();
         this.modelName = modelName;
         this.displayName = displayName;
-        this.myGuiController = controller;
 
         if (debug) {
             System.out.println("GuiModel created, name: " + getModelName());
@@ -115,7 +112,7 @@ public class GuiModel implements IGuiModel, IModelRename {
         this.displayName = s;
     }
 
-    /* Interface IDataModel */
+    /* Interface IGuiModel */
 
     @Override
     public List<IGuiElement> getElements() {
@@ -124,22 +121,22 @@ public class GuiModel implements IGuiModel, IModelRename {
     }
 
     @Override
+    public List<IGuiElement> getSelectedElements() {
+        List<IGuiElement> copy = new ArrayList<IGuiElement>(this.selected);
+        return copy;
+    }
+
+    @Override
     public IGuiElement getElementById(String id) throws PNNoSuchElementException {
         for (IGuiElement element : elements) {
-            if (element.getId().equalsIgnoreCase(id))
+            String elementID = element.getId();
+            if (elementID.equalsIgnoreCase(id))
                 return element;
         }
 
         String errorMessage = "Model " + this.modelName + ": element " + id + " not found!";
         ConsoleLogger.logIfDebug(debug, errorMessage);
         throw new PNNoSuchElementException(errorMessage);
-    }
-
-    @Override
-    public List<IGuiElement> getSelectedElements() {
-        // return this.selected;
-        List<IGuiElement> copy = new ArrayList<IGuiElement>(this.selected);
-        return copy;
     }
 
     @Override
@@ -329,14 +326,8 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
 
         if (debug) {
-            String title = this.modelName;
             String infoMessage = "Gui Place added: " + newPlace.toString();
             System.out.println(infoMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myGuiController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -368,19 +359,13 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
 
         if (debug) {
-            String title = this.modelName;
             String infoMessage = "Gui Transition added: " + newTransition.toString();
             System.out.println(infoMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myGuiController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     @Override
-    public void addArc(String id, String sourceId, String targetId) {
+    public void addArc(String id, String sourceId, String targetId) throws PNElementCreationException {
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModel.addArc", id, sourceId + targetId);
         }
@@ -391,8 +376,9 @@ public class GuiModel implements IGuiModel, IModelRename {
             source = getNodeById(sourceId);
         } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
-            System.err.println("Node " + sourceId + " for arc " + id + " not found!");
-            return;
+            String message = "GuiModel" + this.getModelName() + "), addArc: " + "Node " + sourceId + " for arc " + id
+                    + " not found!";
+            throw new PNElementCreationException(message);
         }
 
         IGuiNode target = null;
@@ -400,27 +386,19 @@ public class GuiModel implements IGuiModel, IModelRename {
             target = getNodeById(targetId);
         } catch (PNNoSuchElementException e) {
             // System.err.println(e.getMessage());
-            System.err.println("Node " + targetId + " for arc " + id + " not found!");
-            return;
+            String message = "GuiModel" + this.getModelName() + "), addArc: " + "Node " + targetId + " for arc " + id
+                    + " not found!";
+            throw new PNElementCreationException(message);
         }
 
-        /*
-         * Create the arc.
-         * 
-         * Note: The arc constructor will throw an PNElementException if source
-         * and target are an invalid combination of nodes.
-         */
+        /* Create the arc. */
         IGuiArc newArc = null;
-
-        /* Get the next (higher) value for zOrder. */
-        int zOrder = getIncrMaxZ();
-
+        int zOrder = getIncrMaxZ(); // The next (higher) value for zOrder
         try {
             newArc = new GuiArc(id, zOrder, source, target);
-        } catch (PNElementException e) {
-            // e.printStackTrace();
-            System.err.println("GuiModel, addArc: " + e.getMessage());
-            return;
+        } catch (PNElementCreationException e) {
+            String message = "GuiModel" + this.getModelName() + "), addArc: " + e.getMessage();
+            throw new PNElementCreationException(message);
         }
 
         /* Add the arc to the model. */
@@ -433,14 +411,8 @@ public class GuiModel implements IGuiModel, IModelRename {
         }
 
         if (debug) {
-            String title = this.modelName;
             String infoMessage = "Gui Arc added: " + newArc.toString();
             System.out.println(infoMessage);
-
-            /* Get the main frame to center the input dialog. */
-            JFrame mainFrame = myGuiController.getMainFrame();
-
-            JOptionPane.showMessageDialog(mainFrame, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -502,9 +474,6 @@ public class GuiModel implements IGuiModel, IModelRename {
 
         elements.clear();
         selected.clear();
-
-        /* Repaint everything. (Draw panel should be empty anyways.) */
-        myGuiController.updateDrawing(null);
     }
 
     @Override
@@ -571,10 +540,8 @@ public class GuiModel implements IGuiModel, IModelRename {
         if (element == null)
             return;
 
-        /* Repaint its area after removing the selection from this element! */
-        Rectangle oldArea = element.getLastDrawingArea();
+        /* Change the attribute of the element itself. */
         element.setSelected(false);
-        myGuiController.updateDrawing(oldArea);
 
         /* Remove the element from the list of selected elements. */
         if (selected.size() == 0)
@@ -602,7 +569,8 @@ public class GuiModel implements IGuiModel, IModelRename {
             for (IGuiElement element : selected) {
                 if (outputString != "")
                     outputString = outputString + ", ";
-                outputString = outputString + element.getId();
+                String elementID = element.getId();
+                outputString = outputString + elementID;
             }
 
             System.out.println(outputString);
@@ -840,7 +808,7 @@ public class GuiModel implements IGuiModel, IModelRename {
             ConsoleLogger.consoleLogMethodCall("GuiModel.deactivated");
         }
 
-        /* Step 1: Cleanup (remove) of all overlays */
+        /* Step 1: Cleanup (removal) of all overlays */
         for (Entry<EOverlayName, IOverlay> entry : overlays.entrySet()) {
             EOverlayName key = entry.getKey();
             // IOverlay overlay = entry.getValue();
@@ -850,5 +818,22 @@ public class GuiModel implements IGuiModel, IModelRename {
             removeOverlay(key);
         }
     }
+
+    /*
+     * Interface IUndoRedo (The other methods of this interface are already
+     * implemented.)
+     */
+
+    // @Override
+    // public void setElements(List<IGuiElement> newElements) {
+    // List<IGuiElement> copy = new ArrayList<IGuiElement>(newElements);
+    // this.elements = copy;
+    // }
+
+    // @Override
+    // public void setSelectedElements(List<IGuiElement> newSelected) {
+    // List<IGuiElement> copy = new ArrayList<IGuiElement>(newSelected);
+    // this.selected = copy;
+    // }
 
 }

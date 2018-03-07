@@ -43,8 +43,10 @@ public abstract class AbstractValidator implements IValidator {
     protected IDataModel myDataModel = null;
 
     /**
-     * Was the data model just loaded from a PNML file? (Abort condition for
-     * some validators)
+     * Stores whether the current check is the initial check or not.<BR>
+     * <BR>
+     * Note: Initial check means that the data model was just loaded from a PNML
+     * file. (Abort condition for some validators)
      */
     protected boolean isInitialModelCheck = false;
 
@@ -102,7 +104,7 @@ public abstract class AbstractValidator implements IValidator {
     }
 
     /**
-     * Retrieves the necessary data from the data model.
+     * Retrieves the necessary data from the specified {@link IDataModel}.
      * 
      * @param dataModel
      *            The specified {@link IDataModel}
@@ -110,6 +112,22 @@ public abstract class AbstractValidator implements IValidator {
     protected void getDataFromModel(IDataModel dataModel) {
         this.myDataModel = dataModel;
         this.myDataModelName = dataModel.getModelName();
+    }
+
+    /**
+     * Returns true if the specified {@link IDataModel} is empty (all elements
+     * deleted).
+     * 
+     * @param dataModel
+     *            The specified {@link IDataModel}
+     * @return True = empty, false = not empty
+     */
+    protected boolean evaluateEmptyModel(IDataModel dataModel) {
+        if (dataModel.isEmpty()) {
+            messageInfoEmptyModel();
+            return true;
+        }
+        return false;
     }
 
     /* Return methods */
@@ -133,7 +151,8 @@ public abstract class AbstractValidator implements IValidator {
     /* Standard messages */
 
     /**
-     * Adds an info message with ID and purpose of this validator.
+     * Adds a {@link IValidationMsg} message with ID and purpose of this
+     * validator to the messages list.
      */
     protected void addValidatorInfo() {
         String message;
@@ -148,9 +167,27 @@ public abstract class AbstractValidator implements IValidator {
     }
 
     /**
-     * Adds an info message to indicate that this validation is stopped for an
-     * invalid model.
-     * 
+     * Adds a {@link IValidationMsg} with {@link EValidationResultSeverity}
+     * "INFO" to the messages list to indicate that this validation has been
+     * stopped for an empty model.<BR>
+     */
+    protected void messageInfoEmptyModel() {
+        String message;
+        EValidationResultSeverity severity;
+        IValidationMsg vMessage;
+
+        message = i18n.getMessage("infoValidatorSkippedForEmptyModel");
+        severity = EValidationResultSeverity.INFO;
+
+        vMessage = new ValidationMsg(myDataModel, message, severity);
+        validationMessages.add(vMessage);
+    }
+
+    /**
+     * Adds a {@link IValidationMsg} with {@link EValidationResultSeverity}
+     * "INFO" to the messages list to indicate that this validation has been
+     * stopped for an invalid model.<BR>
+     * <BR>
      * Note: This message is an "INFO" message because the
      * {@link ValidationController} stores only the highest
      * {@link EValidationResultSeverity} anyways.
@@ -168,8 +205,9 @@ public abstract class AbstractValidator implements IValidator {
     }
 
     /**
-     * Adds the final {@link IValidationMsg} with status "INFO" to the messages
-     * list.
+     * Adds the final {@link IValidationMsg} with
+     * {@link EValidationResultSeverity} "INFO" to the messages list to indicate
+     * successful validation.
      */
     protected void reportValidationSuccessful() {
         String message;

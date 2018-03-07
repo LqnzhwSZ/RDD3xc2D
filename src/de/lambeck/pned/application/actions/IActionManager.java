@@ -67,4 +67,17 @@ public interface IActionManager {
      */
     void enableZValueActions(IGuiElement element);
 
+    /**
+     * Enables {@link EditUndoAction} and {@link EditRedoAction} if edits may be
+     * undone/redone.<BR>
+     * <BR>
+     * Note: This method should mainly be used by the
+     * {@link ApplicationController} after an Undo/Redo operation or when the
+     * user switches between open files.
+     * 
+     * @param activeFile
+     *            The full path name of the current file
+     */
+    void enableUndoRedoActions(String activeFile);
+
 }

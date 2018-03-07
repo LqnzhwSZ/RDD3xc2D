@@ -6,12 +6,11 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 import de.lambeck.pned.application.*;
-import de.lambeck.pned.application.actions.EditDeleteAction;
-import de.lambeck.pned.application.actions.EditRenameAction;
-import de.lambeck.pned.application.actions.NewPlaceAction;
-import de.lambeck.pned.application.actions.SelectAllAction;
+import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.IDataTransition;
@@ -19,6 +18,7 @@ import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;
 import de.lambeck.pned.models.data.IDataModelController;
+import de.lambeck.pned.models.gui.overlay.IDrawArcOverlay;
 
 /**
  * Interface for controllers for GUI models representing a Petri net. This means
@@ -326,7 +326,7 @@ public interface IGuiModelController
      * 
      * Renames the selected element in the current GUI model.
      */
-    void renameSelectedGuiElement();
+    void renameSelectedGuiNode();
 
     /**
      * Tells the GUI model controller that an area has changed and needs
@@ -465,12 +465,18 @@ public interface IGuiModelController
     void moveElementOneLayerDown();
 
     /**
-     * @return the minimum z value from the current {@link IGuiModel}
+     * Returns the minimum Z value (height level) over all elements in the
+     * current {@link IGuiModel}.
+     * 
+     * @return the minimum Z value
      */
     int getCurrentMinZValue();
 
     /**
-     * @return the maximum z value from the current {@link IGuiModel}
+     * Returns the maximum Z value (height level) over all elements in the
+     * current {@link IGuiModel}.
+     * 
+     * @return the maximum Z value
      */
     int getCurrentMaxZValue();
 
@@ -662,7 +668,7 @@ public interface IGuiModelController
      * Callback to fire the transition at the popup menu location.<BR>
      * <BR>
      * Note: The purpose of this method in {@link IGuiModelController} is mainly
-     * to provide the id of the desired {@link IDataTransition} to the
+     * to provide the ID of the desired {@link IDataTransition} to the
      * {@link IDataModelController} because the popup menu location is known
      * only to the GUI controller.
      */
@@ -685,5 +691,47 @@ public interface IGuiModelController
      *         {@link IGuiTransition}
      */
     List<Rectangle> getCurrentGuiModelEnabledTransitionsAreas();
+
+    /* Undo/Redo */
+
+    /**
+     * Indicates whether an Undo operation for the current {@link IGuiModel} is
+     * legal. (Undo stack is not empty.)<BR>
+     * <BR>
+     * Note: This is intended to be used to enable the {@link EditUndoAction}.
+     * 
+     * @return true = at least 1 edit can be undone; false = no edit can be
+     *         undone
+     */
+    boolean canUndo();
+
+    /**
+     * Indicates whether a Redo operation for the current {@link IGuiModel} is
+     * legal. (Redo stack is not empty.)<BR>
+     * <BR>
+     * Note: This is intended to be used to enable the {@link EditRedoAction}.
+     * 
+     * @return true = at least 1 edit can be redone; false = no edit can be
+     *         redone
+     */
+    boolean canRedo();
+
+    /**
+     * Undoes the last edit in the current {@link IGuiModel} and invokes Undo on
+     * the {@link IDataModelController}.
+     * 
+     * @throws CannotUndoException
+     *             if there are no edits to be undone
+     */
+    void Undo() throws CannotUndoException;
+
+    /**
+     * Redoes the following edit in the current {@link IGuiModel} and invokes
+     * Redo on the {@link IDataModelController}.
+     * 
+     * @throws CannotRedoException
+     *             if there are no edits to be redone
+     */
+    void Redo() throws CannotRedoException;
 
 }

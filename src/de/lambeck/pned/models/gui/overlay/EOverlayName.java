@@ -1,4 +1,6 @@
-package de.lambeck.pned.models.gui;
+package de.lambeck.pned.models.gui.overlay;
+
+import de.lambeck.pned.models.gui.IDrawPanel;
 
 /**
  * Possible names for {@link IOverlay} for the {@link IDrawPanel}.

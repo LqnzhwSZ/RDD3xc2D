@@ -1,8 +1,9 @@
-package de.lambeck.pned.models.gui;
+package de.lambeck.pned.models.gui.overlay;
 
 import java.util.List;
 
 import de.lambeck.pned.elements.gui.IPaintable;
+import de.lambeck.pned.models.gui.IDrawPanel;
 
 /**
  * Interface for overlays for the {@link IDrawPanel} which contain elements with

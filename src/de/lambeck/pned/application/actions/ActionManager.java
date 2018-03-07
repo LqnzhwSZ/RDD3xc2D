@@ -53,6 +53,11 @@ public class ActionManager implements IActionManager {
     /** The {@link AppExitAction} */
     AbstractAction appExitAction;
 
+    /** The {@link EditUndoAction} */
+    AbstractAction editUndoAction;
+    /** The {@link EditRedoAction} */
+    AbstractAction editRedoAction;
+
     /** The {@link EditRenameAction} */
     AbstractAction editRenameAction;
     /** The {@link SelectAllAction} */
@@ -120,6 +125,9 @@ public class ActionManager implements IActionManager {
         fileSaveAsAction = new FileSaveAsAction(appController, i18n, mainFrame);
         appExitAction = new AppExitAction(appController, i18n);
 
+        editUndoAction = new EditUndoAction(appController, i18n);
+        editRedoAction = new EditRedoAction(appController, i18n);
+
         editRenameAction = new EditRenameAction(appController, i18n);
         selectAllAction = new SelectAllAction(appController, i18n);
         editDeleteAction = new EditDeleteAction(appController, i18n);
@@ -160,6 +168,9 @@ public class ActionManager implements IActionManager {
         allActions.put("AppExit", appExitAction);
 
         // Menu "Edit"
+        allActions.put("EditUndo", editUndoAction);
+        allActions.put("EditRedo", editRedoAction);
+
         allActions.put("EditRename...", editRenameAction);
         allActions.put("SelectAll", selectAllAction);
         allActions.put("EditDelete", editDeleteAction);
@@ -211,6 +222,10 @@ public class ActionManager implements IActionManager {
 
             stopSimulationAction.setEnabled(false);
 
+            /* Undo? */
+            editUndoAction.setEnabled(false);
+            editRedoAction.setEnabled(false);
+
         } else {
             /* Close and SaveAs are always possible for all files. */
             fileCloseAction.setEnabled(true);
@@ -219,12 +234,19 @@ public class ActionManager implements IActionManager {
             /* Save (directly) not for new and write-protected files */
             boolean isFileSystemFile = FSInfo.isFileSystemFile(activeFile);
             boolean isWriteProtected = FSInfo.isWriteProtectedFile(activeFile);
-            if (isFileSystemFile && !isWriteProtected)
+            if (isFileSystemFile && !isWriteProtected) {
                 fileSaveAction.setEnabled(true);
+            } else {
+                fileSaveAction.setEnabled(false);
+            }
 
             selectAllAction.setEnabled(true);
 
             stopSimulationAction.setEnabled(true);
+
+            /* Undo? */
+            editUndoAction.setEnabled(appController.canUndo());
+            editRedoAction.setEnabled(appController.canRedo());
 
         }
     }
@@ -271,6 +293,12 @@ public class ActionManager implements IActionManager {
         oneLayerUpAction.setEnabled(elementZ != maxZ);
         oneLayerDownAction.setEnabled(elementZ != minZ);
         toBackgroundAction.setEnabled(elementZ != minZ);
+    }
+
+    @Override
+    public void enableUndoRedoActions(String activeFile) {
+        editUndoAction.setEnabled(appController.canUndo());
+        editRedoAction.setEnabled(appController.canRedo());
     }
 
 }

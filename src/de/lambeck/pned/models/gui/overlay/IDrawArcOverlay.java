@@ -1,4 +1,4 @@
-package de.lambeck.pned.models.gui;
+package de.lambeck.pned.models.gui.overlay;
 
 import java.awt.Point;
 
