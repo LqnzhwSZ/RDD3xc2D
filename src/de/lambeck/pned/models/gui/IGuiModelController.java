@@ -13,10 +13,12 @@ import de.lambeck.pned.application.*;
 import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.ENodeType;
 import de.lambeck.pned.elements.EPlaceToken;
+import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.*;
 import de.lambeck.pned.gui.menuBar.MenuBar;
 import de.lambeck.pned.gui.settings.SizeSlider;
+import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.models.gui.overlay.IDrawArcOverlay;
 
@@ -356,10 +358,10 @@ public interface IGuiModelController
      */
     void removeGuiArc(String arcId);
 
-    /**
-     * Removes all elements from the current GUI model.
-     */
-    void clearCurrentGuiModel();
+    // /**
+    // * Removes all elements from the current GUI model.
+    // */
+    // void clearCurrentGuiModel();
 
     /* Mouse and selection events */
 
@@ -410,7 +412,8 @@ public interface IGuiModelController
 
     /**
      * Handles the {@link MyMouseAdapter} request to update the positions of the
-     * nodes in the data model after mouse dragging.
+     * {@link IDataNode} in the {@link IDataModel} when <B>mouse dragging has
+     * been finished</B>.
      */
     void updateDataNodePositions();
 
@@ -692,7 +695,7 @@ public interface IGuiModelController
      */
     List<Rectangle> getCurrentGuiModelEnabledTransitionsAreas();
 
-    /* Undo/Redo */
+    /* Undo + Redo */
 
     /**
      * Indicates whether an Undo operation for the current {@link IGuiModel} is

@@ -4,7 +4,7 @@ import de.lambeck.pned.models.IModel;
 
 /**
  * Exception for errors when cloning objects. (Deep copy of {@link IModel} for
- * Undo/Redo)
+ * Undo + Redo)
  * 
  * @author Thomas Lambeck, 4128320
  * 

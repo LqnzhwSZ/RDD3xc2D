@@ -14,6 +14,7 @@ import de.lambeck.pned.application.actions.EditRedoAction;
 import de.lambeck.pned.application.actions.EditUndoAction;
 import de.lambeck.pned.elements.EPlaceToken;
 import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.IDataElement;
 import de.lambeck.pned.elements.data.IDataNode;
 import de.lambeck.pned.elements.data.IDataTransition;
 import de.lambeck.pned.elements.gui.IGuiTransition;
@@ -282,16 +283,16 @@ public interface IDataModelController extends IInfo_Status {
     // void removeElementFromCurrentDataModel(String id) throws
     // PNNoSuchElementException;
 
-    /**
-     * Removes all elements from the current data model.
-     */
-    void clearCurrentDataModel();
+    // /**
+    // * Removes all elements from the current data model.
+    // */
+    // void clearCurrentDataModel();
 
     /* Mouse events in the GUI */
 
     /**
-     * Handles the application controllers request to update the position of a
-     * node in the data model.
+     * Handles the {@link ApplicationController} request to update the position
+     * of a {@link IDataNode} in the {@link IDataModel}.
      * 
      * @param nodeId
      *            The id of the node
@@ -470,7 +471,7 @@ public interface IDataModelController extends IInfo_Status {
      */
     void stopSimulation();
 
-    /* Undo/Redo */
+    /* Undo + Redo */
 
     /**
      * Indicates whether an Undo operation for the current {@link IDataModel} is
@@ -557,5 +558,18 @@ public interface IDataModelController extends IInfo_Status {
      *             if there are no edits to be redone
      */
     void Redo() throws CannotRedoException;
+
+    /**
+     * Informs this {@link IDataModelController} that an Undo or Redo operation
+     * has been finished. This means that the {@link IGuiModel} and the
+     * {@link IDataModel} are now up-to-date.<BR>
+     * <BR>
+     * Note: Only now a revalidation of the {@link IDataModel} is allowed
+     * because an {@link IValidator} may send messages with IDs of a processed
+     * {@link IDataElement} to the {@link IGuiModelController}!<BR>
+     * <BR>
+     * Note: This refers to the active file.
+     */
+    void undoOrRedoFinished();
 
 }

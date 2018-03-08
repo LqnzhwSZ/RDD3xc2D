@@ -711,8 +711,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addPlaceToCurrentDataModel(String id, EPlaceToken initialTokens, Point position) {
-        // TODO Implement Undo/Redo!
-
         currentModel.addPlace(id, "", initialTokens, position);
 
         if (!this.importingFromPnml)
@@ -721,8 +719,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addPlaceToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
-        // TODO Implement Undo/Redo!
-
         currentModel.addPlace(id, name, initialTokens, position);
         this.elementsAddedToCurrentModel++;
 
@@ -737,8 +733,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addTransitionToCurrentDataModel(String id, Point position) {
-        // TODO Implement Undo/Redo!
-
         currentModel.addTransition(id, "", position);
 
         if (!this.importingFromPnml)
@@ -747,8 +741,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addTransitionToCurrentDataModel(String id, String name, Point position) {
-        // TODO Implement Undo/Redo!
-
         currentModel.addTransition(id, name, position);
         this.elementsAddedToCurrentModel++;
 
@@ -763,8 +755,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void addArcToCurrentDataModel(String id, String sourceId, String targetId) {
-        // TODO Implement Undo/Redo!
-
         try {
             currentModel.addArc(id, sourceId, targetId);
         } catch (PNElementCreationException e) {
@@ -786,8 +776,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void renameNode(String nodeId, String newName) {
-        // TODO Implement Undo/Redo!
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.renameNode");
         }
@@ -820,8 +808,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void removeDataElement(String elementId) {
-        // TODO Implement Undo/Redo!
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.removeDataElement", elementId);
         }
@@ -890,19 +876,17 @@ public class DataModelController implements IDataModelController {
     // currentModel.setModified(true, true);
     // }
 
-    @Override
-    public void clearCurrentDataModel() {
-        // TODO Implement Undo/Redo!
-
-        currentModel.clear();
-        currentModel.setModified(true, true);
-    }
+    // @Override
+    // public void clearCurrentDataModel() {
+    // currentModel.clear();
+    // currentModel.setModified(true, true);
+    // }
 
     /* Mouse events in the GUI */
 
     @Override
     public void moveNode(String nodeId, Point newPosition) {
-        // TODO Implement Undo/Redo!
+        // TODO Implement Undo + Redo!
         // TODO Check for Undo only if moving has finished!
         // TODO Compare GuiModelController.mouseDragged() and
         // DataModelController.moveNode()
@@ -1187,11 +1171,8 @@ public class DataModelController implements IDataModelController {
         removeTokenFromAllInputPlaces(transition);
         addTokenToAllOutputPlaces(transition);
 
-        /*
-         * Now we need a revalidation - but not a complete validation!
-         */
-        String validatorName = ApplicationController.enabledTransitionsValidatorName;
-        appController.requestIndividualValidation(validatorName, currentModel);
+        /* Inform the application controller */
+        appController.dataTransitionFired(currentModel);
     }
 
     /**
@@ -1300,7 +1281,7 @@ public class DataModelController implements IDataModelController {
         currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
     }
 
-    /* Undo/Redo */
+    /* Undo + Redo */
 
     @Override
     public boolean canUndo() {
@@ -1513,12 +1494,6 @@ public class DataModelController implements IDataModelController {
 
         // this.currentModel = last;
         setCurrentModel(last);
-
-        /*
-         * Revalidate this model because validation results are not included in
-         * the Undo operation.
-         */
-        this.currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
     }
 
     // /**
@@ -1600,12 +1575,6 @@ public class DataModelController implements IDataModelController {
 
         // this.currentModel = next;
         setCurrentModel(next);
-
-        /*
-         * Revalidate this model because validation results are not included in
-         * the Redo operation.
-         */
-        this.currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
     }
 
     // /**
@@ -1662,6 +1631,15 @@ public class DataModelController implements IDataModelController {
 
         IDataModel next = redoStack.pop();
         return next;
+    }
+
+    @Override
+    public void undoOrRedoFinished() {
+        /*
+         * Revalidate this model because validation results are not included in
+         * Undo or Redo operations.
+         */
+        this.currentModel.setModelChecked(false, NEVER_REMOVE_INITIAL_CHECK_STATE);
     }
 
 }

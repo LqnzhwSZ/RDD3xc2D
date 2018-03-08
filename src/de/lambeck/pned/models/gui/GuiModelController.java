@@ -86,6 +86,13 @@ public class GuiModelController implements IGuiModelController {
     private IDrawPanel currentDrawPanel = null;
 
     /**
+     * Set this attribute to true when a dragging operation starts to be able to
+     * prevent creating multiple edits on the Undo stack for only 1 dragging
+     * operation.
+     */
+    private boolean mouseIsDragging = false;
+
+    /**
      * A list of nodes which have been moved during a mouse drag operation and
      * need an update in the data model after dragging has finished.
      */
@@ -638,7 +645,10 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addPlaceToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
-        // TODO Implement Undo/Redo!
+        /*
+         * No Undo + Redo: Import from PNML or "part" of
+         * createNewPlaceInCurrentGuiModel()
+         */
 
         currentModel.addPlace(id, name, initialTokens, position);
         currentModel.setModified(true);
@@ -649,7 +659,10 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addTransitionToCurrentGuiModel(String id, String name, Point position) {
-        // TODO Implement Undo/Redo!
+        /*
+         * No Undo + Redo: Import from PNML or "part" of
+         * createNewTransitionInCurrentGuiModel()
+         */
 
         currentModel.addTransition(id, name, position);
         currentModel.setModified(true);
@@ -660,7 +673,10 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void addArcToCurrentGuiModel(String id, String sourceId, String targetId) {
-        // TODO Implement Undo/Redo!
+        /*
+         * No Undo + Redo: Import from PNML or "part" of
+         * checkDrawArcFinalEndLocation()
+         */
 
         try {
             currentModel.addArc(id, sourceId, targetId);
@@ -677,8 +693,6 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void createNewPlaceInCurrentGuiModel() {
-        // TODO Implement Undo/Redo!
-
         /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
@@ -686,6 +700,8 @@ public class GuiModelController implements IGuiModelController {
                     "GuiModelController.createNewPlaceInCurrentGuiModel(): Unable to create a Place: popup menu location unknown.");
             return;
         }
+
+        // TODO Implement Undo + Redo!
 
         /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
@@ -716,8 +732,6 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void createNewTransitionInCurrentGuiModel() {
-        // TODO Implement Undo/Redo!
-
         /* Check if we have a location. */
         Point popupMenuLocation = currentDrawPanel.getPopupMenuLocation();
         if (popupMenuLocation == null) {
@@ -725,6 +739,8 @@ public class GuiModelController implements IGuiModelController {
                     "GuiModelController.createNewTransitionInCurrentGuiModel(): Unable to create a Place: popup menu location unknown.");
             return;
         }
+
+        // TODO Implement Undo + Redo!
 
         /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
@@ -942,6 +958,8 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
+        // TODO Implement Undo + Redo!
+
         /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
 
@@ -1119,8 +1137,6 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void renameSelectedGuiNode() {
-        // TODO Implement Undo/Redo!
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.renameSelectedGuiNode");
         }
@@ -1143,6 +1159,8 @@ public class GuiModelController implements IGuiModelController {
         String newName = askUserForNewName(oldName);
         if (newName == null)
             return; // User canceled the operation
+
+        // TODO Implement Undo + Redo!
 
         /*
          * We do not know whether the new name will cause the drawing area to
@@ -1173,8 +1191,6 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void removeSelectedGuiElements() {
-        // TODO Implement Undo/Redo!
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeSelectedGuiElements");
         }
@@ -1186,6 +1202,7 @@ public class GuiModelController implements IGuiModelController {
          * Task: Remove all selected elements *and* all adjacent arcs!
          */
 
+        /* Make this operation undoable! */
         makeUndoable();
 
         /* Get all selected elements and store their drawing area. */
@@ -1286,7 +1303,12 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void removeGuiArc(String arcId) {
-        // TODO Implement Undo/Redo!
+        /*
+         * No Undo + Redo: Invoked from dataArcRemoved(String arcId)
+         * 
+         * This method should be invoked only after removing a GUI node which
+         * means that the models should have been made Undoable already.
+         */
 
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("GuiModelController.removeGuiArc", arcId);
@@ -1323,20 +1345,18 @@ public class GuiModelController implements IGuiModelController {
         appController.enableActionsForSelectedElements(selected);
     }
 
-    @Override
-    public void clearCurrentGuiModel() {
-        // TODO Implement Undo/Redo!
-
-        currentModel.clear();
-        currentModel.setModified(true);
-
-        /* Repaint (everything) */
-        updateDrawing();
-
-        /* Update Actions (buttons) in case we removed a selected element. */
-        List<IGuiElement> emptyList = new LinkedList<IGuiElement>();
-        appController.enableActionsForSelectedElements(emptyList);
-    }
+    // @Override
+    // public void clearCurrentGuiModel() {
+    // currentModel.clear();
+    // currentModel.setModified(true);
+    //
+    // /* Repaint (everything) */
+    // updateDrawing();
+    //
+    // /* Update Actions (buttons) in case we removed a selected element. */
+    // List<IGuiElement> emptyList = new LinkedList<IGuiElement>();
+    // appController.enableActionsForSelectedElements(emptyList);
+    // }
 
     /* Mouse and selection events */
 
@@ -1525,11 +1545,6 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void mouseDragged(int distance_x, int distance_y) {
-        // TODO Implement Undo/Redo!
-        // TODO Check for Undo only if moving has finished!
-        // TODO Compare GuiModelController.mouseDragged() and
-        // DataModelController.moveNode()
-
         /*
          * Task: Move only the selected nodes and update the drawing.
          */
@@ -1549,7 +1564,6 @@ public class GuiModelController implements IGuiModelController {
 
         /* Limit the elements to the nodes. */
         List<IGuiNode> selectedNodes = new LinkedList<IGuiNode>();
-
         for (IGuiElement element : selectedElements) {
             if (element instanceof IGuiNode) {
                 IGuiNode node = (IGuiNode) element;
@@ -1585,6 +1599,13 @@ public class GuiModelController implements IGuiModelController {
             distance_x = 0;
         if (!dragToTopAllowed && (distance_y < 0))
             distance_y = 0;
+
+        /* Make this operation undoable! */
+        if (!this.mouseIsDragging) {
+            /* 1st event: dragging operation has just been started. */
+            makeUndoable();
+            this.mouseIsDragging = true;
+        }
 
         /* Get the old drawing areas for repainting. */
         List<Rectangle> oldDrawingAreas = getDrawingAreas(selectedNodes);
@@ -1623,8 +1644,8 @@ public class GuiModelController implements IGuiModelController {
 
     @Override
     public void updateDataNodePositions() {
-        // TODO Implement Undo/Redo!
-        // TODO Update only after DataModelController.moveNode()?
+        /* In any case: mouse dragging has been finished! */
+        this.mouseIsDragging = false;
 
         if (currentModel == null)
             return;
@@ -1634,8 +1655,8 @@ public class GuiModelController implements IGuiModelController {
 
         /*
          * Update all nodes. We might "update" many nodes that don't need it,
-         * but this should be faster than updating all dragged nodes again and
-         * again during the dragging operation.
+         * but this should be more efficient than updating all dragged nodes
+         * again and again during the dragging operation.
          */
         for (IGuiElement element : selectedElements) {
             if (element instanceof IGuiNode) {
@@ -2905,7 +2926,7 @@ public class GuiModelController implements IGuiModelController {
 
         /* Inform the application controller */
         String transitionId = transition.getId();
-        appController.fireDataTransition(transitionId);
+        appController.guiTransitionFired(transitionId);
     }
 
     @Override
@@ -2926,7 +2947,7 @@ public class GuiModelController implements IGuiModelController {
         return enabledTransitionsAreas;
     }
 
-    /* Undo/Redo */
+    /* Undo + Redo */
 
     @Override
     public boolean canUndo() {
@@ -3201,6 +3222,9 @@ public class GuiModelController implements IGuiModelController {
         // this.currentModel = last;
         setCurrentModel(last);
 
+        /* Inform the application controller that Undo has been finished. */
+        appController.undoOrRedoFinished();
+
         /* Repaint (everything) */
         updateDrawing();
     }
@@ -3299,6 +3323,9 @@ public class GuiModelController implements IGuiModelController {
 
         // this.currentModel = next;
         setCurrentModel(next);
+
+        /* Inform the application controller that Redo has been finished. */
+        appController.undoOrRedoFinished();
 
         /* Repaint (everything) */
         updateDrawing();

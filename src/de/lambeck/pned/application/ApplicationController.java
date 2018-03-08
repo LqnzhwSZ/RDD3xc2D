@@ -16,8 +16,14 @@ import javax.swing.undo.CannotUndoException;
 
 import de.lambeck.pned.application.actions.*;
 import de.lambeck.pned.elements.EPlaceToken;
-import de.lambeck.pned.elements.data.*;
-import de.lambeck.pned.elements.gui.*;
+import de.lambeck.pned.elements.data.DataArc;
+import de.lambeck.pned.elements.data.DataPlace;
+import de.lambeck.pned.elements.data.DataTransition;
+import de.lambeck.pned.elements.data.IDataElement;
+import de.lambeck.pned.elements.gui.GuiTransition;
+import de.lambeck.pned.elements.gui.IGuiArc;
+import de.lambeck.pned.elements.gui.IGuiElement;
+import de.lambeck.pned.elements.gui.IGuiPlace;
 import de.lambeck.pned.exceptions.PNIllegalStateException;
 import de.lambeck.pned.exceptions.PNInvalidParameterException;
 import de.lambeck.pned.filesystem.FSInfo;
@@ -28,8 +34,8 @@ import de.lambeck.pned.gui.settings.SizeSlider;
 import de.lambeck.pned.gui.statusBar.StatusBar;
 import de.lambeck.pned.gui.toolBar.PnedToolBar;
 import de.lambeck.pned.i18n.I18NManager;
-import de.lambeck.pned.models.data.DataModel;
 import de.lambeck.pned.models.data.DataModelController;
+import de.lambeck.pned.models.data.IDataElementChanges;
 import de.lambeck.pned.models.data.IDataModel;
 import de.lambeck.pned.models.data.IDataModelController;
 import de.lambeck.pned.models.data.validation.*;
@@ -44,7 +50,8 @@ import de.lambeck.pned.util.ConsoleLogger;
  * @author Thomas Lambeck, 4128320
  *
  */
-public class ApplicationController extends AbstractApplicationController {
+public class ApplicationController extends AbstractApplicationController
+        implements IDataElementChanges, IGuiElementChanges {
 
     /** Show debug messages? */
     private static boolean debug = false;
@@ -108,31 +115,31 @@ public class ApplicationController extends AbstractApplicationController {
      * The name of the {@link StartPlacesValidator} (for requests of individual
      * validations)
      */
-    public final static String startPlacesValidatorName = "startPlacesValidator";
+    final static String startPlacesValidatorName = "startPlacesValidator";
 
     /**
      * The name of the {@link EndPlacesValidator} (for requests of individual
      * validations)
      */
-    public final static String endPlacesValidatorName = "endPlacesValidator";
+    final static String endPlacesValidatorName = "endPlacesValidator";
 
     /**
      * The name of the {@link AllNodesOnPathsValidator} (for requests of
      * individual validations)
      */
-    public final static String allNodesOnPathsValidatorName = "allNodesOnPathsValidator";
+    final static String allNodesOnPathsValidatorName = "allNodesOnPathsValidator";
 
     /**
      * The name of the {@link InitialMarkingValidator} (for requests of
      * individual validations)
      */
-    public final static String initialMarkingValidatorName = "initialMarkingValidator";
+    final static String initialMarkingValidatorName = "initialMarkingValidator";
 
     /**
      * The name of the {@link EnabledTransitionsValidator} (for requests of
      * individual validations)
      */
-    public final static String enabledTransitionsValidatorName = "enabledTransitionsValidator";
+    final static String enabledTransitionsValidatorName = "enabledTransitionsValidator";
 
     /* Constructor */
 
@@ -2193,19 +2200,9 @@ public class ApplicationController extends AbstractApplicationController {
 
     /* Callbacks for updates between data model and GUI controller */
 
-    /**
-     * Callback for the data model controller to get the GUI controller up to
-     * date after adding a {@link DataPlace}.
-     * 
-     * @param id
-     *            The ID of the added place
-     * @param name
-     *            The name of the added place
-     * @param initialTokens
-     *            The initial tokens count of the added place
-     * @param position
-     *            The position of the added place
-     */
+    /* Interface IDataElementChanges */
+
+    @Override
     public void placeAddedToCurrentDataModel(String id, String name, EPlaceToken initialTokens, Point position) {
         if (!importingFromPnml)
             return;
@@ -2213,37 +2210,7 @@ public class ApplicationController extends AbstractApplicationController {
         guiModelController.addPlaceToCurrentGuiModel(id, name, initialTokens, position);
     }
 
-    /**
-     * Callback for the GUI controller to get the data model controller up to
-     * date after adding a {@link IGuiPlace}.
-     * 
-     * @param id
-     *            The ID of the added place
-     * @param name
-     *            The name of the added place
-     * @param initialTokens
-     *            The initial tokens count of the added place
-     * @param position
-     *            The position of the added place
-     */
-    public void placeAddedToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
-        if (importingFromPnml)
-            return;
-
-        dataModelController.addPlaceToCurrentDataModel(id, name, initialTokens, position);
-    }
-
-    /**
-     * Callback for the data model controller to get the GUI controller up to
-     * date after adding a {@link IDataTransition}.
-     * 
-     * @param id
-     *            The ID of the added transition
-     * @param name
-     *            The name of the added transition
-     * @param position
-     *            The position of the added transition
-     */
+    @Override
     public void transitionAddedToCurrentDataModel(String id, String name, Point position) {
         if (!importingFromPnml)
             return;
@@ -2251,35 +2218,7 @@ public class ApplicationController extends AbstractApplicationController {
         guiModelController.addTransitionToCurrentGuiModel(id, name, position);
     }
 
-    /**
-     * Callback for the GUI controller to get the data model controller up to
-     * date after adding a {@link IGuiTransition}.
-     * 
-     * @param id
-     *            The ID of the added transition
-     * @param name
-     *            The name of the added transition
-     * @param position
-     *            The position of the added transition
-     */
-    public void transitionAddedToCurrentGuiModel(String id, String name, Point position) {
-        if (importingFromPnml)
-            return;
-
-        dataModelController.addTransitionToCurrentDataModel(id, name, position);
-    }
-
-    /**
-     * Callback for the data model controller to get the GUI controller up to
-     * date after adding a {@link IDataArc}.
-     * 
-     * @param id
-     *            The ID of the added arc
-     * @param sourceId
-     *            The source ID for the added arc
-     * @param targetId
-     *            The target ID for the added arc
-     */
+    @Override
     public void arcAddedToCurrentDataModel(String id, String sourceId, String targetId) {
         if (!importingFromPnml)
             return;
@@ -2287,22 +2226,50 @@ public class ApplicationController extends AbstractApplicationController {
         guiModelController.addArcToCurrentGuiModel(id, sourceId, targetId);
     }
 
-    /**
-     * Callback for the GUI controller to get the data model controller up to
-     * date after adding a {@link IGuiArc}.
-     * 
-     * @param id
-     *            The ID of the added arc
-     * @param sourceId
-     *            The source ID for the added arc
-     * @param targetId
-     *            The target ID for the added arc
-     */
+    @Override
+    public void dataArcRemoved(String arcId) {
+        guiModelController.removeGuiArc(arcId);
+    }
+
+    /* Interface IGuiElementChanges */
+
+    @Override
+    public void placeAddedToCurrentGuiModel(String id, String name, EPlaceToken initialTokens, Point position) {
+        if (importingFromPnml)
+            return;
+
+        dataModelController.addPlaceToCurrentDataModel(id, name, initialTokens, position);
+    }
+
+    @Override
+    public void transitionAddedToCurrentGuiModel(String id, String name, Point position) {
+        if (importingFromPnml)
+            return;
+
+        dataModelController.addTransitionToCurrentDataModel(id, name, position);
+    }
+
+    @Override
     public void arcAddedToCurrentGuiModel(String id, String sourceId, String targetId) {
         if (importingFromPnml)
             return;
 
         dataModelController.addArcToCurrentDataModel(id, sourceId, targetId);
+    }
+
+    @Override
+    public void guiElementRemoved(String elementId) {
+        dataModelController.removeDataElement(elementId);
+    }
+
+    @Override
+    public void guiNodeRenamed(String nodeId, String newName) {
+        dataModelController.renameNode(nodeId, newName);
+    }
+
+    @Override
+    public void guiNodeDragged(String nodeId, Point newPosition) {
+        dataModelController.moveNode(nodeId, newPosition);
     }
 
     /* Modify methods for elements */
@@ -2336,326 +2303,113 @@ public class ApplicationController extends AbstractApplicationController {
         guiModelController.removeSelectedGuiElements();
     }
 
-    /**
-     * Handles the GUI controllers info to remove an element from the data
-     * model.
-     * 
-     * @param elementId
-     *            The id of the element
-     */
-    public void guiElementRemoved(String elementId) {
-        dataModelController.removeDataElement(elementId);
-    }
-
-    /**
-     * Handles the data controllers info to remove an arc from the GUI model.
-     *
-     * @param arcId
-     *            The id of the arc
-     */
-    public void dataArcRemoved(String arcId) {
-        guiModelController.removeGuiArc(arcId);
-    }
-
-    /**
-     * Handles the GUI controllers request to rename a node in the data model.
-     *
-     * @param nodeId
-     *            The id of the node
-     * @param newName
-     *            The new name
-     */
-    public void guiNodeRenamed(String nodeId, String newName) {
-        dataModelController.renameNode(nodeId, newName);
-    }
-
-    /**
-     * Handles the GUI controllers request to update the position of a node in
-     * the data model.
-     *
-     * @param nodeId
-     *            The id of the node
-     * @param newPosition
-     *            The new position
-     */
-    public void guiNodeDragged(String nodeId, Point newPosition) {
-        dataModelController.moveNode(nodeId, newPosition);
-    }
-
     /* Validation events */
 
-    /**
-     * Handles the {@link IDataModelController} request to reset all start
-     * places on the draw panel.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     */
+    @Override
     public void resetAllGuiStartPlaces(String modelName) {
         guiModelController.resetAllGuiStartPlaces(modelName);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to reset all end places
-     * on the draw panel.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     */
+    @Override
     public void resetAllGuiEndPlaces(String modelName) {
         guiModelController.resetAllGuiEndPlaces(modelName);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to update the start
-     * place on the draw panel.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param placeId
-     *            The id of the {@link IGuiPlace}
-     * @param b
-     *            True to set as start place; otherwise false
-     */
+    @Override
     public void setGuiStartPlace(String modelName, String placeId, boolean b) {
         guiModelController.setGuiStartPlace(modelName, placeId, b);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to update the start
-     * place candidate on the draw panel.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param placeId
-     *            The id of the {@link IGuiPlace}
-     * @param b
-     *            True to set as start place candidate; otherwise false
-     */
+    @Override
     public void setGuiStartPlaceCandidate(String modelName, String placeId, boolean b) {
         guiModelController.setGuiStartPlaceCandidate(modelName, placeId, b);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to update the end place
-     * on the draw panel.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param placeId
-     *            The id of the {@link IGuiPlace}
-     * @param b
-     *            True to set as end place; otherwise false
-     */
+    @Override
     public void setGuiEndPlace(String modelName, String placeId, boolean b) {
         guiModelController.setGuiEndPlace(modelName, placeId, b);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to update the end place
-     * candidate on the draw panel.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param placeId
-     *            The id of the {@link IGuiPlace}
-     * @param b
-     *            True to set as end place candidate; otherwise false
-     */
+    @Override
     public void setGuiEndPlaceCandidate(String modelName, String placeId, boolean b) {
         guiModelController.setGuiEndPlaceCandidate(modelName, placeId, b);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to update the status of
-     * the specified GUI node.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param nodeId
-     *            The id of the {@link IGuiNode}
-     * @param b
-     *            True = unreachable; False = can be reached from the start
-     *            place and can reach the end place
-     */
+    @Override
     public void highlightUnreachableGuiNode(String modelName, String nodeId, boolean b) {
         guiModelController.highlightUnreachableGuiNode(modelName, nodeId, b);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to remove the token from
-     * all places in the specified GUI model.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     */
+    @Override
     public void removeAllGuiTokens(String modelName) {
         guiModelController.removeAllGuiTokens(modelName);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to remove the token from
-     * all specified places in the specified GUI model.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param placesWithToken
-     *            A {@link List} of type {@link String} with the IDs of the
-     *            specified places
-     */
+    @Override
     public void removeGuiToken(String modelName, List<String> placesWithToken) {
         guiModelController.removeGuiToken(modelName, placesWithToken);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to add a token to all
-     * specified places in the specified GUI model.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param placesWithToken
-     *            A {@link List} of type {@link String} with the IDs of the
-     *            specified places
-     */
+    @Override
     public void addGuiToken(String modelName, List<String> placesWithToken) {
         guiModelController.addGuiToken(modelName, placesWithToken);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to reset the "enabled"
-     * state on all transitions in the specified GUI model.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     */
+    @Override
     public void resetAllGuiTransitionsEnabledState(String modelName) {
         guiModelController.resetAllGuiTransitionsEnabledState(modelName);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to reset the "safe"
-     * state on all transitions in the specified GUI model.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     */
+    @Override
     public void resetAllGuiTransitionsSafeState(String modelName) {
         guiModelController.resetAllGuiTransitionsSafeState(modelName);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to set the "safe" state
-     * on the specified transition in the specified GUI model to false.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param transitionId
-     *            The id of the {@link IGuiTransition}
-     */
+    @Override
     public void setGuiTransitionUnsafe(String modelName, String transitionId) {
         guiModelController.setGuiTransitionUnsafe(modelName, transitionId);
     }
 
-    /**
-     * Handles the {@link IDataModelController} request to set the "enabled"
-     * state on the specified transition in the specified GUI model.
-     * 
-     * @param modelName
-     *            The name of the model (This is intended to be the full path
-     *            name of the PNML file represented by this model.)
-     * @param transitionId
-     *            The id of the {@link IGuiTransition}
-     */
+    @Override
     public void setGuiTransitionEnabled(String modelName, String transitionId) {
         guiModelController.setGuiTransitionEnabled(modelName, transitionId);
     }
 
-    /**
-     * Handles the {@link IGuiModelController} request to fire a transition.<BR>
-     * <BR>
-     * Note: This refers to the current model (active file).
-     * 
-     * @param transitionId
-     *            The id of the {@link IDataTransition}
-     */
-    public void fireDataTransition(String transitionId) {
+    @Override
+    public void guiTransitionFired(String transitionId) {
         dataModelController.fireDataTransition(transitionId);
     }
 
-    /**
-     * Passes the request to validate the specified {@link DataModel} with the
-     * specified {@link IValidator} to the {@link IValidationController}.
-     * 
-     * @param validatorName
-     *            The name of the specified {@link IValidator}
-     * @param dataModel
-     *            The specified {@link IDataModel}
-     */
-    public void requestIndividualValidation(String validatorName, IDataModel dataModel) {
+    @Override
+    public void dataTransitionFired(IDataModel dataModel) {
+        /* We need revalidation - but not a complete validation! */
+        String validatorName = ApplicationController.enabledTransitionsValidatorName;
         validationController.requestIndividualValidation(validatorName, dataModel);
     }
 
-    /**
-     * Passes the request to update the "enabled" state of
-     * {@link AbstractAction} to the {@link IActionManager}. That refers to
-     * Actions which depend on the currently selected element or the element at
-     * the popup menu location.
-     * 
-     * @param element
-     *            The {@link IGuiElement} that is currently selected or at the
-     *            popup menu location, or null = no element selected and no
-     *            element at the popup menu location
-     */
+    /* Z value actions */
+
+    @Override
     public void enableZValueActions(IGuiElement element) {
         actionManager.enableZValueActions(element);
     }
 
-    /**
-     * Callback for the {@link IActionManager}
-     * 
-     * @return the minimum z value from the current {@link IGuiModel}
-     */
+    @Override
     public int getCurrentMinZValue() {
         return guiModelController.getCurrentMinZValue();
     }
 
-    /**
-     * Callback for the {@link IActionManager}
-     * 
-     * @return the maximum z value from the current {@link IGuiModel}
-     */
+    @Override
     public int getCurrentMaxZValue() {
         return guiModelController.getCurrentMaxZValue();
     }
 
-    /**
-     * Enables or disables all {@link AbstractAction} that depend on the number
-     * of selected {@link IGuiElement}.<BR>
-     * <BR>
-     * Note: Callback for the {@link IGuiModelController}, passes the request to
-     * the {@link ActionManager}.
-     * 
-     * @param selected
-     *            The {@link List} of selected {@link IGuiElement}
-     */
+    @Override
     public void enableActionsForSelectedElements(List<IGuiElement> selected) {
         this.actionManager.enableActionsForSelectedElements(selected);
     }
 
-    /* Undo/Redo */
+    /* Undo + Redo */
 
     /**
      * Returns true if the last edit in {@link IDataModel} <B>and</B>
@@ -2756,6 +2510,21 @@ public class ApplicationController extends AbstractApplicationController {
      */
     public void enableUndoRedoActions() {
         actionManager.enableUndoRedoActions(activeFile);
+    }
+
+    /**
+     * Passes the info that an Undo or Redo operation has been finished to the
+     * {@link IDataModelController}. This means that the {@link IGuiModel} and
+     * the {@link IDataModel} are now up-to-date.<BR>
+     * <BR>
+     * Note: Only now a revalidation of the {@link IDataModel} is allowed
+     * because an {@link IValidator} may send messages with IDs of a processed
+     * {@link IDataElement} to the {@link IGuiModelController}!<BR>
+     * <BR>
+     * Note: This refers to the active file.
+     */
+    public void undoOrRedoFinished() {
+        dataModelController.undoOrRedoFinished();
     }
 
 }
