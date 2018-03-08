@@ -701,7 +701,9 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        // TODO Implement Undo + Redo!
+        /* Make this operation undoable! */
+        makeUndoable();
+        clearRedoStack();
 
         /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
@@ -740,7 +742,9 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        // TODO Implement Undo + Redo!
+        /* Make this operation undoable! */
+        makeUndoable();
+        clearRedoStack();
 
         /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
@@ -958,7 +962,9 @@ public class GuiModelController implements IGuiModelController {
             return;
         }
 
-        // TODO Implement Undo + Redo!
+        /* Make this operation undoable! */
+        makeUndoable();
+        clearRedoStack();
 
         /* Create a unique ID to avoid any conflict with existing elements. */
         String uuid = UUID.randomUUID().toString();
@@ -1160,7 +1166,9 @@ public class GuiModelController implements IGuiModelController {
         if (newName == null)
             return; // User canceled the operation
 
-        // TODO Implement Undo + Redo!
+        /* Make this operation undoable! */
+        makeUndoable();
+        clearRedoStack();
 
         /*
          * We do not know whether the new name will cause the drawing area to
@@ -1204,6 +1212,7 @@ public class GuiModelController implements IGuiModelController {
 
         /* Make this operation undoable! */
         makeUndoable();
+        clearRedoStack();
 
         /* Get all selected elements and store their drawing area. */
         List<IGuiElement> toBeRemoved = currentModel.getSelectedElements();
@@ -1604,6 +1613,7 @@ public class GuiModelController implements IGuiModelController {
         if (!this.mouseIsDragging) {
             /* 1st event: dragging operation has just been started. */
             makeUndoable();
+            clearRedoStack();
             this.mouseIsDragging = true;
         }
 
@@ -3183,6 +3193,30 @@ public class GuiModelController implements IGuiModelController {
     //
     // return elementBuffer;
     // }
+
+    /**
+     * Removes all {@link IGuiModel} from the Redo stack
+     * ({@link IGuiModelStack}) for the current {@link IGuiModel}.
+     */
+    private void clearRedoStack() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("GuiModelController.clearRedoStack");
+        }
+
+        if (currentModel == null)
+            return;
+
+        IGuiModelStack redoStack = getCurrentModelRedoStack();
+        if (redoStack == null)
+            return;
+
+        /* First: Keep the data model controller up-to-date! */
+        appController.clearRedoStack();
+
+        redoStack.clear();
+
+        appController.enableUndoRedoActions();
+    }
 
     @Override
     public void Undo() throws CannotUndoException {

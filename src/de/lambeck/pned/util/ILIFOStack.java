@@ -64,4 +64,10 @@ public interface ILIFOStack<T> {
     /* We do not need "search()" from the class Stack<E>. */
     // int search(Object o);
 
+    /**
+     * Removes all of the elements from this collection (optional operation).
+     * The collection will be empty after this method returns.
+     */
+    void clear();
+
 }

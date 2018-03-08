@@ -886,11 +886,6 @@ public class DataModelController implements IDataModelController {
 
     @Override
     public void moveNode(String nodeId, Point newPosition) {
-        // TODO Implement Undo + Redo!
-        // TODO Check for Undo only if moving has finished!
-        // TODO Compare GuiModelController.mouseDragged() and
-        // DataModelController.moveNode()
-
         if (debug) {
             ConsoleLogger.consoleLogMethodCall("DataModelController.moveNode", nodeId, newPosition);
         }
@@ -1470,6 +1465,22 @@ public class DataModelController implements IDataModelController {
     //
     // return elementBuffer;
     // }
+
+    @Override
+    public void clearRedoStack() {
+        if (debug) {
+            ConsoleLogger.consoleLogMethodCall("DataModelController.clearRedoStack");
+        }
+
+        if (currentModel == null)
+            return;
+
+        IDataModelStack redoStack = getCurrentModelRedoStack();
+        if (redoStack == null)
+            return;
+
+        redoStack.clear();
+    }
 
     @Override
     public void Undo() throws CannotUndoException {

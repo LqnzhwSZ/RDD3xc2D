@@ -701,7 +701,10 @@ public interface IGuiModelController
      * Indicates whether an Undo operation for the current {@link IGuiModel} is
      * legal. (Undo stack is not empty.)<BR>
      * <BR>
-     * Note: This is intended to be used to enable the {@link EditUndoAction}.
+     * Note: This is intended to be used to enable the
+     * {@link EditUndoAction}.<BR>
+     * <BR>
+     * Note: This refers to the current {@link IGuiModel}.
      * 
      * @return true = at least 1 edit can be undone; false = no edit can be
      *         undone
@@ -712,7 +715,10 @@ public interface IGuiModelController
      * Indicates whether a Redo operation for the current {@link IGuiModel} is
      * legal. (Redo stack is not empty.)<BR>
      * <BR>
-     * Note: This is intended to be used to enable the {@link EditRedoAction}.
+     * Note: This is intended to be used to enable the
+     * {@link EditRedoAction}.<BR>
+     * <BR>
+     * Note: This refers to the current {@link IGuiModel}.
      * 
      * @return true = at least 1 edit can be redone; false = no edit can be
      *         redone

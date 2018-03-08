@@ -477,7 +477,10 @@ public interface IDataModelController extends IInfo_Status {
      * Indicates whether an Undo operation for the current {@link IDataModel} is
      * legal. (Undo stack is not empty.)<BR>
      * <BR>
-     * Note: This is intended to be used to enable the {@link EditUndoAction}.
+     * Note: This is intended to be used to enable the
+     * {@link EditUndoAction}.<BR>
+     * <BR>
+     * Note: This refers to the current {@link IDataModel}.
      * 
      * @return true = at least 1 edit can be undone; false = no edit can be
      *         undone
@@ -488,7 +491,10 @@ public interface IDataModelController extends IInfo_Status {
      * Indicates whether a Redo operation for the current {@link IDataModel} is
      * legal. (Redo stack is not empty.)<BR>
      * <BR>
-     * Note: This is intended to be used to enable the {@link EditRedoAction}.
+     * Note: This is intended to be used to enable the
+     * {@link EditRedoAction}.<BR>
+     * <BR>
+     * Note: This refers to the current {@link IDataModel}.
      * 
      * @return true = at least 1 edit can be redone; false = no edit can be
      *         redone
@@ -536,6 +542,12 @@ public interface IDataModelController extends IInfo_Status {
      *         3 = Error: redoStack == null
      */
     int makeRedoable();
+
+    /**
+     * Removes all {@link IDataModel} from the Redo stack
+     * ({@link IDataModelStack}) for the current {@link IDataModel}.
+     */
+    void clearRedoStack();
 
     /**
      * Undoes the last edit in the current {@link IDataModel}.<BR>

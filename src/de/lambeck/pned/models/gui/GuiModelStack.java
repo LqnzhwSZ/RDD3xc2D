@@ -39,4 +39,9 @@ public class GuiModelStack implements IGuiModelStack {
         return deque.isEmpty();
     }
 
+    @Override
+    public void clear() {
+        deque.clear();
+    }
+
 }

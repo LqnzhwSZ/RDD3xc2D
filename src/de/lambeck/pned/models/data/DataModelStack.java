@@ -39,4 +39,9 @@ public class DataModelStack implements IDataModelStack {
         return deque.isEmpty();
     }
 
+    @Override
+    public void clear() {
+        deque.clear();
+    }
+
 }

@@ -2527,4 +2527,14 @@ public class ApplicationController extends AbstractApplicationController
         dataModelController.undoOrRedoFinished();
     }
 
+    /**
+     * Passes the request to clear the Redo stack to the
+     * {@link IDataModelController}.<BR>
+     * <BR>
+     * Note: This refers to the active file.
+     */
+    public void clearRedoStack() {
+        dataModelController.clearRedoStack();
+    }
+
 }
